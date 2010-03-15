@@ -1,0 +1,47 @@
+Welcome to the icinga package for Debian GNU/Linux!
+Below are some debian-specific notes which may be of help to you.
+
+If you have questions about using/configuring nagios, you should probably
+contact the nagios-users mailing list and NOT the maintainers:
+
+	nagios-users@lists.sourceforge.net
+
+Of course we'd be happy to hear about any bugs you find, and are always
+open to discussing any ideas you might have for improvement.  you can
+contact the debian icinga maintainers at:
+
+	pkg-nagios-devel@lists.alioth.debian.org
+
+External Commands
+^^^^^^^^^^^^^^^^^
+Icinga is not configured to look for external commands in the
+default configuration as a security feature. To enable external
+commands, you need to allow the web server write access to the
+nagios command pipe.  the simplest way of doing this is to
+set check_external_commands=1 in your Icinga configuration,
+and then change the permissions in a way which will be maintained
+across package upgrades (otherwise dpkg will overwrite your
+permission changes).  The following is the recommended approach:
+
+- activate external command checks in the Icinga configuration. this
+  can be done by setting check_external_commands=1 in the file
+  /etc/icinga/icinga.cfg. 
+
+- perform the following commands to change directory permissions and
+  to make the changes permanent:
+
+/etc/init.d/icinga stop
+dpkg-statoverride --update --add nagios www-data 2710 /var/lib/icinga/rw
+dpkg-statoverride --update --add nagios nagios 751 /var/lib/icinga
+/etc/init.d/icinga start
+
+Manually Providing / Overriding Authentication Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The default debian configuration for icinga+apache is to use
+an htpasswd style file in /etc/icinga/htpasswd.users.  if you
+choose not to (or otherwise didn't) provide a password during package
+configuration, we assume that you know what you're doing and will
+not get in your way.  however, if you don't know what you're doing,
+you should either dpkg-reconfigure icinga-common and provide
+a password, or read the fine manual for htpasswd(1).

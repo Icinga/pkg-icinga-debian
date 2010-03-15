@@ -1,0 +1,116 @@
+# translation of icinga.po to swedish
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Martin Bagge <brother@bsnet.se>, 2008.
+msgid ""
+msgstr ""
+"Project-Id-Version: icinga\n"
+"Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
+"POT-Creation-Date: 2010-03-14 12:04+0100\n"
+"PO-Revision-Date: 2008-09-17 23:30+0100\n"
+"Last-Translator: Martin Bagge <brother@bsnet.se>\n"
+"Language-Team: swedish <debian-l10n-swedish@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+#, fuzzy
+#| msgid "Apache servers to configure for icinga:"
+msgid "Apache servers to configure for icinga:"
+msgstr "Ange vilken apacheversion som ska förberedas för icinga:"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+#, fuzzy
+#| msgid "Please select which apache servers should be configured for icinga."
+msgid "Please select which apache servers should be configured for icinga."
+msgstr "Ange den apacheserver som ska ställas in för icinga."
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+msgid ""
+"If you would prefer to perform configuration manually, leave all servers "
+"unselected."
+msgstr ""
+"Om du föredrar att ställa in apache manuellt markerar du inte något av "
+"alternativen."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+#, fuzzy
+#| msgid "Nagios web administration password:"
+msgid "Icinga web administration password:"
+msgstr "Lösenord för nagios webbadministration:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+#, fuzzy
+#| msgid ""
+#| "Please provide the password to be created with the \"nagiosadmin\" user."
+msgid ""
+"Please provide the password to be created with the \"icingaadmin\" user."
+msgstr "Ange lösenordet som ska användas för användaren \"nagiosadmin\"."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+#, fuzzy
+#| msgid ""
+#| "This is the username and password you will use to log in to your nagios "
+#| "installation after configuration is complete.  If you do not provide a "
+#| "password, you will have to configure access to nagios yourself."
+msgid ""
+"This is the username and password you will use to log in to your icinga "
+"installation after configuration is complete.  If you do not provide a "
+"password, you will have to configure access to icinga yourself."
+msgstr ""
+"Detta användarnamn och lösenord använder du för att logga in i din "
+"nagiosinstallation. Om du inte anger ett lösenord här måste du ställa in "
+"nagios manuellt."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid "Password confirmation:"
+msgstr "Upprepa lösenordet:"
+
+#. Type: note
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid "The passwords do not match"
+msgstr "Lösenorden stämmer inte överrens"
+
+#, fuzzy
+#~| msgid "Enable support for nagios 1.x links in icinga?"
+#~ msgid "Enable support for nagios 1.x links in nagios3?"
+#~ msgstr "Aktivera stöd för länkar som de såg ut inagios 1.x?"
+
+#, fuzzy
+#~| msgid ""
+#~| "Please choose whether the Apache configuration for icinga should provide "
+#~| "compatibility with links from nagios 1.x."
+#~ msgid ""
+#~ "Please choose whether the Apache configuration for nagios3 should provide "
+#~ "compatibility with links from nagios 1.x."
+#~ msgstr ""
+#~ "Ange om du vill att inställningarna i Apache ska ha stöd för länkar från "
+#~ "nagios 1.x."
+
+#~ msgid ""
+#~ "If you select this option, the apache configuration used for nagios will "
+#~ "include directives to support URLs from nagios 1.x. You should not choose "
+#~ "this option if you still have nagios 1.x on your system, or unpredictable "
+#~ "results may occur."
+#~ msgstr ""
+#~ "Om du väljer detta alternativ för nagios så kommer stöd för URL:er från "
+#~ "nagios 1.x aktiveras. Du ska inte aktivera detta om du fortfarande har "
+#~ "nagios 1.x instllerat på ditt system, konflikter kan då uppstå."

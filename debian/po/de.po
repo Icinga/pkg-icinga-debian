@@ -1,0 +1,124 @@
+# translation of po-debconf template to German
+# Copyright (C) 2006, Matthias Julius
+# This file is distributed under the same license as the icinga package.
+#
+# Matthias Julius <mdeb@julius-net.net>, 2006.
+msgid ""
+msgstr ""
+"Project-Id-Version: icinga 2.5-3\n"
+"Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
+"POT-Creation-Date: 2010-03-14 12:04+0100\n"
+"PO-Revision-Date: 2006-11-27 22:53-0500\n"
+"Last-Translator: Matthias Julius <mdeb@julius-net.net>\n"
+"Language-Team: German <debian-l10n-german@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+#, fuzzy
+#| msgid "Apache servers to configure for icinga:"
+msgid "Apache servers to configure for icinga:"
+msgstr "Für icinga einzurichtende Apache-Server:"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+#, fuzzy
+#| msgid "Please select which apache servers should be configured for icinga."
+msgid "Please select which apache servers should be configured for icinga."
+msgstr ""
+"Bitte wählen Sie, welche Apache-Server für icinga eingerichtet werden sollen."
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+msgid ""
+"If you would prefer to perform configuration manually, leave all servers "
+"unselected."
+msgstr ""
+"Falls Sie es vorziehen, die Einrichtung manuell durchzuführen, lassen Sie "
+"alle Server deselektiert."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+#, fuzzy
+#| msgid "Nagios web administration password:"
+msgid "Icinga web administration password:"
+msgstr "Passwort für die Web-Administration von nagios:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+#, fuzzy
+#| msgid ""
+#| "Please provide the password to be created with the \"nagiosadmin\" user."
+msgid ""
+"Please provide the password to be created with the \"icingaadmin\" user."
+msgstr ""
+"Bitte geben Sie das Passwort ein, das für den »nagiosadmin«-Benutzer "
+"festgelegt werden soll."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+#, fuzzy
+#| msgid ""
+#| "This is the username and password you will use to log in to your nagios "
+#| "installation after configuration is complete.  If you do not provide a "
+#| "password, you will have to configure access to nagios yourself."
+msgid ""
+"This is the username and password you will use to log in to your icinga "
+"installation after configuration is complete.  If you do not provide a "
+"password, you will have to configure access to icinga yourself."
+msgstr ""
+"Dies sind Benutzername und Passwort, die Sie verwenden werden, sich bei "
+"Ihrer nagios-Installation anzumelden, nachdem deren Einrichtung beendet ist. "
+"Falls Sie kein Passwort eingeben, werden Sie den Zugang zu nagios selbst "
+"einrichten müssen."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid "Password confirmation:"
+msgstr "Passwortbestätigung:"
+
+#. Type: note
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid "The passwords do not match"
+msgstr "Die Passwörter stimmen nicht überein."
+
+#, fuzzy
+#~| msgid "Enable support for nagios 1.x links in icinga?"
+#~ msgid "Enable support for nagios 1.x links in nagios3?"
+#~ msgstr "Unterstützung für nagios-1.x-Links in icinga freischalten?"
+
+#, fuzzy
+#~| msgid ""
+#~| "Please choose whether the Apache configuration for icinga should provide "
+#~| "compatibility with links from nagios 1.x."
+#~ msgid ""
+#~ "Please choose whether the Apache configuration for nagios3 should provide "
+#~ "compatibility with links from nagios 1.x."
+#~ msgstr ""
+#~ "Bitte wählen Sie, ob die Apache-Konfiguration für icinga Kompatibilität "
+#~ "mit Links von nagios 1.x zur Verfügung stellen soll."
+
+#~ msgid ""
+#~ "If you select this option, the apache configuration used for nagios will "
+#~ "include directives to support URLs from nagios 1.x. You should not choose "
+#~ "this option if you still have nagios 1.x on your system, or unpredictable "
+#~ "results may occur."
+#~ msgstr ""
+#~ "Falls Sie diese Möglichkeit wählen, wird die Apache-Konfiguration für "
+#~ "nagios Direktiven enthalten, um URLs von nagios 1.x zu unterstützen. Sie "
+#~ "sollten diese Möglichkeit nicht wählen, falls noch nagios 1.x auf Ihrem "
+#~ "System installiert ist. Dies könnte unvorhersehbare Ergebnisse liefern."
+
+#~ msgid "apache, apache-ssl, apache2"
+#~ msgstr "apache, apache-ssl, apache2"

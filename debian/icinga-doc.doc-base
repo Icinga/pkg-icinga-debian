@@ -1,0 +1,9 @@
+Document: icinga
+Title: Icinga Documentation
+Author: Ethan Galstad
+Abstract: Icinga user and administrator's documentation
+Section: Network/Monitoring
+
+Format: HTML
+Index: /usr/share/icinga/htdocs/docs/index.html
+Files: /usr/share/icinga/htdocs/docs/*.html

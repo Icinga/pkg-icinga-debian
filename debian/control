@@ -1,0 +1,180 @@
+Source: icinga
+Section: net
+Priority: optional
+Homepage: http://www.icinga.org
+Maintainer: Debian Icinga Maintainer Group <pkg-icinga-devel@lists.alioth.debian.org>
+Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
+Standards-Version: 3.8.4
+Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
+ libpng12-dev, libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1), iputils-ping,
+ autotools-dev, dpkg-dev (>= 1.13.19), libdbi0-dev
+
+Package: icinga-common
+Architecture: all
+Homepage: http://www.icinga.org
+Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-3), ucf (>= 0.28), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
+Recommends: icinga-plugins
+Description: support files for icinga
+ Icinga is a monitoring and management system for hosts, services and
+ networks. icinga-common contains the common files for the icinga package.
+ .
+ Icingas features include:
+ .
+  *  Monitoring of network services (via TCP port, SMTP, POP3, HTTP, NNTP,
+     PING, etc.)
+  *  Plugin interface to allow for user-developed service checks
+  *  Contact notifications when problems occur and get resolved (via email,
+     pager, or user-defined method)
+  *  Ability to define event handlers to be run during service or host events
+     (for proactive problem resolution)
+  *  Web output (current status, notifications, problem history, log file, etc.)
+ .
+ Icinga is designed to be easy to understand and modify to fit your own needs.
+
+Package: icinga-cgi
+Architecture: any
+Homepage: http://www.icinga.org
+Depends: icinga-common (= ${source:Version}), coreutils (>= 4.5.3), ucf (>= 0.28), apache2-utils, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, adduser, libjs-scriptaculous, libjs-prototype, libjs-mootools
+Recommends: apache2 | httpd, nagios-images (>> 0.1)
+Description: cgi files for icinga
+ Icinga is a monitoring and management system for hosts, services and
+ networks. icinga-common contains the common files for the icinga package.
+ .
+ Icinga's features include:
+ .
+  *  Monitoring of network services (via TCP port, SMTP, POP3, HTTP, NNTP,
+     PING, etc.)
+  *  Plugin interface to allow for user-developed service checks
+  *  Contact notifications when problems occur and get resolved (via email,
+     pager, or user-defined method)
+  *  Ability to define event handlers to be run during service or host events
+     (for proactive problem resolution)
+  *  Web output (current status, notifications, problem history, log file, etc.)
+ .
+ Icinga is designed to be easy to understand and modify to fit your own needs.
+
+Package: icinga-idoutils
+Architecture: any
+Homepage: http://www.icinga.org
+Depends: icinga-common (= ${source:Version}), ucf,${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Recommends: libdbd-pgsql | libdbd-mysql
+Description: icinga-dataobjects support 
+ Icinga is a monitoring and management system for hosts, services and
+ networks. icinga-common contains the common files for the icinga package.
+ .
+ Icinga's features include:
+ .
+  *  Monitoring of network services (via TCP port, SMTP, POP3, HTTP, NNTP,
+     PING, etc.)
+  *  Plugin interface to allow for user-developed service checks
+  *  Contact notifications when problems occur and get resolved (via email,
+     pager, or user-defined method)
+  *  Ability to define event handlers to be run during service or host events
+     (for proactive problem resolution)
+  *  Web output (current status, notifications, problem history, log file, etc.)
+ .
+ Icinga is designed to be easy to understand and modify to fit your own needs.
+ .  
+ This package contains icinga-dataobjects support which makes it possible to
+ import icinga statusinformations in to a SQL database. 
+
+Package: icinga
+Architecture: any
+Homepage: http://www.icinga.org
+Depends: icinga-core (= ${binary:Version}), icinga-cgi (= ${binary:Version}), ${misc:Depends}
+Suggests: nagios-nrpe-plugin
+Description: A host/service/network monitoring and management system
+ Icinga is a monitoring and management system for hosts, services and
+ networks.
+ .
+ Icinga's features include:
+ .
+  *  Monitoring of network services (via TCP port, SMTP, POP3, HTTP, NNTP,
+     PING, etc.)
+  *  Plugin interface to allow for user-developed service checks
+  *  Contact notifications when problems occur and get resolved (via email,
+     pager, or user-defined method)
+  *  Ability to define event handlers to be run during service or host events
+     (for proactive problem resolution)
+  *  Web output (current status, notifications, problem history, log file, etc.)
+ .
+ Icinga was written in C and is designed to be easy to understand and modify
+ to fit your own needs.
+ . 
+ This is a metapackage which depends on the icinga core and the webfrontend
+
+Package: icinga-core
+Architecture: any
+Depends: ${shlibs:Depends}, icinga-common (= ${source:Version}), ${perl:Depends}, ${misc:Depends}
+Suggests: nagios-nrpe-plugin
+Replaces: icinga
+Homepage: http://www.icinga.org
+Description: A host/service/network monitoring and management system core files
+ Icinga is a monitoring and management system for hosts, services and
+ networks.
+ .
+ Icinga's features include:
+ .
+  *  Monitoring of network services (via TCP port, SMTP, POP3, HTTP, NNTP,
+     PING, etc.)
+  *  Plugin interface to allow for user-developed service checks
+  *  Contact notifications when problems occur and get resolved (via email,
+     pager, or user-defined method)
+  *  Ability to define event handlers to be run during service or host events
+     (for proactive problem resolution)
+  *  Web output (current status, notifications, problem history, log file, etc.)
+ .
+ This package included the icinga core without the webfrontend
+ . 
+ Icinga was written in C and is designed to be easy to understand and modify
+ to fit your own needs.
+
+Package: icinga-doc
+Section: doc
+Homepage: http://www.icinga.org
+Architecture: all
+Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}
+Description: documentation for icinga
+ Icinga is a monitoring and management system for hosts, services and
+ networks.
+ .
+ Icinga's features include:
+ .
+  *  Monitoring of network services (via TCP port, SMTP, POP3, HTTP, NNTP,
+     PING, etc.)
+  *  Plugin interface to allow for user-developed service checks
+  *  Contact notifications when problems occur and get resolved (via email,
+     pager, or user-defined method)
+  *  Ability to define event handlers to be run during service or host events
+     (for proactive problem resolution)
+  *  Web output (current status, notifications, problem history, log file, etc.)
+ .
+ Icinga was written in C and is designed to be easy to understand and modify
+ to fit your own needs.
+
+Package: icinga-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Homepage: http://www.icinga.org
+Depends: icinga-core (= ${binary:Version}), ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Description: debugging symbols and debug stuff for icinga
+ Icinga is a monitoring and management system for hosts, services and
+ networks.
+ .
+ Icinga's features include:
+ .
+  *  Monitoring of network services (via TCP port, SMTP, POP3, HTTP, NNTP,
+     PING, etc.)
+  *  Plugin interface to allow for user-developed service checks
+  *  Contact notifications when problems occur and get resolved (via email,
+     pager, or user-defined method)
+  *  Ability to define event handlers to be run during service or host events
+     (for proactive problem resolution)
+  *  Web output (current status, notifications, problem history, log file, etc.)
+ .
+ Icinga was written in C and is designed to be easy to understand and modify
+ to fit your own needs.
+ .
+ This package contains gdb debugging symbols for the icinga binaries and the
+ mini_epn tool which can help in debugging Icinga problems. 

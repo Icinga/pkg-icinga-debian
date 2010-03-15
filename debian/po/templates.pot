@@ -1,0 +1,71 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
+"POT-Creation-Date: 2010-03-14 12:04+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+msgid "Apache servers to configure for icinga:"
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+msgid "Please select which apache servers should be configured for icinga."
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:1001
+msgid ""
+"If you would prefer to perform configuration manually, leave all servers "
+"unselected."
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid "Icinga web administration password:"
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid ""
+"Please provide the password to be created with the \"icingaadmin\" user."
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid ""
+"This is the username and password you will use to log in to your icinga "
+"installation after configuration is complete.  If you do not provide a "
+"password, you will have to configure access to icinga yourself."
+msgstr ""
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid "Password confirmation:"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid "The passwords do not match"
+msgstr ""

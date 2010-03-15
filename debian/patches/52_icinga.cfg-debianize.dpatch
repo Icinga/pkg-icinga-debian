@@ -1,0 +1,157 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 52_icinga.cfg-debianize.dpatch by Alexander Wirt <formorer@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/sample-config/icinga.cfg.in icinga-1.0.1/sample-config/icinga.cfg.in
+--- icinga-1.0.1~/sample-config/icinga.cfg.in	2010-03-14 14:27:01.000000000 +0100
++++ icinga-1.0.1/sample-config/icinga.cfg.in	2010-03-14 14:27:23.798404213 +0100
+@@ -1,13 +1,11 @@
+ ##############################################################################
+ #
+-# ICINGA.CFG - Sample Main Config File for Icinga @VERSION@
++# ICINGA.CFG - Sample Main Config File for Icinga
+ #
+ # Read the documentation for more information on this configuration
+ # file.  I've provided some comments here, but things may not be so
+ # clear without further explanation.
+ #
+-# Last Modified: 12-14-2008
+-#
+ ##############################################################################
+ 
+ 
+@@ -16,9 +14,20 @@
+ # for historical purposes.  This should be the first option specified 
+ # in the config file!!!
+ 
+-log_file=@localstatedir@/icinga.log
++log_file=/var/log/icinga/icinga.log
+ 
+ 
++# Commands definitions
++cfg_file=/etc/icinga/commands.cfg
++
++# Debian also defaults to using the check commands defined by the debian
++# nagios-plugins package
++cfg_dir=/etc/nagios-plugins/config
++
++# Debian uses by default a configuration directory where icinga-common,
++# other packages and the local admin can dump or link configuration
++# files into.
++cfg_dir=/etc/icinga/objects/
+ 
+ # OBJECT CONFIGURATION FILE(S)
+ # These are the object configuration files in which you define hosts,
+@@ -27,13 +36,11 @@
+ # if you wish (as shown below), or keep them all in a single config file.
+ 
+ # You can specify individual object config files as shown below:
+-cfg_file=@sysconfdir@/objects/commands.cfg
+-cfg_file=@sysconfdir@/objects/contacts.cfg
+-cfg_file=@sysconfdir@/objects/timeperiods.cfg
+-cfg_file=@sysconfdir@/objects/templates.cfg
+ 
+-# Definitions for monitoring the local (Linux) host
+-cfg_file=@sysconfdir@/objects/localhost.cfg
++#cfg_file=@sysconfdir@/objects/commands.cfg
++#cfg_file=@sysconfdir@/objects/contacts.cfg
++#cfg_file=@sysconfdir@/objects/timeperiods.cfg
++#cfg_file=@sysconfdir@/objects/templates.cfg
+ 
+ # Definitions for monitoring a Windows machine
+ #cfg_file=@sysconfdir@/objects/windows.cfg
+@@ -64,7 +71,7 @@
+ # directly) in order to prevent inconsistencies that can occur
+ # when the config files are modified after Icinga starts.
+ 
+-object_cache_file=@localstatedir@/objects.cache
++object_cache_file=/var/cache/icinga/objects.cache
+ 
+ 
+ 
+@@ -80,7 +87,7 @@
+ # Read the documentation section on optimizing Icinga to find our more
+ # about how this feature works.
+ 
+-precached_object_file=@localstatedir@/objects.precache
++precached_object_file=/var/cache/icinga/objects.precache
+ 
+ 
+ 
+@@ -140,7 +147,7 @@
+ # you will have to enable this.
+ # Values: 0 = disable commands, 1 = enable commands
+ 
+-check_external_commands=1
++check_external_commands=0
+ 
+ 
+ 
+@@ -169,6 +176,8 @@
+ # is running as (usually 'nobody').  Permissions should be set at the 
+ # directory level instead of on the file, as the file is deleted every
+ # time its contents are processed.
++# Debian Users: In case you didn't read README.Debian yet, _NOW_ is the
++# time to do it.
+ 
+ command_file=@localstatedir@/rw/icinga.cmd
+ 
+@@ -198,7 +207,7 @@
+ # is created, used, and deleted throughout the time that Icinga is
+ # running.
+ 
+-temp_file=@localstatedir@/icinga.tmp
++temp_file=/var/cache/icinga/icinga.tmp
+ 
+ 
+ 
+@@ -267,7 +276,7 @@
+ # This is the directory where archived (rotated) log files should be 
+ # placed (assuming you've chosen to do log rotation).
+ 
+-log_archive_path=@localstatedir@/archives
++log_archive_path=/var/log/icinga/archives
+ 
+ 
+ 
+@@ -1102,7 +1111,7 @@
+ #	strict-iso8601	(YYYY-MM-DDTHH:MM:SS)
+ #
+ 
+-date_format=us
++date_format=iso8601
+ 
+ 
+ 
+@@ -1132,7 +1141,7 @@
+ # embedded Perl interpreter) is located.  If you didn't compile
+ # Icinga with embedded Perl support, this option has no effect.
+ 
+-p1_file=@bindir@/p1.pl
++p1_file=/usr/lib/icinga/p1.pl
+ 
+ 
+ 
+@@ -1216,8 +1225,8 @@
+ # using the $ADMINEMAIL$ and $ADMINPAGER$ macros in your notification
+ # commands.
+ 
+-admin_email=@icinga_user@@localhost
+-admin_pager=page@icinga_user@@localhost
++admin_email=root@localhost
++admin_pager=pageroot@localhost
+ 
+ 
+ 
+@@ -1324,7 +1333,7 @@
+ # DEBUG FILE
+ # This option determines where Icinga should write debugging information.
+ 
+-debug_file=@localstatedir@/icinga.debug
++debug_file=/var/log/icinga/icinga.debug
+ 
+ 
+ 

@@ -1,0 +1,16 @@
+#!/bin/sh -e
+
+# we attempt to stop icinga twice, once in icinga-common's prerm
+# and once here.  otherwise, if icinga+icinga-common are being purged,
+# the /usr/sbin/icinga binary could disappear before icinga-common's
+# prerm script runs, which would prevent it from being able to stop
+# the binary.
+if [ -x "/etc/init.d/icinga" ]; then
+	if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+		invoke-rc.d icinga stop || true
+	else
+		/etc/init.d/icinga stop || true
+	fi
+fi
+
+#DEBHELPER#
