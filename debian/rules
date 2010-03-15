@@ -108,7 +108,7 @@ install-stamp: build-stamp fix-configs-stamp
 	dh_testroot -a
 	dh_installdirs -a -i  
 	make install-unstripped DESTDIR=$b/tmp INSTALL_OPTS=""
-	make install-idoutils DESTDIR=$b/icinga-idoutils 
+	make install-idoutils DESTDIR=$b/icinga-idoutils INSTALL_OPTS=""  
 	#We have to rename the sample files 
 	mv $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample $b/icinga-idoutils/etc/icinga/ido2db.cfg
 	mv $b/icinga-idoutils/etc/icinga/idomod.cfg-sample $b/icinga-idoutils/etc/icinga/idomod.cfg
