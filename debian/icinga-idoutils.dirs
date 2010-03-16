@@ -1,2 +1,4 @@
 etc/icinga
 usr/lib/icinga
+usr/share/dbconfig-common/data/icinga-idoutils/install/mysql
+usr/share/dbconfig-common/data/icinga-idoutils/install/pgsql
