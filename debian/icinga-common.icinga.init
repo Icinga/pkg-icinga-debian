@@ -169,6 +169,7 @@ stop () {
     if ! check_named_pipe; then
       rm -f $icingapipe
     fi
+    test -e $THEPIDFILE && rm $THEPIDFILE
     if [ -n "$ret" ]; then
       return $ret
     else
