@@ -71,7 +71,7 @@ fix-configs-stamp: configure-stamp
 	   -e '/Last Modified/,+1 d' \
 	   -e '/^#$$/ d' sample-config/template-object/commands.cfg > debian-configs/commands.cfg
 	sed -i  \
-		-e "s/^\(db_host=\).*/\1_DBC_DBHOST_/" \
+		-e "s/^\(db_host=\).*/\1_DBC_DBSERVER_/" \
 		-e "s/^\(db_servertype=\).*/\1_DBC_DBTYPE_/"  \
 		-e "s/^\(db_port=\).*/\1_DBC_DBPORT_/" \
 		-e "s/^\(db_name=\).*/\1_DBC_DBNAME_/" \
