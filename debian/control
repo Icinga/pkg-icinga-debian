@@ -1,7 +1,6 @@
 Source: icinga
 Section: net
 Priority: optional
-Homepage: http://www.icinga.org
 Maintainer: Debian Icinga Maintainer Group <pkg-icinga-devel@lists.alioth.debian.org>
 Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
 Standards-Version: 3.8.4
@@ -11,7 +10,6 @@ Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
 
 Package: icinga-common
 Architecture: all
-Homepage: http://www.icinga.org
 Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-3), ucf (>= 0.28), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
 Recommends: icinga-plugins
 Description: support files for icinga
@@ -33,7 +31,6 @@ Description: support files for icinga
 
 Package: icinga-cgi
 Architecture: any
-Homepage: http://www.icinga.org
 Depends: icinga-common (= ${source:Version}), coreutils (>= 4.5.3), ucf (>= 0.28), apache2-utils, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, adduser, libjs-scriptaculous, libjs-prototype, libjs-mootools
 Recommends: apache2 | httpd, nagios-images (>> 0.1)
 Description: cgi files for icinga
@@ -55,7 +52,6 @@ Description: cgi files for icinga
 
 Package: icinga-idoutils
 Architecture: any
-Homepage: http://www.icinga.org
 Depends: icinga-common (= ${source:Version}), ucf, dbconfig-common, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Recommends: libdbd-pgsql | libdbd-mysql
 Description: icinga-dataobjects support 
@@ -80,7 +76,6 @@ Description: icinga-dataobjects support
 
 Package: icinga
 Architecture: any
-Homepage: http://www.icinga.org
 Depends: icinga-core (= ${binary:Version}), icinga-cgi (= ${binary:Version}), ${misc:Depends}
 Suggests: nagios-nrpe-plugin
 Description: A host/service/network monitoring and management system
@@ -108,7 +103,6 @@ Architecture: any
 Depends: ${shlibs:Depends}, icinga-common (= ${source:Version}), ${perl:Depends}, ${misc:Depends}
 Suggests: nagios-nrpe-plugin
 Replaces: icinga
-Homepage: http://www.icinga.org
 Description: A host/service/network monitoring and management system core files
  Icinga is a monitoring and management system for hosts, services and
  networks.
@@ -131,7 +125,6 @@ Description: A host/service/network monitoring and management system core files
 
 Package: icinga-doc
 Section: doc
-Homepage: http://www.icinga.org
 Architecture: all
 Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}
 Description: documentation for icinga
@@ -156,7 +149,6 @@ Package: icinga-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Homepage: http://www.icinga.org
 Depends: icinga-core (= ${binary:Version}), ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: debugging symbols and debug stuff for icinga
  Icinga is a monitoring and management system for hosts, services and
