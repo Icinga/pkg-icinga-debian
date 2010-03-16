@@ -11,5 +11,11 @@ if [ -f /usr/share/dbconfig-common/dpkg/postrm ]; then
         dbc_go icinga-idoutils $@
 fi
 
+if [ "$1" = "purge" ]; then
+	db_purge
+	rm -f /etc/icinga/ido2db.cfg 
+	ucf --purge /etc/icinga/ido2db.cfg
+fi
+
 #DEBHELPER#
 
