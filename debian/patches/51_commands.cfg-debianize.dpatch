@@ -2,7 +2,7 @@
 ## 51_commands.cfg-debianize.dpatch by Alexander Wirt <formorer@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: debianize command.cfg 
 
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/sample-config/template-object/commands.cfg.in icinga-1.0.1/sample-config/template-object/commands.cfg.in

@@ -2,7 +2,7 @@
 ## 30_fix_p1_debug_path.dpatch by Alexander Wirt <formorer@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: Adapt paths in p1.pl 
 
 @DPATCH@
 diff -urNad nagios3-3.0.1~/p1.pl nagios3-3.0.1/p1.pl

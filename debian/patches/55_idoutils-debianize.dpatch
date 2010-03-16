@@ -2,7 +2,7 @@
 ## 55_idoutils-debianize.dpatch by Alexander Wirt <formorer@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: debianize idoutils
 
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/module/idoutils/config/ido2db.cfg-sample.in icinga-1.0.1/module/idoutils/config/ido2db.cfg-sample.in

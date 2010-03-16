@@ -2,7 +2,7 @@
 ## 52_icinga.cfg-debianize.dpatch by Alexander Wirt <formorer@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: debianize the icinga config
 
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/sample-config/icinga.cfg.in icinga-1.0.1/sample-config/icinga.cfg.in
