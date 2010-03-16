@@ -4,6 +4,5 @@
 51_commands.cfg-debianize.dpatch
 52_icinga.cfg-debianize.dpatch
 55_idoutils-debianize
-#55_remove_php.dpatch
 60_fix_p1.pl_patch_mini_epn.dpatch
 70_fix_eventhandler_paths.dpatch

@@ -1,0 +1,3 @@
+module/idoutils/db/mysql/mysql.sql usr/share/dbconfig-common/data/db-test-multidbtype/install/mysql
+module/idoutils/db/pgsql/pgsql.sql usr/share/dbconfig-common/data/db-test-multidbtype/install/pgsql
+
