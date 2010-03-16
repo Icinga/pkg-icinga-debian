@@ -1,3 +1,0 @@
-module/idoutils/db/mysql/mysql.sql usr/share/dbconfig-common/data/icinga-idoutils/install/mysql
-module/idoutils/db/pgsql/pgsql.sql usr/share/dbconfig-common/data/icinga-idoutils/install/pgsql
-
