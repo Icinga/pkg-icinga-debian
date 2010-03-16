@@ -95,7 +95,7 @@ check_config () {
   if $DAEMON -v $ICINGACFG >/dev/null 2>&1 ; then
     # First get the user/group etc Icinga is running as
     nagios_user="$(get_config icinga_user)"
-    nagios_group="$(get_config nagios_group)"
+    nagios_group="$(get_config icinga_group)"
     log_file="$(get_config log_file)"
     log_dir="$(dirname $log_file)"
 
