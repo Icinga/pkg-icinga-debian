@@ -56,7 +56,7 @@ Description: cgi files for icinga
 Package: icinga-idoutils
 Architecture: any
 Homepage: http://www.icinga.org
-Depends: icinga-common (= ${source:Version}), ucf, dbconcfig-common, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: icinga-common (= ${source:Version}), ucf, dbconfig-common, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}
 Recommends: libdbd-pgsql | libdbd-mysql
 Description: icinga-dataobjects support 
  Icinga is a monitoring and management system for hosts, services and
