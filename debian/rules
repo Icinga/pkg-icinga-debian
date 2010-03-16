@@ -76,7 +76,7 @@ fix-configs-stamp: configure-stamp
 		-e "s/^\(db_port=\).*/\1_DBC_PORT_/" \
 		-e "s/^\(db_name=\).*/\1_DBC_DBNAME_/" \
 		-e "s/^\(db_user=\).*/\1_DBC_DBUSER_/" \
-		-e "s/^\(db_pass=\).*/\1_DBC_DBPASS_/" module/idoutils/config/ido2db.cfg-sample.in
+		-e "s/^\(db_pass=\).*/\1_DBC_DBPASS_/" module/idoutils/config/ido2db.cfg-sample
 
 configure: configure-stamp
 configure-stamp:
