@@ -5,7 +5,7 @@ set -e
 
 . /usr/share/debconf/confmodule
 . /usr/share/dbconfig-common/dpkg/prerm
-dbc_go db-test-multidbtype $@
+dbc_go icinga-idoutils $@
 
 #DEBHELPER#
 
