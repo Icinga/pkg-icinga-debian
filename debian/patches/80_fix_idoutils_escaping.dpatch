@@ -1,0 +1,77 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 80_fix_idoutils_escaping.dpatch by Alexander Wirt <formorer@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-20100317201453~/module/idoutils/src/db.c icinga-20100317201453/module/idoutils/src/db.c
+--- icinga-20100317201453~/module/idoutils/src/db.c	2010-03-03 10:29:37.000000000 +0100
++++ icinga-20100317201453/module/idoutils/src/db.c	2010-03-17 20:34:06.673222988 +0100
+@@ -1803,11 +1803,46 @@
+ 
+ 	z = strlen(buf);
+ 
++	/* escape characters */
++#ifndef USE_ORACLE /* everything else will be libdbi */
++
++        /* allocate space for the new string */
++        if ((newbuf = (char *) malloc((z * 2) + 1)) == NULL)
++                return NULL;
++
++        for (x = 0, y = 0; x < z; x++) {
++
++                 if(idi->dbinfo.server_type==NDO2DB_DBSERVER_MYSQL){
++
++                         if(buf[x]=='\'' || buf[x]=='\"' || buf[x]=='*' || buf[x]=='\\' || buf[x]=='$' || buf[x]=='?' || buf[x]=='.' || buf[x]=='^' || buf[x]=='+' || buf[x]=='[' || buf[x]==']' || buf[x]=='(' || buf[x]==')')
++                                newbuf[y++]='\\';
++                         }
++                 else if(idi->dbinfo.server_type==NDO2DB_DBSERVER_PGSQL){
++
++	                if(buf[x]=='\'' )
++        	                newbuf[y++]='\'';
++			}
++
++                newbuf[y++] = buf[x];
++        }
++
++        /* terminate escape string */
++        newbuf[y] = '\0';
++
++        ndo2db_log_debug_info(NDO2DB_DEBUGL_PROCESSINFO, 2, "ndo2db_db_escape_string(%s) end\n", newbuf);
++        return newbuf;
++
++	//size_t res = dbi_conn_quote_string(idi->dbinfo.dbi_conn, &buf);
++
++	//ndo2db_log_debug_info(NDO2DB_DEBUGL_PROCESSINFO, 2, "ndo2db_db_escape_string(%s) end\n", buf);
++	//return buf;
++
++#else /* Oracle ocilib specific */
++
+ 	/* allocate space for the new string */
+ 	if ((newbuf = (char *) malloc((z * 2) + 1)) == NULL)
+ 		return NULL;
+ 
+-	/* escape characters */
+ 	for (x = 0, y = 0; x < z; x++) {
+ 
+                 if(buf[x]=='\'' )
+@@ -1821,6 +1856,8 @@
+ 
+ 	ndo2db_log_debug_info(NDO2DB_DEBUGL_PROCESSINFO, 2, "ndo2db_db_escape_string(%s) end\n", newbuf);
+ 	return newbuf;
++#endif /* Oracle ocilib specific */
++
+ }
+ 
+ /*************************************************************/
+@@ -1943,6 +1980,9 @@
+ 
+ #ifndef USE_ORACLE /* everything else will be libdbi */
+ 
++	/* escape the string */
++	//size_t res = dbi_conn_quote_string(idi->dbinfo.dbi_conn, &buf);
++
+ 	/* send query */
+ 	idi->dbinfo.dbi_result = dbi_conn_query(idi->dbinfo.dbi_conn, buf);
+ 

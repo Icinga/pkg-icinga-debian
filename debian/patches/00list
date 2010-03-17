@@ -6,3 +6,4 @@
 55_idoutils-debianize
 60_fix_p1.pl_patch_mini_epn.dpatch
 70_fix_eventhandler_paths.dpatch
+80_fix_idoutils_escaping
