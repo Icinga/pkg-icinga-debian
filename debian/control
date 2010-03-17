@@ -167,7 +167,7 @@ Description: phpapi for icinga
  Icinga was written in C and is designed to be easy to understand and modify
  to fit your own needs.
  . 
- This package contains the phpapi to access idoutils and livestatus informations
+ This package contains the phpapi to access idoutils and livestatus information
  from php. 
 
 Package: icinga-dbg
