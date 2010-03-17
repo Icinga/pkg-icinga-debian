@@ -1,8 +1,8 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 80_fix_idoutils_escaping.dpatch by Alexander Wirt <formorer@debian.org>
+## 80_fix_idoutils_escaping.dpatch by Michael Friedrich <michael.friedrich@univie.ac.at>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: This patches fixes the escaping with mysql (backported from HEAD)
 
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-20100317201453~/module/idoutils/src/db.c icinga-20100317201453/module/idoutils/src/db.c
