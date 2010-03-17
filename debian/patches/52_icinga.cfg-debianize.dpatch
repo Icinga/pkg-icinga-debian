@@ -5,9 +5,9 @@
 ## DP: debianize the icinga config
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/sample-config/icinga.cfg.in icinga-1.0.1/sample-config/icinga.cfg.in
---- icinga-1.0.1~/sample-config/icinga.cfg.in	2010-03-14 14:27:01.000000000 +0100
-+++ icinga-1.0.1/sample-config/icinga.cfg.in	2010-03-14 14:27:23.798404213 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-20100316215905~/sample-config/icinga.cfg.in icinga-20100316215905/sample-config/icinga.cfg.in
+--- icinga-20100316215905~/sample-config/icinga.cfg.in	2010-03-03 10:29:37.000000000 +0100
++++ icinga-20100316215905/sample-config/icinga.cfg.in	2010-03-17 08:52:49.318125924 +0100
 @@ -1,13 +1,11 @@
  ##############################################################################
  #
@@ -29,7 +29,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
 -log_file=@localstatedir@/icinga.log
 +log_file=/var/log/icinga/icinga.log
- 
++
  
 +# Commands definitions
 +cfg_file=/etc/icinga/commands.cfg
@@ -37,7 +37,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +# Debian also defaults to using the check commands defined by the debian
 +# nagios-plugins package
 +cfg_dir=/etc/nagios-plugins/config
-+
+ 
 +# Debian uses by default a configuration directory where icinga-common,
 +# other packages and the local admin can dump or link configuration
 +# files into.
@@ -108,7 +108,17 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -267,7 +276,7 @@
+@@ -246,7 +255,8 @@
+ #broker_module=/somewhere/module2.o arg1 arg2=3 debug=0
+ 
+ # Uncomment this to enable idomod.o
+-#broker_module=@bindir@/idomod.o config_file=@sysconfdir@/idomod.cfg
++# Don't forget to also enable the daemon in /etc/default/icinga
++#broker_module=/usr/lib/icinga/idomod.o config_file=@sysconfdir@/idomod.cfg
+ 
+ 
+ 
+@@ -267,7 +277,7 @@
  # This is the directory where archived (rotated) log files should be 
  # placed (assuming you've chosen to do log rotation).
  
@@ -117,7 +127,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1102,7 +1111,7 @@
+@@ -1102,7 +1112,7 @@
  #	strict-iso8601	(YYYY-MM-DDTHH:MM:SS)
  #
  
@@ -126,7 +136,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1132,7 +1141,7 @@
+@@ -1132,7 +1142,7 @@
  # embedded Perl interpreter) is located.  If you didn't compile
  # Icinga with embedded Perl support, this option has no effect.
  
@@ -135,7 +145,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1216,8 +1225,8 @@
+@@ -1216,8 +1226,8 @@
  # using the $ADMINEMAIL$ and $ADMINPAGER$ macros in your notification
  # commands.
  
@@ -146,7 +156,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1324,7 +1333,7 @@
+@@ -1324,7 +1334,7 @@
  # DEBUG FILE
  # This option determines where Icinga should write debugging information.
  
