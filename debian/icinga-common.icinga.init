@@ -188,6 +188,9 @@ status()
   fi
 }
 
+check () {
+  $DAEMON -v $ICINGACFG
+}
 
 reload () {
   # Check first
@@ -230,6 +233,9 @@ case "$1" in
   ;;
   status)
     status
+    ;;
+  check)
+    check
     ;;
   *)
     log_failure_msg "Usage: $0 {start|stop|restart|reload|force-reload|status}" >&2
