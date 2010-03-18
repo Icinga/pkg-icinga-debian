@@ -21,12 +21,7 @@
 
 set -e
 
-if ! [ -x "/lib/lsb/init-functions" ]; then
-  . /lib/lsb/init-functions
-else
-  echo "E: /lib/lsb/init-functions not found, lsb-base (>= 3.0-6) needed"
-  exit 1
-fi
+. /lib/lsb/init-functions
 
 DAEMON=/usr/sbin/icinga
 NAME="icinga"

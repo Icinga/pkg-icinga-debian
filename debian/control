@@ -10,7 +10,7 @@ Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
 
 Package: icinga-common
 Architecture: all
-Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-3), ucf (>= 0.28), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
+Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-6), ucf (>= 0.28), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
 Recommends: icinga-plugins
 Description: support files for icinga
  Icinga is a monitoring and management system for hosts, services and
@@ -52,7 +52,7 @@ Description: cgi files for icinga
 
 Package: icinga-idoutils
 Architecture: any
-Depends: icinga-common (= ${source:Version}), ucf, dbconfig-common, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: icinga-common (= ${source:Version}), ucf, dbconfig-common, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, lsb-base (>= 3.0-6)
 Recommends: libdbd-pgsql | libdbd-mysql
 Description: icinga-dataobjects support 
  Icinga is a monitoring and management system for hosts, services and
