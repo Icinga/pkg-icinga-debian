@@ -20,6 +20,6 @@ and start the daemon
 
  invoke-rc.d ido2db start
 
-NOTE: If you don't manage your ido2db via debconf adapt /etc/icinga/ido2db for your need and configure your database before starting the daemon
+NOTE: If you don't manage your ido2db via debconf adapt /etc/icinga/ido2db.cfg for your need and configure your database before starting the daemon
 
  -- Alexander Wirt <formorer@debian.org> Wed Mar 17 08:58:44 CET 2010
