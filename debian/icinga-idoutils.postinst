@@ -3,8 +3,6 @@
 set -e
 #set -x
 
-dbc_dbname="icinga"
-
 . /usr/share/debconf/confmodule
 . /usr/share/dbconfig-common/dpkg/postinst
 dbc_generate_include='template:/etc/icinga/ido2db.cfg'
