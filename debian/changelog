@@ -2,4 +2,4 @@ icinga (1.0.1-1) unstable; urgency=low
 
   * Initial packaging (Closes: #573880)
 
- -- Alexander Wirt <formorer@debian.org>  Sun, 14 Mar 2010 12:06:55 +0100
+ -- Alexander Wirt <formorer@debian.org>  Sat, 27 Mar 2010 09:59:41 +0100
