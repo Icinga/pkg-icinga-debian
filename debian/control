@@ -53,7 +53,7 @@ Description: cgi files for icinga
 Package: icinga-idoutils
 Architecture: any
 Depends: icinga-common (= ${source:Version}), ucf, dbconfig-common, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, lsb-base (>= 3.0-6)
-Recommends: libdbd-pgsql | libdbd-mysql, mysql-client | postgresql-client
+Recommends: libdbd-mysql | libdbd-pgsql, mysql-client | postgresql-client
 Description: icinga-dataobjects support 
  Icinga is a monitoring and management system for hosts, services and
  networks. icinga-common contains the common files for the icinga package.
