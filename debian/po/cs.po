@@ -114,8 +114,8 @@ msgstr "Hesla nesouhlasí"
 #~ "byste neměli volit v případě, že máte dosud nainstalován nagios 1.x. "
 #~ "Jinak může dojít k neočekávaným výsledkům."
 
-#~ msgid "apache, apache-ssl, apache2"
-#~ msgstr "apache, apache-ssl, apache2"
+#~ msgid "apache2"
+#~ msgstr "apache2"
 
 #~ msgid "apache2"
 #~ msgstr "apache2"

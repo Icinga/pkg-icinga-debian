@@ -121,7 +121,7 @@ msgstr "Mots de passe différents"
 #~ "Vous ne devriez pas choisir cette option si vous avez encore Nagios 1.x "
 #~ "sur votre système, sinon vous risquez d'avoir des résultats inattendus."
 
-#~ msgid "apache, apache-ssl, apache2"
+#~ msgid "apache2"
 #~ msgstr "Apache, Apache-ssl, Apache2"
 
 #~ msgid "apache2"

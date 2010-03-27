@@ -143,5 +143,5 @@ msgstr "Las contraseñas no coinciden"
 #~ "opción si todavía tiene nagios 1.x instalado en su sistema, esto puede\n"
 #~ "producir resultados impredecibles."
 
-#~ msgid "apache, apache-ssl, apache2"
-#~ msgstr "apache, apache-ssl, apache2"
+#~ msgid "apache2"
+#~ msgstr "apache2"

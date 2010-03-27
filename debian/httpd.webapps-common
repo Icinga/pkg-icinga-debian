@@ -2,7 +2,7 @@
 # taken from the webapps-common project
 # copyright (c) 2005, sean finney (GPL)
 
-wc_httpd_apaches="apache apache-ssl apache-perl apache2"
+wc_httpd_apaches="apache2"
 
 # if they have not specified what they support, assume support for all
 if [ ! "$wc_httpd_supported" ]; then

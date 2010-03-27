@@ -1,6 +1,6 @@
 Template: icinga/httpd
 Type: multiselect
-Choices: apache, apache-ssl, apache2
+Choices: apache2
 Default: apache2
 _Description: Apache servers to configure for icinga:
  Please select which apache servers should be configured for icinga.

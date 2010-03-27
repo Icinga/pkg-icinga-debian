@@ -114,5 +114,5 @@ msgstr "パスワードが一致しません"
 #~ "りません。選択すると予測不可能な結果になります。"
 
 # FIXME: Do not mark for translation since these are package names.
-#~ msgid "apache, apache-ssl, apache2"
-#~ msgstr "apache, apache-ssl, apache2"
+#~ msgid "apache2"
+#~ msgstr "apache2"

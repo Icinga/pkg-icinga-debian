@@ -120,5 +120,5 @@ msgstr "Die Passwörter stimmen nicht überein."
 #~ "sollten diese Möglichkeit nicht wählen, falls noch nagios 1.x auf Ihrem "
 #~ "System installiert ist. Dies könnte unvorhersehbare Ergebnisse liefern."
 
-#~ msgid "apache, apache-ssl, apache2"
-#~ msgstr "apache, apache-ssl, apache2"
+#~ msgid "apache2"
+#~ msgstr "apache2"

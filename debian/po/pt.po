@@ -120,5 +120,5 @@ msgstr "As passwords não condizem."
 #~ "escolher esta opção se ainda tiver o nagios 1.x no seu sistema, ou podem "
 #~ "ocorrer resultados imprevisíveis."
 
-#~ msgid "apache, apache-ssl, apache2"
-#~ msgstr "apache, apache-ssl, apache2"
+#~ msgid "apache2"
+#~ msgstr "apache2"
