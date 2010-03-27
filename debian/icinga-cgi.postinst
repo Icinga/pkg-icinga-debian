@@ -69,18 +69,6 @@ case "$1" in
 		htpasswd -b "$htpw" icingaadmin "$admpass"
 	fi
 
-	# explicitly set permissions on some files that are dependent
-	# on the uid/gid of the nagios user, which is dynamically created.
-        setperm root nagios 0640 $en/resource.cfg
-        setperm nagios adm 2751 /var/log/icinga
-        setperm nagios adm 2751 /var/log/icinga/archives
-        setperm nagios nagios 0750 /var/run/icinga
-        setperm nagios nagios 0750 /var/lib/icinga
-	setperm nagios nagios 0750 /var/lib/icinga/spool
-	setperm nagios nagios 0750 /var/lib/icinga/spool/checkresults
-        setperm nagios www-data 02750 /var/cache/icinga
-        setperm nagios www-data 0700 /var/lib/icinga/rw
-
 	# everything went well, so now let's reset the password
 	db_set icinga/adminpassword ""
 	db_set icinga/adminpassword-repeat ""
