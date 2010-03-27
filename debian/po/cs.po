@@ -117,8 +117,5 @@ msgstr "Hesla nesouhlasí"
 #~ msgid "apache2"
 #~ msgstr "apache2"
 
-#~ msgid "apache2"
-#~ msgstr "apache2"
-
 #~ msgid "false"
 #~ msgstr "chybné"

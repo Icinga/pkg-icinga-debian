@@ -122,10 +122,7 @@ msgstr "Mots de passe différents"
 #~ "sur votre système, sinon vous risquez d'avoir des résultats inattendus."
 
 #~ msgid "apache2"
-#~ msgstr "Apache, Apache-ssl, Apache2"
-
-#~ msgid "apache2"
-#~ msgstr "Apache2"
+#~ msgstr "apache2"
 
 #~ msgid "false"
 #~ msgstr "Faux"
