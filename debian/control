@@ -1,7 +1,7 @@
 Source: icinga
 Section: net
 Priority: optional
-Maintainer: Debian Icinga Maintainer Group <pkg-icinga-devel@lists.alioth.debian.org>
+Maintainer: Debian Nagios Maintainer Group <pkg-nagios-devel@lists.alioth.debian.org>
 Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
 Standards-Version: 3.8.4
 Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
