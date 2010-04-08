@@ -147,7 +147,7 @@ Description: documentation for icinga
 
 Package: icinga-phpapi
 Architecture: all
-Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}, php5 | php5-cgi | php5-cli | libapache2-mod-php5
+Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}, php5 | php5-cgi | php5-cli | libapache2-mod-php5, php5-mysql | php5-pgsql
 Recommends: icinga-idoutils
 Description: phpapi for icinga
  Icinga is a monitoring and management system for hosts, services and

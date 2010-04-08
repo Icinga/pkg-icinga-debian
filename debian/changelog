@@ -2,8 +2,9 @@ icinga (1.0.1-2) unstable; urgency=low
 
   * Fix maintainer address
   * Disable context sensitive help
+  * Recommend php5-mysql | php5-pgsql for the phpapi package
 
- -- Alexander Wirt <formorer@debian.org>  Thu, 08 Apr 2010 17:36:08 +0200
+ -- Alexander Wirt <formorer@debian.org>  Wed, 07 Apr 2010 14:31:39 +0200
 
 icinga (1.0.1-1) unstable; urgency=low
 
