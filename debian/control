@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
 Package: icinga-common
 Architecture: all
 Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-6), ucf (>= 0.28), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
-Recommends: icinga-plugins
+Recommends: nagios-plugins
 Description: support files for icinga
  Icinga is a monitoring and management system for hosts, services and
  networks. icinga-common contains the common files for the icinga package.
