@@ -1,7 +1,7 @@
 #! /bin/sh
 ### BEGIN INIT INFO
 # Provides:          ido2db 
-# Required-Start:    $remote_fs $syslog $named $network $time $icinga
+# Required-Start:    $remote_fs $syslog $named $network $time icinga
 # Required-Stop:     $remote_fs $syslog $named $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6

@@ -1,6 +1,8 @@
 icinga (1.0.1-3) unstable; urgency=low
 
   * its nagios-plugins, not icinga-plugins 
+  * Don't depend on non-existing virtual facility $icinga 
+    (Closes: #577166) 
 
  -- Alexander Wirt <formorer@debian.org>  Thu, 08 Apr 2010 19:58:16 +0200
 
