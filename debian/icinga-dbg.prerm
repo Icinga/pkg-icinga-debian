@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+if [ "$1" != "upgrade" ]; then
+  update-alternatives --remove mini_epn mini_epn /usr/bin/mini_epn
+fi
