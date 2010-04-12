@@ -157,7 +157,8 @@ binary-arch: install-stamp
 	dh_installdocs       -a
 	dh_installdebconf    -a 
 	dh_install           -a
-	mv contrib/mini_epn ${b}/icinga-dbg/usr/bin
+	mkdir -p ${b}/icinga-dbg/usr/bin/
+	mv contrib/mini_epn ${b}/icinga-dbg/usr/bin/
 	chmod 600 ${b}/icinga-common/etc/icinga/resource.cfg
 	# fix permissions of p1
 	chmod 755 ${b}/icinga-core/usr/lib/icinga/p1.pl
