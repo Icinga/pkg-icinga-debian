@@ -62,7 +62,7 @@ check_started () {
 		
   if [ -f "$THEPIDFILE" ]; then
     pid="$(cat $THEPIDFILE)"
-    if [ "$pid" ] && kill -0 $pid >/dev/null; then
+    if [ "$pid" ] && kill -0 $pid >/dev/null 2>/dev/null; then
       return 0    # Is started
     fi
   fi
