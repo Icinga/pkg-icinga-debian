@@ -175,6 +175,7 @@ Section: debug
 Priority: extra
 Architecture: any
 Depends: icinga-core (= ${binary:Version}), ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Conflicts: nagios3-dbg (=< 3.2.0-4)
 Description: debugging symbols and debug stuff for icinga
  Icinga is a monitoring and management system for hosts, services and
  networks.
