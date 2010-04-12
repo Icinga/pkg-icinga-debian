@@ -1,37 +1,36 @@
-# translation of icinga debconf to Portuguese
-# Copyright (C) 2007 Américo Monteiro
+# translation of icinga debconf messages to Portuguese
+# Copyright (C) 2010, the icinga's copyright holder
 # This file is distributed under the same license as the icinga package.
 #
-# Américo Monteiro <a_monteiro@netcabo.pt>, 2007.
+# Américo Monteiro <a_monteiro@netcabo.pt>, 2010.
 msgid ""
 msgstr ""
-"Project-Id-Version: icinga 2.9-1\n"
+"Project-Id-Version: icinga 1.0.1-2\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
 "POT-Creation-Date: 2010-03-14 12:04+0100\n"
-"PO-Revision-Date: 2007-08-04 04:08+0100\n"
+"PO-Revision-Date: 2010-04-09 22:52+0100\n"
 "Last-Translator: Américo Monteiro <a_monteiro@netcabo.pt>\n"
 "Language-Team: Portuguese <traduz@debianpt.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:1001
-#, fuzzy
 #| msgid "Apache servers to configure for icinga:"
 msgid "Apache servers to configure for icinga:"
-msgstr "Servidores Apache a configurar para icinga:"
+msgstr "Servidores Apache a configurar para o icinga:"
 
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:1001
-#, fuzzy
 #| msgid "Please select which apache servers should be configured for icinga."
 msgid "Please select which apache servers should be configured for icinga."
 msgstr ""
-"Por favor seleccione quais servidores Apache deverão ser configurados para "
+"Por favor seleccione quais servidores Apache deverão ser configurados para o "
 "icinga."
 
 #. Type: multiselect
@@ -47,27 +46,24 @@ msgstr ""
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:2001
-#, fuzzy
 #| msgid "Nagios web administration password:"
 msgid "Icinga web administration password:"
-msgstr "Password de administração Web do Nagios:"
+msgstr "Palavra-passe de administração web do icinga:"
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:2001
-#, fuzzy
 #| msgid ""
 #| "Please provide the password to be created with the \"nagiosadmin\" user."
 msgid ""
 "Please provide the password to be created with the \"icingaadmin\" user."
 msgstr ""
-"Por favor indique uma password para ser criada com o utilizador \"nagiosadmin"
-"\"."
+"Por favor indique uma palavra-passe para ser criada com o utilizador "
+"\"icingaadmin\"."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:2001
-#, fuzzy
 #| msgid ""
 #| "This is the username and password you will use to log in to your nagios "
 #| "installation after configuration is complete.  If you do not provide a "
@@ -77,48 +73,19 @@ msgid ""
 "installation after configuration is complete.  If you do not provide a "
 "password, you will have to configure access to icinga yourself."
 msgstr ""
-"Este é o nome de utilizador e password que irá usar para se autenticar na "
-"instalação do seu nagios após a configuração estar completa. Se você não "
-"providenciar uma password, terá que ser você a configurar o acesso ao nagios."
+"Este é o nome de utilizador e palavra-passe que irá usar para se autenticar "
+"na instalação do seu icinga após a configuração estar completa. Se você não "
+"disponibilizar uma palavra-passe, terá que ser você a configurar o acesso ao "
+"icinga."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
 msgid "Password confirmation:"
-msgstr "Confirmação da password:"
+msgstr "Confirmação da palavra-passe:"
 
 #. Type: note
 #. Description
 #: ../icinga-cgi.templates:4001
 msgid "The passwords do not match"
-msgstr "As passwords não condizem."
-
-#, fuzzy
-#~| msgid "Enable support for nagios 1.x links in icinga?"
-#~ msgid "Enable support for nagios 1.x links in nagios3?"
-#~ msgstr "Activar suporte para atalhos do nagios 1.x no icinga?"
-
-#, fuzzy
-#~| msgid ""
-#~| "Please choose whether the Apache configuration for icinga should provide "
-#~| "compatibility with links from nagios 1.x."
-#~ msgid ""
-#~ "Please choose whether the Apache configuration for nagios3 should provide "
-#~ "compatibility with links from nagios 1.x."
-#~ msgstr ""
-#~ "Por favor escolha se a configuração do Apache para icinga deverá "
-#~ "providenciar compatibilidade com atalhos do nagios 1.x."
-
-#~ msgid ""
-#~ "If you select this option, the apache configuration used for nagios will "
-#~ "include directives to support URLs from nagios 1.x. You should not choose "
-#~ "this option if you still have nagios 1.x on your system, or unpredictable "
-#~ "results may occur."
-#~ msgstr ""
-#~ "Se seleccionar esta opção, a configuração do apache usada para nagios irá "
-#~ "incluir directivas para suportar URLs do nagios 1.x. Você não deverá "
-#~ "escolher esta opção se ainda tiver o nagios 1.x no seu sistema, ou podem "
-#~ "ocorrer resultados imprevisíveis."
-
-#~ msgid "apache2"
-#~ msgstr "apache2"
+msgstr "As palavras-passe não condizem"
