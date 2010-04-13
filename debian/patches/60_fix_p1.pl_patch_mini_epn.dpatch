@@ -13,7 +13,7 @@ diff -urNad nagios3-3.0.3~/contrib/mini_epn.c nagios3-3.0.3/contrib/mini_epn.c
  */
  
 -	char *embedding[] = { "", "p1.pl" };
-+	char *embedding[] = { "", "/usr/lib/nagios3/p1.pl" };
++	char *embedding[] = { "", "/usr/lib/icinga/p1.pl" };
  	char *plugin_output ;
  	char fname[64];
  	char *args[] = {"","0", "", "", NULL };
