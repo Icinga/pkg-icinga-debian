@@ -2,6 +2,22 @@ icinga (1.0.1-4) unstable; urgency=low
 
   * Fix mini_epn p1 path 
   * Backport several ido2db fixes from git
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Closes: #579934
+  * [Debconf translation updates]
+  * Spanish (Omar Campagne).  Closes: #579656,#581823
+  * Czech (Martin Sin).  Closes: #580471
+  * Basque (Iñaki Larrañaga Murgoitio).  Closes: #580478
+  * Danish (Joe Hansen).  Closes: #580571,#580572
+  * Brazilian Portuguese (Bruno Gurgel Gomes de Oliveira).
+    Closes: #580656, #581562
+  * Russian (Yuri Kozlov).  Closes: #580765
+  * Italian (Luca Monducci).  Closes: #580768
+  * Vietnamese (Clytie Siddall).  Closes: #581538
+  * Portuguese (Américo Monteiro).  Closes: #582319
+  * German (Matthias Julius).  Closes: #582348
+  * French (Steve Petruzzello).  Closes: #582643
+  * Swedish (Martin Bagge).  Closes: #582699
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 13 Apr 2010 11:52:52 +0200
 

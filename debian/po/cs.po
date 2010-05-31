@@ -1,39 +1,36 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the icinga package.
 # Martin Sin <martin.sin@zshk.cz>, 2006.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: icinga 2.4-1\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-03-14 12:04+0100\n"
-"PO-Revision-Date: 2006-08-13 17:01+0200\n"
+"POT-Creation-Date: 2010-05-06 08:46+0200\n"
+"PO-Revision-Date: 2010-05-06 10:22+0200\n"
 "Last-Translator: Martin Sin <martin.sin@zshk.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #. Type: multiselect
 #. Description
-#: ../icinga-cgi.templates:1001
-#, fuzzy
-#| msgid "Apache servers to configure for icinga:"
+#: ../icinga-cgi.templates:2001
 msgid "Apache servers to configure for icinga:"
 msgstr "Servery Apache pro nastavení s icinga:"
 
 #. Type: multiselect
 #. Description
-#: ../icinga-cgi.templates:1001
-#, fuzzy
-#| msgid "Please select which apache servers should be configured for icinga."
-msgid "Please select which apache servers should be configured for icinga."
-msgstr "Vyberte prosím, které servery apache nastavit pro použití s icinga."
+#: ../icinga-cgi.templates:2001
+msgid "Please select which Apache servers should be configured for icinga."
+msgstr "Vyberte prosím, které servery Apache nastavit pro použití s icinga."
 
 #. Type: multiselect
 #. Description
-#: ../icinga-cgi.templates:1001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "If you would prefer to perform configuration manually, leave all servers "
 "unselected."
@@ -41,51 +38,60 @@ msgstr "Pokud dáváte přednost ruční konfiguraci, nevybírejte žádné serv
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:2001
-#, fuzzy
-#| msgid "Nagios web administration password:"
+#: ../icinga-cgi.templates:3001
 msgid "Icinga web administration password:"
-msgstr "Heslo webové administrace Nagios:"
-
-#. Type: password
-#. Description
-#: ../icinga-cgi.templates:2001
-#, fuzzy
-#| msgid ""
-#| "Please provide the password to be created with the \"nagiosadmin\" user."
-msgid ""
-"Please provide the password to be created with the \"icingaadmin\" user."
-msgstr ""
-"Zadejte prosím heslo použité pro nově vytvořeného uživatele \"nagiosadmin\"."
-
-#. Type: password
-#. Description
-#: ../icinga-cgi.templates:2001
-#, fuzzy
-#| msgid ""
-#| "This is the username and password you will use to log in to your nagios "
-#| "installation after configuration is complete.  If you do not provide a "
-#| "password, you will have to configure access to nagios yourself."
-msgid ""
-"This is the username and password you will use to log in to your icinga "
-"installation after configuration is complete.  If you do not provide a "
-"password, you will have to configure access to icinga yourself."
-msgstr ""
-"Toto uživatelské jméno a heslo bude po dokončení nastavení použito pro "
-"přihlášení k nagios. Pokud nezadáte heslo, budete muset nastavit přístup k "
-"nagios ručně."
+msgstr "Heslo webové administrace Icinga:"
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
-msgid "Password confirmation:"
-msgstr "Potvrzení hesla:"
+msgid ""
+"Please provide the password to be created with the \"icingaadmin\" user."
+msgstr ""
+"Zadejte prosím heslo použité pro nově vytvořeného uživatele \"icingaadmin\"."
 
-#. Type: note
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid ""
+"This is the username and password to use when connecting to the Icinga "
+"server after completing the configuration. If you do not provide a password, "
+"you will have to configure access to Icinga manually later on."
+msgstr ""
+"Toto uživatelské jméno a heslo se používá pro připojení k serveru Icinga. "
+"Pokud nezadáte nějaké heslo, budete muset nastavit přístup k Icinga ručně."
+
+#. Type: password
 #. Description
 #: ../icinga-cgi.templates:4001
-msgid "The passwords do not match"
-msgstr "Hesla nesouhlasí"
+msgid "Re-enter password to verify:"
+msgstr "Potvrďte heslo pro ověření:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid ""
+"Please enter the same user password again to verify you have typed it "
+"correctly."
+msgstr "Zadejte prosím stejné heslo znovu pro ověření, že je zadané správně."
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "Password input error"
+msgstr "Chyba zadání hesla"
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "The two passwords you entered were not the same. Please try again."
+msgstr "Zadaná hesla nesouhlasí. Zkuste to prosím znovu."
+
+#~ msgid "Password confirmation:"
+#~ msgstr "Potvrzení hesla:"
+
+#~ msgid "The passwords do not match"
+#~ msgstr "Hesla nesouhlasí"
 
 #, fuzzy
 #~| msgid "Enable support for nagios 1.x links in icinga?"

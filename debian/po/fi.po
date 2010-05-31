@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: icinga\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-03-14 12:04+0100\n"
+"POT-Creation-Date: 2010-05-06 08:46+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Esko Arajärvi <edu@iki.fi>\n"
 "Language-Team: Finnish <debian-l10n-finnish@lists.debian.org>\n"
@@ -14,7 +14,7 @@ msgstr ""
 
 #. Type: multiselect
 #. Description
-#: ../icinga-cgi.templates:1001
+#: ../icinga-cgi.templates:2001
 #, fuzzy
 #| msgid "Apache servers to configure for icinga:"
 msgid "Apache servers to configure for icinga:"
@@ -22,17 +22,17 @@ msgstr "Apache-palvelimet, joiden asetuksia muokataan icinga:a varten:"
 
 #. Type: multiselect
 #. Description
-#: ../icinga-cgi.templates:1001
+#: ../icinga-cgi.templates:2001
 #, fuzzy
 #| msgid "Please select which apache servers should be configured for icinga."
-msgid "Please select which apache servers should be configured for icinga."
+msgid "Please select which Apache servers should be configured for icinga."
 msgstr ""
 "Valitse minkä Apache-palvelimien asetuksia tulisi muokata icinga:n "
 "käyttöönottamiseksi."
 
 #. Type: multiselect
 #. Description
-#: ../icinga-cgi.templates:1001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "If you would prefer to perform configuration manually, leave all servers "
 "unselected."
@@ -40,7 +40,7 @@ msgstr "Jos haluat tehdä asetukset käsin, älä valitse mitään palvelinta."
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:2001
+#: ../icinga-cgi.templates:3001
 #, fuzzy
 #| msgid "Nagios web administration password:"
 msgid "Icinga web administration password:"
@@ -48,7 +48,7 @@ msgstr "Nagios-verkkoylläpidon salasana:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:2001
+#: ../icinga-cgi.templates:3001
 #, fuzzy
 #| msgid ""
 #| "Please provide the password to be created with the \"nagiosadmin\" user."
@@ -58,16 +58,16 @@ msgstr "Anna salasana käyttäjätunnukselle ”nagiosadmin”."
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:2001
+#: ../icinga-cgi.templates:3001
 #, fuzzy
 #| msgid ""
 #| "This is the username and password you will use to log in to your nagios "
 #| "installation after configuration is complete.  If you do not provide a "
 #| "password, you will have to configure access to nagios yourself."
 msgid ""
-"This is the username and password you will use to log in to your icinga "
-"installation after configuration is complete.  If you do not provide a "
-"password, you will have to configure access to icinga yourself."
+"This is the username and password to use when connecting to the Icinga "
+"server after completing the configuration. If you do not provide a password, "
+"you will have to configure access to Icinga manually later on."
 msgstr ""
 "Tämän käyttäjätunnuksen ja salasanan avulla voidaan nagios-asennukseen "
 "kirjautua, kun asetusten muokkaus on päättynyt. Jos salasanaa ei anneta, "
@@ -75,15 +75,35 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
-msgid "Password confirmation:"
-msgstr "Salasanan vahvistus:"
+#: ../icinga-cgi.templates:4001
+msgid "Re-enter password to verify:"
+msgstr ""
 
-#. Type: note
+#. Type: password
 #. Description
 #: ../icinga-cgi.templates:4001
-msgid "The passwords do not match"
-msgstr "Salasanat eivät täsmää."
+msgid ""
+"Please enter the same user password again to verify you have typed it "
+"correctly."
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "Password input error"
+msgstr ""
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "The two passwords you entered were not the same. Please try again."
+msgstr ""
+
+#~ msgid "Password confirmation:"
+#~ msgstr "Salasanan vahvistus:"
+
+#~ msgid "The passwords do not match"
+#~ msgstr "Salasanat eivät täsmää."
 
 #, fuzzy
 #~| msgid "Enable support for nagios 1.x links in icinga?"
