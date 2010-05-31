@@ -1,6 +1,7 @@
 icinga (1.0.1-4) unstable; urgency=low
 
   * Fix mini_epn p1 path 
+  * Backport several ido2db fixes from git
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 13 Apr 2010 11:52:52 +0200
 
