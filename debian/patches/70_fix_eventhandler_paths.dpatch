@@ -5,9 +5,9 @@
 ## DP: Fixes paths for all contributed eventhandlers
 
 @DPATCH@
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/disable_active_service_checks nagios3-3.0.5/contrib/eventhandlers/disable_active_service_checks
---- nagios3-3.0.5~/contrib/eventhandlers/disable_active_service_checks	2008-10-15 18:12:09.000000000 +0200
-+++ nagios3-3.0.5/contrib/eventhandlers/disable_active_service_checks	2008-11-28 21:48:00.000000000 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_active_service_checks icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_active_service_checks
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_active_service_checks	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_active_service_checks	2010-06-26 11:14:58.838427428 +0200
 @@ -16,7 +16,7 @@
  
  printfcmd="/usr/bin/printf"
@@ -17,9 +17,9 @@ diff -urNad nagios3-3.0.5~/contrib/eventhandlers/disable_active_service_checks n
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/disable_notifications nagios3-3.0.5/contrib/eventhandlers/disable_notifications
---- nagios3-3.0.5~/contrib/eventhandlers/disable_notifications	2008-10-15 18:12:09.000000000 +0200
-+++ nagios3-3.0.5/contrib/eventhandlers/disable_notifications	2008-11-28 21:48:35.000000000 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_notifications icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_notifications
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_notifications	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_notifications	2010-06-26 11:14:58.838427428 +0200
 @@ -14,7 +14,7 @@
  
  printfcmd="/usr/bin/printf"
@@ -29,9 +29,9 @@ diff -urNad nagios3-3.0.5~/contrib/eventhandlers/disable_notifications nagios3-3
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler nagios3-3.0.5/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler
---- nagios3-3.0.5~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2002-02-26 05:03:37.000000000 +0100
-+++ nagios3-3.0.5/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2008-11-28 21:47:11.000000000 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2010-06-26 11:14:58.838427428 +0200
 @@ -21,7 +21,7 @@
  #
  
@@ -41,23 +41,65 @@ diff -urNad nagios3-3.0.5~/contrib/eventhandlers/distributed-monitoring/obsessiv
  
  # Convert the state string to the corresponding return code
  return_code=-1
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca nagios3-3.0.5/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca
---- nagios3-3.0.5~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2008-10-15 18:12:09.000000000 +0200
-+++ nagios3-3.0.5/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2008-11-28 21:50:14.000000000 +0100
-@@ -28,8 +28,8 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2010-06-26 11:18:44.698477214 +0200
+@@ -27,8 +27,8 @@
  
  printfcmd="/usr/bin/printf"
  
--NscaBin="/usr/local/nagios/libexec/send_nsca" 
--NscaCfg="/usr/local/nagios/etc/send_nsca.cfg"
+-NscaBin="/usr/local/icinga/libexec/send_nsca" 
+-NscaCfg="/usr/local/icinga/etc/send_nsca.cfg"
 +NscaBin="/usr/sbin/send_nsca" 
 +NscaCfg="/etc/send_nsca.cfg"
- NagiosHost="nagioshost"
+ IcingaHost="icingahost"
  
  # Fire the data off to the NSCA daemon using the send_nsca script 
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/enable_active_service_checks nagios3-3.0.5/contrib/eventhandlers/enable_active_service_checks
---- nagios3-3.0.5~/contrib/eventhandlers/enable_active_service_checks	2008-10-15 18:12:09.000000000 +0200
-+++ nagios3-3.0.5/contrib/eventhandlers/enable_active_service_checks	2008-11-28 21:48:52.000000000 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca.~1~ icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca.~1~
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca.~1~	1970-01-01 01:00:00.000000000 +0100
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca.~1~	2010-06-26 11:14:58.838427428 +0200
+@@ -0,0 +1,38 @@
++#!/bin/sh
++
++# SUBMIT_CHECK_RESULT_VIA_NSCA
++# Written by Ethan Galstad (egalstad@nagios.org)
++#
++# This script will send passive check results to the
++# nsca daemon that runs on the central Icinga server.
++# If you simply want to submit passive checks from the 
++# same machine that Icinga is running on, look at the
++# submit_check_result script.
++#
++# Arguments:
++#  $1 = host_name (Short name of host that the service is
++#       associated with)
++#  $2 = svc_description (Description of the service)
++#  $3 = return_code (An integer that determines the state
++#       of the service check, 0=OK, 1=WARNING, 2=CRITICAL,
++#       3=UNKNOWN).
++#  $4 = plugin_output (A text string that should be used
++#       as the plugin output for the service check)s
++# 
++#
++# Note:
++# Modify the NagiosHost parameter to match the name or
++# IP address of the central server that has the nsca
++# daemon running.
++
++printfcmd="/usr/bin/printf"
++
++NscaBin="/usr/local/icinga/libexec/send_nsca" 
++NscaCfg="/usr/local/icinga/etc/send_nsca.cfg"
++IcingaHost="icingahost"
++
++# Fire the data off to the NSCA daemon using the send_nsca script 
++$printfcmd "%s\t%s\t%s\t%s\n" "$1" "$2" "$3" "$4" | $NscaBin -H $IcingaHost -c $NscaCfg
++
++# EOF
++
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_active_service_checks icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_active_service_checks
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_active_service_checks	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_active_service_checks	2010-06-26 11:14:58.838427428 +0200
 @@ -16,7 +16,7 @@
  
  printfcmd="/usr/bin/printf"
@@ -67,9 +109,9 @@ diff -urNad nagios3-3.0.5~/contrib/eventhandlers/enable_active_service_checks na
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/enable_notifications nagios3-3.0.5/contrib/eventhandlers/enable_notifications
---- nagios3-3.0.5~/contrib/eventhandlers/enable_notifications	2008-10-15 18:12:09.000000000 +0200
-+++ nagios3-3.0.5/contrib/eventhandlers/enable_notifications	2008-11-28 21:49:40.000000000 +0100
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_notifications icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_notifications
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_notifications	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_notifications	2010-06-26 11:14:58.838427428 +0200
 @@ -14,7 +14,7 @@
  
  printfcmd="/usr/bin/printf"
@@ -79,26 +121,97 @@ diff -urNad nagios3-3.0.5~/contrib/eventhandlers/enable_notifications nagios3-3.
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event nagios3-3.0.5/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event
---- nagios3-3.0.5~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2004-02-20 05:37:01.000000000 +0100
-+++ nagios3-3.0.5/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2008-11-28 21:47:11.000000000 +0100
-@@ -10,10 +10,10 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2010-06-26 11:17:06.473966779 +0200
+@@ -9,10 +9,10 @@
  
  # Location of the echo and mail commands
  echocmd="/bin/echo"
 -mailcmd="/bin/mail"
-+mailcmd="/usr/bin/mail"
++mailcmd="/usr//bin/mail"
  
  # Location of the event handlers
--eventhandlerdir="/usr/local/nagios/libexec/eventhandlers"
-+eventhandlerdir="/usr/share/nagios3/plugins/eventhandlers"
+-eventhandlerdir="/usr/local/icinga/libexec/eventhandlers"
++eventhandlerdir="/usr/share/icinga/plugins/eventhandlers"
  
  
  # Only take action on hard host states...
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event nagios3-3.0.5/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event
---- nagios3-3.0.5~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2006-05-30 18:38:01.000000000 +0200
-+++ nagios3-3.0.5/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2008-11-28 21:47:11.000000000 +0100
-@@ -10,10 +10,10 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event.~1~ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event.~1~
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event.~1~	1970-01-01 01:00:00.000000000 +0100
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event.~1~	2010-06-26 11:14:58.838427428 +0200
+@@ -0,0 +1,67 @@
++#!/bin/sh
++
++# REDUNDANCY EVENT HANDLER SCRIPT
++# Written By: Ethan Galstad (egalstad@nagios.org)
++#
++# This is an example script for implementing redundancy.
++# Read the HTML documentation on redundant monitoring for more
++# information on what this does.
++
++# Location of the echo and mail commands
++echocmd="/bin/echo"
++mailcmd="/bin/mail"
++
++# Location of the event handlers
++eventhandlerdir="/usr/local/icinga/libexec/eventhandlers"
++
++
++# Only take action on hard host states...
++case "$2" in
++HARD)
++
++	case "$1" in
++	DOWN)
++		# The master host has gone down!
++		# We should now become the master host and take
++		# over the responsibilities of monitoring the 
++		# network, so enable notifications...
++
++		`$eventhandlerdir/enable_notifications`
++
++
++		# Notify someone of what has happened with the original
++		# master server and our taking over the monitoring
++		# responsibilities.  No one was notified of the master
++		# host going down, since the notification would have
++		# occurred while we were in standby mode, so this is a good idea...
++
++		#`$echocmd "Master Icinga host is down!" | /bin/mail -s "Master Icinga Host Is Down" root@localhost`
++		#`$echocmd "Slave Icinga host has entered ACTIVE mode and taken over network monitoring responsibilities!" | $mailcmd -s "Slave Icinga Host Has Entered ACTIVE Mode" root@localhost`
++
++		;;
++
++	UP)
++		# The master host has recovered!
++		# We should go back to being the slave host and
++		# let the master host do the monitoring, so 
++		# disable notifications...
++
++		`$eventhandlerdir/disable_notifications`
++
++
++		# Notify someone of what has happened.  Users were 
++		# already notified of the master host recovery because we
++		# were in active mode at the time the recovery happened.
++		# However, we should let someone know that we're switching
++		# back to standby mode...
++
++		#`$echocmd "The master Icinga host has recovered, so the slave Icinga host has returned to standby mode..." | $mailcmd -s "Slave Icinga Host Has Returned To STANDBY Mode" root@localhost`
++
++		;;
++
++	esac
++	;;
++
++esac
++exit 0
++
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2010-06-26 11:18:02.905966827 +0200
+@@ -9,10 +9,10 @@
  
  # Location of the echo and mail commands
  echocmd="/bin/echo"
@@ -106,20 +219,120 @@ diff -urNad nagios3-3.0.5~/contrib/eventhandlers/redundancy-scenario1/handle-mas
 +mailcmd="/usr/bin/mail"
  
  # Location of the event handlers
--eventhandlerdir="/usr/local/nagios/libexec/eventhandlers"
-+eventhandlerdir="/usr/share/nagios3/plugins/eventhandlers"
+-eventhandlerdir="/usr/local/icinga/libexec/eventhandlers"
++eventhandlerdir="/usr/share/icinga/plugins/eventhandlers"
  
  
  # Only take action on hard service states...
-diff -urNad nagios3-3.0.5~/contrib/eventhandlers/submit_check_result nagios3-3.0.5/contrib/eventhandlers/submit_check_result
---- nagios3-3.0.5~/contrib/eventhandlers/submit_check_result	2002-02-26 05:03:37.000000000 +0100
-+++ nagios3-3.0.5/contrib/eventhandlers/submit_check_result	2008-11-28 21:47:11.000000000 +0100
-@@ -24,7 +24,7 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event.~1~ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event.~1~
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event.~1~	1970-01-01 01:00:00.000000000 +0100
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event.~1~	2010-06-26 11:14:58.838427428 +0200
+@@ -0,0 +1,57 @@
++#!/bin/sh
++
++# REDUNDANCY EVENT HANDLER SCRIPT
++# Written By: Ethan Galstad (egalstad@nagios.org)
++#
++# This is an example script for implementing redundancy.
++# Read the HTML documentation on redundant monitoring for more
++# information on what this does.
++
++# Location of the echo and mail commands
++echocmd="/bin/echo"
++mailcmd="/bin/mail"
++
++# Location of the event handlers
++eventhandlerdir="/usr/local/icinga/libexec/eventhandlers"
++
++
++# Only take action on hard service states...
++case "$2" in
++HARD)
++
++	case "$1" in
++	CRITICAL)
++
++		# The master Icinga process is not running!
++		# We should now become the master host and
++		# take over the responsibility of monitoring
++		# the network, so enable active checks...
++
++		`$eventhandlerdir/enable_active_service_checks`
++		;;
++
++	WARNING|UNKNOWN)
++
++		# The master Icinga process may or may not
++		# be running.. We won't do anything here, but
++		# to be on the safe side you may decide you 
++		# want the slave host to become the master in
++		# these situations...
++		;;
++
++	OK)
++
++		# The master Icinga process running again!
++		# We should go back to being the slave host, 
++		# so disable active checks
++
++		`eventhandlerdir/disable_active_service_checks`
++		;;
++
++	esac
++	;;
++
++esac
++exit 0
++
++ 
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/submit_check_result icinga-1.0.2~pre20100626/contrib/eventhandlers/submit_check_result
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/submit_check_result	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/submit_check_result	2010-06-26 11:14:58.838427428 +0200
+@@ -23,7 +23,7 @@
   
  echocmd="/bin/echo"
   
--CommandFile="/usr/local/nagios/var/rw/nagios.cmd"
+-CommandFile="/usr/local/icinga/var/rw/icinga.cmd"
 +CommandFile="/var/lib/nagios3/rw/nagios.cmd"
   
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/submit_check_result.~1~ icinga-1.0.2~pre20100626/contrib/eventhandlers/submit_check_result.~1~
+--- icinga-1.0.2~pre20100626~/contrib/eventhandlers/submit_check_result.~1~	1970-01-01 01:00:00.000000000 +0100
++++ icinga-1.0.2~pre20100626/contrib/eventhandlers/submit_check_result.~1~	2010-06-26 11:14:58.838427428 +0200
+@@ -0,0 +1,35 @@
++#!/bin/sh
++
++# SUBMIT_CHECK_RESULT
++# Written by Ethan Galstad (egalstad@nagios.org)
++#
++# This script will write a command to the Icinga command
++# file to cause Icinga to process a passive service check
++# result.  Note: This script is intended to be run on the
++# same host that is running Icinga.  If you want to 
++# submit passive check results from a remote machine, look
++# at using the nsca addon.
++#
++# Arguments:
++#  $1 = host_name (Short name of host that the service is
++#       associated with)
++#  $2 = svc_description (Description of the service)
++#  $3 = return_code (An integer that determines the state
++#       of the service check, 0=OK, 1=WARNING, 2=CRITICAL,
++#       3=UNKNOWN).
++#  $4 = plugin_output (A text string that should be used
++#       as the plugin output for the service check)
++# 
++ 
++echocmd="/bin/echo"
++ 
++CommandFile="/usr/local/icinga/var/rw/icinga.cmd"
++ 
++# get the current date/time in seconds since UNIX epoch
++datetime=`date +%s`
++ 
++# create the command line to add to the command file
++cmdline="[$datetime] PROCESS_SERVICE_CHECK_RESULT;$1;$2;$3;$4"
++ 
++# append the command to the end of the command file
++`$echocmd $cmdline >> $CommandFile`
