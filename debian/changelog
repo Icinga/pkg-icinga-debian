@@ -1,3 +1,9 @@
+icinga (1.0.2~pre20100626) unstable; urgency=low
+
+  * New development snapshot
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 26 Jun 2010 10:16:20 +0200
+
 icinga (1.0.1-4) unstable; urgency=low
 
   * Fix mini_epn p1 path 
