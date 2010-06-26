@@ -5,6 +5,3 @@
 55_idoutils-debianize
 60_fix_p1.pl_patch_mini_epn.dpatch
 70_fix_eventhandler_paths.dpatch
-85_fix_dbescaping.dpatch
-90_fix_ndo2db_get_object_id.dpatch
-95_fix_hostdb_inserts.dpatch
