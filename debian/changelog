@@ -1,4 +1,4 @@
-icinga (1.0.2~pre20100626) unstable; urgency=low
+icinga (1.0.2-1~pre20100626) unstable; urgency=low
 
   * New development snapshot
   * Remove 40_fix_spurious_dollar_signs_added_to_command_lines - 
