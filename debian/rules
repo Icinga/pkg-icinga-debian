@@ -152,11 +152,13 @@ binary-arch: install-stamp
 	@echo "Doing $@"
 	dh_testdir           -a
 	dh_testroot          -a
-	dh_link		     -a
 	dh_installchangelogs -a
 	dh_installdocs       -a
 	dh_installdebconf    -a 
 	dh_install           -a
+	rm -rf ${b}/icinga/usr/share/doc/ 
+	rm -rf ${b}/icinga-core/usr/share/doc/
+	dh_link		     -a
 	mkdir -p ${b}/icinga-dbg/usr/bin/
 	mv contrib/mini_epn ${b}/icinga-dbg/usr/bin/mini_epn_icinga
 	chmod 600 ${b}/icinga-common/etc/icinga/resource.cfg
