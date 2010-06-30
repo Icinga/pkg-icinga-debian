@@ -5,18 +5,10 @@
 ## DP: debianize idoutils
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/module/idoutils/config/ido2db.cfg-sample.in icinga-1.0.1/module/idoutils/config/ido2db.cfg-sample.in
---- icinga-1.0.1~/module/idoutils/config/ido2db.cfg-sample.in	2010-03-03 10:29:37.000000000 +0100
-+++ icinga-1.0.1/module/idoutils/config/ido2db.cfg-sample.in	2010-03-14 19:43:46.032674197 +0100
-@@ -1,7 +1,5 @@
- #####################################################################
- # IDO2DB DAEMON CONFIG FILE
--#
--# Last Modified: 10-08-2009
- #####################################################################
- 
- 
-@@ -10,7 +8,7 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/module/idoutils/config/ido2db.cfg-sample.in icinga-1.0.2~pre20100626/module/idoutils/config/ido2db.cfg-sample.in
+--- icinga-1.0.2~pre20100626~/module/idoutils/config/ido2db.cfg-sample.in	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/module/idoutils/config/ido2db.cfg-sample.in	2010-06-26 11:07:09.473927242 +0200
+@@ -8,7 +8,7 @@
  # This is the lockfile that IDO2DB will use to store its PID number
  # in when it is running in daemon mode.
  
@@ -25,7 +17,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -236,7 +234,7 @@
+@@ -236,7 +236,7 @@
  # DEBUG FILE
  # This option determines where the daemon should write debugging information.
  
@@ -34,18 +26,10 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/module/idoutils/config/idomod.cfg-sample.in icinga-1.0.1/module/idoutils/config/idomod.cfg-sample.in
---- icinga-1.0.1~/module/idoutils/config/idomod.cfg-sample.in	2010-03-03 10:29:37.000000000 +0100
-+++ icinga-1.0.1/module/idoutils/config/idomod.cfg-sample.in	2010-03-14 19:44:36.552689984 +0100
-@@ -1,7 +1,5 @@
- #####################################################################
- # IDOMOD CONFIG FILE
--#
--# Last Modified: 01-08-2010
- #####################################################################
- 
- 
-@@ -231,7 +229,7 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/module/idoutils/config/idomod.cfg-sample.in icinga-1.0.2~pre20100626/module/idoutils/config/idomod.cfg-sample.in
+--- icinga-1.0.2~pre20100626~/module/idoutils/config/idomod.cfg-sample.in	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/module/idoutils/config/idomod.cfg-sample.in	2010-06-26 11:07:09.473927242 +0200
+@@ -229,7 +229,7 @@
  # DEBUG FILE
  # This option determines where the daemon should write debugging information.
  

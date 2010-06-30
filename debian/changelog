@@ -1,3 +1,11 @@
+icinga (1.0.2-1~pre20100626) unstable; urgency=low
+
+  * New development snapshot
+  * Remove 40_fix_spurious_dollar_signs_added_to_command_lines - 
+    now upstream
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 26 Jun 2010 10:16:20 +0200
+
 icinga (1.0.1-4) unstable; urgency=low
 
   * Fix mini_epn p1 path 

@@ -1,11 +1,7 @@
 10_p1_pl_shebang.dpatch
-40_fix_spurious_dollar_signs_added_to_command_lines.dpatch
 50_cgi.cfg-debianize.dpatch
 51_commands.cfg-debianize.dpatch
 52_icinga.cfg-debianize.dpatch
 55_idoutils-debianize
 60_fix_p1.pl_patch_mini_epn.dpatch
 70_fix_eventhandler_paths.dpatch
-85_fix_dbescaping.dpatch
-90_fix_ndo2db_get_object_id.dpatch
-95_fix_hostdb_inserts.dpatch

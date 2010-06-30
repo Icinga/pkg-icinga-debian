@@ -5,19 +5,35 @@
 ## DP: debianize command.cfg 
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.1~/sample-config/template-object/commands.cfg.in icinga-1.0.1/sample-config/template-object/commands.cfg.in
---- icinga-1.0.1~/sample-config/template-object/commands.cfg.in	2010-03-13 18:10:43.000000000 +0100
-+++ icinga-1.0.1/sample-config/template-object/commands.cfg.in	2010-03-14 13:30:09.354417406 +0100
-@@ -1,7 +1,5 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/sample-config/template-object/commands.cfg.in icinga-1.0.2~pre20100626/sample-config/template-object/commands.cfg.in
+--- icinga-1.0.2~pre20100626~/sample-config/template-object/commands.cfg.in	2010-06-25 13:12:03.000000000 +0200
++++ icinga-1.0.2~pre20100626/sample-config/template-object/commands.cfg.in	2010-06-26 11:02:03.026527280 +0200
+@@ -1,24 +1,19 @@
  ###############################################################################
--# COMMANDS.CFG - SAMPLE COMMAND DEFINITIONS FOR ICINGA @VERSION@
+ # COMMANDS.CFG - SAMPLE COMMAND DEFINITIONS FOR ICINGA
 -#
--# Last Modified: 05-31-2007
-+# COMMANDS.CFG - SAMPLE COMMAND DEFINITIONS FOR ICINGA
- #
+ # NOTES: This config file provides you with some example command definitions
+ #        that you can reference in host, service, and contact definitions.
+ #       
+ #        You don't need to keep commands in a separate file from your other
+ #        object definitions.  This has been done just to make things easier to
+ #        understand.
+-#
  ###############################################################################
  
-@@ -25,191 +23,8 @@
+ 
+ ################################################################################
+-#
+ # SAMPLE NOTIFICATION COMMANDS
+-#
+ # These are some example notification commands.  They may or may not work on
+ # your system without modification.  As an example, some systems will require 
+ # you to use "/usr/bin/mailx" instead of "/usr/bin/mail" in the commands below.
+-#
+ ################################################################################
+ 
+ 
+@@ -34,191 +29,8 @@
  	command_line	/usr/bin/printf "%b" "***** Icinga *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$" | @MAIL_PROG@ -s "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" $CONTACTEMAIL$
  	}
  
@@ -56,7 +72,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 -#
 -# NOTE:  The following 'check_local_...' functions are designed to monitor
 -#        various metrics on the host that Icinga is running on (i.e. this one).
- ################################################################################
+-################################################################################
 -
 -# 'check_local_disk' command definition
 -define command{
@@ -197,7 +213,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 -
 -
 -
--################################################################################
+ ################################################################################
 -#
 -# SAMPLE PERFORMANCE DATA COMMANDS
 -#
