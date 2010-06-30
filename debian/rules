@@ -124,7 +124,7 @@ install-stamp: build-stamp fix-configs-stamp
 	cp module/idoutils/db/mysql/mysql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/mysql
 	cp module/idoutils/db/pgsql/pgsql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/pgsql
 	mkdir -p $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2
-	cp module/idoutils/db/mysqll/mysql-upgrade-1.0.2-fix-object-relations.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2/02_mysql-upgrade-1.0.2-fix-object-relations.sql
+	cp module/idoutils/db/mysql/mysql-upgrade-1.0.2-fix-object-relations.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2/02_mysql-upgrade-1.0.2-fix-object-relations.sql
 	cp module/idoutils/db/mysql/mysql-upgrade-1.0.2.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2/01_mysql-upgrade-1.0.2.sql
 	# set up /var/cache/icinga for access by www-data
 	chgrp www-data ${b}/icinga-common/var/cache/icinga
