@@ -5,45 +5,45 @@
 ## DP: Fixes paths for all contributed eventhandlers
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_active_service_checks icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_active_service_checks
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_active_service_checks	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_active_service_checks	2010-06-26 11:14:58.838427428 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/disable_active_service_checks icinga-1.0.2/contrib/eventhandlers/disable_active_service_checks
+--- icinga-1.0.2~/contrib/eventhandlers/disable_active_service_checks	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/disable_active_service_checks	2010-07-01 07:27:53.010548215 +0200
 @@ -16,7 +16,7 @@
  
  printfcmd="/usr/bin/printf"
  
 -CommandFile="/usr/local/nagios/var/rw/nagios.cmd"
-+CommandFile="/var/lib/nagios3/rw/nagios.cmd"
++CommandFile="/var/lib/icinga/rw/icinga.cmd"
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_notifications icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_notifications
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/disable_notifications	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/disable_notifications	2010-06-26 11:14:58.838427428 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/disable_notifications icinga-1.0.2/contrib/eventhandlers/disable_notifications
+--- icinga-1.0.2~/contrib/eventhandlers/disable_notifications	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/disable_notifications	2010-07-01 07:28:12.857926063 +0200
 @@ -14,7 +14,7 @@
  
  printfcmd="/usr/bin/printf"
  
 -CommandFile="/usr/local/nagios/var/rw/nagios.cmd"
-+CommandFile="/var/lib/nagios3/rw/nagios.cmd"
++CommandFile="/var/lib/icinga/rw/icinga.cmd"
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2010-06-26 11:14:58.838427428 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler icinga-1.0.2/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler
+--- icinga-1.0.2~/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler	2010-07-01 07:29:30.946507615 +0200
 @@ -21,7 +21,7 @@
  #
  
  # Location of the submit_check_result_via_nsca script
 -SubmitCmd="/usr/local/nagios/libexec/eventhandlers/submit_check_result_via_nsca"
-+SubmitCmd="/usr/share/nagios3/plugins/eventhandlers/distributed-monitoring/submit_check_result_via_nsca"
++SubmitCmd="/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/submit_check_result_via_nsca"
  
  # Convert the state string to the corresponding return code
  return_code=-1
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2010-06-26 11:18:44.698477214 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca icinga-1.0.2/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca
+--- icinga-1.0.2~/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca	2010-07-01 07:27:06.502426451 +0200
 @@ -27,8 +27,8 @@
  
  printfcmd="/usr/bin/printf"
@@ -55,33 +55,33 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  IcingaHost="icingahost"
  
  # Fire the data off to the NSCA daemon using the send_nsca script 
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_active_service_checks icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_active_service_checks
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_active_service_checks	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_active_service_checks	2010-06-26 11:14:58.838427428 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/enable_active_service_checks icinga-1.0.2/contrib/eventhandlers/enable_active_service_checks
+--- icinga-1.0.2~/contrib/eventhandlers/enable_active_service_checks	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/enable_active_service_checks	2010-07-01 07:28:24.978596351 +0200
 @@ -16,7 +16,7 @@
  
  printfcmd="/usr/bin/printf"
  
 -CommandFile="/usr/local/nagios/var/rw/nagios.cmd"
-+CommandFile="/var/lib/nagios3/rw/nagios.cmd"
++CommandFile="/var/lib/icinga/rw/icinga.cmd"
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_notifications icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_notifications
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/enable_notifications	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/enable_notifications	2010-06-26 11:14:58.838427428 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/enable_notifications icinga-1.0.2/contrib/eventhandlers/enable_notifications
+--- icinga-1.0.2~/contrib/eventhandlers/enable_notifications	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/enable_notifications	2010-07-01 07:28:56.146507770 +0200
 @@ -14,7 +14,7 @@
  
  printfcmd="/usr/bin/printf"
  
 -CommandFile="/usr/local/nagios/var/rw/nagios.cmd"
-+CommandFile="/var/lib/nagios3/rw/nagios.cmd"
++CommandFile="/var/lib/icinga/rw/icinga.cmd"
  
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2010-06-26 11:17:06.473966779 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event icinga-1.0.2/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event
+--- icinga-1.0.2~/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event	2010-07-01 07:27:06.502426451 +0200
 @@ -9,10 +9,10 @@
  
  # Location of the echo and mail commands
@@ -95,9 +95,9 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  # Only take action on hard host states...
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2010-06-26 11:18:02.905966827 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event icinga-1.0.2/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event
+--- icinga-1.0.2~/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event	2010-07-01 07:27:06.502426451 +0200
 @@ -9,10 +9,10 @@
  
  # Location of the echo and mail commands
@@ -111,15 +111,15 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  # Only take action on hard service states...
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/contrib/eventhandlers/submit_check_result icinga-1.0.2~pre20100626/contrib/eventhandlers/submit_check_result
---- icinga-1.0.2~pre20100626~/contrib/eventhandlers/submit_check_result	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/contrib/eventhandlers/submit_check_result	2010-06-26 11:14:58.838427428 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/submit_check_result icinga-1.0.2/contrib/eventhandlers/submit_check_result
+--- icinga-1.0.2~/contrib/eventhandlers/submit_check_result	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/submit_check_result	2010-07-01 07:28:40.350467222 +0200
 @@ -23,7 +23,7 @@
   
  echocmd="/bin/echo"
   
 -CommandFile="/usr/local/icinga/var/rw/icinga.cmd"
-+CommandFile="/var/lib/nagios3/rw/nagios.cmd"
++CommandFile="/var/lib/icinga/rw/icinga.cmd"
   
  # get the current date/time in seconds since UNIX epoch
  datetime=`date +%s`

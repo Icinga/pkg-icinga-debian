@@ -1,6 +1,7 @@
 icinga (1.0.2-1) unstable; urgency=low
 
   * New upstream version
+  * Fix eventhandler paths
   * Remove 40_fix_spurious_dollar_signs_added_to_command_lines - 
     now upstream
 
