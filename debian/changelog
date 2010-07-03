@@ -6,7 +6,7 @@ icinga (1.0.2-1) unstable; urgency=low
   * Remove 40_fix_spurious_dollar_signs_added_to_command_lines - 
     now upstream
 
- -- Alexander Wirt <formorer@debian.org>  Fri, 02 Jul 2010 11:10:20 +0200
+ -- Alexander Wirt <formorer@debian.org>  Sat, 03 Jul 2010 12:28:08 +0200
 
 icinga (1.0.1-4) unstable; urgency=low
 
