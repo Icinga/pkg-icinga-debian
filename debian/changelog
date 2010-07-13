@@ -1,3 +1,9 @@
+icinga (1.0.2-2) unstable; urgency=low
+
+  * Icinga Plugins does not exist
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 13 Jul 2010 10:52:29 +0200
+
 icinga (1.0.2-1) unstable; urgency=low
 
   * New upstream version
