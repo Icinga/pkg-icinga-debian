@@ -1,8 +1,9 @@
 icinga (1.0.2-2) unstable; urgency=low
 
   * Icinga Plugins does not exist
+  * Fix typo in watch file
 
- -- Alexander Wirt <formorer@debian.org>  Tue, 13 Jul 2010 10:52:29 +0200
+ -- Alexander Wirt <formorer@debian.org>  Mon, 09 Aug 2010 18:23:06 +0200
 
 icinga (1.0.2-1) unstable; urgency=low
 

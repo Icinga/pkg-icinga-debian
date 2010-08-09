@@ -1,2 +1,2 @@
 version=3
-http://sf.net/icinga/icinga-(.*)\.tar\.g
+http://sf.net/icinga/icinga-([0-9-.]+)\.tar\.gz
