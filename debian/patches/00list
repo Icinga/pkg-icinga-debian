@@ -1,4 +1,4 @@
-10_p1_pl_shebang.dpatch
+#10_p1_pl_shebang.dpatch
 50_cgi.cfg-debianize.dpatch
 51_commands.cfg-debianize.dpatch
 52_icinga.cfg-debianize.dpatch
