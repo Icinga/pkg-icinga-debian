@@ -6,3 +6,9 @@
 60_fix_p1.pl_patch_mini_epn.dpatch
 70_fix_eventhandler_paths.dpatch
 80_remove_daemoncheck_cgi.dpatch
+90_fix-image-urls-555.dpatch
+91_fix-copy-paste-error-569.dpatch
+92_modify-execv-to-execvp-accepting-4096-cmd-args-for-b.dpatch
+93_execvp-searches-in-PATH-too-like-popen-and-returns-i.dpatch
+94_fix-wrong-is_volatile-conditions-causing-wrong-servi.dpatch
+95_fix-multiurl-action-status-icon-macro-processing-fix.dpatch
