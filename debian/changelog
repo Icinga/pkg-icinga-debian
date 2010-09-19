@@ -1,3 +1,15 @@
+icinga (1.0.2-3) unstable; urgency=low
+
+  * Backport some patches from 1.0.3 for squeeze
+    - Fix image urls in css
+    - Don't overwrite temp_path if it is before check_result_path in config
+    - Fix execvp handling 
+    - Fix volatile check 
+    - Fix macro processing in extinfo.cgi
+    - Fix invalid pointer in extinfo.cgi 
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 19 Sep 2010 09:07:53 +0200
+
 icinga (1.0.2-2) unstable; urgency=low
 
   * Icinga Plugins does not exist
