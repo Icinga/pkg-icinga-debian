@@ -8,5 +8,4 @@ usr/share/icinga/htdocs/images
 usr/lib/cgi-bin/*
 usr/share/icinga/htdocs/stylesheets/* /etc/icinga/stylesheets/
 usr/share/icinga/htdocs/js/* 
-usr/share/icinga/htdocs/getList.php
 usr/share/icinga/htdocs/includes/utils.inc.php
