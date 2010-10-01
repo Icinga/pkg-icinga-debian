@@ -124,8 +124,12 @@ install-stamp: build-stamp fix-configs-stamp
 	cp module/idoutils/db/mysql/mysql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/mysql
 	cp module/idoutils/db/pgsql/pgsql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/pgsql
 	mkdir -p $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2
+	mkdir -p $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.3
+	mkdir -p $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.0.3
 	cp module/idoutils/db/mysql/mysql-upgrade-1.0.2-fix-object-relations.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2/02_mysql-upgrade-1.0.2-fix-object-relations.sql
 	cp module/idoutils/db/mysql/mysql-upgrade-1.0.2.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2/01_mysql-upgrade-1.0.2.sql
+	cp module/idoutils/db/mysql/mysql-upgrade-1.0.3.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.3/01_mysql-upgrade-1.0.3.sql
+	cp module/idoutils/db/pgsql/pgsql-upgrade-1.0.3.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.0.3/01_pgsql-upgrade-1.0.3.sql
 	# set up /var/cache/icinga for access by www-data
 	chgrp www-data ${b}/icinga-common/var/cache/icinga
 	chmod g+s ${b}/icinga-common/var/cache/icinga
