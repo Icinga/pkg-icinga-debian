@@ -5,6 +5,8 @@ icinga (1.2-1) experimental; urgency=low
   * bump standards version (no changes)
   * Icinga Plugins does not exist
   * Fix typo in watch file
+  * Add japanese debconf translation (Closes: #598368)
+    Thanks Hideki Yamane
 
  -- Alexander Wirt <formorer@debian.org>  Mon, 09 Aug 2010 18:23:06 +0200
 
