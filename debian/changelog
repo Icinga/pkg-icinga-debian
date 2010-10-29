@@ -1,3 +1,9 @@
+icinga (1.2.1-1~artax1) artax; urgency=low
+
+  * Uploading to artax.
+
+ -- Daniel Baumann <daniel.baumann@progress-technologies.net>  Fri, 29 Oct 2010 07:24:17 +0200
+
 icinga (1.2.1-1) unstable; urgency=low
 
   * New upstream release
