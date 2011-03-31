@@ -1,0 +1,17 @@
+Icinga Installation Instructions
+--------------------------------
+
+A quickstart installation guide can now be found in the HTML
+documentation.  You can find the quickstart guide (quickstart.html)
+in the following subdirectory:
+
+	html/docs/
+
+The quickstart covers all the basic steps you need to follow
+to install Icinga, the Icinga plugins, and start out monitoring
+the machine that Icinga is installed on.
+
+Good luck!
+
+
+

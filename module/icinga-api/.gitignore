@@ -1,0 +1,7 @@
+autom4te.cache/
+Makefile
+config.log
+config.status
+contrib/ido2dbparser/Ido2dbParser.php
+subst
+log/*.log
