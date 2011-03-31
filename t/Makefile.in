@@ -1,0 +1,13 @@
+# Makefile for Icinga tests using perl
+
+all:
+
+test:
+	prove -v *.t 2>&1 |tee tests.log
+
+clean:
+	rm -f tests.log
+distclean: clean
+	rm -f Makefile
+
+

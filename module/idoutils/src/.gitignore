@@ -1,0 +1,11 @@
+db.o
+dbhandlers.o
+dbqueries.o
+file2sock
+ido2db
+idomod.o
+io.o
+log2ido
+sockdebug
+utils.o
+

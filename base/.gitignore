@@ -1,0 +1,5 @@
+*.o
+Makefile
+icinga
+icingastats
+perlxsi.c
