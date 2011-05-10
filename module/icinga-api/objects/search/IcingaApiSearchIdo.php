@@ -36,7 +36,18 @@ class IcingaApiSearchIdo
 			return $result;
 		return $colKey;
 	}
-		
+
+	/**
+	* sets the icinga-config type (1 for original or 2 for retained)
+	*
+	* @param int	$type	The config type
+	* @return void
+	* @author Jannis Moßhammer <jannis.mossammer@netways.de>
+	*/
+	public function setConfigType ($type = 2) {
+		$this->ifSettings->configType = $type;	
+	}
+
 	/**
 	 * sets the table prefix
 	 *
@@ -280,6 +291,7 @@ class IcingaApiSearchIdo
 		$variableValuesPrefix = false;
 		$variableValuesTemplate = false;
 		$variableValues = false;
+		$query = str_replace('${CONFIG_TYPE}',$this->ifSettings->configType,$query);
 		$variableNamePrefix = '${' . $variableName;
 
 		if (strpos($query, $variableNamePrefix . ':') !== false) {
@@ -315,7 +327,7 @@ class IcingaApiSearchIdo
 					}
 
 					break;
-
+			
 				case 'FILTER':
 					// TODO: insert processing of default values
 					break;
@@ -344,7 +356,7 @@ class IcingaApiSearchIdo
 						$this->searchOrder = $variableValues;
 					}
 					break;
-
+			
 				case 'LIMIT':
 					if (!$loopCounter) {
 						 $limitValues =

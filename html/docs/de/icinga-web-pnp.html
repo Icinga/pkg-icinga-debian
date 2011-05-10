@@ -1,43 +1,43 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Integration von PNP4Nagios in das Icinga Web Frontend</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Integration von PNP4Nagios in das Icinga-Web Frontend</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.3 Dokumentation">
-<link rel="up" href="ch06.html" title="Kapitel 6. Die BenutzeroberflÃ¤chen">
-<link rel="prev" href="icinga-web-introduction.html" title="EinfÃ¼hrung in Icinga Web">
+<link rel="home" href="index.html" title="Icinga Version 1.4 Dokumentation">
+<link rel="up" href="ch06.html" title="Kapitel 6. Die Benutzeroberflächen">
+<link rel="prev" href="icinga-web-introduction.html" title="Einführung in Icinga-Web">
 <link rel="next" href="ch07.html" title="Kapitel 7. Fortgeschrittene Themen">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <CENTER><IMG src="../images/logofullsize.png" border="0" alt="Icinga" title="Icinga"></CENTER>
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">Integration von PNP4Nagios in das Icinga Web Frontend</th></tr>
+<tr><th colspan="3" align="center">Integration von PNP4Nagios in das Icinga-Web Frontend</th></tr>
 <tr>
 <td width="20%" align="left">
-<a accesskey="p" href="icinga-web-introduction.html">ZurÃ¼ck</a>Â </td>
-<th width="60%" align="center">Kapitel 6. Die BenutzeroberflÃ¤chen</th>
-<td width="20%" align="right">Â <a accesskey="n" href="ch07.html">Weiter</a>
+<a accesskey="p" href="icinga-web-introduction.html">Zurück</a> </td>
+<th width="60%" align="center">Kapitel 6. Die Benutzeroberflächen</th>
+<td width="20%" align="right"> <a accesskey="n" href="ch07.html">Weiter</a>
 </td>
 </tr>
 </table>
 <hr>
 </div>
-<div class="section" title="Integration von PNP4Nagios in das Icinga Web Frontend">
+<div class="section" title="Integration von PNP4Nagios in das Icinga-Web Frontend">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="icinga-web-pnp"></a>Integration von PNP4Nagios in das Icinga Web Frontend</h2></div></div></div>
+<a name="icinga-web-pnp"></a>Integration von PNP4Nagios in das Icinga-Web Frontend</h2></div></div></div>
   
 
-  <p>Mit Hilfe dieser Anleitung kÃ¶nnen Sie PNP4Nagios in das Icinga Web-Frontend integrieren. Wenn Sie PNP4Nagios in das Icinga Classic UI
-  integrieren mÃ¶chten, lesen Sie bitte die PNP4Nagios <a class="link" href="http://docs.pnp4nagios.org/de/pnp-0.6/start" target="_top">Dokumentation.</a></p>
+  <p>Mit Hilfe dieser Anleitung können Sie PNP4Nagios in das Icinga-Web-Frontend integrieren. Wenn Sie PNP4Nagios in das Icinga Classic UI
+  integrieren möchten, lesen Sie bitte die PNP4Nagios <a class="link" href="http://docs.pnp4nagios.org/de/pnp-0.6/start" target="_top">Dokumentation.</a></p>
 
   <div class="figure">
-<a name="id5742702"></a><p class="title"><b>Abbildung 6.50. PNP4Nagios integriert in Icinga Web</b></p>
+<a name="id1544228"></a><p class="title"><b>Abbildung 6.50. PNP4Nagios integriert in Icinga-Web</b></p>
 <div class="figure-contents">
       
 
-      <div class="mediaobject"><img src="../images/MyServiceStatus.png" alt="PNP4Nagios integriert in Icinga Web"></div>
+      <div class="mediaobject"><img src="../images/MyServiceStatus.png" alt="PNP4Nagios integriert in Icinga-Web"></div>
     </div>
 </div>
 <p><br class="figure-break"></p>
@@ -46,10 +46,10 @@
 
   <div class="orderedlist"><ol class="orderedlist" type="1">
 <li class="listitem">
-      <p>Installieren Sie PNP4Nagios wie in der PNP4Nagios <a class="link" href="http://docs.pnp4nagios.org/de/pnp-0.6/start" target="_top">Dokumentation</a> beschrieben.</p>
+      <p>Installieren Sie PNP4Nagios wie in der PNP4Nagios-<a class="link" href="http://docs.pnp4nagios.org/de/pnp-0.6/start" target="_top">Dokumentation</a> beschrieben.</p>
     </li>
 <li class="listitem">
-      <p>Passen Sie die PNP4Nagios-Konfiguration auf Ihre Icinga-Konfiguration an. Wahrscheinlich mÃ¼ssen Sie hier Ã¤ndern:
+      <p>Passen Sie die PNP4Nagios-Konfiguration auf Ihre Icinga-Konfiguration an. Wahrscheinlich müssen Sie hier ändern:
       </p>
 <pre class="programlisting">#&gt; vi npcd.cfg
     user = icinga
@@ -66,7 +66,7 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</pre>
     </li>
 </ol></div>
 
-  <p><span class="bold"><strong>Erstellen Sie die Konfiguration, um die PNP4Nagios Host-Seiten in das Icinga Web zu
+  <p><span class="bold"><strong>Erstellen Sie die Konfiguration, um die PNP4Nagios Host-Seiten in das Icinga-Web zu
   integrieren</strong></span></p>
 
   <div class="orderedlist"><ol class="orderedlist" type="1">
@@ -78,7 +78,7 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</pre>
 <pre class="programlisting">#&gt; cp /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-host-template.xml \
     /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-my-host-template.xml</pre>
 <p>
-      In der neuen Datei legen wir eine zusÃ¤tzliche Feld- (field) Definition an: </p>
+      In der neuen Datei legen wir eine zusätzliche Feld- (field) Definition an: </p>
 <pre class="programlisting">        &lt;field name="pnp4nagios_host_link"&gt;
             &lt;!-- datasource maps a data field from api call --&gt;
             &lt;datasource&gt;
@@ -137,7 +137,7 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</pre>
 <li class="listitem">
       <p>Anlegen einer neuen Grid-Ansicht im "Data" Cronk-Container</p>
 
-      <p>Editieren von cronks.xml im Unterverzeichnis app/modules/Cronks/config/ unter Icinga Web und hinzufÃ¼gen von: </p>
+      <p>Editieren von cronks.xml im Unterverzeichnis app/modules/Cronks/config/ unter Icinga-Web und hinzufügen von: </p>
 <pre class="programlisting">&lt;ae:parameter name="gridMyHostView"&gt;
     &lt;ae:parameter name="module"&gt;Cronks&lt;/ae:parameter&gt;
     &lt;ae:parameter name="action"&gt;System.ViewProc&lt;/ae:parameter&gt;
@@ -153,19 +153,19 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</pre>
     </li>
 </ol></div>
 
-  <p><span class="bold"><strong>Integrieren von PNP4Nagios in Icinga Web-Serviceansichten</strong></span></p>
+  <p><span class="bold"><strong>Integrieren von PNP4Nagios in Icinga-Web-Serviceansichten</strong></span></p>
 
   <div class="orderedlist"><ol class="orderedlist" type="1">
 <li class="listitem">
       <p>Erstellen einer neuen Service-Grid-Ansicht</p>
 
-      <p>Kopieren Sie das Standardtemplate "icinga-service-template.xml" von app/modules/Cronks/data/xml/grid in Ihren Icinga Web-
+      <p>Kopieren Sie das Standardtemplate "icinga-service-template.xml" von app/modules/Cronks/data/xml/grid in Ihren Icinga-Web-
       Installationspfad:</p>
 
       <pre class="programlisting">#&gt; cp /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-service-template.xml \
     /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-my-service-template.xml</pre>
 
-      <p>In der neuen Datei legen wir eine zusÃ¤tzliche Feld- (field) Definition an::</p>
+      <p>In der neuen Datei legen wir eine zusätzliche Feld- (field) Definition an:</p>
 
       <pre class="programlisting">        &lt;field name="pnp4nagios_service_link"&gt;
             &lt;!-- datasource maps a data field from api call --&gt;
@@ -225,7 +225,7 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</pre>
 <li class="listitem">
       <p>Anlegen einer neuen Grid-Ansicht im "Data" Cronk-Container</p>
 
-      <p>Editieren von cronks.xml im Unterverzeichnis app/modules/Cronks/config/ unter Icinga Web und hinzufÃ¼gen von:</p>
+      <p>Editieren von cronks.xml im Unterverzeichnis app/modules/Cronks/config/ unter Icinga-Web und hinzufügen von:</p>
 
       <pre class="programlisting">&lt;ae:parameter name="gridMyServiceView"&gt;
     &lt;ae:parameter name="module"&gt;Cronks&lt;/ae:parameter&gt;
@@ -259,7 +259,7 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</pre>
 <th align="left">Anmerkung</th>
 </tr>
 <tr><td align="left" valign="top">
-    <p>Bitte denken Sie daran, wenn Sie eine *.xml-Datei editieren, mÃ¼ssen Sie danach den Cache bereinigen!</p>
+    <p>Bitte denken Sie daran, wenn Sie eine *.xml-Datei editieren, müssen Sie danach den Cache bereinigen!</p>
   </td></tr>
 </table></div>
 
@@ -271,25 +271,25 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</pre>
 
   <p>Das war es auch schon, Sie sind fertig!</p>
 
-  <a class="indexterm" name="id5742970"></a>
+  <a class="indexterm" name="id1544496"></a>
 </div>
 <div class="navfooter">
 <hr>
 <table width="100%" summary="Navigation footer">
 <tr>
 <td width="40%" align="left">
-<a accesskey="p" href="icinga-web-introduction.html">ZurÃ¼ck</a>Â </td>
+<a accesskey="p" href="icinga-web-introduction.html">Zurück</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="ch06.html">Nach oben</a></td>
-<td width="40%" align="right">Â <a accesskey="n" href="ch07.html">Weiter</a>
+<td width="40%" align="right"> <a accesskey="n" href="ch07.html">Weiter</a>
 </td>
 </tr>
 <tr>
-<td width="40%" align="left" valign="top">EinfÃ¼hrung in Icinga WebÂ </td>
+<td width="40%" align="left" valign="top">Einführung in Icinga-Web </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td>
-<td width="40%" align="right" valign="top">Â Kapitel 7. Fortgeschrittene Themen</td>
+<td width="40%" align="right" valign="top"> Kapitel 7. Fortgeschrittene Themen</td>
 </tr>
 </table>
 </div>
-<P class="copyright">Â© 2009-2011 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 2009-2011 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

@@ -9,16 +9,16 @@
 #ifndef _NDBXT_IDOMOD_H
 #define _NDBXT_IDOMOD_H
 
-#define IDOMOD_VERSION "1.3.1"
+#define IDOMOD_VERSION "1.4.0"
 #define IDOMOD_NAME "IDOMOD"
-#define IDOMOD_DATE "03-31-2011"
+#define IDOMOD_DATE "05-11-2011"
 
 /************** misc definitions *************/
 
 /* this is needed for access to daemon's internal data */
 #define NSCORE 1
 
-#define IDOMOD_MAX_BUFLEN   16384
+#define IDOMOD_MAX_BUFLEN   49152
 
 /************** structures *******************/
 
