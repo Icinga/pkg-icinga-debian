@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -641,31 +641,31 @@
 
           <entry>X</entry>
 
-          <entry></entry>
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
+
+          <entry>[2]</entry>
 
           <entry></entry>
 
-          <entry></entry>
+          <entry>[2]</entry>
 
-          <entry></entry>
+          <entry>[2]</entry>
 
-          <entry></entry>
-
-          <entry></entry>
-
-          <entry></entry>
-
-          <entry></entry>
-
-          <entry></entry>
-
-          <entry></entry>
-
-          <entry></entry>
-
-          <entry></entry>
-
-          <entry></entry>
+          <entry>[2]</entry>
         </row>
 
         <row>
@@ -1562,6 +1562,38 @@
           <entry></entry>
 
           <entry>X</entry>
+        </row>
+
+        <row>
+          <entry>jsonoutput [2][3]</entry>
+
+          <entry>X</entry>
+
+          <entry></entry>
+
+          <entry>X</entry>
+
+          <entry>X</entry>
+
+          <entry></entry>
+
+          <entry>X</entry>
+
+          <entry>X</entry>
+
+          <entry>X</entry>
+
+          <entry>X</entry>
+
+          <entry>X</entry>
+
+          <entry></entry>
+
+          <entry>X</entry>
+
+          <entry>X</entry>
+
+          <entry></entry>
         </row>
 
         <row>
@@ -3415,7 +3447,7 @@
 
           <entry></entry>
 
-          <entry>Diese Option setzt automatisch "noheader"</entry>
+          <entry>Diese Option setzt automatisch "noheader". In fast allen CGIs verfügbar (siehe [2])</entry>
         </row>
 
         <row>
@@ -3633,7 +3665,7 @@
 
           <entry>host=monitor</entry>
 
-          <entry>Spezielle Zeichen im Namen müssen kodiert werden ("urlencoded", z.B. "%20" statt einen Leerzeichens)</entry>
+          <entry>Spezielle Zeichen im Namen müssen kodiert werden ("urlencoded", z.B. "%20" statt eines Leerzeichens)</entry>
         </row>
 
         <row>
@@ -3645,7 +3677,7 @@
 
           <entry>hostgroup=linux-boxes</entry>
 
-          <entry>Spezielle Zeichen im Namen müssen kodiert werden ("urlencoded", z.B. "%20" statt einen Leerzeichens)</entry>
+          <entry>Spezielle Zeichen im Namen müssen kodiert werden ("urlencoded", z.B. "%20" statt eines Leerzeichens)</entry>
         </row>
 
         <row>
@@ -3658,7 +3690,7 @@
 
           <entry>hostprops=131088 (aktive Prüfungen, die deaktiviert sind)</entry>
 
-          <entry>Ein logisches ODER der Bedingungen, die in include/cgiutils.c angegeben sind (HOST AND SERVICE FILTER PROPERTIES)</entry>
+          <entry>Ein logisches ODER der Bedingungen, die in include/cgiutils.c angegeben sind <link linkend="cgiparams-filter">[1]</link> (HOST AND SERVICE FILTER PROPERTIES)</entry>
         </row>
 
         <row>
@@ -3755,6 +3787,18 @@
           <entry></entry>
 
           <entry></entry>
+        </row>
+
+        <row>
+          <entry>jsonoutput</entry>
+
+          <entry>Ob die Ausgabe im json-Format sein soll</entry>
+
+          <entry>yes;no</entry>
+
+          <entry></entry>
+
+          <entry>Diese Option setzt automatisch "noheader". In fast allen CGIs verfügbar (siehe [2])</entry>
         </row>
 
         <row>
@@ -4079,7 +4123,7 @@
 
           <entry>serviceprops=131088 (aktive Prüfungen, die deaktiviert sind)</entry>
 
-          <entry>Ein logisches ODER der Bedingungen, die in include/cgiutils.c angegeben sind (HOST AND SERVICE FILTER PROPERTIES)</entry>
+          <entry>Ein logisches ODER der Bedingungen, die in include/cgiutils.c angegeben sind <link linkend="cgiparams-filter">[1]</link> (HOST AND SERVICE FILTER PROPERTIES)</entry>
         </row>
 
         <row>
@@ -4528,9 +4572,66 @@
     </tgroup>
   </informaltable>
 
+  <para><anchor xml:id="cgiparams-filter" /><emphasis role="bold">Ausschnitt aus include/cgiutils.h</emphasis></para>
+  <programlisting>/****************** HOST AND SERVICE FILTER PROPERTIES  *******************/
+
+#define HOST_SCHEDULED_DOWNTIME         1
+#define HOST_NO_SCHEDULED_DOWNTIME      2
+#define HOST_STATE_ACKNOWLEDGED         4
+#define HOST_STATE_UNACKNOWLEDGED       8
+#define HOST_CHECKS_DISABLED            16
+#define HOST_CHECKS_ENABLED             32
+#define HOST_EVENT_HANDLER_DISABLED     64
+#define HOST_EVENT_HANDLER_ENABLED      128
+#define HOST_FLAP_DETECTION_DISABLED    256
+#define HOST_FLAP_DETECTION_ENABLED     512
+#define HOST_IS_FLAPPING                1024
+#define HOST_IS_NOT_FLAPPING            2048
+#define HOST_NOTIFICATIONS_DISABLED     4096
+#define HOST_NOTIFICATIONS_ENABLED      8192
+#define HOST_PASSIVE_CHECKS_DISABLED    16384
+#define HOST_PASSIVE_CHECKS_ENABLED     32768
+#define HOST_PASSIVE_CHECK              65536
+#define HOST_ACTIVE_CHECK               131072
+#define HOST_HARD_STATE                 262144
+#define HOST_SOFT_STATE                 524288
+
+#define SERVICE_SCHEDULED_DOWNTIME      1
+#define SERVICE_NO_SCHEDULED_DOWNTIME   2
+#define SERVICE_STATE_ACKNOWLEDGED      4
+#define SERVICE_STATE_UNACKNOWLEDGED    8
+#define SERVICE_CHECKS_DISABLED         16
+#define SERVICE_CHECKS_ENABLED          32
+#define SERVICE_EVENT_HANDLER_DISABLED  64
+#define SERVICE_EVENT_HANDLER_ENABLED   128
+#define SERVICE_FLAP_DETECTION_ENABLED  256
+#define SERVICE_FLAP_DETECTION_DISABLED 512
+#define SERVICE_IS_FLAPPING             1024
+#define SERVICE_IS_NOT_FLAPPING         2048
+#define SERVICE_NOTIFICATIONS_DISABLED  4096
+#define SERVICE_NOTIFICATIONS_ENABLED   8192
+#define SERVICE_PASSIVE_CHECKS_DISABLED 16384
+#define SERVICE_PASSIVE_CHECKS_ENABLED  32768
+#define SERVICE_PASSIVE_CHECK           65536
+#define SERVICE_ACTIVE_CHECK            131072
+#define SERVICE_HARD_STATE              262144
+#define SERVICE_SOFT_STATE              524288</programlisting>
+  <para>[1] Logisches ODER bedeutet, dass die jeweiligen Zahlen addiert werden. Es werden dann die Objekte angezeigt, die ALLE Bedingungen erfüllen.</para>
+  <para>[2] Verfügbar ab &name-icinga; 1.4.</para>
+  <para>[3] avail, log, notif, out, status, sum: Alle Views/Reports unterstützen jsonoutput; config: Alle Typen außer command expansion;
+  ext: Alle Views außer hostgroup/servicegroup info (immer außer Performance-Daten); tac: Datenausgabe im json-Format. Mehr Informationen
+  finden Sie im <link xlink:href="https://wiki.icinga.org/display/howtos/Using+JSON+export+in+Classic-UI">&name-icinga;-Wiki</link>.</para>
+
+
   <indexterm zone="cgiparams">
     <primary>CGIs</primary>
 
     <secondary>Parameter</secondary>
+  </indexterm>
+
+  <indexterm zone="cgiparams-filter">
+    <primary>CGIs</primary>
+
+    <secondary>Filtereigenschaften (Filter Properties)</secondary>
   </indexterm>
 </section>

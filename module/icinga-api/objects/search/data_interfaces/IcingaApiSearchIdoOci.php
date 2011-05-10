@@ -15,7 +15,7 @@ class IcingaApiSearchIdoOci
 
 	public $tablePrefix = null;
 	public $postProcess = true;
-
+	public $configType = 1;
 	public $clearVariables = array('LIMIT');
 
 	public $statements = array (
@@ -62,7 +62,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
-				oh.objecttype_id = 1 and h.config_type=1
+				oh.objecttype_id = 1 and h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -81,6 +81,7 @@ class IcingaApiSearchIdoOci
 			${if_table:ss:inner join ${TABLE_PREFIX}servicestatus ss on ss.service_object_id = os.id}
 			${if_table:ocg,scg,s:inner join ${TABLE_PREFIX}objects ocg on ocg.object_id = scg.contactgroup_object_id and ocg.objecttype_id = 11}
 			${if_table:hs,s:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = s.host_object_id}
+			${if_table:h:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = s.host_object_id}
 			${if_table:oh,s:inner join ${TABLE_PREFIX}objects oh on oh.object_id = s.host_object_id and oh.objecttype_id = 1}
 			${if_table:sgm:left join icinga_servicegroup_members sgm on sgm.service_object_id = os.id}
 			${if_table:sg,sgm:left join icinga_servicegroups sg on sg.id = sgm.servicegroup_id}
@@ -92,7 +93,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
-				os.objecttype_id = 2 and s.config_type=1
+				os.objecttype_id = 2 and s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -211,7 +212,7 @@ class IcingaApiSearchIdoOci
 			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
-			where h.config_type=1
+			where h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
 				hs.current_state
@@ -238,7 +239,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s,os:--inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
-			where s.config_type=1
+			where s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
 				ss.current_state

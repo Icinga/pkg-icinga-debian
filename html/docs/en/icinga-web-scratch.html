@@ -1,32 +1,32 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Installation of the Icinga Web Frontend</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Installation of the Icinga-Web Frontend</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.3 Documentation">
-<link rel="up" href="ch06.html" title="ChapterÂ 6.Â User Interfaces">
+<link rel="home" href="index.html" title="Icinga Version 1.4 Documentation">
+<link rel="up" href="ch06.html" title="Chapter 6. User Interfaces">
 <link rel="prev" href="cgiparams.html" title="Information On CGI parameters">
-<link rel="next" href="upgrading_icingaweb.html" title="Upgrading Icinga Web and Icinga Web Database">
+<link rel="next" href="upgrading_icingaweb.html" title="Upgrading Icinga-Web and Icinga-Web Database">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <CENTER><IMG src="../images/logofullsize.png" border="0" alt="Icinga" title="Icinga"></CENTER>
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">Installation of the Icinga Web Frontend</th></tr>
+<tr><th colspan="3" align="center">Installation of the Icinga-Web Frontend</th></tr>
 <tr>
 <td width="20%" align="left">
-<a accesskey="p" href="cgiparams.html">Prev</a>Â </td>
-<th width="60%" align="center">ChapterÂ 6.Â User Interfaces</th>
-<td width="20%" align="right">Â <a accesskey="n" href="upgrading_icingaweb.html">Next</a>
+<a accesskey="p" href="cgiparams.html">Prev</a> </td>
+<th width="60%" align="center">Chapter 6. User Interfaces</th>
+<td width="20%" align="right"> <a accesskey="n" href="upgrading_icingaweb.html">Next</a>
 </td>
 </tr>
 </table>
 <hr>
 </div>
-<div class="section" title="Installation of the Icinga Web Frontend">
+<div class="section" title="Installation of the Icinga-Web Frontend">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="icinga-web-scratch"></a>Installation of the Icinga Web Frontend</h2></div></div></div>
+<a name="icinga-web-scratch"></a>Installation of the Icinga-Web Frontend</h2></div></div></div>
   
 
   <p><span class="bold"><strong>Introducion</strong></span></p>
@@ -35,9 +35,9 @@
   further notice. If you require more detailed information about installing, please check doc/INSTALL.</p>
 
   <p>More information about the overall architecture can be found on our website: <a class="link" href="http://www.icinga.org/architecture/" target="_top">http://www.icinga.org/architecture/</a>. If you want know more about Icinga web development and
-  the module architecture, please check out the development wiki of Icinga Web: <a class="link" href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web" target="_top">Icinga Wiki</a></p>
+  the module architecture, please check out the development wiki of Icinga Web: <a class="link" href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web" target="_top">Icinga-Wiki</a></p>
 
-  <p>This installation guide describes the installation of Icinga Web with MySQL as underlying database. Icinga Web also supports
+  <p>This installation guide describes the installation of Icinga-Web with MySQL as underlying database. Icinga-Web also supports
   Oracle and PostgreSQL as database backends.</p>
 
   <div class="orderedlist"><ol class="orderedlist" type="1">
@@ -109,13 +109,13 @@
 
       <p>Unpack your tarball:</p>
 
-      <pre class="programlisting"> #&gt; tar xzvf icinga-web-1.3.0.tar.gz</pre>
+      <pre class="programlisting"> #&gt; tar xzvf icinga-web-1.4.0.tar.gz</pre>
 
       <p>Then change to the directory:</p>
 
-      <pre class="programlisting"> #&gt; cd icinga-web-1.3.0</pre>
+      <pre class="programlisting"> #&gt; cd icinga-web-1.4.0</pre>
 
-      <p>Icinga Web provides several configure options e.g.</p>
+      <p>Icinga-Web provides several configure options e.g.</p>
 
       <pre class="programlisting"> #&gt; ./configure 
                 --prefix=/usr/local/icinga-web 
@@ -163,7 +163,7 @@
       </td></tr>
 </table></div>
 
-      <p>Per default the Icinga Webinterface will be installed to /usr/local/icinga-web using:</p>
+      <p>Per default the Icinga-Webinterface will be installed to /usr/local/icinga-web using:</p>
 
       <pre class="programlisting"> #&gt; ./configure
  #&gt; make install</pre>
@@ -279,7 +279,7 @@
 
       <p>* Settings of the Icinga API which is mandatory as data source</p>
 
-      <p><span class="bold"><strong>Settings of Icinga Web</strong></span></p>
+      <p><span class="bold"><strong>Settings of Icinga-Web</strong></span></p>
 
       <p>Normally you can set the database credentials during configure, but if you want to recheck or even change them, please adapt
       those to your needs.</p>
@@ -328,9 +328,9 @@
 
                         &lt;/database&gt;</pre>
 
-      <p><span class="bold"><strong>Settings of Icinga API</strong></span></p>
+      <p><span class="bold"><strong>Settings of Icinga-API</strong></span></p>
 
-      <p>Those settings are directly within Icinga Web which provides the given information in an appropriate way to the Icinga API. Keep
+      <p>Those settings are directly within Icinga-Web which provides the given information in an appropriate way to the Icinga-API. Keep
       a look into app/modules/Web/config/icinga-io.xml.xml for the IcingaApi factories: IcingaData and IcingaCommand.</p>
 
       <pre class="programlisting"> #&gt; vi app/modules/Web/config/icinga-io.xml</pre>
@@ -697,29 +697,29 @@ Alias /icinga-web /usr/local/icinga-web/pub
     </li>
 </ol></div>
 
-  <a class="indexterm" name="id2939536"></a>
+  <a class="indexterm" name="id1513460"></a>
 
-  <a class="indexterm" name="id2939649"></a>
+  <a class="indexterm" name="id1513676"></a>
 
-  <a class="indexterm" name="id2939752"></a>
+  <a class="indexterm" name="id1513686"></a>
 </div>
 <div class="navfooter">
 <hr>
 <table width="100%" summary="Navigation footer">
 <tr>
 <td width="40%" align="left">
-<a accesskey="p" href="cgiparams.html">Prev</a>Â </td>
+<a accesskey="p" href="cgiparams.html">Prev</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="ch06.html">Up</a></td>
-<td width="40%" align="right">Â <a accesskey="n" href="upgrading_icingaweb.html">Next</a>
+<td width="40%" align="right"> <a accesskey="n" href="upgrading_icingaweb.html">Next</a>
 </td>
 </tr>
 <tr>
-<td width="40%" align="left" valign="top">Information On CGI parametersÂ </td>
+<td width="40%" align="left" valign="top">Information On CGI parameters </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
-<td width="40%" align="right" valign="top">Â Upgrading Icinga Web and Icinga Web Database</td>
+<td width="40%" align="right" valign="top"> Upgrading Icinga-Web and Icinga-Web Database</td>
 </tr>
 </table>
 </div>
-<P class="copyright">Â© 2009-2011 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 2009-2011 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

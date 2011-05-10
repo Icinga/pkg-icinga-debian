@@ -15,6 +15,7 @@ class IcingaApiSearchIdoPgsql
 
 	public $tablePrefix = 'icinga_';
 	public $postProcess = false;
+	public $configType = 1;
 	public $groupByCols = array();
 	public $clearVariables = array();
 	public $hasArithmeticField = false;
@@ -55,7 +56,7 @@ class IcingaApiSearchIdoPgsql
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
 			where
-				oh.objecttype_id = 1 and h.config_type=1
+				oh.objecttype_id = 1 and h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -74,18 +75,19 @@ class IcingaApiSearchIdoPgsql
 			inner join ${TABLE_PREFIX}servicestatus AS ss on ss.service_object_id = os.object_id
 			${if_table:ocg,scg,s:inner join ${TABLE_PREFIX}objects AS ocg on ocg.object_id = scg.contactgroup_object_id and ocg.objecttype_id = 11}
 			${if_table:hs,s:inner join ${TABLE_PREFIX}hoststatus AS hs on hs.host_object_id = s.host_object_id}
+			${if_table:h:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = s.host_object_id}
 			${if_table:oh,s:inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = s.host_object_id and oh.objecttype_id = 1}
 			${if_table:sgm:left join ${TABLE_PREFIX}servicegroup_members AS sgm on sgm.service_object_id = os.object_id}
 			${if_table:sg,sgm:left join ${TABLE_PREFIX}servicegroups AS sg on sg.servicegroup_id = sgm.servicegroup_id}
 			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}objects AS osg on osg.object_id = sg.servicegroup_object_id}
 			${if_table:hgm,oh,s:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
 			${if_table:hg,hgm,oh,s:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
-			${if_table:ohg,hg,hgm,oh,s:inner join ${TABLE_PREFIX}objects ohg AS on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:ohg,hg,hgm,oh,s:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
 			${if_table:cvsh,oh,s:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
 			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus AS cvss on os.object_id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
 			where
-				os.objecttype_id = 2 and s.config_type=1
+				os.objecttype_id = 2 and s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -204,7 +206,7 @@ class IcingaApiSearchIdoPgsql
 			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
-			where h.config_type=1
+			where h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
 				hs.current_state
@@ -231,7 +233,7 @@ class IcingaApiSearchIdoPgsql
 			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
 			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus AS cvss on os.object_id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
-			where s.config_type=1
+			where s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
 				ss.current_state
@@ -301,7 +303,7 @@ class IcingaApiSearchIdoPgsql
 			from
 				${TABLE_PREFIX}notifications AS n
 			inner join ${TABLE_PREFIX}objects AS obn on obn.object_id = n.object_id and obn.is_active = 1
-			${if_table:s,on:left join ${TABLE_PREFIX}service ASs s on s.service_object_id = obn.object_id}
+			${if_table:s,on:left join ${TABLE_PREFIX}service AS s on s.service_object_id = obn.object_id}
 			${if_table:h,s,on:left join ${TABLE_PREFIX}hosts AS h on h.host_object_id = obn.object_id or h.host_object_id = s.host_object_id}
 			${if_table:oh,h,s,on:left join ${TABLE_PREFIX}objects AS oh on oh.object_id = h.host_object_id}
 			${if_table:os,s,on:left join ${TABLE_PREFIX}objects AS os on os.object_id = s.service_object_id}
@@ -593,7 +595,7 @@ class IcingaApiSearchIdoPgsql
 		'HOST_CHILD_NAME' => array('oh', 'name1'),
 		'HOST_CUSTOMVARIABLE_NAME' => array('cvsh', 'varname'),
 		'HOST_CUSTOMVARIABLE_VALUE' => array('cvsh', 'varvalue'),
-		'HOST_IS_PENDING' => array('hs','has_been_checked','(%s-hs.should_be_scheduled)*-1'),
+		'HOST_IS_PENDING' => array('hs','has_been_checked','(%s-hs.should_be_scheduled)*-1>0'),
 
 		// Service data
 		'SERVICE_ID' => array('s', 'service_id'),
@@ -650,7 +652,7 @@ class IcingaApiSearchIdoPgsql
 		'SERVICE_CUSTOMVARIABLE_NAME' => array('cvss', 'varname'),
 		'SERVICE_CUSTOMVARIABLE_VALUE' => array('cvss', 'varvalue'),
 		'SERVICE_STATE_COUNT' => array('count(ss', 'current_state)'),
-		'SERVICE_IS_PENDING' => array('ss','has_been_checked','(%s-ss.should_be_scheduled)*-1'),
+		'SERVICE_IS_PENDING' => array('ss','has_been_checked','(%s-ss.should_be_scheduled)*-1>0'),
 
 		// Config vars
 		'CONFIG_VAR_ID' => array('cfv', 'configfilevariable_id'),

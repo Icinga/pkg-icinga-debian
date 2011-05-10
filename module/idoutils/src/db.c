@@ -20,6 +20,8 @@ extern int errno;
 
 extern int ido2db_log_debug_info(int , int , const char *, ...);
 
+int dummy;	/* reduce compiler warnings */
+
 /* point to prepared statements after db initialize */
 #ifdef USE_ORACLE
 int ido2db_oci_prepared_statement_objects_insert(ido2db_idi *idi);
@@ -239,10 +241,9 @@ int ido2db_db_init(ido2db_idi *idi) {
 		        case IDO2DB_DBSERVER_ORACLE:
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 				/* don't allow user to set table prefix for oracle */
-        		        if ((ido2db_db_tablenames[x] = (char *) malloc(strlen(ido2db_db_rawtablenames[x])))==NULL)
+				if ((ido2db_db_tablenames[x]=strdup(ido2db_db_rawtablenames[x]))==NULL) 
                         		return IDO_ERROR;
 
-				sprintf(ido2db_db_tablenames[x], "%s", ido2db_db_rawtablenames[x]);
 #endif /* Oracle ocilib specific */
 		                break;
 		        case IDO2DB_DBSERVER_SQLITE:
@@ -484,6 +485,23 @@ int ido2db_db_connect(ido2db_idi *idi) {
 	dbi_conn_set_option(idi->dbinfo.dbi_conn, "dbname", ido2db_db_settings.dbname);
 	dbi_conn_set_option(idi->dbinfo.dbi_conn, "encoding", "auto");
 
+	if(ido2db_db_settings.dbsocket!=NULL){
+		/* a local db socket was desired, drop db_port settings in case */
+		dbi_conn_clear_option(idi->dbinfo.dbi_conn, "port");
+
+	        switch (idi->dbinfo.server_type) {
+	        case IDO2DB_DBSERVER_MYSQL:
+	                dbi_conn_set_option(idi->dbinfo.dbi_conn, "mysql_unix_socket", ido2db_db_settings.dbsocket);
+			break;
+		case IDO2DB_DBSERVER_PGSQL:
+			/* override the port as stated in libdbi-driver docs */
+	                dbi_conn_set_option(idi->dbinfo.dbi_conn, "port", ido2db_db_settings.dbsocket);
+			break;
+		default:
+			break;
+		}
+	}
+
 	if (dbi_conn_connect(idi->dbinfo.dbi_conn) != 0) {
 		dbi_conn_error(idi->dbinfo.dbi_conn, &dbi_error);
 		syslog(LOG_USER | LOG_INFO, "Error: Could not connect to %s database: %s", ido2db_db_settings.dbserver, dbi_error);
@@ -497,7 +515,7 @@ int ido2db_db_connect(ido2db_idi *idi) {
 
 #ifdef USE_PGSQL /* pgsql */
 
-	asprintf(&temp_port, "%d", ido2db_db_settings.port);
+	dummy=asprintf(&temp_port, "%d", ido2db_db_settings.port);
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_connect() pgsql start\n");
 
         /* check if config matches */
@@ -1276,11 +1294,11 @@ int ido2db_db_version_check(ido2db_idi *idi) {
 
         if(OCI_FetchNext(idi->dbinfo.oci_resultset)) {
                 ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_version_check() fetchnext ok\n");
-                idi->dbinfo.dbversion=OCI_GetString(idi->dbinfo.oci_resultset, 1);
+                idi->dbinfo.dbversion=strdup(OCI_GetString(idi->dbinfo.oci_resultset, 1));
+        	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_hello(version=%s)\n", idi->dbinfo.dbversion);
         } else {
                 ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_version_check() fetchnext not ok\n");
         }
-        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_hello(version=%s)\n", dbversion);
 
 
 #endif
@@ -1293,8 +1311,14 @@ int ido2db_db_version_check(ido2db_idi *idi) {
 	free(name);
 
 	/* check dbversion against program version */
-	if(strcmp(idi->dbinfo.dbversion, IDO2DB_VERSION)!=0){
-		syslog(LOG_ERR, "Error: DB Version %s does not match program version %s. Please check the upgrade docs!", idi->dbinfo.dbversion, IDO2DB_VERSION);
+	if(idi->dbinfo.dbversion==NULL){
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_version_check() dbversion is NULL\n");
+		syslog(LOG_ERR, "Error: DB Version cannot be retrieved. Please check the upgrade docs and verify the db schema!");
+		return IDO_ERROR;
+	}
+	if(strcmp(idi->dbinfo.dbversion, IDO2DB_SCHEMA_VERSION)!=0){
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_version_check() db version %s does not match schema version %s\n", idi->dbinfo.dbversion, IDO2DB_SCHEMA_VERSION);
+		syslog(LOG_ERR, "Error: DB Version %s does not match needed schema version %s. Please check the upgrade docs!", idi->dbinfo.dbversion, IDO2DB_SCHEMA_VERSION);
 		return IDO_ERROR;
 	}
 
@@ -1339,7 +1363,8 @@ int ido2db_db_hello(ido2db_idi *idi) {
 
 		if (idi->dbinfo.dbi_result != NULL) {
 			if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-				idi->dbinfo.instance_id = dbi_result_get_uint(idi->dbinfo.dbi_result, "instance_id");
+				idi->dbinfo.instance_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "instance_id");
+				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_hello(instance_id=%lu)\n", idi->dbinfo.instance_id);
 				have_instance = IDO_TRUE;
 			}
 		}
@@ -1352,7 +1377,7 @@ int ido2db_db_hello(ido2db_idi *idi) {
 
                 ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_hello() query against existing instance not possible, cleaning up and exiting\n");
 
-		ido2db_kill_threads();
+		ido2db_terminate_threads();
 
 		/* disconnect from database */
 		ido2db_db_disconnect(idi);
@@ -1400,7 +1425,7 @@ int ido2db_db_hello(ido2db_idi *idi) {
 
 	        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_hello() query against existing instance not possible, cleaning up and exiting\n");
 
-		ido2db_kill_threads();
+		ido2db_terminate_threads();
 
                 /* disconnect from database */
                 ido2db_db_disconnect(idi);
@@ -1535,7 +1560,7 @@ int ido2db_db_hello(ido2db_idi *idi) {
 
 	ts = ido2db_db_timet_to_sql(idi, idi->data_start_time);
 
-	if (asprintf(&buf, "INSERT INTO %s (instance_id, connect_time, last_checkin_time, bytes_processed, lines_processed, entries_processed, agent_name, agent_version, disposition, connect_source, connect_type, data_start_time) VALUES ('%lu', NOW(), NOW(), '0', '0', '0', '%s', '%s', '%s', '%s', '%s', NOW())",
+	if (asprintf(&buf, "INSERT INTO %s (instance_id, connect_time, last_checkin_time, bytes_processed, lines_processed, entries_processed, agent_name, agent_version, disposition, connect_source, connect_type, data_start_time) VALUES (%lu, NOW(), NOW(), '0', '0', '0', '%s', '%s', '%s', '%s', '%s', NOW())",
 			ido2db_db_tablenames[IDO2DB_DBTABLE_CONNINFO],
 			idi->dbinfo.instance_id, idi->agent_name, idi->agent_version,
 			idi->disposition, idi->connect_source, idi->connect_type) == -1)
@@ -1758,7 +1783,7 @@ int ido2db_thread_db_hello(ido2db_idi *idi) {
 
                 if (idi->dbinfo.dbi_result != NULL) {
                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                idi->dbinfo.instance_id = dbi_result_get_uint(idi->dbinfo.dbi_result, "instance_id");
+                                idi->dbinfo.instance_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "instance_id");
                                 have_instance = IDO_TRUE;
                         }
                 }
@@ -1766,7 +1791,7 @@ int ido2db_thread_db_hello(ido2db_idi *idi) {
         else {
                 ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_thread_db_hello() query against existing instance not possible, cleaning up and exiting\n");
 
-		ido2db_kill_threads();
+		ido2db_terminate_threads();
 
                 /* disconnect from database */
                 ido2db_db_disconnect(idi);
@@ -1807,7 +1832,7 @@ int ido2db_thread_db_hello(ido2db_idi *idi) {
         if(!OCI_Execute(idi->dbinfo.oci_statement_instances_select)) {
                 ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_thread_db_hello() query against existing instance not possible, cleaning up and exiting\n");
 
-		ido2db_kill_threads();
+		ido2db_terminate_threads();
 
                 /* disconnect from database */
                 ido2db_db_disconnect(idi);
@@ -1863,7 +1888,7 @@ int ido2db_thread_db_hello(ido2db_idi *idi) {
 
         ts = ido2db_db_timet_to_sql(idi, idi->data_start_time);
 
-        if (asprintf(&buf, "INSERT INTO %s (instance_id, connect_time, last_checkin_time, bytes_processed, lines_processed, entries_processed, agent_name, agent_version, disposition, connect_source, connect_type, data_start_time) VALUES ('%lu', NOW(), NOW(), '0', '0', '0', '%s', '%s', '%s', '%s', '%s', NOW())",
+        if (asprintf(&buf, "INSERT INTO %s (instance_id, connect_time, last_checkin_time, bytes_processed, lines_processed, entries_processed, agent_name, agent_version, disposition, connect_source, connect_type, data_start_time) VALUES (%lu, NOW(), NOW(), '0', '0', '0', '%s', '%s', '%s', '%s', '%s', NOW())",
                         ido2db_db_tablenames[IDO2DB_DBTABLE_CONNINFO],
                         idi->dbinfo.instance_id, idi->agent_name, idi->agent_version,
                         idi->disposition, idi->connect_source, idi->connect_type) == -1)
@@ -2072,7 +2097,7 @@ int ido2db_db_goodbye(ido2db_idi *idi) {
 	ts = ido2db_db_timet_to_sql(idi, idi->data_end_time);
 
 	/* record last connection information */
-	if (asprintf(&buf, "UPDATE %s SET disconnect_time=NOW(), last_checkin_time=NOW(), data_end_time=%s, bytes_processed='%lu', lines_processed='%lu', entries_processed='%lu' WHERE conninfo_id='%lu'",
+	if (asprintf(&buf, "UPDATE %s SET disconnect_time=NOW(), last_checkin_time=NOW(), data_end_time=%s, bytes_processed=%lu, lines_processed=%lu, entries_processed=%lu WHERE conninfo_id=%lu",
 			ido2db_db_tablenames[IDO2DB_DBTABLE_CONNINFO], ts,
 			idi->bytes_processed, idi->lines_processed, idi->entries_processed,
 			idi->dbinfo.conninfo_id) == -1)
@@ -2149,7 +2174,7 @@ int ido2db_db_checkin(ido2db_idi *idi) {
 
 	/* record last connection information */
 #ifdef USE_LIBDBI /* everything else will be libdbi */
-	if (asprintf(&buf, "UPDATE %s SET last_checkin_time=NOW(), bytes_processed='%lu', lines_processed='%lu', entries_processed='%lu' WHERE conninfo_id='%lu'",
+	if (asprintf(&buf, "UPDATE %s SET last_checkin_time=NOW(), bytes_processed=%lu, lines_processed=%lu, entries_processed=%lu WHERE conninfo_id=%lu",
 			ido2db_db_tablenames[IDO2DB_DBTABLE_CONNINFO],
 			idi->bytes_processed, idi->lines_processed, idi->entries_processed,
 			idi->dbinfo.conninfo_id) == -1)
@@ -2217,10 +2242,10 @@ char *ido2db_db_escape_string(ido2db_idi *idi, char *buf) {
 	register int x, y, z;
 	char *newbuf = NULL;
 
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_escape_string(%s) start\n", buf);
-
 	if (idi == NULL || buf == NULL)
 		return NULL;
+
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_escape_string(%s) start\n", buf);
 
 	z = strlen(buf);
 
@@ -2556,7 +2581,7 @@ int ido2db_db_clear_table(ido2db_idi *idi, char *table_name) {
 		return IDO_ERROR;
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
-	if (asprintf(&buf, "DELETE FROM %s WHERE instance_id='%lu'", table_name, idi->dbinfo.instance_id) == -1)
+	if (asprintf(&buf, "DELETE FROM %s WHERE instance_id=%lu", table_name, idi->dbinfo.instance_id) == -1)
 		buf = NULL;
 
 	result = ido2db_db_query(idi, buf);
@@ -2614,7 +2639,7 @@ int ido2db_db_get_latest_data_time(ido2db_idi *idi, char *table_name, char *fiel
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 
-	if (asprintf(&buf,"SELECT %s AS latest_time FROM %s WHERE instance_id='%lu' ORDER BY %s DESC LIMIT 1 OFFSET 0",
+	if (asprintf(&buf,"SELECT %s AS latest_time FROM %s WHERE instance_id=%lu ORDER BY %s DESC LIMIT 1 OFFSET 0",
 			field_name, table_name, idi->dbinfo.instance_id, field_name) == -1)
 		buf = NULL;
 
@@ -2634,7 +2659,7 @@ int ido2db_db_get_latest_data_time(ido2db_idi *idi, char *table_name, char *fiel
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 
-        if( asprintf(&buf,"SELECT ( ( ( SELECT * FROM ( SELECT %s FROM %s WHERE instance_id='%lu' ORDER BY %s DESC) WHERE ROWNUM = 1 ) - to_date( '01-01-1970 00:00:00','dd-mm-yyyy hh24:mi:ss' )) * 86400) AS latest_time FROM DUAL"
+        if( asprintf(&buf,"SELECT ( ( ( SELECT * FROM ( SELECT %s FROM %s WHERE instance_id=%lu ORDER BY %s DESC) WHERE ROWNUM = 1 ) - to_date( '01-01-1970 00:00:00','dd-mm-yyyy hh24:mi:ss' )) * 86400) AS latest_time FROM DUAL"
                     ,(field_name==NULL)?"":field_name
                     ,table_name
                     ,idi->dbinfo.instance_id
@@ -2698,7 +2723,7 @@ int ido2db_db_trim_data_table(ido2db_idi *idi, char *table_name, char *field_nam
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 
-	if (asprintf(&buf, "DELETE FROM %s WHERE instance_id='%lu' AND %s<%s",
+	if (asprintf(&buf, "DELETE FROM %s WHERE instance_id=%lu AND %s<%s",
 			table_name, idi->dbinfo.instance_id, field_name, ts[0]) == -1)
 		buf = NULL;
 
@@ -2754,7 +2779,7 @@ int ido2db_db_perform_maintenance(ido2db_idi *idi) {
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_perform_maintenance() start\n");
 
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_perform_maintenance() max_logentries_age=%lu, max_ack_age=%lu\n", idi->dbinfo.max_logentries_age, idi->dbinfo.max_logentries_age);
+	//ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_perform_maintenance() max_logentries_age=%lu, max_ack_age=%lu\n", idi->dbinfo.max_logentries_age, idi->dbinfo.max_logentries_age);
 
 	/* get the current time */
 	time(&current_time);
@@ -6087,7 +6112,7 @@ int ido2db_oci_prepared_statement_bind_null_param(OCI_Statement *oci_statement_n
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_oci_prepared_statement_bind_null_param() start\n");
 	//syslog(LOG_USER | LOG_INFO, "bind null param %s\n", param_name);
 
-        asprintf(&oci_tmp, "a"); /* just malloc sth that ocilib is happy */
+	dummy=asprintf(&oci_tmp, "a"); /* just malloc sth that ocilib is happy */
 
 	if(param_name==NULL)
 		return IDO_ERROR;
