@@ -111,9 +111,9 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  # Only take action on hard service states...
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/submit_check_result icinga-1.0.2/contrib/eventhandlers/submit_check_result
---- icinga-1.0.2~/contrib/eventhandlers/submit_check_result	2010-06-30 11:13:42.000000000 +0200
-+++ icinga-1.0.2/contrib/eventhandlers/submit_check_result	2010-07-01 07:28:40.350467222 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~/contrib/eventhandlers/submit_check_result icinga-1.0.2/contrib/eventhandlers/submit_check_result.in
+--- icinga-1.0.2~/contrib/eventhandlers/submit_check_result.in	2010-06-30 11:13:42.000000000 +0200
++++ icinga-1.0.2/contrib/eventhandlers/submit_check_result.in	2010-07-01 07:28:40.350467222 +0200
 @@ -23,7 +23,7 @@
   
  echocmd="/bin/echo"
