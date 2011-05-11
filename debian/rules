@@ -176,6 +176,7 @@ binary-arch: install-stamp
 	# fix permissions of p1
 	chmod 755 ${b}/icinga-core/usr/lib/icinga/p1.pl
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result
+	rm ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result.in
 	chmod -x ${b}/icinga-idoutils/usr/share/doc/icinga-idoutils/examples/README
 	dh_strip             -a  --dbg-package=icinga-dbg
 	dh_compress          -a -X.sql 
