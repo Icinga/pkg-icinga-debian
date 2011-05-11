@@ -1,7 +1,6 @@
 icinga (1.4.0-1) unstable; urgency=low
 
   * New upstream version 
-  * Initial upstream branch.
 
  -- Alexander Wirt <formorer@debian.org>  Wed, 11 May 2011 10:11:01 +0200
 
