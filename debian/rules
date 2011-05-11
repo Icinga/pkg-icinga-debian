@@ -175,7 +175,7 @@ binary-arch: install-stamp
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result
 	chmod -x ${b}/icinga-idoutils/usr/share/doc/icinga-idoutils/examples/README
 	dh_strip             -a  --dbg-package=icinga-dbg
-	dh_compress          -a 
+	dh_compress          -a -X.sql 
 	dh_fixperms          -a -X/var/cache/icinga
 	dh_makeshlibs        -a -V
 	dh_installdeb        -a
