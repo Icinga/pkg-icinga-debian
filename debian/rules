@@ -139,7 +139,6 @@ install-stamp: build-stamp fix-configs-stamp
 	chmod g+s ${b}/icinga-common/var/cache/icinga
 	chown root:www-data ${b}/icinga-common/var/lib/icinga/rw
 	chmod 700 ${b}/icinga-common/var/lib/icinga/rw
-	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result
 	dh_install           -i
 	# we use the versions in debian
 	rm ${b}/tmp/usr/share/icinga/htdocs/js/mootools.js
@@ -174,6 +173,7 @@ binary-arch: install-stamp
 	chmod 600 ${b}/icinga-common/etc/icinga/resource.cfg
 	# fix permissions of p1
 	chmod 755 ${b}/icinga-core/usr/lib/icinga/p1.pl
+	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result
 	dh_strip             -a  --dbg-package=icinga-dbg
 	dh_compress          -a 
 	dh_fixperms          -a -X/var/cache/icinga
