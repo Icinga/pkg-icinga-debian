@@ -130,6 +130,7 @@ install-stamp: build-stamp fix-configs-stamp
 	cp module/idoutils/db/mysql/upgrade/mysql-upgrade-1.0.2-fix-object-relations.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2-2.sql
 	cp module/idoutils/db/mysql/upgrade/mysql-upgrade-1.0.2.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.2-1.sql
 	cp module/idoutils/db/mysql/upgrade/mysql-upgrade-1.0.3.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.0.3-1.sql
+	cp module/idoutils/db/mysql/upgrade/mysql-upgrade-1.4.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/1.4.0-1.sql
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.0.3.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.0.3-1.sql
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.0.3.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.0.3-1.sql
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.4.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.4.0-1.sql
