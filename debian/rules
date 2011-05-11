@@ -53,6 +53,8 @@ clean-patched:
 	-rm contrib/perlxsi.c
 	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
 	-rm -f platform.h auto-include.h
+	-rm solaris/pkginfo
+	-rm contrib/eventhandlers/submit_check_result
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
 	find \( -name config.sub -o -name config.guess \) -print0 | xargs -0 -r rm -f \;
 	dh_clean
