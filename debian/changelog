@@ -1,3 +1,12 @@
+icinga (1.4.0-2~artax1) artax; urgency=low
+
+  * Uploading to artax, remaining changes:
+    - Updating maintainer and uploaders fields.
+    - Updating vcs fields.
+    - Adding bugs field.
+
+ -- Daniel Baumann <daniel.baumann@progress-linux.org>  Sun, 22 May 2011 22:03:54 +0200
+
 icinga (1.4.0-2) unstable; urgency=low
 
   * Install /etc/icinga/modules in -common
