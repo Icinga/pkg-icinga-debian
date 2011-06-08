@@ -1,8 +1,20 @@
+icinga (1.4.1-1) unstable; urgency=low
+
+  * Remove useless patch
+  * Imported Upstream version 1.4.1
+    - Fixes CVE-2011-2179
+    - Fixes CVE-2011-1523
+  * Update 70_fix_eventhandler_paths.dpatch
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 08 Jun 2011 22:38:28 +0200
+
 icinga (1.4.0-2) unstable; urgency=low
 
   * Install /etc/icinga/modules in -common
+  * Remove useles patch
+  * Imported Upstream version 1.4.1
 
- -- Alexander Wirt <formorer@debian.org>  Tue, 17 May 2011 12:52:19 +0200
+ -- Alexander Wirt <formorer@debian.org>  Wed, 08 Jun 2011 22:07:53 +0200
 
 icinga (1.4.0-1) unstable; urgency=low
 
