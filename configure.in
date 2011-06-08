@@ -9,7 +9,7 @@ AC_CONFIG_HEADER(include/config.h include/snprintf.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.4.0"
+PKG_VERSION="1.4.1"
 PKG_HOME_URL="http://www.icinga.org/"
 PKG_REL_DATE="05-11-2011"
 
@@ -1171,7 +1171,13 @@ AC_OUTPUT(Makefile subst solaris/pkginfo base/Makefile common/Makefile contrib/M
 
 
 perl subst $srcdir/include/locations.h
+
 perl subst $srcdir/contrib/eventhandlers/submit_check_result
+perl subst $srcdir/contrib/eventhandlers/disable_active_service_checks
+perl subst $srcdir/contrib/eventhandlers/disable_notifications
+perl subst $srcdir/contrib/eventhandlers/enable_active_service_checks
+perl subst $srcdir/contrib/eventhandlers/enable_notifications
+
 perl subst $srcdir/html/index.html
 perl subst $srcdir/html/menu.html
 

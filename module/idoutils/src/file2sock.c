@@ -12,7 +12,7 @@
 #include "../include/common.h"
 #include "../include/io.h"
 
-#define FILE2SOCK_VERSION "1.4.0"
+#define FILE2SOCK_VERSION "1.4.1"
 #define FILE2SOCK_NAME "FILE2SOCK"
 #define FILE2SOCK_DATE "05-11-2011"
 
