@@ -1589,4 +1589,3 @@ CREATE INDEX statehist_i_id_o_id_s_ty_s_ti on icinga_statehistory(instance_id, o
 -- -----------------------------------------
 
 SELECT updatedbversion('1.4.0');
-
