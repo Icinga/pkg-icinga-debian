@@ -13,8 +13,8 @@
 #include "utils.h"
 
 #define IDO2DB_NAME "IDO2DB"
-#define IDO2DB_DATE "05-11-2011"
-#define IDO2DB_VERSION "1.4.1"
+#define IDO2DB_DATE "06-29-2011"
+#define IDO2DB_VERSION "1.4.2"
 
 #define IDO2DB_SCHEMA_VERSION "1.4.0"
 
@@ -176,6 +176,7 @@ typedef struct ido2db_dbconninfo_struct{
 	OCI_Statement* oci_statement_timedevents_update;
 	OCI_Statement* oci_statement_comment_history_update;
 	OCI_Statement* oci_statement_downtimehistory_update_start;
+	OCI_Statement* oci_statement_scheduleddowntime_update_start;
 	OCI_Statement* oci_statement_downtimehistory_update_stop;
 	OCI_Statement* oci_statement_conninfo_update;
 	OCI_Statement* oci_statement_conninfo_update_checkin;
