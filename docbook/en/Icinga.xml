@@ -74,13 +74,27 @@
 
     <revhistory>
       <revision>
+        <revnumber>1.4</revnumber>
+
+        <date>2011-05-11</date>
+
+        <revremark>1.4 Icinga Documentation</revremark>
+      </revision>
+      <revision>
+        <revnumber>1.x</revnumber>
+
+        <date>2010/2011</date>
+
+        <revremark>1.x Icinga Documentation</revremark>
+      </revision>
+<!--
+      <revision>
         <revnumber>1.3</revnumber>
 
         <date>2011-02-16</date>
 
         <revremark>1.3 Icinga Documentation</revremark>
       </revision>
-<!--
       <revision>
         <revnumber>1.2</revnumber>
 
@@ -172,7 +186,7 @@
 
     <xi:include href="quickstart-idoutils-freebsd.xml" />
 
-<xi:include href="howtos.xml" />
+    <xi:include href="howtos.xml" />
 
     <xi:include href="upgrading.xml" />
 
@@ -344,6 +358,7 @@
     <title>Additional software</title>
 
     <xi:include href="addons.xml" />
+    <xi:include href="nrpe.xml" />
     <xi:include href="nsca.xml" />
   </chapter>
 
@@ -371,6 +386,8 @@
     <xi:include href="db_example-configs.xml" />
 
     <xi:include href="db_model.xml" />
+
+    <xi:include href="db_changes.xml" />
   </chapter>
 
   <index></index>

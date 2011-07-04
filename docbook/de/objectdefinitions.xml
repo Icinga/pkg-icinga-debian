@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -114,7 +114,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -132,7 +132,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry><para>host_name</para></entry>
           </row>
@@ -140,7 +140,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>alias</emphasis></entry>
+            <entry><emphasis condition="red" role="color">alias</emphasis></entry>
 
             <entry>alias</entry>
           </row>
@@ -156,7 +156,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>address</emphasis></entry>
+            <entry><emphasis condition="red" role="color">address</emphasis></entry>
 
             <entry>address</entry>
           </row>
@@ -204,7 +204,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>max_check_attempts</emphasis></entry>
+            <entry><emphasis condition="red" role="color">max_check_attempts</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -244,7 +244,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>check_period</emphasis></entry>
+            <entry><emphasis condition="red" role="color">check_period</emphasis></entry>
 
             <entry>timeperiod_name</entry>
           </row>
@@ -348,7 +348,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contacts</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contacts</emphasis></entry>
 
             <entry>contacts</entry>
           </row>
@@ -356,7 +356,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contact_groups</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contact_groups</emphasis></entry>
 
             <entry>contact_groups</entry>
           </row>
@@ -364,7 +364,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>notification_interval</emphasis></entry>
+            <entry><emphasis condition="red" role="color">notification_interval</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -380,7 +380,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>notification_period</emphasis></entry>
+            <entry><emphasis condition="red" role="color">notification_period</emphasis></entry>
 
             <entry>timeperiod_name</entry>
           </row>
@@ -954,7 +954,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -972,7 +972,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>hostgroup_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">hostgroup_name</emphasis></entry>
 
             <entry>hostgroup_name</entry>
           </row>
@@ -980,7 +980,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>alias</emphasis></entry>
+            <entry><emphasis condition="red" role="color">alias</emphasis></entry>
 
             <entry>alias</entry>
           </row>
@@ -1138,7 +1138,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -1156,7 +1156,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry>host_name</entry>
           </row>
@@ -1172,7 +1172,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_description</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_description</emphasis></entry>
 
             <entry>service_description</entry>
           </row>
@@ -1204,7 +1204,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>check_command</emphasis></entry>
+            <entry><emphasis condition="red" role="color">check_command</emphasis></entry>
 
             <entry>command_name</entry>
           </row>
@@ -1220,7 +1220,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>max_check_attempts</emphasis></entry>
+            <entry><emphasis condition="red" role="color">max_check_attempts</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -1228,7 +1228,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>check_interval</emphasis></entry>
+            <entry><emphasis condition="red" role="color">check_interval</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -1236,7 +1236,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>retry_interval</emphasis></entry>
+            <entry><emphasis condition="red" role="color">retry_interval</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -1260,7 +1260,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>check_period</emphasis></entry>
+            <entry><emphasis condition="red" role="color">check_period</emphasis></entry>
 
             <entry>timeperiod_name</entry>
           </row>
@@ -1364,7 +1364,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>notification_interval</emphasis></entry>
+            <entry><emphasis condition="red" role="color">notification_interval</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -1380,7 +1380,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>notification_period</emphasis></entry>
+            <entry><emphasis condition="red" role="color">notification_period</emphasis></entry>
 
             <entry>timeperiod_name</entry>
           </row>
@@ -1404,7 +1404,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contacts</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contacts</emphasis></entry>
 
             <entry>contacts</entry>
           </row>
@@ -1412,7 +1412,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contact_groups</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contact_groups</emphasis></entry>
 
             <entry>contact_groups</entry>
           </row>
@@ -1886,7 +1886,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -1904,7 +1904,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>servicegroup_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">servicegroup_name</emphasis></entry>
 
             <entry><para>servicegroup_name</para></entry>
           </row>
@@ -1912,7 +1912,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>alias</emphasis></entry>
+            <entry><emphasis condition="red" role="color">alias</emphasis></entry>
 
             <entry>alias</entry>
           </row>
@@ -2073,7 +2073,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -2091,7 +2091,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contact_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contact_name</emphasis></entry>
 
             <entry><para>contact_name</para></entry>
           </row>
@@ -2115,7 +2115,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_notifications_enabled</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_notifications_enabled</emphasis></entry>
 
             <entry><para>[0/1]</para></entry>
           </row>
@@ -2123,7 +2123,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_notifications_enabled</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_notifications_enabled</emphasis></entry>
 
             <entry><para>[0/1]</para></entry>
           </row>
@@ -2131,7 +2131,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_notification_period</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_notification_period</emphasis></entry>
 
             <entry>timeperiod_name</entry>
           </row>
@@ -2139,7 +2139,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_notification_period</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_notification_period</emphasis></entry>
 
             <entry>timeperiod_name</entry>
           </row>
@@ -2147,7 +2147,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_notification_options</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_notification_options</emphasis></entry>
 
             <entry><para>[d,u,r,f,s,n]</para></entry>
           </row>
@@ -2155,7 +2155,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_notification_options</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_notification_options</emphasis></entry>
 
             <entry><para>[w,u,c,r,f,s,n]</para></entry>
           </row>
@@ -2163,7 +2163,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_notification_commands</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_notification_commands</emphasis></entry>
 
             <entry>command_name</entry>
           </row>
@@ -2171,7 +2171,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_notification_commands</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_notification_commands</emphasis></entry>
 
             <entry>command_name</entry>
           </row>
@@ -2450,7 +2450,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -2468,7 +2468,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contactgroup_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contactgroup_name</emphasis></entry>
 
             <entry><para>contactgroup_name</para></entry>
           </row>
@@ -2476,7 +2476,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>alias</emphasis></entry>
+            <entry><emphasis condition="red" role="color">alias</emphasis></entry>
 
             <entry>alias</entry>
           </row>
@@ -2582,7 +2582,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -2600,7 +2600,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>timeperiod_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">timeperiod_name</emphasis></entry>
 
             <entry><para>timeperiod_name</para></entry>
           </row>
@@ -2608,7 +2608,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>alias</emphasis></entry>
+            <entry><emphasis condition="red" role="color">alias</emphasis></entry>
 
             <entry>alias</entry>
           </row>
@@ -2679,7 +2679,8 @@
         day 20 - -1                     00:00-24:00             ; 20. Tag bis Monatsende
         july 10 - 15                    00:00-24:00             ; 10. - 15. Juli
         april 10 - may 15               00:00-24:00             ; 10. April bis zum 15. Mai
-        tuesday 1 april - friday 2 may  00:00-24:00             ; 1. Dienstag im April bis zum 2. Freitag im Mai
+        tuesday 1 april - friday 2 may  00:00-24:00             ; 1. Dienstag im April
+                                                                ; bis zum 2. Freitag im Mai
         }
  define timeperiod{
         timeperiod_name         misc-skip-ranges
@@ -2689,7 +2690,8 @@
         monday 3 - thursday 4 / 2               00:00-24:00     ; jeder zweite Tag vom 3. Montag bis zum 4. Donnerstag des Monats
         day 1 - 15 / 5                          00:00-24:00     ; jeder 5. Tag vom 1. bis zum 15. Tag des Monats
         july 10 - 15 / 2                        00:00-24:00     ; jeder zweite Tag vom 10. Juli bis zum 15.Juli
-        tuesday 1 april - friday 2 may / 6      00:00-24:00     ; jeder sechste Tag vom 1. Dienstag im April bis zum 2. Freitag im Mai
+        tuesday 1 april - friday 2 may / 6      00:00-24:00     ; jeder sechste Tag vom 1. Dienstag im April 
+                                                                ; bis zum 2. Freitag im Mai
         }</screen>
 
     <para><emphasis>Beschreibung der Direktiven:</emphasis></para>
@@ -2771,7 +2773,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -2789,7 +2791,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>command_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">command_name</emphasis></entry>
 
             <entry><para>command_name</para></entry>
           </row>
@@ -2797,7 +2799,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>command_line</emphasis></entry>
+            <entry><emphasis condition="red" role="color">command_line</emphasis></entry>
 
             <entry><para>command_line</para></entry>
           </row>
@@ -2891,7 +2893,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional. Trotz allem müssen Sie mindestens ein
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional. Trotz allem müssen Sie mindestens ein
     Kriterium angeben, damit die Definition von Nutzen ist.</para>
 
     <informaltable frame="none">
@@ -2910,7 +2912,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>dependent_host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">dependent_host_name</emphasis></entry>
 
             <entry><para>host_name</para></entry>
           </row>
@@ -2926,7 +2928,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>dependent_service_description</emphasis></entry>
+            <entry><emphasis condition="red" role="color">dependent_service_description</emphasis></entry>
 
             <entry>service_description</entry>
           </row>
@@ -2934,7 +2936,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry>host_name</entry>
           </row>
@@ -2950,7 +2952,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_description</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_description</emphasis></entry>
 
             <entry>service_description</entry>
           </row>
@@ -3143,7 +3145,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -3161,7 +3163,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry>host_name</entry>
           </row>
@@ -3185,7 +3187,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_description</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_description</emphasis></entry>
 
             <entry>service_description</entry>
           </row>
@@ -3193,7 +3195,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contacts</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contacts</emphasis></entry>
 
             <entry>contacts</entry>
           </row>
@@ -3201,7 +3203,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contact_groups</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contact_groups</emphasis></entry>
 
             <entry>contactgroup_name</entry>
           </row>
@@ -3209,7 +3211,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>first_notification</emphasis></entry>
+            <entry><emphasis condition="red" role="color">first_notification</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -3217,7 +3219,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>last_notification</emphasis></entry>
+            <entry><emphasis condition="red" role="color">last_notification</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -3225,7 +3227,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>notification_interval</emphasis></entry>
+            <entry><emphasis condition="red" role="color">notification_interval</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -3528,7 +3530,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -3546,7 +3548,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>dependent_host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">dependent_host_name</emphasis></entry>
 
             <entry><para>host_name</para></entry>
           </row>
@@ -3562,7 +3564,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry>host_name</entry>
           </row>
@@ -3739,7 +3741,7 @@
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
 
     <informaltable frame="none">
       <tgroup cols="3">
@@ -3757,7 +3759,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry><para>host_name</para></entry>
           </row>
@@ -3773,7 +3775,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contacts</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contacts</emphasis></entry>
 
             <entry>contacts</entry>
           </row>
@@ -3781,7 +3783,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>contact_groups</emphasis></entry>
+            <entry><emphasis condition="red" role="color">contact_groups</emphasis></entry>
 
             <entry>contactgroup_name</entry>
           </row>
@@ -3789,7 +3791,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>first_notification</emphasis></entry>
+            <entry><emphasis condition="red" role="color">first_notification</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -3797,7 +3799,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>last_notification</emphasis></entry>
+            <entry><emphasis condition="red" role="color">last_notification</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -3805,7 +3807,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>notification_interval</emphasis></entry>
+            <entry><emphasis condition="red" role="color">notification_interval</emphasis></entry>
 
             <entry><para>#</para></entry>
           </row>
@@ -4054,14 +4056,14 @@
         <imageobject>
           <imagedata fileref="../images/tip.gif" format="GIF"></imagedata>
         </imageobject>
-      </inlinemediaobject> Hinweis: Ab &name-icinga; 3.x sind alle Direktiven der erweiterten Hostinformations-Definition auch in den <link
+      </inlinemediaobject> Hinweis: Alle Direktiven der erweiterten Hostinformations-Definition sind auch in den <link
     linkend="objectdefinitions-host">Host-Definitionen</link> verfügbar. Dadurch können Sie entscheiden, die nachstehenden Direktiven in
     Ihren Host-Definitionen zu benutzen, wenn es Ihre Konfigurationen vereinfacht. Separate erweiterte Hostinformations-Definitionen werden
     weiterhin unterstützt, um Rückwärtskompatibilität zu gewährleisten.</para>
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional. Trotz allem müssen Sie mindestens ein
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional. Trotz allem müssen Sie mindestens ein
     Kriterium angeben, damit die Definition von Nutzen ist.</para>
 
     <informaltable frame="none">
@@ -4080,7 +4082,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry><para>host_name</para></entry>
           </row>
@@ -4335,14 +4337,14 @@
         <imageobject>
           <imagedata fileref="../images/tip.gif" format="GIF"></imagedata>
         </imageobject>
-      </inlinemediaobject> Hinweis: Ab &name-icinga; 3.x sind alle Direktiven der erweiterten Serviceinformations-Definition auch in den
+      </inlinemediaobject> Hinweis: Alle Direktiven der erweiterten Serviceinformations-Definition sind auch in den
     <link linkend="objectdefinitions-service">Service-Definitionen</link> verfügbar. Dadurch können Sie entscheiden, die nachstehenden
     Direktiven in Ihren Service-Definitionen zu benutzen, wenn es Ihre Konfigurationen vereinfacht. Separate erweiterte
     Serviceinformations-Definitionen werden weiterhin unterstützt, um Rückwärtskompatibilität zu gewährleisten.</para>
 
     <para><emphasis>Definition:</emphasis></para>
 
-    <para>Anmerkung: <emphasis>"Direktiven"</emphasis> werden benötigt, die anderen sind optional. Trotz allem müssen Sie mindestens ein
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional. Trotz allem müssen Sie mindestens ein
     Kriterium angeben, damit die Definition von Nutzen ist.</para>
 
     <informaltable frame="none">
@@ -4361,7 +4363,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>host_name</emphasis></entry>
+            <entry><emphasis condition="red" role="color">host_name</emphasis></entry>
 
             <entry><para>host_name</para></entry>
           </row>
@@ -4369,7 +4371,7 @@
           <row>
             <entry><para></para></entry>
 
-            <entry><emphasis>service_description</emphasis></entry>
+            <entry><emphasis condition="red" role="color">service_description</emphasis></entry>
 
             <entry>service_description</entry>
           </row>
@@ -4526,4 +4528,150 @@
       <secondary>Service Extended Information</secondary>
     </indexterm>
   </section>
+
+  <section>
+    <title>Module-Definition</title>
+
+    <para><anchor xml:id="objectdefinitions-module" /><emphasis role="bold">Module Definition</emphasis></para>
+
+    <para><emphasis>Beschreibung:</emphasis></para>
+
+    <para>Eine Module-Definition wird benutzt, um Informationen zu einem Modul anzugeben. Sie kann anstatt eines broker_module-Eintrags in der Hauptkonfigurationsdatei verwendet werden und ist deshalb flexibler (Sie können cfg_file/cfg_dir-Einträge benutzen, um sie einzuschließen).</para>
+
+    <note>
+      <para>Moduldefinitionen sind seit &name-icinga; 1.4 verfügbar.</para>
+    </note>
+
+    <para><emphasis>Definition:</emphasis></para>
+
+    <para>Anmerkung: <emphasis condition="red" role="color">"Direktiven"</emphasis> werden benötigt, die anderen sind optional.</para>
+
+    <informaltable frame="none">
+      <tgroup cols="3">
+        <colspec colname="c1" />
+
+        <colspec colname="c2"/>
+
+        <colspec colname="c3"/>
+
+        <tbody>
+          <row>
+            <entry align="left" nameend="c3" namest="c1" valign="middle"><para>define module{</para></entry>
+          </row>
+
+          <row>
+            <entry><para>
+            </para></entry>
+
+            <entry><para><emphasis condition="red" role="color">module_name</emphasis></para></entry>
+            <entry><para>module name</para></entry>
+          </row>
+
+          <row>
+            <entry><para></para></entry>
+
+            <entry><para><emphasis condition="red" role="color">path</emphasis></para></entry>
+
+            <entry><para>path</para></entry>
+          </row>
+
+          <row>
+            <entry><para></para></entry>
+
+            <entry><para>args</para></entry>
+
+            <entry><para>arguments</para></entry>
+          </row>
+
+          <row>
+            <entry><para></para></entry>
+
+            <entry><para>module_type</para></entry>
+
+            <entry><para>neb</para></entry>
+          </row>
+
+          <row>
+            <entry><para></para></entry>
+
+            <entry align="left" nameend="c3" namest="c2" valign="middle"><para>}</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
+
+    <para><emphasis>Beispieldefinitionen:</emphasis></para>
+
+    <screen> define module{
+        module_name    ido_mod
+        path           /usr/local/icinga/bin/idomod.o
+        module_type    neb
+        args           config_file=/usr/local/icinga/etc/idomod.cfg
+        }</screen>
+
+    <para>Basierend auf der <link xlink:href="&url-mklive;">&name-mklive;</link>-Dokumentation könnte die module-Definition wie folgt
+    aussehen:</para>
+
+    <screen> define module{
+        module_name    mklivestatus
+        path           /usr/local/lib/mk-livestatus/livestatus.o
+        module_type    neb
+        args           /var/lib/nagios/rw/live
+        }</screen>
+
+
+    <para><emphasis>Beschreibung der Direktiven:</emphasis></para>
+
+    <informaltable frame="none">
+      <tgroup cols="2">
+        <colspec colname="c1" colwidth="10*" />
+
+        <colspec colname="c2" colwidth="50*" />
+
+        <tbody>
+          <row>
+            <entry align="left" valign="top"><para><emphasis role="bold">module_name</emphasis>:</para></entry>
+
+            <entry><para>Diese Direktive legt den eindeutigen Namen des Moduls fest, so dass Sie den Modulnamen nicht mehrfach vergeben
+             können. Die Direktive ist notwendig, anderenfalls wird die Konfiguration nicht akzeptiert und das Modul nicht geladen.
+            </para></entry>
+          </row>
+
+          <row>
+            <entry align="left" valign="top"><para><emphasis role="bold">module_type</emphasis>:</para></entry>
+
+            <entry><para>Diese optionale Direktive gibt den Typ des Moduls an, z.B. 'neb' für Eventbroker-Module. Diese Direktive gedacht,
+            um weitere Filterung beim Laden des Moduls zu erlauben.</para></entry>
+          </row>
+
+          <row>
+            <entry align="left" valign="top"><para><emphasis role="bold">path</emphasis>:</para></entry>
+
+            <entry><para>Diese notwendige Direktive gibt den kompletten Pfad des zu ladenden Moduls an. Bei Eventbroker-Modulen wie z.B.
+            idomod muss der Benutzer des &name-icinga;-Prozesses berechtigt sein, das Modul lesen und ausführen zu dürfen.</para></entry>
+          </row>
+
+          <row>
+            <entry align="left" valign="top"><para><emphasis role="bold">args</emphasis>:</para></entry>
+
+            <entry><para>Diese Direktive definiert optionale Argumente, die an das Modul übergeben werden. idomod benötigt
+            config_file=.../idomod.cfg während andere Module ihre eigene Syntax haben. Der Wert der Direktive wird als Argument-String an
+            den Eventbroker-Modul-Lader übergeben, wenn es als neb-Modul benutzt wird.</para></entry>
+          </row>
+
+        </tbody>
+      </tgroup>
+    </informaltable>
+
+    <note>
+      <para>Die Nutzung von Templates sollte möglich sind, aber das wurde noch nicht ausgiebing mit &name-icinga; 1.4 getestet.</para>
+    </note>
+
+    <indexterm zone="objectdefinitions-module">
+      <primary>Objektdefinitionen</primary>
+
+      <secondary>Module</secondary>
+    </indexterm>
+  </section>
+
 </section>

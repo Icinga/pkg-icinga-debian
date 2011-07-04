@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -118,7 +118,7 @@
 
   <para>Edit the main &name-icinga; config file.</para>
 
-  <screen># vi &url-icinga-cfg;</screen>
+  <screen>#&gt; vi &url-icinga-cfg;</screen>
 
   <para>Remove the leading hash (#) sign from the following line in the main configuration file:</para>
 
@@ -138,7 +138,7 @@
 
   <para>Open the <emphasis>switch.cfg</emphasis> file for editing.</para>
 
-  <screen># vi &url-icinga-base;/etc/objects/switch.cfg</screen>
+  <screen>#&gt; vi &url-icinga-base;/etc/objects/switch.cfg</screen>
 
   <para>Add a new <link linkend="objectdefinitions-host">host</link> definition for the switch that you're going to monitor. If
   this is the *first* switch you're monitoring, you can simply modify the sample host definition in
@@ -150,7 +150,7 @@
         host_name       linksys-srw224p         ; The name we're giving to this switch
         alias           Linksys SRW224P Switch  ; A longer name associated with the switch
         address         192.168.1.253           ; IP address of the switch
-        hostgroups      allhosts,switches                       ; Host groups this switch is associated with
+        hostgroups      allhosts,switches       ; Host groups this switch is associated with
         }</screen>
 
   <para><emphasis role="bold">Monitoring Services</emphasis></para>
@@ -174,8 +174,8 @@
         host_name               linksys-srw224p ; The name of the host the service is associated with
         service_description     PING            ; The service description
         check_command           check_ping!200.0,20%!600.0,60%  ; The command used to monitor the service
-        normal_check_interval   5       ; Check the service every 5 minutes under normal conditions
-        retry_check_interval    1       ; Re-check the service every minute until its final/hard state is determined
+        check_interval          5       ; Check the service every 5 minutes under normal conditions
+        retry_interval          1       ; Re-check every minute until its final/hard state is determined
         }</screen>
 
   <para>This service will be:</para>
@@ -227,7 +227,7 @@
   <emphasis>check_snmp</emphasis> plugin to only load the "RFC1213-MIB" instead of every single MIB that's installed on your
   system, which can help speed things up.</para>
 
-  <para>That's it for the SNMP monitoring example. There are a million things that can be monitored via SNMP, so its up to you to
+  <para>That's it for the SNMP monitoring example. There are a million things that can be monitored via SNMP, so it's up to you to
   decide what you need and want to monitor. Good luck!</para>
 
   <tip>

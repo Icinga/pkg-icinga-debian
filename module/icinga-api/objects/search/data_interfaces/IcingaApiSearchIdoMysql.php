@@ -14,6 +14,7 @@ implements IcingaApiSearchIdoInterface {
 	 */
 
 	public $tablePrefix = 'icinga_';
+	public $configType = 1;
 	public $postProcess = false;
 
 	public $clearVariables = array();
@@ -56,7 +57,7 @@ implements IcingaApiSearchIdoInterface {
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.object_id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.object_id = cvsc.object_id}
 			where
-				oh.objecttype_id = 1 and h.config_type=1
+				oh.objecttype_id = 1 and h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -75,6 +76,7 @@ implements IcingaApiSearchIdoInterface {
 			${if_table:ss:inner join ${TABLE_PREFIX}servicestatus ss on ss.service_object_id = os.object_id}
 			${if_table:ocg,scg,s:inner join ${TABLE_PREFIX}objects ocg on ocg.object_id = scg.contactgroup_object_id and ocg.objecttype_id = 11}
 			${if_table:hs,s:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = s.host_object_id}
+			${if_table:h:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = s.host_object_id}
 			${if_table:oh,s:inner join ${TABLE_PREFIX}objects oh on oh.object_id = s.host_object_id and oh.objecttype_id = 1}
 			${if_table:sgm:left join ${TABLE_PREFIX}servicegroup_members sgm on sgm.service_object_id = os.object_id}
 			${if_table:sg,sgm:left join ${TABLE_PREFIX}servicegroups sg on sg.servicegroup_id = sgm.servicegroup_id}
@@ -86,7 +88,7 @@ implements IcingaApiSearchIdoInterface {
 			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.object_id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.object_id = cvsc.object_id}
 			where
-				os.objecttype_id = 2 and s.config_type=1
+				os.objecttype_id = 2 and s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -210,7 +212,7 @@ implements IcingaApiSearchIdoInterface {
 			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}servicegroup_members sgm on sgm.service_object_id = s.service_object_id}
 			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}servicegroups sg on sg.servicegroup_id = sgm.servicegroup_id}
 			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}objects osg on osg.object_id = sg.servicegroup_object_id}
-			where h.config_type=1
+			where h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
 				hs.current_state
@@ -241,7 +243,7 @@ implements IcingaApiSearchIdoInterface {
 			${if_table:sgm,os:left join ${TABLE_PREFIX}servicegroup_members sgm on sgm.service_object_id = os.object_id}
 			${if_table:sg,sgm,os:left join ${TABLE_PREFIX}servicegroups sg on sg.servicegroup_id = sgm.servicegroup_id}
 			${if_table:osg,sg,sgm,os:left join ${TABLE_PREFIX}objects osg on osg.object_id = sg.servicegroup_object_id}
-			where s.config_type=1
+			where s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
 				ss.current_state
@@ -574,7 +576,7 @@ implements IcingaApiSearchIdoInterface {
 		'HOST_CHILD_NAME' => array('oh', 'name1'),
 		'HOST_CUSTOMVARIABLE_NAME' => array('cvsh', 'varname'),
 		'HOST_CUSTOMVARIABLE_VALUE' => array('cvsh', 'varvalue'),
-		'HOST_IS_PENDING' => array('hs','has_been_checked','(%s-hs.should_be_scheduled)*-1'),
+		'HOST_IS_PENDING' => array('hs','has_been_checked','(%s-hs.should_be_scheduled)*-1>0'),
 			// Service data
 
 		'SERVICE_ID' => array('s', 'service_id'),
@@ -631,7 +633,7 @@ implements IcingaApiSearchIdoInterface {
 		'SERVICE_CUSTOMVARIABLE_NAME' => array('cvss', 'varname'),
 		'SERVICE_CUSTOMVARIABLE_VALUE' => array('cvss', 'varvalue'),
 		'SERVICE_STATE_COUNT' => array('count(ss', 'current_state)'),
-		'SERVICE_IS_PENDING' => array('ss','has_been_checked','(%s-ss.should_be_scheduled)*-1'),
+		'SERVICE_IS_PENDING' => array('ss','has_been_checked','(%s-ss.should_be_scheduled)*-1>0'),
 
 		// Config vars
 		'CONFIG_VAR_ID' => array('cfv', 'configfilevariable_id'),

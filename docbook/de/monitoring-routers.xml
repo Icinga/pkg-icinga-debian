@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -118,7 +118,7 @@
 
   <para>Editieren Sie die Hauptkonfigurationsdatei.</para>
 
-  <screen> vi &url-icinga-base;/etc/nagios.cfg</screen>
+  <screen>#&gt; vi &url-icinga-base;/etc/nagios.cfg</screen>
 
   <para>Entfernen Sie das führende Hash-(#)-Zeichen der folgenden Zeile in der Hauptkonfigurationsdatei:</para>
 
@@ -139,7 +139,7 @@
 
   <para>Öffnen Sie die <emphasis>switch.cfg</emphasis>-Datei.</para>
 
-  <screen> vi &url-icinga-base;/etc/objects/switch.cfg</screen>
+  <screen>#&gt; vi &url-icinga-base;/etc/objects/switch.cfg</screen>
 
   <para>Fügen Sie eine neue <link linkend="objectdefinitions-host">Host</link>-Definition für den Switch hinzu, den Sie überwachen
   möchten. Wenn dies der *erste* Switch ist, den Sie überwachen, dann können Sie einfach die Beispiel-Definitionen in der
@@ -178,8 +178,8 @@
         host_name               linksys-srw224p ; The name of the host the service is associated with
         service_description     PING            ; The service description
         check_command           check_ping!200.0,20%!600.0,60%  ; The command used to monitor the service
-        normal_check_interval   5               ; Check the service every 5 minutes under normal conditions
-        retry_check_interval    1               ; Re-check the service every minute until its final/hard state is determined
+        check_interval          5               ; Check the service every 5 minutes under normal conditions
+        retry_interval          1               ; Re-check every minute until its final/hard state is determined
         }</screen>
 
   <para>Dieser Service wird:</para>
