@@ -1,3 +1,9 @@
+icinga (1.4.0-2) unstable; urgency=low
+
+  * Install /etc/icinga/modules in -common
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 17 May 2011 12:52:19 +0200
+
 icinga (1.4.0-1) unstable; urgency=low
 
   * New upstream version 
