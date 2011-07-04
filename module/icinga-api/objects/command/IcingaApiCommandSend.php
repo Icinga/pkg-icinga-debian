@@ -12,24 +12,24 @@ class IcingaApiCommandSend
 	 * VARIABLES
 	 */
 	protected $config = false;
-	protected $commands = false;
+	
+	protected $commands = array ();
 
 	/*
 	 * METHODS
 	 */
 
+	public function setCommands(array $commands) {
+		$this->commands = (array)$commands + (array)$this->commands;
+	}
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see objects/command/IcingaApiCommand#setCommand()
 	 */
-	public function setCommand (array $command) {
-		if (count($command)) {
-			$this->commands = $command;
-		} else {
-			throw new IcingaApiCommandSendException('setCommand(): No command(s) defined!');
-		}
+	public function setCommand ($command) {
+		$this->setCommands(array($command));
 	}
-
 }
 
 // class exceptions

@@ -64,6 +64,7 @@ extern char     *illegal_output_chars;
 extern int      use_regexp_matches;
 extern int      use_true_regexp_matching;
 
+extern int      use_daemon_log;
 extern int      use_syslog;
 extern int      use_syslog_local_facility;
 extern int      syslog_local_facility;
@@ -72,7 +73,9 @@ extern int      log_service_retries;
 extern int      log_host_retries;
 extern int      log_event_handlers;
 extern int      log_external_commands;
+extern int      log_external_commands_user;
 extern int      log_passive_checks;
+extern int      log_long_plugin_output;
 
 extern int      service_check_timeout;
 extern int      service_check_timeout_state;
@@ -83,6 +86,7 @@ extern int      ocsp_timeout;
 extern int      ochp_timeout;
 
 extern int      log_initial_states;
+extern int      log_current_states;
 
 extern int      daemon_mode;
 extern int      daemon_dumps_core;
@@ -124,9 +128,6 @@ extern int      check_host_freshness;
 extern int      auto_reschedule_checks;
 
 extern int      additional_freshness_latency;
-
-extern int      check_for_updates;
-extern int      bare_update_check;
 
 extern int      use_aggressive_host_checking;
 extern unsigned long cached_host_check_horizon;
@@ -187,6 +188,9 @@ extern int      child_processes_fork_twice;
 extern int      enable_embedded_perl;
 extern int      use_embedded_perl_implicitly;
 
+extern int      stalking_event_handlers_for_hosts;
+extern int      stalking_event_handlers_for_services;
+
 extern int      date_format;
 extern char     *use_timezone;
 
@@ -215,8 +219,10 @@ extern char             *debug_file;
 extern int              debug_level;
 extern int              debug_verbosity;
 extern unsigned long    max_debug_file_size;
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 extern int              event_profiling_enabled;
-
+#endif
 
 
 /******************************************************************/
@@ -446,16 +452,13 @@ int read_main_config_file(char *main_config_file){
 				}
 			closedir(tmpdir);
 
-			my_free(temp_path);
-			if((temp_path=(char *)strdup(value))){
-				strip(temp_path);
-				/* make sure we don't have a trailing slash */
-				if(temp_path[strlen(temp_path)-1]=='/')
-					temp_path[strlen(temp_path)-1]='\x0';
-			        }
-
 			my_free(check_result_path);
-			check_result_path=(char *)strdup(temp_path);
+			if((check_result_path=(char *)strdup(value))){
+				strip(check_result_path);
+				/* make sure we don't have a trailing slash */
+				if(check_result_path[strlen(check_result_path)-1]=='/')
+					check_result_path[strlen(check_result_path)-1]='\x0';
+			        }
 			}
 
 		else if(!strcmp(variable,"max_check_result_file_age"))
@@ -516,6 +519,17 @@ int read_main_config_file(char *main_config_file){
 			my_free(macro_x[MACRO_ADMINPAGER]);
 			macro_x[MACRO_ADMINPAGER]=(char *)strdup(value);
 		        }
+
+        else if(!strcmp(variable,"use_daemon_log")){
+
+			if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
+				asprintf(&error_message,"Illegal value for use_daemon_log");
+				error=TRUE;
+				break;
+				}
+
+			use_daemon_log=(atoi(value)>0)?TRUE:FALSE;
+            }
 
 		else if(!strcmp(variable,"use_syslog")){
 
@@ -605,6 +619,17 @@ int read_main_config_file(char *main_config_file){
 			log_external_commands=(atoi(value)>0)?TRUE:FALSE;
 		        }
 
+                else if(!strcmp(variable,"log_external_commands_user")){
+
+                        if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
+                                asprintf(&error_message,"Illegal value for log_external_commands_user");
+                                error=TRUE;
+                                break;
+                                }
+
+                        log_external_commands_user=(atoi(value)>0)?TRUE:FALSE;
+                        }
+
 		else if(!strcmp(variable,"log_passive_checks")){
 
 			if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
@@ -616,6 +641,17 @@ int read_main_config_file(char *main_config_file){
 			log_passive_checks=(atoi(value)>0)?TRUE:FALSE;
 		        }
 
+		else if(!strcmp(variable,"log_long_plugin_output")){
+
+			if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
+				asprintf(&error_message,"Illegal value for log_long_plugin_output");
+				error=TRUE;
+				break;
+			        }
+
+			log_long_plugin_output=(atoi(value)>0)?TRUE:FALSE;
+		        }
+
 		else if(!strcmp(variable,"log_initial_states")){
 
 			if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
@@ -625,6 +661,17 @@ int read_main_config_file(char *main_config_file){
 			        }
 
 			log_initial_states=(atoi(value)>0)?TRUE:FALSE;
+		        }
+
+		else if(!strcmp(variable,"log_current_states")){
+
+			if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
+				asprintf(&error_message,"Illegal value for log_current_states");
+				error=TRUE;
+				break;
+			        }
+
+			log_current_states=(atoi(value)>0)?TRUE:FALSE;
 		        }
 
 		else if(!strcmp(variable,"retain_state_information")){
@@ -1325,18 +1372,47 @@ int read_main_config_file(char *main_config_file){
 			use_embedded_perl_implicitly=(atoi(value)>0)?TRUE:FALSE;
 		        }
 
+		else if(!strcmp(variable,"stalking_event_handlers_for_hosts")){
+
+			if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
+				asprintf(&error_message,"stalking_event_handlers_for_hosts");
+				error=TRUE;
+				break;
+			        }
+
+			stalking_event_handlers_for_hosts=(atoi(value)>0)?TRUE:FALSE;
+		        }
+
+		else if(!strcmp(variable,"stalking_event_handlers_for_services")){
+
+			if(strlen(value)!=1||value[0]<'0'||value[0]>'1'){
+				asprintf(&error_message,"stalking_event_handlers_for_services");
+				error=TRUE;
+				break;
+			        }
+
+			stalking_event_handlers_for_services=(atoi(value)>0)?TRUE:FALSE;
+		        }
+
 		else if(!strcmp(variable,"external_command_buffer_slots"))
 			external_command_buffer_slots=atoi(value);
 
-		else if(!strcmp(variable,"check_for_updates"))
-			check_for_updates=(atoi(value)>0)?TRUE:FALSE;
+		else if(!strcmp(variable,"check_for_updates")){
+			/* ignore it for compatibility reasons */
+			logit(NSLOG_CONFIG_WARNING,TRUE,"Warning: check_for_updates variable ignored. Icinga Core does not support program update checking");
+			}
 
-		else if(!strcmp(variable,"bare_update_check"))
-			bare_update_check=(atoi(value)>0)?TRUE:FALSE;
+		else if(!strcmp(variable,"bare_update_check")){
+			/* ignore it for compatibility reasons */
+			logit(NSLOG_CONFIG_WARNING,TRUE,"Warning: bare_update_check variable ignored. Icinga Core does not support program update checking");
+			}
 
-               else if(!strcmp(variable,"event_profiling_enabled"))
-                       event_profiling_enabled=(atoi(value)>0)?TRUE:FALSE;
-
+               else if(!strcmp(variable,"event_profiling_enabled")){
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
+			event_profiling_enabled=(atoi(value)>0)?TRUE:FALSE;
+#endif
+			}
 
 
 		/*** AUTH_FILE VARIABLE USED BY EMBEDDED PERL INTERPRETER ***/

@@ -6,127 +6,140 @@
 <section version="5.0" xml:id="whatsnew" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:svg="http://www.w3.org/2000/svg" xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
-    <title>What's New in &name-core; &ver-icinga; and &name-web; &ver-icingaweb;</title>
+  <title>What's New in &name-icinga; &ver-icinga;</title>
+<para>First unified stable release of &name-core; and &name-web;.</para>
 
-    <para><emphasis role="bold">&name-core;:</emphasis></para>
+  <para><emphasis role="bold">&name-core;:</emphasis></para>
 
-    <para><emphasis role="bold">Enhancements:</emphasis></para>
+  <para>* disable eventprofiler on Solaris gcc3, preventing core dumps</para>
 
-    <para>* core: Schedule Downtime for host and all services now works as expected</para>
+  <para>* fix scheduled downtime notifications resent on restart/reload</para>
 
-    <para>* core: Servicechecks with excluded timeperiods are correctly re-scheduled</para>
+  <para>* add the possibility to use * as a wildcard for all hosts in servicegroup definition</para>
 
-    <para>* core: Error out if service_description is missing in service definition</para>
+  <para>* add config option to disable logging into the daemon log file</para>
 
-    <para>* core: Added syslogd local facility</para>
+  <para>* add eventhandler override</para>
 
-    <para>* core: Use execv for active checks w/o metacharacters</para>
+  <para>* remove program update checks</para>
 
-    <para>* core: Speed up loading retention.dat into the Core</para>
+  <para>* don't skip hostchecks when servicechecks are disabled</para>
 
-    <para>* core: Initscripts handle the lock file now correctly and outputs config errors</para>
+  <para><emphasis role="bold">&name-icinga; &name-idoutils;:</emphasis></para>
 
-    <para>* core: Better Solaris detection (in progress)</para>
+  <para>* fix ido2db forking if database connection failed, now immediately disconnecting the client</para>
 
-    <para>* core: Add event profiling option and dumping entire scheduling queue</para>
+  <para>* fix database port in ido2db.cfg not honoured using libdbi</para>
 
-    <para>* cgis: display_name on host/service definition will be displayed in classical UI</para>
 
-    <para>* cgis: multiple urls for notes|action_url on host|service definition in classical UI</para>
+  <para><emphasis role="bold">&name-ui;</emphasis></para>
 
-    <para>* cgis: removing a comment on the classical UI does not delete all of them anymore</para>
+  <para>* Tooltips for comments in status.cgi</para>
 
-    <para>* idoutils: IDOMOD now has it's own object version on the NEB API, this requires both Icinga and IDOUtils to be upgraded to 1.0.2 – check
-    docs for more information <link linkend="upgrading_idoutils">upgrading_idoutils</link></para>
+  <para> – you don’t have to open the host/service anymore to see the comments, just move your mouse over.</para>
 
-    <para>* idoutils: Performance improvements on SQL queries and objects hash list</para>
+  <para>* Multiple delete of comments and downtimes</para>
 
-    <para><emphasis role="bold">Fixes:</emphasis></para>
+  <para> – now you can tick the items you want to delete and click the delete button</para>
 
-    <para>* core: Fixes for Notification not/incorrectly being sent/calculated</para>
+  <para> – just like multiple commands support in status.cgi.</para>
 
-    <para>* core: A long list of patches pending on mailinglists and trackers, check the Changelog for more information</para>
+  <para>* CVS export on pretty much every page</para>
 
-    <para>* idoutils: Fixed major bug on IDOUtils object relations, causing huge performance issues - added upgrade scripts too</para>
+  <para> – you can now export various lists and status data directly. There is a small “Export to CSV” link bringing up a page with the
+  current content in csv format. Adding two new config options where you can decide which characters are used for output format completes
+  this nifty enhancement</para>
 
-    <para>To have a deeper look, please visit the Changelog</para>
+  <para>* Commands expander for config display. This will help at $ARGn$ substitution and showing the exact command line the core will
+  attempt to execute. Long awaited feature, big thanks to Jochen Bern!</para>
 
-    <itemizedlist>
-        <listitem>
-            <para>See: <xref linkend="changelog-core" /></para>
-        </listitem>
-    </itemizedlist>
+  <para>* Combined fixes including a slightly modified menu, adding unhandled host/service problems, javascript library updates, fixed
+  segfaults on Solaris in status.cgi without query_string and also complete drop of php as dependency for the classic ui</para>
 
-    <para><emphasis role="bold">&name-web;:</emphasis></para>
+  <para>To have a deeper look, please visit the Changelog</para>
 
-    <para>* Core code reduced and made more robust</para>
+  <itemizedlist>
+    <listitem>
+      <para>See: doc/Changelog</para>
+    </listitem>
+  </itemizedlist>
 
-    <para>* Core code detatached to its owning modules</para>
+  <para><emphasis role="bold">&name-web;:</emphasis></para>
 
-    <para>* Module framework defined, extractor and installer</para>
+  <para>* Pending states: shows a special status for checks that have not yet been executed</para>
 
-    <para>* Principals now works in one step (one function code)</para>
+  <para>* Better logging, stricter errors: More about what icinga-web is doing, catch strict errors</para>
 
-    <para>* Instances included</para>
+  <para>* Site configuration: Place your custom configuration into site xml files which are not overwritten</para>
 
-    <para>* Ajax driven filters, made some new filters</para>
+  <para>* Comments for hosts and services seamlessly integrated</para>
 
-    <para>* REST/Json api interface (web/api, <link xlink:href="https://dev.icinga.org/issues/305">&url-icinga-dev;issues/305</link>)</para>
+  <para>* &name-pnp;: integrated on the fly if you want</para>
 
-    <para>* New summary cronk (faster, faster, faster)</para>
+  <para>* Search for objects performs excellently!</para>
 
-    <para>* New cronk list (also categories, faster, faster, faster)</para>
+  <para>* Device icons from the icinga configuration</para>
 
-    <para>* Single click in the web interface</para>
+  <para>Insidertips and more documentation for Icinga-Web: <link
+  xlink:href="&url-icinga-wiki;">Icinga-Wiki</link></para>
 
-    <para>* Translation (not complete)</para>
+  <para>To have a deeper look, please visit the changelog-web</para>
 
- <para> Insidertips and more Documentation for Icinga-Web: <link xlink:href="&url-icinga-wiki;">Icinga-Wiki</link></para>
+  <itemizedlist>
+    <listitem>
+      <para>See: doc/CHANGELOG</para>
+    </listitem>
+  </itemizedlist>
 
-    <para>To have a deeper look, please visit the changelog-web</para>
+  <para><emphasis role="bold">&name-rep;:</emphasis></para>
 
-    <itemizedlist>
-        <listitem>
-            <para>See: <xref linkend="changelog-web" /></para>
-        </listitem>
-    </itemizedlist>
+  <para>* Finished &name-rep; package in the git, download from <link
+  xlink:href="&url-icingagit-rep;">:&url-icingagit-rep;</link></para>
 
-    <para><emphasis role="bold">&name-docs;:</emphasis></para>
+  <para>* Installation guide in the wiki, please visit: <link
+  xlink:href="&url-icinga-rep;">Icinga-Wiki</link></para>
 
-    <para>* Updates and fixes for quickstart guides</para>
+  <para><emphasis role="bold">&name-docs;:</emphasis></para>
 
-    <para>* Updates and fixes for upgrading &name-icinga; and &name-idoutils;, visit the docs for more Information <link
-    linkend="upgrading_idoutils">upgrading_idoutils</link></para>
+  <para>* New Document for integrating PNP4Nagios to Icinga-Web</para>
 
-    <para>* Updates and fixes for Api-section</para>
+  <para>* New Document for the Icinga-Web API</para>
 
-    <para>* Updates and fixes for Web-Install-Section</para>
+  <para>* New Documents for the external Commands</para>
 
-    <para>* Updates for objectdefinitions</para>
+  <para>* New Images</para>
 
-    <para>* New extended docs for the IDOUtils, Chapter 11.</para>
+  <para>* Updates and fixes for upgrading &name-icinga; and &name-idoutils;, visit the docs for more Information <link
+  linkend="upgrading_idoutils">upgrading_idoutils</link></para>
 
-    <para>* New section Running icinga - "Diagnostics"</para>
+  <para>* Updates and fixes for API-section</para>
 
-<para>* New testing guides for Icinga: <link xlink:href="&url-icinga-test;">Icinga-Development</link></para>
+  <para>* Updates and fixes for Web-Install-Section</para>
 
-<para> Insidertips and more Documentation for Icinga-Web: <link xlink:href="&url-icinga-wiki;">Icinga-Wiki</link></para>
+  <para>* Updates for objectdefinitions and Classic UI configuration options.</para>
 
-    <para>Should you find any issues, please report them to the following links:</para>
+  <para>* Updates for extended docs for the IDOUtils, Chapter 11.</para>
 
-    <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-core">Report Issue &name-core;</link></para>
+  <para>* New testing guides for Icinga: <link
+  xlink:href="&url-icinga-test;">Icinga-Development</link></para>
 
-    <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-web">Report Issue &name-web;</link></para>
+  <para>Insidertips and more documentation for Icinga-Web: <link
+  xlink:href="&url-icinga-wiki;">Icinga-Wiki</link></para>
 
-    <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-api">Report Issue &name-api;</link></para>
+  <para>Should you find any issues, please report them to one of the following links:</para>
 
-    <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-docs">Report Issue &name-docs;</link></para>
+  <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-core">Report Issue &name-core;</link></para>
 
-    <indexterm zone="whatsnew">
-        <primary>What's new in &name-icinga;</primary>
-    </indexterm>
+  <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-web">Report Issue &name-web;</link></para>
 
-    <xi:include href="changelog-core.xml" />
+  <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-api">Report Issue &name-api;</link></para>
+<para><link xlink:href="https://dev.icinga.org/projects/show/icinga-reporting">Report Issue &name-rep;</link></para>
 
-    <xi:include href="changelog-web.xml" />
+  <para><link xlink:href="https://dev.icinga.org/projects/show/icinga-docs">Report Issue &name-docs;</link></para>
+
+  <indexterm zone="whatsnew">
+    <primary>What's new in &name-icinga;</primary>
+  </indexterm>
+
+  
 </section>

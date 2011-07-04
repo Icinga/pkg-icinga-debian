@@ -148,7 +148,7 @@
 
   <para>Use yast to install the packages for the RDBMS you want to use, i.e. "mysql", "mysql-devel", "mysql-client" or "postgresql",
   "postgresql-devel", "postgresql-server". In OpenSuSE 11 (SLES 11) the name of the package was changed from "mysql-devel" to
-  "libmysqlclient-devel".</para>
+  "libmysqlclient-devel". The devel packages might be placed on the SDK DVDs.</para>
 
   <para>It is most likely that there aren't any libdbi packages so you have to download and compile the sources. Replace &lt;rdbm&gt; with
   your desired RDBM like mysql or pgsql. Remember that the Oracle driver is not yet working and read the appropriate section with ocilib
@@ -216,14 +216,18 @@
     <para>Some usermod-versions (e.g in OpenSuSE 11 and SLES 11, resp.) are lacking the option -a. In this case please omit the option
     -a.</para>
   </note>
-
+  <important>
+    <para>Solaris only supports groupnames with max. 8 characters, please use icingcmd instead of icinga-cmd.</para>
+  </important>
   <para><emphasis role="bold">Download &name-icinga; and the Plugins</emphasis></para>
 
   <para>Change to your local source directory i.e. /usr/src</para>
 
   <programlisting> #&gt; cd /usr/src</programlisting>
 
-  <para>Either fetch the actual icinga-core snapshot from &name-icinga; GIT <programlisting> #&gt; git clone git://git.icinga.org/icinga-core.git  </programlisting>
+  <para>Either fetch the actual icinga-core snapshot from &name-icinga; GIT <programlisting> #&gt; git clone git://git.icinga.org/icinga-core.git
+ #&gt; git submodule init
+ #&gt; git submodule update</programlisting>
   or from the <link xlink:href="http://www.icinga.org/">&name-icinga; Website</link> . Don't forget to download the <link
   xlink:href="http://www.nagiosplugins.org/">Nagios Plugins</link></para>
 
@@ -234,17 +238,18 @@
   <programlisting xml:space="preserve"> #&gt; cd /usr/src/ 
  #&gt; tar xvzf icinga-&ver-icinga;.tar.gz 
  #&gt; cd icinga-&ver-icinga;</programlisting>
+  <note><para>This absolute path is meant when we refer to '/path/to/icinga-src/' in the following text.</para></note>
 
   <para>Run the &name-icinga; configure script and enable &name-idoutils;. You will get help by using the --help flag:</para>
 
   <programlisting> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils </programlisting>
 
-  <caution>
+  <important>
     <para>Compiling on Solaris might fail upon unresolved library dependencies on gethostbyname. In that case run this before running
     configure:</para>
 
     <programlisting> #&gt; export LIBS=-lsocket -lnsl</programlisting>
-  </caution>
+  </important>
 
   <para><emphasis role="bold">With SSL-Encryption:</emphasis></para>
 
@@ -262,7 +267,9 @@
   <para><programlisting> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils --enable-oracle --with-ocilib-lib=/path/to/ocilib/lib --with-ocilib-inc=/path/to/ocilib/include</programlisting><note>
       <para>If you want to change RDBM from Oracle to others, you need to recompile and reinstall &name-idoutils;!</para>
     </note><programlisting> #&gt; make distclean
- #&gt; ./configure --enable-idoutils</programlisting> Compile the &name-icinga; source code. There is also an extra option for
+ #&gt; ./configure --enable-idoutils</programlisting> </para>
+  <para><emphasis role="bold">Compile and Install</emphasis></para>
+ <para> Compile the &name-icinga; source code. There is also an extra option for
   &name-idoutils; (<emphasis>make idoutils</emphasis>) if you need to recompile only this module. To see available options, only use
   "make".</para>
 
@@ -422,7 +429,8 @@
   <para>&name-icinga; ships with the classic web interface ("the CGIs") which can be installed via</para>
 
   <programlisting> #&gt; make cgis
- #&gt; make install-cgis</programlisting>
+ #&gt; make install-cgis
+ #&gt; make install-html</programlisting>
 
   <para>If you are interested in the new &name-icinga; Web, please refer to <link linkend="icinga-web-scratch">Install &name-icinga; Web
   Interface</link>.</para>

@@ -17,7 +17,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: icinga
-Version: 1.0.2
+Version: 1.2.0
 Release: 1%{?dist}
 License: GPL
 Group: Applications/System
@@ -53,17 +53,18 @@ Summary: Web content for %{name}
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 Requires: httpd
+Requires: %{name}-doc
 
 %description gui
 This package contains the webgui (html,css,cgi etc.) for %{name}
 
 %package idoutils
-Summary: Web content for %{name}
+Summary: database broker module for %{name}
 Group: Applications/System
 Requires: %{name} = %{version}-%{release}
 
 %description idoutils
-This package contains the idoutils addon for %{name} wich provides 
+This package contains the idoutils broker module for %{name} which provides
 database storage via libdbi.
 
 %package api
@@ -74,14 +75,16 @@ Requires: php
 %description api
 PHP api for %{name}
 
+%package doc
+Summary: documentation %{name}
+Group: Applications/System
+ 
+%description doc
+Documentation for %{name}
+
 
 %prep
 %setup -n %{name}-%{version}
-
-# If we buld for redhat use the redhat init-script
-%if "%{_vendor}" == "redhat"
-%{__cp} -f daemon-init-redhat.in daemon-init.in
-%endif
 
 # /usr/local/nagios is hardcoded in many places
 %{__perl} -pi.orig -e 's|/usr/local/nagios/var/rw|%{_localstatedir}/nagios/rw|g;' contrib/eventhandlers/submit_check_result
@@ -118,8 +121,13 @@ PHP api for %{name}
 %install
 %{__rm} -rf %{buildroot}
 %{__mkdir} -p %{buildroot}/%{apacheconfdir}
-%{__make} install install-init install-commandmode install-config \
-    install-webconf install-idoutils \
+%{__make} install-unstripped \
+    install-init \
+    install-commandmode \
+    install-config \
+    install-webconf \
+    install-idoutils \
+    install-api \
     DESTDIR="%{buildroot}" \
     INSTALL_OPTS="" \
     COMMAND_OPTS="" \
@@ -204,23 +212,23 @@ fi
 %dir %{_localstatedir}/icinga/checkresults
 %attr(2755,icinga,icingacmd) %{_localstatedir}/icinga/rw/
 
+%files doc
+%defattr(-,icinga,icinga,-)
+%{_datadir}/icinga/docs
+
 %files gui
 %defattr(-,icinga,icinga,-)
 %config(noreplace) %attr(-,root,root) %{apacheconfdir}/icinga.conf
 %dir %{_datadir}/icinga
 %{_datadir}/icinga/cgi
 %{_datadir}/icinga/contexthelp
-%{_datadir}/icinga/docs
-%{_datadir}/icinga/getList.php
 %{_datadir}/icinga/images
-%{_datadir}/icinga/includes
 %{_datadir}/icinga/index.html
 %{_datadir}/icinga/js
 %{_datadir}/icinga/main.html
 %{_datadir}/icinga/media
 %{_datadir}/icinga/menu.html
 %{_datadir}/icinga/robots.txt
-%{_datadir}/icinga/search.html
 %{_datadir}/icinga/sidebar.html
 %{_datadir}/icinga/ssi
 %{_datadir}/icinga/stylesheets
@@ -238,9 +246,29 @@ fi
 %files api
 %defattr(-,icinga,icinga,-)
 %{_datadir}/icinga/icinga-api
+%attr(-,%{apacheuser},%{apacheuser}) %{_datadir}/icinga/icinga-api/log
 
 
 %changelog
+* Thu Sep 30 2010 Christoph Maser <cmaser@gmx.de> - 1.2.0-1
+- update for release 1.2.0
+
+* Mon Sep 20 2010 Michael Friedrich <michael.friedrich@univie.ac.at> - 1.0.3-4
+- remove php depency for classic gui
+
+* Wed Sep 01 2010 Christoph Maser <cmaser@gmx.de> - 1.0.3-3
+- Put documentation in a separate package
+
+* Tue Aug 31 2010 Christoph Maser <cmaser@gmx.de> - 1.0.3-2
+- Set icinga-api logdir ownership to apache user 
+- add php dependency for icinga-gui subpackage
+
+* Wed Aug 18 2010 Christoph Maser <cmaser@gmx.de> - 1.0.3-1
+- Update to 1.0.3-1
+
+* Thu Jul 05 2010 Christoph Maser <cmaser@gmx.de> - 1.0.2-2
+- Enable debuginfo
+
 * Thu Jun 24 2010 Christoph Maser <cmaser@gmx.de> - 1.0.2-1
 - Update to 1.0.2-1
 

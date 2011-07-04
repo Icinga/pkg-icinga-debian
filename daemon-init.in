@@ -1,5 +1,5 @@
 #!/bin/sh
-# 
+#
 # chkconfig: 345 99 01
 # description: Icinga network monitor
 ### BEGIN INIT INFO
@@ -11,50 +11,14 @@
 # Short-Description: start and stop Icinga monitoring daemon
 # Description: Icinga is a service monitoring system
 ### END INIT INFO
-#
-# File : icinga
-#
-# Author : Jorge Sanchez Aymar (jsanchez@lanchile.cl)
-# 
-# Changelog :
-#
-# 1999-07-09 Karl DeBisschop <kdebisschop@infoplease.com>
-#  - setup for autoconf
-#  - add reload function
-# 1999-08-06 Ethan Galstad <egalstad@nagios.org>
-#  - Added configuration info for use with RedHat's chkconfig tool
-#    per Fran Boon's suggestion
-# 1999-08-13 Jim Popovitch <jimpop@rocketship.com>
-#  - added variable for icinga/var directory
-#  - cd into icinga/var directory before creating tmp files on startup
-# 1999-08-16 Ethan Galstad <egalstad@nagios.org>
-#  - Added test for rc.d directory as suggested by Karl DeBisschop
-# 2000-07-23 Karl DeBisschop <kdebisschop@users.sourceforge.net>
-#  - Clean out redhat macros and other dependencies
-# 2003-01-11 Ethan Galstad <egalstad@nagios.org>
-#  - Updated su syntax (Gary Miller)
-# 2010-04-20 Michael Friedrich <michael.friedrich@univie.ac.at>
-#  - Added show-errors, improved configuration checks (Wolfgang Nieder)
-#
-# Description: Starts and stops the Icinga monitor
-#              used to provide network services status.
-#
-  
+
 status_icinga ()
 {
 
-	if test -x $IcingaCGI/daemonchk.cgi; then
-		if $IcingaCGI/daemonchk.cgi -l $IcingaRunFile; then
-		        return 0
-		else
-			return 1
-		fi
+	if ps -p $IcingaPID > /dev/null 2>&1; then
+	        return 0
 	else
-		if ps -p $IcingaPID > /dev/null 2>&1; then
-		        return 0
-		else
-			return 1
-		fi
+		return 1
 	fi
 
 	return 1
@@ -94,7 +58,7 @@ pid_icinga ()
 
 chk_config ()
 {
-	echo "Running configuration check..."
+	printf "Running configuration check..."
 	$IcingaBin -v $IcingaCfgFile > $IcingaChkFile 2>&1
 	if test $? -ne 0; then
 		if test -z "$1"; then
@@ -129,11 +93,10 @@ IcingaVarDir=@localstatedir@
 IcingaRunFile=@lockfile@
 IcingaLockDir=/var/lock/subsys
 IcingaLockFile=icinga
-IcingaCGIDir=@sbindir@
 IcingaUser=@icinga_user@
 IcingaGroup=@icinga_grp@
 IcingaChkFile=@localstatedir@/icinga.chk
-          
+
 
 # Check that icinga exists.
 if [ ! -f $IcingaBin ]; then
@@ -146,38 +109,43 @@ if [ ! -f $IcingaCfgFile ]; then
     echo "Configuration file $IcingaCfgFile not found.  Exiting."
     exit 1
 fi
-          
-# See how we were called.
-case "$1" in
 
-	start)
-		# Check if icinga is already running
-	        $0 status > /dev/null
-                if [ $? -eq 0 ]; then
-                        pid_icinga
-			# check if pid can be found running
-			if status_icinga > /dev/null; then
-	                        echo "Icinga is already running. PID: $IcingaPID"
+start(){
+	# Check if icinga is already running
+	$0 status > /dev/null
+	if [ $? -eq 0 ]; then
+		pid_icinga
+		# check if pid can be found running
+		if status_icinga > /dev/null; then
+			echo "Icinga is already running. PID: $IcingaPID"
 				exit 1
 			else
 				echo "Icinga PID $IcingaPID not running. Removing lockfile."
 				rm -f $IcingaStatusFile $IcingaRunFile $IcingaLockDir/$IcingaLockFile $IcingaCommandFile
-			fi
-                fi
+		fi
+	fi
 
-		echo -n "Starting icinga: "
+	printf "Starting icinga: "
+	rm -f $IcingaCommandFile
+	touch $IcingaRunFile
+	chown $IcingaUser:$IcingaGroup $IcingaRunFile
+	$IcingaBin -d $IcingaCfgFile
+	if [ -d $IcingaLockDir ]; then touch $IcingaLockDir/$IcingaLockFile; fi
+	echo "Starting icinga done."
+	exit 0
+
+}
+
+# See how we were called.
+case "$1" in
+
+	start)
 		chk_config "CONFIG ERROR!  Start aborted. See $IcingaChkFile for details."
-		rm -f $IcingaCommandFile
-		touch $IcingaRunFile
-		chown $IcingaUser:$IcingaGroup $IcingaRunFile
-		$IcingaBin -d $IcingaCfgFile
-		if [ -d $IcingaLockDir ]; then touch $IcingaLockDir/$IcingaLockFile; fi
-		echo "Starting icinga done."
-		exit 0
+		start
 		;;
 
 	stop)
-		echo -n "Stopping icinga: "
+		printf "Stopping icinga: "
 
 		pid_icinga
 		killproc_icinga icinga
@@ -187,10 +155,10 @@ case "$1" in
  		# happen, and then the exiting icinga will remove the
  		# new IcingaRunFile, allowing multiple icinga daemons
  		# to (sooner or later) run - John Sellens
-		#echo -n 'Waiting for icinga to exit .'
+		#printf 'Waiting for icinga to exit .'
  		for i in 1 2 3 4 5 6 7 8 9 10 ; do
  		    if status_icinga > /dev/null; then
- 			echo -n '.'
+ 			printf '.'
  			sleep 1
  		    else
  			break
@@ -222,7 +190,7 @@ case "$1" in
 	restart)
 		chk_config " CONFIG ERROR!  Restart aborted.  See $IcingaChkFile for details."
 		$0 stop
-		$0 start
+		start
 		;;
 
 	reload|force-reload)
@@ -248,5 +216,5 @@ case "$1" in
 		;;
 
 esac
-  
+
 # End of this script

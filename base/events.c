@@ -2,7 +2,7 @@
  *
  * EVENTS.C - Timed event functions for Icinga
  *
- * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
+ * Copyright (c) 1999-2010 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
  *
  * License:
@@ -31,7 +31,10 @@
 #include "../include/broker.h"
 #include "../include/sretention.h"
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 #include "../include/profiler.h"
+#endif
 
 extern char	*config_file;
 
@@ -86,7 +89,10 @@ extern int      child_processes_fork_twice;
 
 extern int      time_change_threshold;
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 extern int 	event_profiling_enabled;
+#endif
 
 timed_event *event_list_low=NULL;
 timed_event *event_list_low_tail=NULL;
@@ -373,6 +379,7 @@ void init_timing_loop(void){
 			/* make sure the service can actually be scheduled when we want */
 			is_valid_time=check_time_against_period(temp_service->next_check,temp_service->check_period_ptr);
 			if(is_valid_time==ERROR){
+				log_debug_info(DEBUGL_EVENTS,2,"Preferred Time is Invalid In Timeperiod '%s': %lu --> %s",temp_service->check_period_ptr->name,(unsigned long)temp_service->next_check,ctime(&temp_service->next_check));
 				get_next_valid_time(temp_service->next_check,&next_valid_time,temp_service->check_period_ptr);
 				temp_service->next_check=next_valid_time;
 			        }
@@ -393,6 +400,9 @@ void init_timing_loop(void){
 
 	/* add scheduled service checks to event queue */
 	for(temp_service=service_list;temp_service!=NULL;temp_service=temp_service->next){
+
+		/* update status of all services (scheduled or not) */
+		update_service_status(temp_service,FALSE);
 
 		/* skip most services that shouldn't be scheduled */
 		if(temp_service->should_be_scheduled==FALSE){
@@ -434,7 +444,7 @@ void init_timing_loop(void){
 		/* be dumb and just schedule checks 1 second apart */
 		scheduling_info.host_inter_check_delay=1.0;
 		break;
-		
+
 	case ICD_USER:
 
 		/* the user specified a delay, so don't try to calculate one */
@@ -519,12 +529,15 @@ void init_timing_loop(void){
 
 		mult_factor++;
 	        }
-	
+
 	if(test_scheduling==TRUE)
 		gettimeofday(&tv[7],NULL);
 
 	/* add scheduled host checks to event queue */
 	for(temp_host=host_list;temp_host!=NULL;temp_host=temp_host->next){
+
+		/* update status of all hosts (scheduled or not) */
+		update_host_status(temp_host,FALSE);
 
 		/* skip most hosts that shouldn't be scheduled */
 		if(temp_host->should_be_scheduled==FALSE){
@@ -696,10 +709,6 @@ void display_event_data(timed_event* event, int priority){
 
         case EVENT_EXPIRE_COMMENT:
             	printf("\t\t(expire comment)\n");
-        break;
-
-        case EVENT_CHECK_PROGRAM_UPDATE:
-            	printf("\t\t(check for Icinga updates)");
         break;
 
         case EVENT_USER_FUNCTION:
@@ -1075,7 +1084,10 @@ int event_execution_loop(void){
 	struct timespec delay;
 	pid_t wait_result;
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 	struct timeval start;
+#endif
 
 	log_debug_info(DEBUGL_FUNCTIONS,0,"event_execution_loop() start\n");
 
@@ -1094,10 +1106,13 @@ int event_execution_loop(void){
 	sleep_event.next=NULL;
 	sleep_event.prev=NULL;
 
-	while(1)
-	{
+	while(1){
+
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 		if(event_profiling_enabled)
         		gettimeofday(&start,NULL);
+#endif
 
 		/* see if we should exit or restart (a signal was encountered) */
 		if(sigshutdown==TRUE || sigrestart==TRUE)
@@ -1145,7 +1160,7 @@ int event_execution_loop(void){
 			/* remove the first event from the timing loop */
 			temp_event=event_list_high;
 			event_list_high=event_list_high->next;
-			
+
 			/* we may have just removed the only item from the list */
 			if (event_list_high!=NULL)
 				event_list_high->prev=NULL;
@@ -1162,6 +1177,24 @@ int event_execution_loop(void){
 				my_free(temp_event);
 		        }
 
+		/* 21-09-2010 NOTE MF:
+			The logic on low priority events just as host and service checks work liks this:
+			Set run_event=TRUE on looping start, check if next event is a serviecheck. If matched,
+			check for several things, most important for disabled checks. If those are disabled,
+			set run_event=FALSE (this flag will be checked at the end). The servicecheck event
+			will be removed from the eventlist.
+			Same goes for the hostcheck events, and afterwards, run_event is checked and no matter
+			if service or host check event, it gets executed as a timed event, if run_event==TRUE.
+
+			Previous code (21-09-2010) had a logical AND operation, servicecheck and hostcheck events
+			could have been tested within one looping. If servicecheck was disabled, run_event=FALSE,
+			and removed from event queue resulted in next event = hostcheck, which was matched by the
+			2nd IF - also having run_event set to FALSE, causing the hostcheck being skipped too.
+			By changing this to a logical OR operation, IF ... ELSE IF ..., only one check can be
+			matched throughout a single looping and run_event is responsible for only one event at a
+			time - service OR host check event.
+		*/
+
 		/* handle low priority events */
 		else if(event_list_low!=NULL && (current_time>=event_list_low->run_time)){
 
@@ -1173,6 +1206,8 @@ int event_execution_loop(void){
 			if(event_list_low->event_type==EVENT_SERVICE_CHECK){
 
 				temp_service=(service *)event_list_low->event_data;
+
+				log_debug_info(DEBUGL_EVENTS|DEBUGL_CHECKS,1,"Run a few checks before executing a service check for '%s'.\n", temp_service->description);
 
 				/* don't run a service check if we're already maxed out on the number of parallel service checks...  */
 				if(max_parallel_service_checks!=0 && (currently_running_service_checks >= max_parallel_service_checks)){
@@ -1202,6 +1237,7 @@ int event_execution_loop(void){
 
 					/* remove the service check from the event queue and reschedule it for a later time */
 					/* 12/20/05 since event was not executed, it needs to be remove()'ed to maintain sync with event broker modules */
+					log_debug_info(DEBUGL_EVENTS|DEBUGL_CHECKS,1,"Skip event, removing service '%s' from list.\n", temp_service->description);
 					temp_event=event_list_low;
 					remove_event(temp_event,&event_list_low,&event_list_low_tail);
 					/*
@@ -1229,9 +1265,11 @@ int event_execution_loop(void){
 			        }
 
 			/* run a few checks before executing a host check... */
-			if(event_list_low->event_type==EVENT_HOST_CHECK){
+			else if(event_list_low->event_type==EVENT_HOST_CHECK){
 
 				temp_host=(host *)event_list_low->event_data;
+
+				log_debug_info(DEBUGL_EVENTS|DEBUGL_CHECKS,1,"Run a few checks before executing a host check for '%s'.\n", temp_host->name);
 
 				/* don't run a host check if active checks are disabled */
 				if(execute_host_checks==FALSE){
@@ -1250,6 +1288,7 @@ int event_execution_loop(void){
 
 					/* remove the host check from the event queue and reschedule it for a later time */
 					/* 12/20/05 since event was not executed, it needs to be remove()'ed to maintain sync with event broker modules */
+					log_debug_info(DEBUGL_EVENTS|DEBUGL_CHECKS,1,"Skip event, removing host '%s' from list.\n", temp_host->name);
 					temp_event=event_list_low;
 					remove_event(temp_event,&event_list_low,&event_list_low_tail);
 					/*
@@ -1337,8 +1376,11 @@ int event_execution_loop(void){
 			update_program_status(FALSE);
 			}
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 		if(event_profiling_enabled)
             		profiler_update(EVENT_LOOP_COMPLETION, start);
+#endif
 
 	        }
 
@@ -1356,8 +1398,11 @@ int handle_timed_event(timed_event *event){
 	void (*userfunc)(void *);
 	struct timeval tv;
 	double latency=0.0;
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 	struct timeval start;
 	gettimeofday(&start,NULL);
+#endif
 
 	log_debug_info(DEBUGL_FUNCTIONS,0,"handle_timed_event() start\n");
 
@@ -1367,7 +1412,7 @@ int handle_timed_event(timed_event *event){
 #endif
 
 	log_debug_info(DEBUGL_EVENTS,0,"** Timed Event ** Type: %d, Run Time: %s",event->event_type,ctime(&event->run_time));
-		
+
 	/* how should we handle the event? */
 	switch(event->event_type){
 
@@ -1418,7 +1463,7 @@ int handle_timed_event(timed_event *event){
 		break;
 
 	case EVENT_PROGRAM_SHUTDOWN:
-		
+
 		log_debug_info(DEBUGL_EVENTS,0,"** Program Shutdown Event\n");
 
 		/* set the shutdown flag */
@@ -1487,7 +1532,7 @@ int handle_timed_event(timed_event *event){
 		break;
 
 	case EVENT_SFRESHNESS_CHECK:
-		
+
 		log_debug_info(DEBUGL_EVENTS,0,"** Service Result Freshness Check Event\n");
 
 		/* check service result freshness */
@@ -1495,7 +1540,7 @@ int handle_timed_event(timed_event *event){
 		break;
 
 	case EVENT_HFRESHNESS_CHECK:
-		
+
 		log_debug_info(DEBUGL_EVENTS,0,"** Host Result Freshness Check Event\n");
 
 		/* check host result freshness */
@@ -1526,14 +1571,6 @@ int handle_timed_event(timed_event *event){
 		check_for_expired_comment((unsigned long)event->event_data);
 		break;
 
-	case EVENT_CHECK_PROGRAM_UPDATE:
-
-		log_debug_info(DEBUGL_EVENTS,0,"** Check For Program Update\n");
-
-		/* check for new versions of Icinga */
-		check_for_nagios_updates(FALSE,TRUE);
-		break;
-
 	case EVENT_USER_FUNCTION:
 
 		log_debug_info(DEBUGL_EVENTS,0,"** User Function Event\n");
@@ -1552,8 +1589,11 @@ int handle_timed_event(timed_event *event){
 
 	log_debug_info(DEBUGL_FUNCTIONS,0,"handle_timed_event() end\n");
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 	if(event_profiling_enabled)
 		profiler_update(event->event_type,start);
+#endif
 
 	return OK;
         }

@@ -135,7 +135,7 @@ class IcingaApiSearchLivestatusSocket
 /*
 		// Timeperiod data
 		'TIMEPERIOD_ID' => array('timeperiod_id'),
-		'TIMEPERIOD_OBJECT_ID' => array('object_id'),
+		'TIMEPERIOD_OBJECT_ID' => array('id'),
 		'TIMEPERIOD_INSTANCE_ID' => array('instance_id'),
 		'TIMEPERIOD_NAME' => array('name1'),
 		'TIMEPERIOD_ALIAS' => array('alias'),
@@ -151,7 +151,7 @@ class IcingaApiSearchLivestatusSocket
 /*
 		// Customvariable data
 		'CUSTOMVARIABLE_ID' => array('customvariable_id'),
-		'CUSTOMVARIABLE_OBJECT_ID' => array('object_id'),
+		'CUSTOMVARIABLE_OBJECT_ID' => array('id'),
 		'CUSTOMVARIABLE_INSTANCE_ID' => array('instance_id'),
 		'CUSTOMVARIABLE_NAME' => array('varname'),
 		'CUSTOMVARIABLE_VALUE' => array('varvalue'),
@@ -553,7 +553,7 @@ class IcingaApiSearchLivestatusSocket
 		'STATEHISTORY_INSTANCE_ID' => array('instance_id'),
 		'STATEHISTORY_STATE_TIME' => array('state_time'),
 		'STATEHISTORY_STATE_TIME_USEC' => array('state_time_used'),
-		'STATEHISTORY_OBJECT_ID' => array('object_id'),
+		'STATEHISTORY_OBJECT_ID' => array('id'),
 		'STATEHISTORY_STATE_CHANGE' => array('state_change'),
 		'STATEHISTORY_STATE' => array('state'),
 		'STATEHISTORY_STATE_TYPE' => array('state_type'),
@@ -578,11 +578,11 @@ class IcingaApiSearchLivestatusSocket
 		'NOTIFICATION_LONG_OUTPUT' => array('long_output'),
 		'NOTIFICATION_ESCALATED' => array('escalated'),
 		'NOTIFICATION_NOTIFIED' => array('contacts_notified'),
-		'NOTIFICATION_OBJECT_ID' => array('object_id'),
+		'NOTIFICATION_OBJECT_ID' => array('id'),
 		'NOTIFICATION_OBJECTTYPE_ID' => array('objecttype_id'),
 
 		// Summary queries
-		'HOSTGROUP_SUMMARY_COUNT' => array('object_id', 'count(%s)'),
+		'HOSTGROUP_SUMMARY_COUNT' => array('id', 'count(%s)'),
 		'SERVICEGROUP_SUMMARY_COUNT' => array('current_state', 'count(%s)'),
 */
 		self::TARGET_COMMAND => array (

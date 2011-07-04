@@ -28,6 +28,13 @@
 /* stop gcc from bitching about implicit asprintf declarations */
 #define _GNU_SOURCE 1
 
+/* check if gcc3 */
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2)
+#undef GCCTOOOLD
+#else
+#define GCCTOOOLD 1
+#endif
+
 /* Event broker integration */
 #undef USE_EVENT_BROKER
 
@@ -353,14 +360,17 @@
 #endif
 
 /* define to use state based escalation ranges */
-#undef USE_ST_BASED_ESCAL_RANGES 
+#undef USE_ST_BASED_ESCAL_RANGES
 
 /* Define to 1 if you have the <dbi/dbi.h> header file. */
 #undef HAVE_DBI_DBI_H
-#ifdef HAVE_DBI_DBI_H
-#include <dbi/dbi.h>
-#endif
+#undef USE_LIBDBI
 
+/* define to 1 if you have the libpq-fe.h header file. */
+#undef HAVE_LIBPQ_FE_H
+#undef USE_PGSQL
+
+/* oracle */
 #undef USE_ORACLE
 #undef HAVE_ORACLE
 #ifdef USE_ORACLE

@@ -7,7 +7,7 @@
  */
 class IcingaApiConnectionIdo
 	extends IcingaApiConnectionDatabase {
-
+	public $type = 'Ido';
 	/*
 	 * VARIABLES
 	 */

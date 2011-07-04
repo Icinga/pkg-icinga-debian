@@ -12,13 +12,16 @@
 <!ENTITY url-icingalists "http://www.icinga.org/community/">
 <!ENTITY url-icingagit-api "git://git.icinga.org/icinga-api.git/">
 <!ENTITY url-icingagit-web "git://git.icinga.org/icinga-web.git/">
-<!ENTITY url-icinga-wiki "https://dev.icinga.org/projects/icinga-web/wiki/">
-<!ENTITY url-icinga-test "https://dev.icinga.org/projects/icinga-development/wiki/">
+<!ENTITY url-icingagit-rep "git://git.icinga.org/icinga-reports.git/">
+<!ENTITY url-icinga-wiki "https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web">
+<!ENTITY url-icinga-test "https://dev.icinga.org/projects/icinga-development/wiki#2-Development">
+<!ENTITY url-icinga-rep "https://dev.icinga.org/projects/icinga-development/wiki#25-Icinga-Reporting">
 <!ENTITY url-icinga-dev "https://dev.icinga.org/">
 <!ENTITY url-libdbi "http://libdbi.sourceforge.net">
 <!ENTITY url-novell-coolsolutions "http://www.novell.com/coolsolutions/">
 <!ENTITY url-sf-projects "http://sourceforge.net/projects/">
 <!ENTITY url-apache "http://www.apache.org">
+<!ENTITY url-tomcat "http://tomcat.apache.org">
 <!ENTITY url-apache-docs "http://httpd.apache.org/docs/">
 <!ENTITY url-splunk "http://www.splunk.com/">
 <!ENTITY url-gd "http://www.boutell.com/gd/">
@@ -54,4 +57,5 @@
 <!ENTITY url-thruk "http://www.thruk.org">
 <!ENTITY url-mklive "http://mathias-kettner.de/checkmk_livestatus.html">
 <!ENTITY url-check_mk "http://mathias-kettner.de/check_mk.html">
+<!ENTITY url-jasper "http://jasperforge.org/projects/jasperserver">
 

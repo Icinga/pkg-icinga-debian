@@ -3,7 +3,7 @@
  * ICINGA.C - Core Program Code For Icinga
  *
  * Program: Icinga
- * Version: 1.0.2
+ * Version: 1.2.0
  * License: GPL
  * Copyright (c) 1999-2009 Ethan Galstad (http://www.nagios.org)
  * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
@@ -46,7 +46,11 @@
 #include "../include/broker.h"
 #include "../include/nebmods.h"
 #include "../include/nebmodules.h"
+
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 #include "../include/profiler.h"
+#endif
 
 /*#define DEBUG_MEMORY 1*/
 #ifdef DEBUG_MEMORY
@@ -85,6 +89,7 @@ char            *illegal_output_chars=NULL;
 int             use_regexp_matches=FALSE;
 int             use_true_regexp_matching=FALSE;
 
+int             use_daemon_log=DEFAULT_USE_DAEMON_LOG;
 int		use_syslog=DEFAULT_USE_SYSLOG;
 int		use_syslog_local_facility=DEFAULT_USE_SYSLOG_LOCAL_FACILITY;
 int		syslog_local_facility=DEFAULT_SYSLOG_LOCAL_FACILITY;
@@ -93,8 +98,11 @@ int             log_service_retries=DEFAULT_LOG_SERVICE_RETRIES;
 int             log_host_retries=DEFAULT_LOG_HOST_RETRIES;
 int             log_event_handlers=DEFAULT_LOG_EVENT_HANDLERS;
 int             log_initial_states=DEFAULT_LOG_INITIAL_STATES;
+int             log_current_states=DEFAULT_LOG_CURRENT_STATES;
 int             log_external_commands=DEFAULT_LOG_EXTERNAL_COMMANDS;
+int             log_external_commands_user=DEFAULT_LOG_EXTERNAL_COMMANDS_USER;
 int             log_passive_checks=DEFAULT_LOG_PASSIVE_CHECKS;
+int             log_long_plugin_output=DEFAULT_LOG_LONG_PLUGIN_OUTPUT;
 
 unsigned long   logging_options=0;
 unsigned long   syslog_options=0;
@@ -131,13 +139,6 @@ int             auto_reschedule_checks=DEFAULT_AUTO_RESCHEDULE_CHECKS;
 int             auto_rescheduling_window=DEFAULT_AUTO_RESCHEDULING_WINDOW;
 
 int             additional_freshness_latency=DEFAULT_ADDITIONAL_FRESHNESS_LATENCY;
-
-int             check_for_updates=DEFAULT_CHECK_FOR_UPDATES;
-int             bare_update_check=DEFAULT_BARE_UPDATE_CHECK;
-time_t          last_update_check=0L;
-int             update_available=FALSE;
-char            *last_program_version=NULL;
-char            *new_program_version=NULL;
 
 time_t          last_command_check=0L;
 time_t          last_command_status_update=0L;
@@ -237,6 +238,9 @@ int             enable_embedded_perl=DEFAULT_ENABLE_EMBEDDED_PERL;
 int             use_embedded_perl_implicitly=DEFAULT_USE_EMBEDDED_PERL_IMPLICITLY;
 int             embedded_perl_initialized=FALSE;
 
+int             stalking_event_handlers_for_hosts=DEFAULT_STALKING_EVENT_HANDLERS_FOR_HOSTS;
+int             stalking_event_handlers_for_services=DEFAULT_STALKING_EVENT_HANDLERS_FOR_SERVICES;
+
 int             date_format=DATE_FORMAT_US;
 char            *use_timezone=NULL;
 
@@ -244,7 +248,10 @@ int             command_file_fd;
 FILE            *command_file_fp;
 int             command_file_created=FALSE;
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 int             event_profiling_enabled=FALSE;
+#endif
 
 extern contact	       *contact_list;
 extern contactgroup    *contactgroup_list;
@@ -387,7 +394,6 @@ int main(int argc, char **argv, char **env){
 #ifdef DEBUG_MEMORY
 	mtrace();
 #endif
-	profiler_init();
 
 	if(daemon_mode==FALSE){
 		printf("\n%s %s\n", PROGRAM_NAME ,PROGRAM_VERSION);
@@ -644,6 +650,13 @@ int main(int argc, char **argv, char **env){
 	/* else start to monitor things... */
 	else{
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
+	/* This is Sparta! */
+	if(event_profiling_enabled==TRUE)
+	        profiler_init();
+#endif
+
 		/* keep monitoring things until we get a shutdown command */
 		do{
 
@@ -830,9 +843,6 @@ int main(int argc, char **argv, char **env){
 
 			/* initialize check statistics */
 			init_check_stats();
-
-			/* check for updates */
-			check_for_nagios_updates(FALSE,TRUE);
 
 			/* update all status data (with retained information) */
 			update_all_status_data();

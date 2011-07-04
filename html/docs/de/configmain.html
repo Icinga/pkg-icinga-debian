@@ -3,8 +3,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>Optionen der Hauptkonfigurationsdatei</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
-<meta name="keywords" content="Supervision, Icinga, Icinga, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.0.2 Dokumentation">
+<meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
+<link rel="home" href="index.html" title="Icinga Version 1.2 Dokumentation">
 <link rel="up" href="ch03.html" title="Kapitel 3. Icinga konfigurieren">
 <link rel="prev" href="config.html" title="Konfigurationsüberblick">
 <link rel="next" href="configobject.html" title="Überblick Objektkonfiguration">
@@ -409,11 +409,11 @@
 <tbody>
 <tr>
 <td><p>Format:</p></td>
-<td><p><span class="bold"><strong>nagios_user=&lt;username/UID&gt;</strong></span> </p></td>
+<td><p><span class="bold"><strong>icinga_user=&lt;username/UID&gt;</strong></span> </p></td>
 </tr>
 <tr>
 <td><p>Beispiel:</p></td>
-<td><p><span class="color"> <span class="bold"><strong>nagios_user=nagios</strong></span> </span>
+<td><p><span class="color"> <span class="bold"><strong>icinga_user=nagios</strong></span> </span>
           </p></td>
 </tr>
 </tbody>
@@ -435,11 +435,11 @@
 <tbody>
 <tr>
 <td><p>Format:</p></td>
-<td><p><span class="bold"><strong>nagios_group=&lt;groupname/GID&gt;</strong></span> </p></td>
+<td><p><span class="bold"><strong>icinga_group=&lt;groupname/GID&gt;</strong></span> </p></td>
 </tr>
 <tr>
 <td><p>Beispiel:</p></td>
-<td><p><span class="color"> <span class="bold"><strong>nagios_group=nagios</strong></span> </span>
+<td><p><span class="color"> <span class="bold"><strong>icinga_group=nagios</strong></span> </span>
           </p></td>
 </tr>
 </tbody>
@@ -903,11 +903,10 @@
 </table>
   </div>
 
-  <p>Diese Option legt fest, ob Icinga automatisch prüft, ob neue Updates (Versionen) verfügbar sind. Es wird empfohlen, dass Sie
-  diese Option aktivieren, damit Sie immer über die letzten kritischen Patches für Icinga informiert sind. Icinga ist kritisch
-  für Sie - stellen Sie sicher, dass es sich in guter Form befindet. Icinga wird einmal am Tag auf neue Updates prüfen. Daten, die
-  von Icinga Enterprises für den Update-Check gesammelt werden, werden gemäß unserer Privacy-Policy verarbeitet (Details siehe
-  http://api.nagios.org).</p>
+  <p>Diese Option legt bei Nagios fest, ob automatisch geprüft werden soll, ob neue Updates/Versionen verfügbar sind. Es wird bei
+  Nagios empfohlen, dass Sie diese Option aktivieren.</p>
+
+  <p>Bei Icinga hat diese Option keine Funktion, ab Version 1.2 wird eine entsprechende Warnung ausgegeben.</p>
 
   <p><a name="configmain-Bare-Update-Checks"></a><span class="bold"><strong>Nur Update-Prüfungen</strong></span> (Bare Update Checks)</p>
 
@@ -931,10 +930,10 @@
 </table>
   </div>
 
-  <p>Diese Option legt fest, welche Daten Icinga an api.nagios.org schickt, wenn es auf Updates prüft. Als Standard wird
-  Icinga Informationen über die aktuell installierte Version schicken sowie einen Hinweis, ob es sich hierbei um eine neue oder eine
-  aktualisierte Version handelt. Icinga Enterprises nutzt diese Daten, um die Anzahl der Nutzer bestimmter Versionen zu ermitteln.
-  Aktivieren Sie diese Option, wenn Sie diese Informationen nicht senden möchten.</p>
+  <p>Diese Option legt bei Nagios fest, welche Daten an api.nagios.org gesandt werden. Es wird bei Nagios empfohlen, dass
+  Sie diese Option aktivieren.</p>
+
+  <p>Bei Icinga hat diese Option keine Funktion, ab Version 1.2 wird eine entsprechende Warnung ausgegeben.</p>
 
   <p><a name="configmain-lock_file"></a><span class="bold"><strong>Sperrdatei</strong></span> (Lock File)</p>
 
@@ -1676,6 +1675,52 @@
     </li>
 </ul></div>
 
+  <p><a name="configmain-log_external_commands_user"></a> <span class="bold"><strong>Option Benutzer von externen Kommandos
+  protokollieren</strong></span></p>
+
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p>Format:</p></td>
+<td><p> <span class="bold"><strong>log_external_commands_user=&lt;0/1&gt;</strong></span> </p></td>
+</tr>
+<tr>
+<td><p>Beispiel:</p></td>
+<td><p> <span class="color"> <span class="bold"><strong>log_external_commands_user=1</strong></span> </span>
+          </p></td>
+</tr>
+</tbody>
+</table>
+  </div>
+
+  <p>Diese Option erlaubt es Ihnen, den Namen des Benutzers zu protokollieren, der aktuell externe Kommandos ausführt. Anstatt
+  CMD;cmdargs wird nun CMD;username;cmdargs in die Log-Datei geschrieben, wenn die externe Applikation das korrekt sendet. Weil dies die
+  Kompatibilität mit bestehenden Log-Parsern gefährdet, ist diese Option per Default deaktiviert.</p>
+
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+      <p>0 = Den Namen des aktuellen Benutzers von externen Kommandos nicht protokollieren (default)</p>
+    </li>
+<li class="listitem">
+      <p>1 = Den Namen des aktuellen Benutzers von externen Kommandos protokollieren</p>
+    </li>
+</ul></div>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.0.3.</p>
+  </td></tr>
+</table></div>
+
   <p><a name="configmain-log_passive_checks"></a><span class="bold"><strong>Option passive Prüfungen protokollieren</strong></span> (Passive
   Check Logging Option)</p>
 
@@ -1711,6 +1756,96 @@
       <p>1 = passive Prüfungen protokollieren (Default)</p>
     </li>
 </ul></div>
+
+  <p><a name="configmain-log_current_states"></a> <span class="bold"><strong>Option Aktuelle Zustände protokollieren</strong></span></p>
+
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p>Format:</p></td>
+<td><p> <span class="bold"><strong>log_current_states=&lt;0/1&gt;</strong></span> </p></td>
+</tr>
+<tr>
+<td><p>Beispiel:</p></td>
+<td><p> <span class="color"> <span class="bold"><strong>log_current_states=1</strong></span> </span>
+          </p></td>
+</tr>
+</tbody>
+</table>
+  </div>
+
+  <p>Diese Variable legt fest, ob Icinga die aktuellen Host- und Service-Zustände nach einer Log-Datei-Rotation protokolliert.
+  Wenn Sie den Wert von log_current_states auf 0 setzen, werden die aktuellen Zustände nach einer Rotation der Log-Datei nicht
+  protokolliert.</p>
+
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+      <p>0 = die aktuellen Host- und Service-Zustände nicht protokollieren</p>
+    </li>
+<li class="listitem">
+      <p>1 = die aktuellen Host- und Service-Zustände protokollieren (Default)</p>
+    </li>
+</ul></div>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.0.3.</p>
+  </td></tr>
+</table></div>
+
+  <p><a name="configmain-log_long_plugin_output"></a> <span class="bold"><strong>Option langen Plugin-Output
+  protokollieren</strong></span></p>
+
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p>Format:</p></td>
+<td><p> <span class="bold"><strong>log_long_plugin_output=&lt;0/1&gt;</strong></span> </p></td>
+</tr>
+<tr>
+<td><p>Beispiel:</p></td>
+<td><p> <span class="color"> <span class="bold"><strong>log_long_plugin_output=1</strong></span> </span>
+          </p></td>
+</tr>
+</tbody>
+</table>
+  </div>
+
+  <p>Diese Variable legt fest, ob Icinga die komplette Ausgabe von Plugin (und nicht nur die erste Zeile) protokolliert. Wenn Sie
+  den Wert von log_long_plugin_output auf 1 setzen, werden die kompletten Ausgaben von Plugins protokolliert.</p>
+
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+      <p>0 = nur die erste Zeile von Plugin-Ausgaben protokollieren (Default)</p>
+    </li>
+<li class="listitem">
+      <p>1 = die kompletten Plugin-Ausgaben protokollieren</p>
+    </li>
+</ul></div>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.0.3.</p>
+  </td></tr>
+</table></div>
 
   <p><a name="configmain-global_host_event_handler"></a><span class="bold"><strong>globale Host-Eventhandler Option</strong></span> (Global
   Host Event Handler Option)</p>
@@ -1765,6 +1900,68 @@
   globale Eventhandler wird direkt vor dem Eventhandler ausgeführt, den Sie optional in jeder Service-Definition angeben können. Das
   <span class="emphasis"><em>Befehls</em></span>-Argument ist der Kurzname eines Befehls, den Sie in Ihrer <a class="link" href="configobject.html" title="Überblick Objektkonfiguration">Objektkonfigurationsdatei</a> angeben. Die maximale Ausführungszeit dieses Befehls kann durch die <a class="link" href="configmain.html#configmain-event_handler_timeout">event_handler_timeout</a>-Option angegeben werden. Mehr Informationen zu Eventhandlern
   finden Sie <a class="link" href="eventhandlers.html" title="Eventhandler">hier</a>.</p>
+
+  <p><a name="configmain-stalking_event_handlers_for_hosts"></a> <span class="bold"><strong>Eventhandler für "verfolgte" Hosts (Event
+  handlers for stalked hosts)</strong></span></p>
+
+  <p><a name="configmain-stalking_event_handlers_for_services"></a> <span class="bold"><strong>Eventhandler für "verfolgte" Services
+  (Event handlers for stalked services)</strong></span></p>
+
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p>Format:</p></td>
+<td>
+<p>
+               
+
+              <span class="bold"><strong>stalking_event_handlers_for_hosts=&lt;0|1&gt;</strong></span>
+
+               
+            </p> <p>
+               
+
+              <span class="bold"><strong>stalking_event_handlers_for_services=&lt;0|1&gt;</strong></span>
+
+               
+            </p>
+</td>
+</tr>
+<tr>
+<td><p>Example:</p></td>
+<td><p> <span class="color"> <span class="bold"><strong>stalking_event_handlers_for_hosts=1</strong></span>
+          </span> </p></td>
+</tr>
+</tbody>
+</table>
+  </div>
+
+  <p>Diese Optionen erlauben Ihnen festzulegen, ob Icinga Eventhandler für "stalked" Host oder Services ausführt. Auf diese Weise
+  können Statusinformationsänderungen an externe System weitergeleitet werden.</p>
+
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+      <p>0 = Eventhandler deaktivieren (Default)</p>
+    </li>
+<li class="listitem">
+      <p>1 = Eventhandler aktivieren</p>
+    </li>
+</ul></div>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.0.3.</p>
+  </td></tr>
+</table></div>
 
   <p><a name="configmain-sleep_time"></a><span class="bold"><strong>Ruhezeit zwischen Prüfungen</strong></span> (Inter-Check Sleep
   Time)</p>
@@ -3718,10 +3915,10 @@
 
   <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
-      <p>0 = Host-Frische nicht prüfen</p>
+      <p>0 = Host-Frische nicht prüfen (Default)</p>
     </li>
 <li class="listitem">
-      <p>1 = Host-Frische prüfen (Default)</p>
+      <p>1 = Host-Frische prüfen</p>
     </li>
 </ul></div>
 
@@ -4337,265 +4534,265 @@
   die Größe überschreitet, dann wird ".old" als Erweiterung angehängt. Wenn bereits eine Datei mit der ".old"-Erweiterung existiert, wird
   diese gelöscht. Das stellt sicher, dass Ihr Plattenplatz nicht außer Kontrolle gerät, wenn Sie Icinga debuggen.</p>
 
-  <a class="indexterm" name="id5546155"></a>
+  <a class="indexterm" name="id5680961"></a>
 
-  <a class="indexterm" name="id5546167"></a>
+  <a class="indexterm" name="id5680998"></a>
 
-  <a class="indexterm" name="id5546180"></a>
+  <a class="indexterm" name="id5681011"></a>
 
-  <a class="indexterm" name="id5546193"></a>
+  <a class="indexterm" name="id5681027"></a>
 
-  <a class="indexterm" name="id5546207"></a>
+  <a class="indexterm" name="id5681012"></a>
 
-  <a class="indexterm" name="id5546221"></a>
+  <a class="indexterm" name="id5681054"></a>
 
-  <a class="indexterm" name="id5546234"></a>
+  <a class="indexterm" name="id5681066"></a>
 
-  <a class="indexterm" name="id5546195"></a>
+  <a class="indexterm" name="id5681040"></a>
 
-  <a class="indexterm" name="id5546263"></a>
+  <a class="indexterm" name="id5681095"></a>
 
-  <a class="indexterm" name="id5546248"></a>
+  <a class="indexterm" name="id5681080"></a>
 
-  <a class="indexterm" name="id5546290"></a>
+  <a class="indexterm" name="id5681122"></a>
 
-  <a class="indexterm" name="id5546305"></a>
+  <a class="indexterm" name="id5681135"></a>
 
-  <a class="indexterm" name="id5546318"></a>
+  <a class="indexterm" name="id5681149"></a>
 
-  <a class="indexterm" name="id5546332"></a>
+  <a class="indexterm" name="id5681163"></a>
 
-  <a class="indexterm" name="id5546345"></a>
+  <a class="indexterm" name="id5681108"></a>
 
-  <a class="indexterm" name="id5546359"></a>
+  <a class="indexterm" name="id5681190"></a>
 
-  <a class="indexterm" name="id5546372"></a>
+  <a class="indexterm" name="id5681204"></a>
 
-  <a class="indexterm" name="id5546386"></a>
+  <a class="indexterm" name="id5681216"></a>
 
-  <a class="indexterm" name="id5546401"></a>
+  <a class="indexterm" name="id5681231"></a>
 
-  <a class="indexterm" name="id5546412"></a>
+  <a class="indexterm" name="id5681244"></a>
 
-  <a class="indexterm" name="id5546426"></a>
+  <a class="indexterm" name="id5681258"></a>
 
-  <a class="indexterm" name="id5546413"></a>
+  <a class="indexterm" name="id5681271"></a>
 
-  <a class="indexterm" name="id5546427"></a>
+  <a class="indexterm" name="id5681287"></a>
 
-  <a class="indexterm" name="id5546466"></a>
+  <a class="indexterm" name="id5681272"></a>
 
-  <a class="indexterm" name="id5546481"></a>
+  <a class="indexterm" name="id5681313"></a>
 
-  <a class="indexterm" name="id5546467"></a>
+  <a class="indexterm" name="id5681327"></a>
 
-  <a class="indexterm" name="id5546507"></a>
+  <a class="indexterm" name="id5681340"></a>
 
-  <a class="indexterm" name="id5546522"></a>
+  <a class="indexterm" name="id5681356"></a>
 
-  <a class="indexterm" name="id5546524"></a>
+  <a class="indexterm" name="id5681368"></a>
 
-  <a class="indexterm" name="id5546548"></a>
+  <a class="indexterm" name="id5681380"></a>
 
-  <a class="indexterm" name="id5546564"></a>
+  <a class="indexterm" name="id5681395"></a>
 
-  <a class="indexterm" name="id5546550"></a>
+  <a class="indexterm" name="id5681408"></a>
 
-  <a class="indexterm" name="id5546592"></a>
+  <a class="indexterm" name="id5681422"></a>
 
-  <a class="indexterm" name="id5546578"></a>
+  <a class="indexterm" name="id5681436"></a>
 
-  <a class="indexterm" name="id5546593"></a>
+  <a class="indexterm" name="id5681450"></a>
 
-  <a class="indexterm" name="id5546606"></a>
+  <a class="indexterm" name="id5681462"></a>
 
-  <a class="indexterm" name="id5546621"></a>
+  <a class="indexterm" name="id5681475"></a>
 
-  <a class="indexterm" name="id5546662"></a>
+  <a class="indexterm" name="id5681491"></a>
 
-  <a class="indexterm" name="id5546676"></a>
+  <a class="indexterm" name="id5681506"></a>
 
-  <a class="indexterm" name="id5546689"></a>
+  <a class="indexterm" name="id5681493"></a>
 
-  <a class="indexterm" name="id5546703"></a>
+  <a class="indexterm" name="id5681507"></a>
 
-  <a class="indexterm" name="id5546719"></a>
+  <a class="indexterm" name="id5681523"></a>
 
-  <a class="indexterm" name="id5546731"></a>
+  <a class="indexterm" name="id5681562"></a>
 
-  <a class="indexterm" name="id5546743"></a>
+  <a class="indexterm" name="id5681550"></a>
 
-  <a class="indexterm" name="id5546760"></a>
+  <a class="indexterm" name="id5681590"></a>
 
-  <a class="indexterm" name="id5546745"></a>
+  <a class="indexterm" name="id5681592"></a>
 
-  <a class="indexterm" name="id5546786"></a>
+  <a class="indexterm" name="id5681619"></a>
 
-  <a class="indexterm" name="id5546801"></a>
+  <a class="indexterm" name="id5681605"></a>
 
-  <a class="indexterm" name="id5546815"></a>
+  <a class="indexterm" name="id5681646"></a>
 
-  <a class="indexterm" name="id5546829"></a>
+  <a class="indexterm" name="id5681633"></a>
 
-  <a class="indexterm" name="id5546841"></a>
+  <a class="indexterm" name="id5681674"></a>
 
-  <a class="indexterm" name="id5546856"></a>
+  <a class="indexterm" name="id5681661"></a>
 
-  <a class="indexterm" name="id5546857"></a>
+  <a class="indexterm" name="id5681703"></a>
 
-  <a class="indexterm" name="id5546884"></a>
+  <a class="indexterm" name="id5681688"></a>
 
-  <a class="indexterm" name="id5546871"></a>
+  <a class="indexterm" name="id5681728"></a>
 
-  <a class="indexterm" name="id5546913"></a>
+  <a class="indexterm" name="id5681743"></a>
 
-  <a class="indexterm" name="id5546927"></a>
+  <a class="indexterm" name="id5681744"></a>
 
-  <a class="indexterm" name="id5546938"></a>
+  <a class="indexterm" name="id5681771"></a>
 
-  <a class="indexterm" name="id5546953"></a>
+  <a class="indexterm" name="id5681784"></a>
 
-  <a class="indexterm" name="id5546939"></a>
+  <a class="indexterm" name="id5681799"></a>
 
-  <a class="indexterm" name="id5546981"></a>
+  <a class="indexterm" name="id5681786"></a>
 
-  <a class="indexterm" name="id5546996"></a>
+  <a class="indexterm" name="id5681827"></a>
 
-  <a class="indexterm" name="id5546982"></a>
+  <a class="indexterm" name="id5681813"></a>
 
-  <a class="indexterm" name="id5547024"></a>
+  <a class="indexterm" name="id5681852"></a>
 
-  <a class="indexterm" name="id5547011"></a>
+  <a class="indexterm" name="id5681867"></a>
 
-  <a class="indexterm" name="id5547051"></a>
+  <a class="indexterm" name="id5681853"></a>
 
-  <a class="indexterm" name="id5547036"></a>
+  <a class="indexterm" name="id5681895"></a>
 
-  <a class="indexterm" name="id5547077"></a>
+  <a class="indexterm" name="id5681909"></a>
 
-  <a class="indexterm" name="id5547091"></a>
+  <a class="indexterm" name="id5681924"></a>
 
-  <a class="indexterm" name="id5547106"></a>
+  <a class="indexterm" name="id5681938"></a>
 
-  <a class="indexterm" name="id5547120"></a>
+  <a class="indexterm" name="id5681951"></a>
 
-  <a class="indexterm" name="id5547122"></a>
+  <a class="indexterm" name="id5681966"></a>
 
-  <a class="indexterm" name="id5547121"></a>
+  <a class="indexterm" name="id5681981"></a>
 
-  <a class="indexterm" name="id5547162"></a>
+  <a class="indexterm" name="id5681994"></a>
 
-  <a class="indexterm" name="id5547177"></a>
+  <a class="indexterm" name="id5682008"></a>
 
-  <a class="indexterm" name="id5547163"></a>
+  <a class="indexterm" name="id5682021"></a>
 
-  <a class="indexterm" name="id5547204"></a>
+  <a class="indexterm" name="id5682036"></a>
 
-  <a class="indexterm" name="id5547191"></a>
+  <a class="indexterm" name="id5682022"></a>
 
-  <a class="indexterm" name="id5547232"></a>
+  <a class="indexterm" name="id5682063"></a>
 
-  <a class="indexterm" name="id5547219"></a>
+  <a class="indexterm" name="id5682077"></a>
 
-  <a class="indexterm" name="id5547260"></a>
+  <a class="indexterm" name="id5682090"></a>
 
-  <a class="indexterm" name="id5547246"></a>
+  <a class="indexterm" name="id5682105"></a>
 
-  <a class="indexterm" name="id5547287"></a>
+  <a class="indexterm" name="id5682119"></a>
 
-  <a class="indexterm" name="id5547301"></a>
+  <a class="indexterm" name="id5682133"></a>
 
-  <a class="indexterm" name="id5547315"></a>
+  <a class="indexterm" name="id5682147"></a>
 
-  <a class="indexterm" name="id5547316"></a>
+  <a class="indexterm" name="id5682158"></a>
 
-  <a class="indexterm" name="id5547343"></a>
+  <a class="indexterm" name="id5682174"></a>
 
-  <a class="indexterm" name="id5547357"></a>
+  <a class="indexterm" name="id5682189"></a>
 
-  <a class="indexterm" name="id5547372"></a>
+  <a class="indexterm" name="id5682160"></a>
 
-  <a class="indexterm" name="id5547385"></a>
+  <a class="indexterm" name="id5682216"></a>
 
-  <a class="indexterm" name="id5547398"></a>
+  <a class="indexterm" name="id5682230"></a>
 
-  <a class="indexterm" name="id5547412"></a>
+  <a class="indexterm" name="id5682217"></a>
 
-  <a class="indexterm" name="id5547426"></a>
+  <a class="indexterm" name="id5682257"></a>
 
-  <a class="indexterm" name="id5547440"></a>
+  <a class="indexterm" name="id5682244"></a>
 
-  <a class="indexterm" name="id5547454"></a>
+  <a class="indexterm" name="id5682286"></a>
 
-  <a class="indexterm" name="id5547465"></a>
+  <a class="indexterm" name="id5682299"></a>
 
-  <a class="indexterm" name="id5547481"></a>
+  <a class="indexterm" name="id5682312"></a>
 
-  <a class="indexterm" name="id5547468"></a>
+  <a class="indexterm" name="id5682326"></a>
 
-  <a class="indexterm" name="id5547509"></a>
+  <a class="indexterm" name="id5682339"></a>
 
-  <a class="indexterm" name="id5547495"></a>
+  <a class="indexterm" name="id5682340"></a>
 
-  <a class="indexterm" name="id5547536"></a>
+  <a class="indexterm" name="id5682366"></a>
 
-  <a class="indexterm" name="id5547538"></a>
+  <a class="indexterm" name="id5682379"></a>
 
-  <a class="indexterm" name="id5547564"></a>
+  <a class="indexterm" name="id5682395"></a>
 
-  <a class="indexterm" name="id5547550"></a>
+  <a class="indexterm" name="id5682410"></a>
 
-  <a class="indexterm" name="id5547590"></a>
+  <a class="indexterm" name="id5682423"></a>
 
-  <a class="indexterm" name="id5547604"></a>
+  <a class="indexterm" name="id5682438"></a>
 
-  <a class="indexterm" name="id5547592"></a>
+  <a class="indexterm" name="id5682452"></a>
 
-  <a class="indexterm" name="id5547607"></a>
+  <a class="indexterm" name="id5682453"></a>
 
-  <a class="indexterm" name="id5547648"></a>
+  <a class="indexterm" name="id5682478"></a>
 
-  <a class="indexterm" name="id5547660"></a>
+  <a class="indexterm" name="id5682481"></a>
 
-  <a class="indexterm" name="id5547676"></a>
+  <a class="indexterm" name="id5682495"></a>
 
-  <a class="indexterm" name="id5547662"></a>
+  <a class="indexterm" name="id5682522"></a>
 
-  <a class="indexterm" name="id5547702"></a>
+  <a class="indexterm" name="id5682480"></a>
 
-  <a class="indexterm" name="id5547718"></a>
+  <a class="indexterm" name="id5682549"></a>
 
-  <a class="indexterm" name="id5547703"></a>
+  <a class="indexterm" name="id5682564"></a>
 
-  <a class="indexterm" name="id5547745"></a>
+  <a class="indexterm" name="id5682577"></a>
 
-  <a class="indexterm" name="id5547759"></a>
+  <a class="indexterm" name="id5682579"></a>
 
-  <a class="indexterm" name="id5547773"></a>
+  <a class="indexterm" name="id5682606"></a>
 
-  <a class="indexterm" name="id5547787"></a>
+  <a class="indexterm" name="id5682592"></a>
 
-  <a class="indexterm" name="id5547802"></a>
+  <a class="indexterm" name="id5682634"></a>
 
-  <a class="indexterm" name="id5547815"></a>
+  <a class="indexterm" name="id5682620"></a>
 
-  <a class="indexterm" name="id5547829"></a>
+  <a class="indexterm" name="id5682662"></a>
 
-  <a class="indexterm" name="id5547842"></a>
+  <a class="indexterm" name="id5682648"></a>
 
-  <a class="indexterm" name="id5547858"></a>
+  <a class="indexterm" name="id5682688"></a>
 
-  <a class="indexterm" name="id5547844"></a>
+  <a class="indexterm" name="id5682702"></a>
 
-  <a class="indexterm" name="id5547886"></a>
+  <a class="indexterm" name="id5682716"></a>
 
-  <a class="indexterm" name="id5547896"></a>
+  <a class="indexterm" name="id5682730"></a>
 
-  <a class="indexterm" name="id5547912"></a>
+  <a class="indexterm" name="id5682703"></a>
 
-  <a class="indexterm" name="id5547898"></a>
+  <a class="indexterm" name="id5682732"></a>
 
-  <a class="indexterm" name="id5547939"></a>
+  <a class="indexterm" name="id5682774"></a>
 </div>
 <div class="navfooter">
 <hr>

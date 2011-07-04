@@ -38,7 +38,6 @@ class IcingaApiSearchIdoOci
 			'select
 				${FIELDS}
 			from ${TABLE_PREFIX}instances i
-			where 1
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -64,7 +63,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
 				oh.objecttype_id = 1
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -94,7 +93,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
 				os.objecttype_id = 2
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -108,7 +107,7 @@ class IcingaApiSearchIdoOci
 			${if_table:oh,hgm,hg:inner join ${TABLE_PREFIX}objects oh on oh.id = hgm.host_object_id and oh.objecttype_id = 1}
 			where
 				ohg.objecttype_id = 3
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -122,7 +121,7 @@ class IcingaApiSearchIdoOci
 			${if_table:os,sgm,sg:inner join ${TABLE_PREFIX}objects os on os.id = sgm.service_object_id and os.objecttype_id = 2}
 			where
 				osg.objecttype_id=4
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -137,7 +136,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsc,oc,cgm,cg:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
 				ocg.objecttype_id = 11
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -150,7 +149,7 @@ class IcingaApiSearchIdoOci
 			${if_table:tptr,tp:inner join ${TABLE_PREFIX}timeperiod_timeranges tptr on tptr.timeperiod_id = tp.id}
 			where
 				otp.objecttype_id = 9
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -160,7 +159,6 @@ class IcingaApiSearchIdoOci
 			from 
 				${TABLE_PREFIX}customvariables cv
 			${if_table:cvs:inner join ${TABLE_PREFIX}customvariablestatus cvs on cvs.object_id = cv.object_id}
-			where 1
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -170,7 +168,6 @@ class IcingaApiSearchIdoOci
 				${FIELDS}
 			from
 				${TABLE_PREFIX}configfilevariables cfv
-			where 1
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -182,7 +179,7 @@ class IcingaApiSearchIdoOci
 				${TABLE_PREFIX}processevents pe
 			where
 				pe.event_type = 100
-				${FILTER}
+				${FILTER_AND}
 			order by
 				pe.event_time desc
 			limit 1',
@@ -190,8 +187,7 @@ class IcingaApiSearchIdoOci
 			'select
 				${FIELDS}
 			from
-				${TABLE_PREFIX}logentries le
-			where 1 
+				${TABLE_PREFIX}logentries le 
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -214,7 +210,6 @@ class IcingaApiSearchIdoOci
 			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
-			where 1
 			${FILTER}
 			group by
 				hs.current_state
@@ -241,7 +236,6 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s,os:--inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
-			where 1
 			${FILTER}
 			group by
 				ss.current_state
@@ -252,8 +246,8 @@ class IcingaApiSearchIdoOci
 				${FIELDS}
 			from 
 				${TABLE_PREFIX}statehistory sh
-			${if_table:oh:inner join ${TABLE_PREFIX}objects oh on oh.id = sh.object_id and oh.objecttype_id = 1}
-			${if_table:h,oh:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.instance_id}
+			inner join ${TABLE_PREFIX}objects oh on oh.id = sh.object_id and oh.objecttype_id = 1
+			inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.instance_id
 			${if_table:i,h:inner join ${TABLE_PREFIX}instances i on i.id = h.id}
 			${if_table:hcg,h:inner join ${TABLE_PREFIX}host_contactgroups hcg on hcg.host_id = h.id}
 			${if_table:cg,h:inner join ${TABLE_PREFIX}contactgroups cg on cg.id = hcg.contactgroup_object_id}
@@ -265,7 +259,6 @@ class IcingaApiSearchIdoOci
 			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 
-			where 1
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -275,8 +268,8 @@ class IcingaApiSearchIdoOci
 				${FIELDS}
 			from 
 				${TABLE_PREFIX}statehistory sh
-			${if_table:os:inner join ${TABLE_PREFIX}objects os on os.id = sh.object_id and os.objecttype_id = 2}
-			${if_table:s,os:inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id}
+			inner join ${TABLE_PREFIX}objects os on os.id = sh.object_id and os.objecttype_id = 2
+			inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id
 			${if_table:i,s:inner join ${TABLE_PREFIX}instances i on i.id = s.instance_id}
 			${if_table:oh,s,os:inner join ${TABLE_PREFIX}objects oh on oh.id = s.host_object_id}
 			${if_table:h,oh,s,os:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.id}
@@ -289,7 +282,7 @@ class IcingaApiSearchIdoOci
 			${if_table:ohg,hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
 			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
-			where 1
+
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -304,7 +297,7 @@ class IcingaApiSearchIdoOci
 			${if_table:oh,h,hph:inner join ${TABLE_PREFIX}objects oh on oh.id = h.host_object_id and oh.objecttype_id = 1}
 			where
 				ohp.objecttype_id = 1
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY:ohp.name1 asc, oh.name1 asc}
 			${LIMIT}',
@@ -313,12 +306,11 @@ class IcingaApiSearchIdoOci
 				${FIELDS}
 			from
 				${TABLE_PREFIX}notifications n
-			${if_table:on:inner join ${TABLE_PREFIX}objects `on` on on.id = n.object_id and on.is_active = 1}
+			inner join ${TABLE_PREFIX}objects `on` on on.id = n.object_id and on.is_active = 1
 			${if_table:s,on:left join ${TABLE_PREFIX}services s on s.service_object_id = on.id}
 			${if_table:h,s,on:left join ${TABLE_PREFIX}hosts h on h.host_object_id = on.id or h.host_object_id = s.host_object_id}
 			${if_table:oh,h,s,on:left join ${TABLE_PREFIX}objects oh on oh.id = h.host_object_id}
 			${if_table:os,s,on:left join ${TABLE_PREFIX}objects os on os.id = s.service_object_id}
-			where 1
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY:n.start_time asc}
@@ -328,11 +320,11 @@ class IcingaApiSearchIdoOci
 				${FIELDS}
 			from
 				${TABLE_PREFIX}hostgroups hg
+			${if_table:i,hg:inner join ${TABLE_PREFIX}instances i on i.id = hg.instance_id}
 			${if_table:ohg:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id and ohg.is_active = 1}
 			${if_table:hgm:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.hostgroup_id = hg.id}
 			${if_table:oh,hgm:inner join ${TABLE_PREFIX}objects oh on oh.id = hgm.host_object_id}
 			${if_table:hs,oh,hgm:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = oh.id}
-			where 1
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY:hs.current_state asc}
@@ -342,16 +334,25 @@ class IcingaApiSearchIdoOci
 				${FIELDS}
 			from
 			${TABLE_PREFIX}servicegroups sg
+			${if_table:i,sg:inner join ${TABLE_PREFIX}instances i on i.id = sg.instance_id}
 			${if_table:osg:inner join ${TABLE_PREFIX}objects osg on osg.id = sg.servicegroup_object_id and osg.is_active = 1}
 			${if_table:sgm:inner join ${TABLE_PREFIX}servicegroup_members sgm on sgm.servicegroup_id = sg.id}
 			${if_table:os,sgm:inner join ${TABLE_PREFIX}objects os on os.id = sgm.service_object_id}
 			${if_table:ss,os,sgm:inner join ${TABLE_PREFIX}servicestatus ss on ss.service_object_id = os.id}
-			where 1
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY:ss.current_state asc}
+			${LIMIT}',
+		self::TARGET_COMMENT =>
+			'select
+				${FIELDS}
+			from
+			${TABLE_PREFIX}comments co
+			${FILTER}
+			${GROUPBY}
+			${ORDERBY:co.comment_time asc}
 			${LIMIT}'
-	);
+			);
 
 	// COLUMNS
 	public $columns = array(
@@ -474,6 +475,7 @@ class IcingaApiSearchIdoOci
 		'HOST_CHILD_NAME' => array('oh', 'name1'),
 		'HOST_CUSTOMVARIABLE_NAME' => array('cvsh', 'varname'),
 		'HOST_CUSTOMVARIABLE_VALUE' => array('cvsh', 'varvalue'),
+		'HOST_IS_PENDING' => array('hs','has_been_checked-hs.should_be_scheduled < 0'),
 
 		// Service data
 		'SERVICE_ID' => array('s', 'id'),
@@ -527,6 +529,8 @@ class IcingaApiSearchIdoOci
 		'SERVICE_STATUS_ALL' => array('ss', '*'),
 		'SERVICE_CUSTOMVARIABLE_NAME' => array('cvss', 'varname'),
 		'SERVICE_CUSTOMVARIABLE_VALUE' => array('cvss', 'varvalue'),
+		'SERVICE_STATE_COUNT' => array('count(ss', 'current_state)'),
+		'SERVICE_IS_PENDING' => array('ss','has_been_checked-ss.should_be_scheduled < 0'),
 
 		// Config vars
 		'CONFIG_VAR_ID' => array('cfv', 'id'),
@@ -581,7 +585,26 @@ class IcingaApiSearchIdoOci
 		// Summary queries
 		'HOSTGROUP_SUMMARY_COUNT' => array('oh', 'id', 'count(%s)'),
 		'SERVICEGROUP_SUMMARY_COUNT' => array('ss', 'current_state', 'count(%s)'),
-	);
+
+	
+		// Comments
+		'COMMENT_ID' => array('co', 'comment_id'),
+		'COMMENT_INSTANCE_ID' => array('co', 'instance_id'),
+		'COMMENT_ENTRY_TIME' => array('co', 'entry_time'),
+		'COMMENT_ENTRY_TIME_USEC' => array('co', 'entry_time_usec'),
+		'COMMENT_TYPE' => array('co', 'comment_type'),
+		'COMMENT_ENTRY_TYPE' => array('co', 'entry_type'),
+		'COMMENT_OBJECT_ID' => array('co', 'object_id'),
+		'COMMENT_TIME' => array('co', 'comment_time'),
+		'COMMENT_INTERNAL_ID' => array('co', 'internal_comment_id'),
+		'COMMENT_AUTHOR_NAME' => array('co', 'author_name'),
+		'COMMENT_DATA' => array('co', 'comment_data'),
+		'COMMENT_IS_PERSISTENT' => array('co', 'is_persistent'),
+		'COMMENT_SOURCE' => array('co', 'comment_source'),
+		'COMMENT_EXPIRES' => array('co', 'expires'),
+		'COMMENT_EXPIRATION_TIME' => array('co', 'expiration_time')
+	
+		);
 
 	/*
 	 * METHODS

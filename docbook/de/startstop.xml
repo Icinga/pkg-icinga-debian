@@ -24,7 +24,7 @@
       <para><emphasis role="bold">Init-Script:</emphasis> Der einfachste Weg, den &name-icinga;-Daemon zu starten, ist die Nutzung des
       Init-Scripts:</para>
 
-      <screen> #&gt; /etc/rc.d/init.d/nagios start</screen>
+      <screen> #&gt; /etc/rc.d/init.d/icinga start</screen>
     </listitem>
 
     <listitem>
@@ -52,7 +52,7 @@
       <para><emphasis role="bold">Init-Script:</emphasis> Der einfachste Weg, den &name-icinga;-Daemon neu zu starten, ist die Nutzung des
       Init-Scripts:</para>
 
-      <screen> #&gt; /etc/rc.d/init.d/nagios reload</screen>
+      <screen> #&gt; /etc/rc.d/init.d/icinga reload</screen>
     </listitem>
 
     <listitem>
@@ -70,7 +70,7 @@
       <para><emphasis role="bold">manuell:</emphasis> Sie können den &name-icinga;-Prozess durch Senden eines SIGHUP-Signals neu
       starten:</para>
 
-      <screen> #&gt; kill -HUP &lt;nagios_pid&gt;</screen>
+      <screen> #&gt; kill -HUP &lt;icinga_pid&gt;</screen>
     </listitem>
   </orderedlist>
 
@@ -81,7 +81,7 @@
       <para><emphasis role="bold">Init-Script:</emphasis> Der einfachste Weg, den &name-icinga;-Daemon zu stoppen, ist die Nutzung des
       Init-Script:</para>
 
-      <screen> #&gt; /etc/rc.d/init.d/nagios stop</screen>
+      <screen> #&gt; /etc/rc.d/init.d/icinga stop</screen>
     </listitem>
 
     <listitem>
@@ -99,9 +99,21 @@
       <para><emphasis role="bold">manuell:</emphasis> Sie können den &name-icinga;-Prozess durch Senden eines SIGTERM-Signals
       stoppen:</para>
 
-      <screen> #&gt; kill &lt;nagios_pid&gt;</screen>
+      <screen> #&gt; kill &lt;icinga_pid&gt;</screen>
     </listitem>
   </orderedlist>
+
+  <para><emphasis role="bold">Protokoll-Einstellungen in /usr/local/icinga/etc/icinga.cfg</emphasis></para>
+
+  <para>Einstellungen für den Daemon:</para>
+
+  <para>Definiert ob Nachrichten in die Daemon Logdatei geschrieben werden sollen (gewöhnlich nach icinga.log). Der Standardwert ist 1 (ja),
+  setzen des Wertes auf 0 (nein) verhindert den Log der Nachrichten. <programlisting>use_daemon_log=0/1</programlisting></para>
+
+  <para>Einstellungen für den Syslog-Dienst:</para>
+
+  <para>Wenn Sie möchten, dass &name-icinga; Meldungen an den Syslog-Dienst übergibt, setzen Sie diese Einstellung auf 1. <programlisting>use_syslog=0/1</programlisting>Diese
+  Option kann zusätzlich zur use_daemon_log-Option verwendet werden.</para>
 
   <para><emphasis role="bold">Verschiedene Optionen</emphasis></para>
 
@@ -117,5 +129,8 @@
     <primary>&name-icinga; Kommandozeilenoptionen</primary>
 
     <secondary>Option -d (Daemon-Modus)</secondary>
+</indexterm>
+<indexterm zone="startstop">
+    <primary>&name-icinga; Log-Optionen</primary>
   </indexterm>
 </section>

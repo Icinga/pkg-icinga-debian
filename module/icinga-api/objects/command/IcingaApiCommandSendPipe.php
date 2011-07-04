@@ -13,7 +13,6 @@ class IcingaApiCommandSendPipe
 	 * VARIABLES
 	 */
 	protected $config = false;
-	protected $commands = false;
 
 	private $callStack = array();
 
@@ -57,26 +56,53 @@ class IcingaApiCommandSendPipe
 	 */
 	public function send () {
 		$success = false;
-		if ($this->config !== false && $this->commands !== false) {
+		if ($this->config !== false && count($this->commands)) {
+			
 			$pipe = fopen($this->config['pipe'], 'w');
 			if ($pipe) {
-				$commands = implode("\n", $this->commands) . "\n";
+				
+				$commands = $this->getCommandLineStrings();
+				icingaApiDebugger::logDebug("Sending to commandpipe  :".$commands);
 				$commandLength = strlen($commands);
 				$sizeWritten = fwrite($pipe, $commands, $commandLength);
+				
 				if ($sizeWritten < $commandLength) {
 					throw new IcingaApiCommandSendPipeException('send(): Commands not completely transmitted!');
 				} else {
 					$success = true;
 				}
+				
 				fclose($pipe);
+				
 			} else {
 				throw new IcingaApiCommandSendPipeException('send(): Could not open pipe!');
 			}
 		} else {
 			throw new IcingaApiCommandSendPipeException('send(): Config or command(s) missing!');
 		}
-		array_push($this->callStack, array($this->config['pipe'], $commands, $success));
+		
+		$this->callStack[] = array($this->config['pipe'], $commands, $success);
+		
 		return $success;
+	}
+	
+	protected function getCommandLineStrings() {
+		if (count($this->commands)) {
+			
+			$tarry = array ();
+			
+			foreach ($this->commands as $commandObject) {
+				if ($commandObject instanceof IcingaApiCommand && $commandObject->getCommandLine()) {
+					$tarry[] = $commandObject->getCommandLine();
+				}
+			}
+			
+			if (count($tarry)) {
+				return implode(chr(10), $tarry). chr(10);
+			}
+			
+			throw new IcingaApiCommandSendException('Commandstring is empty');
+		}
 	}
 
 	/**

@@ -11,7 +11,7 @@ abstract class IcingaApiConnection
 	/*
 	 * VARIABLES
 	 */
-
+	public $type = 'unknown';
 	protected $config = false;
 	protected $connectionObject = false;
 	protected $connectionResultSet = false;
@@ -37,7 +37,7 @@ abstract class IcingaApiConnection
 	 * @return	boolean							true if configuration is OK, false on error(s)
 	 * @author	Christian Doebler <christian.doebler@netways.de>
 	 */
-	public function checkConfig ($config) {
+	public function checkConfig (array $config) {
 
 		$configOk = true;
 
@@ -72,6 +72,10 @@ abstract class IcingaApiConnection
 		}
 
 		return $this;
+	}
+
+	public function getType() {
+		return $this->type;
 	}
 
 }

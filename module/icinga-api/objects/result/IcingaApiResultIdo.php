@@ -11,7 +11,7 @@ class IcingaApiResultIdo
 	/*
 	 * VARIABLES
 	 */
-
+	protected $substitutedColumns = array();
 	/*
 	 * METHODS
 	 */
@@ -25,6 +25,38 @@ class IcingaApiResultIdo
 	 */
 	public function __construct () {}
 
+	public function setSubstitutedColumns(array $sub = array()) {
+		$this->substitutedColumns = $sub;
+	}
+	/**
+	 * Rename masked columns (i.e. columns that were originally longer than 31 chars)
+	 * to their original name
+	 * @param unknown_type $resultSet
+	 * @author Jannis Moßhammer <jannis.mosshammer@netways.de>
+	 */
+	public function rebuildColumnNames($resultSet) {
+
+		if(is_array($resultSet)) {
+			$rebuildResultSet = array();
+			foreach($resultSet as $column=>$value) {
+				$column  =strtoupper($column);
+				if(isset($this->substitutedColumns[$column]))
+					$column = $this->substitutedColumns[$column];
+				$rebuildResultSet[$column] = $value;
+			}
+			return $rebuildResultSet;
+		} else if (is_object($resultSet)) {
+			foreach($this->substitutedColumns as $val=>$orig) {
+				if(isset($resultSet->{$val}))
+					$resultSet->{$orig} = $resultSet->{$val};
+			}
+
+			return $resultSet;
+		} 
+
+		return $resultSet;	
+	}
+	
 	/**
 	 * sets the search object
 	 *
@@ -34,7 +66,8 @@ class IcingaApiResultIdo
 	 */
 	public function setSearchObject (&$object) {
 		$this->searchObject = $object;
- 		$this->numResults = $this->searchObject->rowCount();
+ 		 if(!$this->numResults)
+ 			$this->numResults = $this->searchObject->rowCount();
 	}
 
 	/**
@@ -45,9 +78,11 @@ class IcingaApiResultIdo
 	 * @author	Christian Doebler <christian.doebler@netways.de>
 	 */
  	public function next () {
+
  		switch ($this->resultType) {
  			case self::RESULT_OBJECT:
 				$this->resultRow = $this->searchObject->fetchObject();
+				$this->resultRow = $this->rebuildColumnNames($this->resultRow);
 				if ($this->resultRow !== false) {
 					if ($this->offset === false) {
 						$this->offset = 0;
@@ -57,19 +92,28 @@ class IcingaApiResultIdo
 				} else {
 					$this->offset = false;
 				}
+				
 				break;
  			case self::RESULT_ARRAY:
+			
  				if ($this->resultArray === false) {
  					$this->resultArray = $this->searchObject->fetchAll(PDO::FETCH_ASSOC);
- 					if ($this->resultType == self::RESULT_ARRAY && $this->dbType == 'oci') {
+ 					
+ 					foreach($this->resultArray as &$result) {
+ 						$result = $this->rebuildColumnNames($result);
+ 					}
+ 					if ($this->resultType == self::RESULT_ARRAY  && $this->dbType == 'oci8') {
  						$this->resultArray = array_change_key_case($this->resultArray, CASE_LOWER);
  					}
+ 					
  				}
+
 				if ($this->offset === false) {
 					$this->offset = 0;
 				} else {
 					$this->offset++;
 				}
+
 				if ($this->offset >= $this->numResults) {
 					$this->offset = false;
 				}
@@ -80,6 +124,11 @@ class IcingaApiResultIdo
 				}
  				break;
  		}
+ 		if($this->resultRow)
+	 		foreach($this->resultRow as $val=>$entry) {
+	 		 	if(is_object($this->resultRow))
+	 		 		$this->resultRow->{strtoupper($val)} = $entry;
+	 		}
  	}
 
  	/**

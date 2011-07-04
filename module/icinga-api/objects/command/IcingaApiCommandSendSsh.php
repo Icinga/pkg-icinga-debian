@@ -21,7 +21,6 @@ class IcingaApiCommandSendSsh
 		'ssh_timeout'	=> 20,
 		'ssh_pipe'		=> '/usr/local/icinga/var/rw/icinga.cmd',
 	);
-	protected $commands = false;
 
 	private $callStack = array();
 
@@ -71,10 +70,12 @@ class IcingaApiCommandSendSsh
 	public function send () {
 		$success = false;
 		if ($this->commands !== false) {
-			foreach ($this->commands as $command) {
-				$sshCall = $this->getSshCall($command);
-				if (!$this->executeCall($sshCall)) {
-					throw new IcingaApiCommandSendSshException('send(): command exeution failed!');
+			foreach ($this->commands as $commandObject) {
+				if (isset($commandObject) && $commandObject instanceof IcingaApiCommand) {
+					$sshCall = $this->getSshCall($commandObject->getCommandLine());
+					if (!$this->executeCall($sshCall)) {
+						throw new IcingaApiCommandSendSshException('send(): command exeution failed!');
+					}
 				}
 			}
 		} else {

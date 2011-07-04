@@ -46,12 +46,12 @@ extern "C" {
    command file. EG 10/19/07
 */
 #define MAX_PLUGIN_OUTPUT_LENGTH                8192    /* max length of plugin output (including perf data) */
-#define MAXCHLDARGS    20
-
+#define MAX_CMD_ARGS 				4096	/* max number of arguments for command call on plugin */
 
 
 /******************* DEFAULT VALUES *******************/
 
+#define DEFAULT_USE_DAEMON_LOG              			1   /* log all events in the daemon log file? 1=yes, 0=no */
 #define DEFAULT_LOG_LEVEL					1	/* log all events to main log file */
 #define DEFAULT_USE_SYSLOG					1	/* log events to syslog? 1=yes, 0=no */
 #define DEFAULT_USE_SYSLOG_LOCAL_FACILITY			0	/* log events to a local facility instead of the default? 1=yes, 0=no */
@@ -92,8 +92,11 @@ extern "C" {
 #define DEFAULT_LOG_SERVICE_RETRIES				0	/* don't log service retries */
 #define DEFAULT_LOG_EVENT_HANDLERS				1	/* log event handlers */
 #define DEFAULT_LOG_INITIAL_STATES				0	/* don't log initial service and host states */
+#define DEFAULT_LOG_CURRENT_STATES				1	/* log current service and host states after rotating log*/
 #define DEFAULT_LOG_EXTERNAL_COMMANDS				1	/* log external commands */
+#define DEFAULT_LOG_EXTERNAL_COMMANDS_USER			0	/* log external commands user*/
 #define DEFAULT_LOG_PASSIVE_CHECKS				1	/* log passive service checks */
+#define DEFAULT_LOG_LONG_PLUGIN_OUTPUT				0	/* don't log long plugin output */
 
 #define DEFAULT_DEBUG_LEVEL                                     0       /* don't log any debugging information */
 #define DEFAULT_DEBUG_VERBOSITY                                 1
@@ -129,15 +132,10 @@ extern "C" {
 #define DEFAULT_ENABLE_EMBEDDED_PERL                            0       /* enable embedded Perl interpreter (if compiled in) */
 #define DEFAULT_USE_EMBEDDED_PERL_IMPLICITLY                    1       /* by default, embedded Perl is used for Perl plugins that don't explicitly disable it */
 
-#define DEFAULT_ADDITIONAL_FRESHNESS_LATENCY			15	/* seconds to be added to freshness thresholds when automatically calculated by Icinga */
+#define DEFAULT_STALKING_EVENT_HANDLERS_FOR_HOSTS               0       /* by default do not run event handlers for stalked hosts */
+#define DEFAULT_STALKING_EVENT_HANDLERS_FOR_SERVICES            0       /* by default do not run event handlers for stalked services */
 
-#define DEFAULT_CHECK_FOR_UPDATES                               0       /* should we check for new Icinga releases? */
-#define DEFAULT_BARE_UPDATE_CHECK                               1       /* report current version and new installs */
-#define MINIMUM_UPDATE_CHECK_INTERVAL                           60*60*22 /* 22 hours minimum between checks - please be kind to our servers! */
-#define BASE_UPDATE_CHECK_INTERVAL                              60*60*22 /* 22 hours base interval */
-#define UPDATE_CHECK_INTERVAL_WOBBLE                            60*60*4  /* 4 hour wobble on top of base interval */
-#define BASE_UPDATE_CHECK_RETRY_INTERVAL                        60*60*1  /* 1 hour base retry interval */
-#define UPDATE_CHECK_RETRY_INTERVAL_WOBBLE                      60*60*3  /* 3 hour wobble on top of base retry interval */
+#define DEFAULT_ADDITIONAL_FRESHNESS_LATENCY			15	/* seconds to be added to freshness thresholds when automatically calculated by Icinga */
 
 
 /******************** HOST STATUS *********************/
@@ -246,7 +244,6 @@ extern "C" {
 #define EVENT_HFRESHNESS_CHECK          13      /* checks host result "freshness" */
 #define EVENT_RESCHEDULE_CHECKS		14      /* adjust scheduling of host and service checks */
 #define EVENT_EXPIRE_COMMENT            15      /* removes expired comments */
-#define EVENT_CHECK_PROGRAM_UPDATE      16      /* checks for new version of Icinga */
 #define EVENT_SLEEP                     98      /* asynchronous sleep event that occurs when event queues are empty */
 #define EVENT_USER_FUNCTION             99      /* USER-defined function (modules) */
 
@@ -592,8 +589,6 @@ int dbuf_init(dbuf *,int);
 int dbuf_free(dbuf *);
 int dbuf_strcat(dbuf *,char *);
 int set_environment_var(char *,char *,int);             /* sets/clears and environment variable */
-int check_for_nagios_updates(int,int);                  /* checks to see if new version of Icinga are available */
-int query_update_api(void);                             /* checks to see if new version of Icinga are available */
 
 
 /**** External Command Functions ****/

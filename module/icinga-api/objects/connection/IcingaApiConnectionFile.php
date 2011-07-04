@@ -13,7 +13,7 @@ class IcingaApiConnectionFile extends IcingaApiConnection {
 
 	protected $inputFiles = array();
 	private $inputFilesCheck = array('status.dat', 'objects.cache', 'retention.dat');
-
+	public $type = 'File';
 	/*
 	 * METHODS
 	 */

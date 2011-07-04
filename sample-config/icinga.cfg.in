@@ -11,7 +11,7 @@
 
 # LOG FILE
 # This is the main log file where service and host events are logged
-# for historical purposes.  This should be the first option specified 
+# for historical purposes.  This should be the first option specified
 # in the config file!!!
 
 log_file=@localstatedir@/icinga.log
@@ -57,7 +57,7 @@ cfg_file=@sysconfdir@/objects/localhost.cfg
 
 # OBJECT CACHE FILE
 # This option determines where object definitions are cached when
-# Icinga starts/restarts.  The CGIs read object definitions from 
+# Icinga starts/restarts.  The CGIs read object definitions from
 # this cache file (rather than looking at the object config files
 # directly) in order to prevent inconsistencies that can occur
 # when the config files are modified after Icinga starts.
@@ -73,7 +73,7 @@ object_cache_file=@localstatedir@/objects.cache
 # file.  You can then start Icinga with the -u option to have it read
 # object definitions from this precached file, rather than the standard
 # object configuration files (see the cfg_file and cfg_dir options above).
-# Using a precached object file can speed up the time needed to (re)start 
+# Using a precached object file can speed up the time needed to (re)start
 # the Icinga process if you've got a large and/or complex configuration.
 # Read the documentation section on optimizing Icinga to find our more
 # about how this feature works.
@@ -269,7 +269,15 @@ log_archive_path=@localstatedir@/archives
 
 
 
-# LOGGING OPTIONS
+# LOGGING OPTIONS FOR DAEMON
+# If you want messages logged to the daemon log file (usually icinga.log).
+# Default option is 1 (yes), the other valid option is 0 (no)
+
+use_daemon_log=1
+
+
+
+# LOGGING OPTIONS FOR SYSLOG
 # If you want messages logged to the syslog facility, as well as the
 # Icinga log file set this option to 1.  If not, set it to 0.
 
@@ -338,6 +346,15 @@ log_initial_states=0
 
 
 
+# CURRENT STATES LOGGING OPTION
+# If you don't want Icinga to log all current host and service states
+# after log has been rotated to the main log file, you can disable this
+# option by setting this value to 0. Default value is 1.
+
+log_current_states=1
+
+
+
 # EXTERNAL COMMANDS LOGGING OPTION
 # If you don't want Icinga to log external commands, set this value
 # to 0.  If external commands should be logged, set this value to 1.
@@ -355,6 +372,28 @@ log_external_commands=1
 # this value to 1.
 
 log_passive_checks=1
+
+
+
+# LOG EXTERNAL COMMAND USER
+# This option allows you to enable the logging of the current user
+# of external commands.
+# The syntax will be CMD;username;cmdargs instead of CMD;cmdargs
+# written to the logs, if the external application sends that
+# correctly.
+# Since this will break compatibility with existing log parsers,
+# it is intentionally disabled by default.
+
+log_external_commands_user=0
+
+
+
+# LONG PLUGIN OUTPUT LOGGING OPTION
+# If you want Icinga to log the complete text of the plugin output
+# to the log instead of only the first line then set this value to 1.
+# Default value is 0.
+
+log_long_plugin_output=0
 
 
 
@@ -651,7 +690,7 @@ retain_state_information=1
 # service state information before it shuts down.  The state 
 # information in this file is also read immediately prior to
 # starting to monitor the network when Icinga is restarted.
-# This file is used only if the preserve_state_information
+# This file is used only if the retain_state_information
 # variable is set to 1.
 
 state_retention_file=@localstatedir@/retention.dat
@@ -759,31 +798,6 @@ retained_contact_service_attribute_mask=0
 # have not been tested much, so your mileage is likely to vary...
 
 interval_length=60
-
-
-
-# CHECK FOR UPDATES
-# This option determines whether Icinga will automatically check to
-# see if new updates (releases) are available.  It is recommend that you
-# enable this option to ensure that you stay on top of the latest critical
-# patches to Icinga.  Icinga is critical to you - make sure you keep it in
-# good shape.  Icinga will check once a day for new updates. Data collected
-# by Icinga Enterprises from the update check is processed in accordance 
-# with our privacy policy - see http://api.icinga.org for details.
-
-check_for_updates=0
-
-
-
-# BARE UPDATE CHECK
-# This option deterines what data Icinga will send to api.icinga.org when
-# it checks for updates.  By default, Icinga will send information on the 
-# current version of Icinga you have installed, as well as an indicator as
-# to whether this was a new installation or not.  Icinga Enterprises uses
-# this data to determine the number of users running specific version of 
-# Icinga.  Enable this option if you do not want this information to be sent.
-
-bare_update_check=1
 
 
 
@@ -1197,6 +1211,16 @@ use_embedded_perl_implicitly=1
 
 
 
+# EVENT HANDLERS FOR STALKED HOSTS/SERVICES
+# Allow running event handlers for stalked hosts/services in order
+# to forward to external systems.
+# Values: 0 = disabled (default), 1 = enabled
+
+stalking_event_handlers_for_hosts=0
+stalking_event_handlers_for_services=0
+
+
+
 # ILLEGAL OBJECT NAME CHARACTERS
 # This option allows you to specify illegal characters that cannot
 # be used in host names, service descriptions, or names of other
@@ -1378,8 +1402,8 @@ debug_file=@localstatedir@/icinga.debug
 max_debug_file_size=1000000
 
 # EVENT PROFILING
-# This option enables or disables event profiling for stats of event counts 
-# and time taken for events.
+# This option enables or disables event profiling for stats of event counts
+# and time taken for events.  Option can't be used on Solaris with gcc3.
 # Values: 0 - disabled
 #         1 - enabled
 

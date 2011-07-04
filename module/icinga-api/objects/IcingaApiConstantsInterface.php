@@ -18,7 +18,11 @@ interface IcingaApiConstantsInterface {
 
 	// DEBUGGING
 	const DEBUG_OVERALL_TIME = 'overall time';
-
+	const DEBUG_LEVEL_ALL = 0xff;
+	const DEBUG_LEVEL_ERROR = 0x01;
+	const DEBUG_LEVEL_WARNING = 0x02;
+	const DEBUG_LEVEL_DEBUG = 0x08;
+	
 	// FILE SOURCES
 	const FILE_OBJECTS = 'objects';
 	const FILE_RETENTION = 'retention';
@@ -51,9 +55,9 @@ interface IcingaApiConstantsInterface {
 	const TARGET_SERVICEGROUP_SUMMARY = 'servicegroup_summary';
 	const TARGET_COMMAND = 'command';	// livestatus only
 	const TARGET_DOWNTIME = 'downtime';	// livestatus only
-	const TARGET_COMMENT = 'comment';	// livestatus only
+	const TARGET_COMMENT = 'comment';
 	const TARGET_STATUS = 'status';		// livestatus only
-
+	const TARGET_HOST_SERVICE = 'host_service';
 	// SEARCH TYPES
 	const SEARCH_TYPE_COUNT = 'count';
 
@@ -65,11 +69,12 @@ interface IcingaApiConstantsInterface {
 	const MATCH_EXACT = '=';
 	const MATCH_NOT_EQUAL = '!=';
 	const MATCH_LIKE = 'like';
+	const MATCH_NOT_LIKE = 'not like';
 	const MATCH_GREATER_THAN = '>';
 	const MATCH_GREATER_OR_EQUAL = '>=';
 	const MATCH_LESS_THAN = '<';
 	const MATCH_LESS_OR_EQUAL = '<=';
-
+	
 	// RESULT TYPES
 	const RESULT_OBJECT = 'object';
 	const RESULT_ARRAY = 'array';

@@ -27,7 +27,12 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  *****************************************************************************/
+
 #include "../include/icinga.h"
+
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
+
 #include "../include/profiler.h"
 
 int profiler_item_count = -1;
@@ -50,8 +55,7 @@ int profiler_core_event_types[] = {
 		EVENT_RESCHEDULE_CHECKS,
 		EVENT_EXPIRE_COMMENT,
 		EVENT_USER_FUNCTION,
-		EVENT_LOOP_COMPLETION,
-	EVENT_CHECK_PROGRAM_UPDATE
+		EVENT_LOOP_COMPLETION
 };
 
 profiler_item * profiler;
@@ -70,7 +74,6 @@ void profiler_init()
 	profiler_add(EVENT_ORPHAN_CHECK,"EVENT_ORPHAN_CHECK");
 	profiler_add(EVENT_RETENTION_SAVE,"EVENT_RETENTION_SAVE");
 	profiler_add(EVENT_STATUS_SAVE,"EVENT_STATUS_SAVE");
-	profiler_add(EVENT_CHECK_PROGRAM_UPDATE,"EVENT_CHECK_PROGRAM_UPDATE");
 	profiler_add(EVENT_SCHEDULED_DOWNTIME,"EVENT_SCHEDULED_DOWNTIME");
 	profiler_add(EVENT_SFRESHNESS_CHECK,"EVENT_SFRESHNESS_CHECK");
 	profiler_add(EVENT_HFRESHNESS_CHECK,"EVENT_HFRESHNESS_CHECK");
@@ -204,3 +207,4 @@ void profiler_output(FILE* fp)
 
 }
 
+#endif

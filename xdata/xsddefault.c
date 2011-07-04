@@ -35,8 +35,11 @@
 #include "../include/macros.h"
 #include "../include/skiplist.h"
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 #include "../include/statsprofiler.h"
 #include "../include/profiler.h"
+#endif
 
 #ifdef NSCORE
 #include "../include/icinga.h"
@@ -73,8 +76,11 @@ int process_performance_data;
 int nagios_pid;
 int buffer_stats[1][3];
 int program_stats[MAX_CHECK_STATS_TYPES][3];
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 int event_profiling_enabled;
 profile_object* profiled_data = NULL;
+#endif
 #endif
 
 #ifdef NSCORE
@@ -98,12 +104,6 @@ extern int enable_failure_prediction;
 extern int process_performance_data;
 extern int aggregate_status_updates;
 extern int check_external_commands;
-
-extern time_t         last_update_check;
-extern char           *last_program_version;
-extern int            update_available;
-extern char           *last_program_version;
-extern char           *new_program_version;
 
 extern int external_command_buffer_slots;
 extern circular_buffer external_command_buffer;
@@ -130,7 +130,10 @@ extern char           *global_host_event_handler;
 extern char           *global_service_event_handler;
 
 extern check_stats    check_statistics[MAX_CHECK_STATS_TYPES];
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 extern int event_profiling_enabled;
+#endif
 #endif
 
 
@@ -411,10 +414,6 @@ int xsddefault_save_status_data(void){
 	fprintf(fp,"info {\n");
 	fprintf(fp,"\tcreated=%lu\n",current_time);
 	fprintf(fp,"\tversion=%s\n",PROGRAM_VERSION);
-	fprintf(fp,"\tlast_update_check=%lu\n",last_update_check);
-	fprintf(fp,"\tupdate_available=%d\n",update_available);
-	fprintf(fp,"\tlast_version=%s\n",(last_program_version==NULL)?"":last_program_version);
-	fprintf(fp,"\tnew_version=%s\n",(new_program_version==NULL)?"":new_program_version);
 	fprintf(fp,"\t}\n\n");
 
 	/* save program status data */
@@ -462,10 +461,13 @@ int xsddefault_save_status_data(void){
 	fprintf(fp,"\tparallel_host_check_stats=%d,%d,%d\n",check_statistics[PARALLEL_HOST_CHECK_STATS].minute_stats[0],check_statistics[PARALLEL_HOST_CHECK_STATS].minute_stats[1],check_statistics[PARALLEL_HOST_CHECK_STATS].minute_stats[2]);
 	fprintf(fp,"\tserial_host_check_stats=%d,%d,%d\n",check_statistics[SERIAL_HOST_CHECK_STATS].minute_stats[0],check_statistics[SERIAL_HOST_CHECK_STATS].minute_stats[1],check_statistics[SERIAL_HOST_CHECK_STATS].minute_stats[2]);
 
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 	fprintf(fp,"\tevent_profiling_enabled=%d\n",event_profiling_enabled);
 
 	if(event_profiling_enabled)
     		profiler_output(fp);
+#endif
 
 	fprintf(fp,"\t}\n\n");
 
@@ -688,6 +690,7 @@ int xsddefault_save_status_data(void){
 		fprintf(fp,"\ttriggered_by=%lu\n",temp_downtime->triggered_by);
 		fprintf(fp,"\tfixed=%d\n",temp_downtime->fixed);
 		fprintf(fp,"\tduration=%lu\n",temp_downtime->duration);
+		fprintf(fp,"\tis_in_effect=%d\n",temp_downtime->is_in_effect);
 		fprintf(fp,"\tauthor=%s\n",temp_downtime->author);
 		fprintf(fp,"\tcomment=%s\n",temp_downtime->comment);
 		fprintf(fp,"\t}\n\n");
@@ -780,6 +783,7 @@ int xsddefault_read_status_data(char *config_file,int options){
 	unsigned long triggered_by=0;
 	unsigned long duration=0L;
 	int x=0;
+	int is_in_effect=FALSE;
 
 
 	/* initialize some vars */
@@ -921,9 +925,9 @@ int xsddefault_read_status_data(char *config_file,int options){
 
 				/* add the downtime */
 				if(data_type==XSDDEFAULT_HOSTDOWNTIME_DATA)
-					add_host_downtime(host_name,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id);
+					add_host_downtime(host_name,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id,is_in_effect);
 				else
-					add_service_downtime(host_name,service_description,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id);
+					add_service_downtime(host_name,service_description,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id,is_in_effect);
 
 				/* free temp memory */
 				my_free(host_name);
@@ -939,6 +943,7 @@ int xsddefault_read_status_data(char *config_file,int options){
 				fixed=FALSE;
 				triggered_by=0;
 				duration=0L;
+				is_in_effect=FALSE;
 
 				break;
 
@@ -999,15 +1004,22 @@ int xsddefault_read_status_data(char *config_file,int options){
 					enable_failure_prediction=(atoi(val)>0)?TRUE:FALSE;
 				else if(!strcmp(var,"process_performance_data"))
 					process_performance_data=(atoi(val)>0)?TRUE:FALSE;
-				else if(!strcmp(var,"event_profiling_enabled"))
+				else if(!strcmp(var,"event_profiling_enabled")){
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
 					event_profiling_enabled=atoi(val);
+#endif
+					}
 
 				else if(strstr(var,"PROFILE_")){
+/* make sure gcc3 won't hit here */
+#ifndef GCCTOOOLD
                                         if(strstr(var,"COUNTER"))
                                                 profile_object_update_count(var+strlen("PROFILE_COUNTER_"),strtod(val,NULL));
 
                                         if(strstr(var,"ELAPSED"))
                                                 profile_object_update_elapsed(var+strlen("PROFILE_ELAPSED_"),atoi(val));
+#endif
                                 }
 
 				else if (!strcmp(var,"total_external_command_buffer_slots"))
@@ -1323,6 +1335,8 @@ int xsddefault_read_status_data(char *config_file,int options){
 					triggered_by=strtoul(val,NULL,10);
 				else if(!strcmp(var,"duration"))
 					duration=strtoul(val,NULL,10);
+				else if(!strcmp(var,"is_in_effect"))
+					is_in_effect=(atoi(val)>0)?TRUE:FALSE;
 				else if(!strcmp(var,"author"))
 					author=(char *)strdup(val);
 				else if(!strcmp(var,"comment"))

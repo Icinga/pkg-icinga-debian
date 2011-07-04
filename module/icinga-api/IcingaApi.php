@@ -17,7 +17,6 @@ class IcingaApi
 	const ObjectsFileSuffix = '.php';
 
 	protected $debug = false;
-
 	private static $objectsFound = false;
 
 	private $searchObject = false;
@@ -36,7 +35,7 @@ class IcingaApi
 	 * @author	Christian Doebler <christian.doebler@netways.de>
 	 */
 	public function __construct () {
-		// TODO: remove
+	
 		return $this;
 	}
 
@@ -100,7 +99,7 @@ class IcingaApi
 	 */
 	public static function getConnection ($type, $config) {
 		$class = 'IcingaApiConnection' . $type;
-
+	
 		try {
 			$connectionObject = new $class;
 			$connectionObject->setConfig($config);
@@ -148,6 +147,7 @@ class IcingaApi
 		return IcingaApiCommandCollection::getInstance();
 	}
 
+	
 	/**
 	 * sets debugging levels
 	 * @param	mixed		$options			debugging options (see constants
@@ -169,11 +169,15 @@ class IcingaApi
 		}
 		return $this;
 	}
-
 }
 
 // extend exceptions
-class IcingaApiException extends Exception {}
+class IcingaApiException extends Exception {
+	public function __construct($msg) {
+		icingaApiDebugger::logException($msg);
+		parent::__construct($msg);
+	}
+}
 
 // register autoloader
 spl_autoload_register(array('IcingaApi', 'autoload'));

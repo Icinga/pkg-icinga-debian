@@ -73,12 +73,6 @@ extern int            use_retained_program_state;
 extern int            use_retained_scheduling_info;
 extern int            retention_scheduling_horizon;
 
-extern time_t         last_update_check;
-extern char           *last_program_version;
-extern int            update_available;
-extern char           *last_program_version;
-extern char           *new_program_version;
-
 extern unsigned long  next_comment_id;
 extern unsigned long  next_downtime_id;
 extern unsigned long  next_event_id;
@@ -323,10 +317,6 @@ int xrddefault_save_state_information(void){
 	fprintf(fp,"info {\n");
 	fprintf(fp,"created=%lu\n",current_time);
 	fprintf(fp,"version=%s\n",PROGRAM_VERSION);
-	fprintf(fp,"last_update_check=%lu\n",last_update_check);
-	fprintf(fp,"update_available=%d\n",update_available);
-	fprintf(fp,"last_version=%s\n",(last_program_version==NULL)?"":last_program_version);
-	fprintf(fp,"new_version=%s\n",(new_program_version==NULL)?"":new_program_version);
 	fprintf(fp,"}\n");
 
 	/* save program state information */
@@ -360,6 +350,8 @@ int xrddefault_save_state_information(void){
 
 		fprintf(fp,"host {\n");
 		fprintf(fp,"host_name=%s\n",temp_host->name);
+		fprintf(fp,"alias=%s\n",temp_host->alias);
+		fprintf(fp,"display_name=%s\n",temp_host->display_name);
 		fprintf(fp,"modified_attributes=%lu\n",(temp_host->modified_attributes & ~host_attribute_mask));
 		fprintf(fp,"check_command=%s\n",(temp_host->host_check_command==NULL)?"":temp_host->host_check_command);
 		fprintf(fp,"check_period=%s\n",(temp_host->check_period==NULL)?"":temp_host->check_period);
@@ -434,6 +426,7 @@ int xrddefault_save_state_information(void){
 
 		fprintf(fp,"service {\n");
 		fprintf(fp,"host_name=%s\n",temp_service->host_name);
+		fprintf(fp,"display_name=%s\n",temp_service->display_name);
 		fprintf(fp,"service_description=%s\n",temp_service->description);
 		fprintf(fp,"modified_attributes=%lu\n",(temp_service->modified_attributes & ~service_attribute_mask));
 		fprintf(fp,"check_command=%s\n",(temp_service->service_check_command==NULL)?"":temp_service->service_check_command);
@@ -570,6 +563,7 @@ int xrddefault_save_state_information(void){
 		fprintf(fp,"triggered_by=%lu\n",temp_downtime->triggered_by);
 		fprintf(fp,"fixed=%d\n",temp_downtime->fixed);
 		fprintf(fp,"duration=%lu\n",temp_downtime->duration);
+		fprintf(fp,"is_in_effect=%d\n",temp_downtime->is_in_effect);
 		fprintf(fp,"author=%s\n",temp_downtime->author);
 		fprintf(fp,"comment=%s\n",temp_downtime->comment);
 		fprintf(fp,"}\n");
@@ -682,6 +676,7 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
         int retain_flag=TRUE;
         time_t last_check=0L;
 	int add_object;
+	int is_in_effect=FALSE;
 
 	log_debug_info(DEBUGL_FUNCTIONS,0,"xrddefault_read_state_information() start\n");
 
@@ -1030,9 +1025,9 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 
 					/* add the downtime */
 					if(data_type==XRDDEFAULT_HOSTDOWNTIME_DATA) {
-						add_host_downtime(host_name,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id);
+						add_host_downtime(host_name,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id,is_in_effect);
 					} else {
-						add_service_downtime(host_name,service_description,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id);
+						add_service_downtime(host_name,service_description,entry_time,author,comment_data,start_time,end_time,fixed,triggered_by,duration,downtime_id,is_in_effect);
 					}
 
 					/* must register the downtime with Icinga so it can schedule it, add comments, etc. */
@@ -1052,6 +1047,7 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 				end_time=0L;
 				fixed=FALSE;
 				triggered_by=0;
+				is_in_effect=FALSE;
 				duration=0L;
 
 				break;
@@ -1086,21 +1082,7 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 						scheduling_info_is_ok=FALSE;
 				        }
 				else if(!strcmp(var,"version")){
-					/* initialize last version in case we're reading a pre-3.1.0 retention file */
-					if(last_program_version==NULL)
-						last_program_version=(char *)strdup(val);
 					}
-				else if(!strcmp(var,"last_update_check"))
-					last_update_check=strtoul(val,NULL,10);
-				else if(!strcmp(var,"update_available"))
-					update_available=atoi(val);
-				else if(!strcmp(var,"last_version")){
-					if(last_program_version)
-						my_free(last_program_version);
-					last_program_version=(char *)strdup(val);
-					}
-				else if(!strcmp(var,"new_version"))
-					new_program_version=(char *)strdup(val);
 				break;
 
 			case XRDDEFAULT_PROGRAMSTATUS_DATA:
@@ -1250,6 +1232,14 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 							temp_host->last_state=atoi(val);
 						else if(!strcmp(var,"last_hard_state"))
 							temp_host->last_hard_state=atoi(val);
+						else if(!strcmp(var,"alias")){
+							my_free(temp_host->alias);
+							temp_host->alias=(char *)strdup(val);
+							}
+						else if(!strcmp(var,"display_name")){
+							my_free(temp_host->display_name);
+							temp_host->display_name=(char *)strdup(val);
+							}
 						else if(!strcmp(var,"plugin_output")){
 							my_free(temp_host->plugin_output);
 							temp_host->plugin_output=(char *)strdup(val);
@@ -1532,6 +1522,10 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 							temp_service->last_state=atoi(val);
 						else if(!strcmp(var,"last_hard_state"))
 							temp_service->last_hard_state=atoi(val);
+						else if(!strcmp(var,"display_name")){
+							my_free(temp_service->display_name);
+							temp_service->display_name=(char *)strdup(val);
+							}
 						else if(!strcmp(var,"current_attempt"))
 							temp_service->current_attempt=atoi(val);
 						else if(!strcmp(var,"current_event_id"))
@@ -1928,6 +1922,8 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 					fixed=(atoi(val)>0)?TRUE:FALSE;
 				else if(!strcmp(var,"triggered_by"))
 					triggered_by=strtoul(val,NULL,10);
+				else if(!strcmp(var,"is_in_effect"))
+					is_in_effect=(atoi(val)>0)?TRUE:FALSE;
 				else if(!strcmp(var,"duration"))
 					duration=strtoul(val,NULL,10);
 				else if(!strcmp(var,"author"))

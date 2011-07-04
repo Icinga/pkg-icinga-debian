@@ -2,7 +2,7 @@
  *
  * SEHANDLERS.C - Service and host event and state handlers for Icinga
  *
- * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
+ * Copyright (c) 1999-2010 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
  *
  * License:
@@ -32,6 +32,9 @@
 #include "../include/perfdata.h"
 #include "../include/broker.h"
 
+#ifdef USE_EVENT_BROKER
+#include "../include/neberrors.h"
+#endif
 
 extern int             enable_event_handlers;
 extern int             obsess_over_services;
@@ -251,6 +254,7 @@ int run_global_service_event_handler(service *svc){
 #ifdef USE_EVENT_BROKER
 	struct timeval start_time;
 	struct timeval end_time;
+	int neb_result=OK;
 #endif
 	int macro_options=STRIP_ILLEGAL_MACRO_CHARS|ESCAPE_MACRO_CHARS;
 
@@ -275,13 +279,6 @@ int run_global_service_event_handler(service *svc){
 	gettimeofday(&start_time,NULL);
 #endif
 
-#ifdef USE_EVENT_BROKER
-	/* send event data to broker */
-	end_time.tv_sec=0L;
-	end_time.tv_usec=0L;
-	broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,GLOBAL_SERVICE_EVENTHANDLER,(void *)svc,svc->current_state,svc->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,global_service_event_handler,NULL,NULL,NULL);
-#endif
-
 	/* get the raw command line */
 	get_raw_command_line(global_service_event_handler_ptr,global_service_event_handler,&raw_command,macro_options);
 	if(raw_command==NULL)
@@ -299,8 +296,24 @@ int run_global_service_event_handler(service *svc){
 	if(log_event_handlers==TRUE){
 		asprintf(&raw_logentry,"GLOBAL SERVICE EVENT HANDLER: %s;%s;$SERVICESTATE$;$SERVICESTATETYPE$;$SERVICEATTEMPT$;%s\n",svc->host_name,svc->description,global_service_event_handler);
 		process_macros(raw_logentry,&processed_logentry,macro_options);
-		logit(NSLOG_EVENT_HANDLER,FALSE,processed_logentry);
+		logit(NSLOG_EVENT_HANDLER,FALSE,"%s",processed_logentry);
 		}
+
+#ifdef USE_EVENT_BROKER
+	/* send event data to broker */
+	end_time.tv_sec=0L;
+	end_time.tv_usec=0L;
+	neb_result=broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,GLOBAL_SERVICE_EVENTHANDLER,(void *)svc,svc->current_state,svc->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,global_service_event_handler,processed_command,NULL,NULL);
+
+	/* neb module wants to override (or cancel) the event handler - perhaps it will run the eventhandler itself */
+	if(neb_result==NEBERROR_CALLBACKOVERRIDE) {
+		my_free(processed_command);
+		my_free(raw_command);
+		my_free(raw_logentry);
+		my_free(processed_logentry);
+		return OK;
+	}
+#endif
 
 	/* run the command */
 	result=my_system(processed_command,event_handler_timeout,&early_timeout,&exectime,&command_output,0);
@@ -344,6 +357,7 @@ int run_service_event_handler(service *svc){
 #ifdef USE_EVENT_BROKER
 	struct timeval start_time;
 	struct timeval end_time;
+	int neb_result=OK;
 #endif
 	int macro_options=STRIP_ILLEGAL_MACRO_CHARS|ESCAPE_MACRO_CHARS;
 
@@ -364,13 +378,6 @@ int run_service_event_handler(service *svc){
 	gettimeofday(&start_time,NULL);
 #endif
 
-#ifdef USE_EVENT_BROKER
-	/* send event data to broker */
-	end_time.tv_sec=0L;
-	end_time.tv_usec=0L;
-	broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,SERVICE_EVENTHANDLER,(void *)svc,svc->current_state,svc->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,svc->event_handler,NULL,NULL,NULL);
-#endif
-
 	/* get the raw command line */
 	get_raw_command_line(svc->event_handler_ptr,svc->event_handler,&raw_command,macro_options);
 	if(raw_command==NULL)
@@ -388,8 +395,24 @@ int run_service_event_handler(service *svc){
 	if(log_event_handlers==TRUE){
 		asprintf(&raw_logentry,"SERVICE EVENT HANDLER: %s;%s;$SERVICESTATE$;$SERVICESTATETYPE$;$SERVICEATTEMPT$;%s\n",svc->host_name,svc->description,svc->event_handler);
 		process_macros(raw_logentry,&processed_logentry,macro_options);
-		logit(NSLOG_EVENT_HANDLER,FALSE,processed_logentry);
+		logit(NSLOG_EVENT_HANDLER,FALSE,"%s",processed_logentry);
 		}
+
+#ifdef USE_EVENT_BROKER
+	/* send event data to broker */
+	end_time.tv_sec=0L;
+	end_time.tv_usec=0L;
+	neb_result=broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,SERVICE_EVENTHANDLER,(void *)svc,svc->current_state,svc->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,svc->event_handler,processed_command,NULL,NULL);
+
+	/* neb module wants to override (or cancel) the event handler - perhaps it will run the eventhandler itself */
+	if(neb_result==NEBERROR_CALLBACKOVERRIDE) {
+		my_free(processed_command);
+		my_free(raw_command);
+		my_free(raw_logentry);
+		my_free(processed_logentry);
+		return OK;
+	}
+#endif
 
 	/* run the command */
 	result=my_system(processed_command,event_handler_timeout,&early_timeout,&exectime,&command_output,0);
@@ -476,6 +499,7 @@ int run_global_host_event_handler(host *hst){
 #ifdef USE_EVENT_BROKER
 	struct timeval start_time;
 	struct timeval end_time;
+	int neb_result=OK;
 #endif
 	int macro_options=STRIP_ILLEGAL_MACRO_CHARS|ESCAPE_MACRO_CHARS;
 
@@ -500,13 +524,6 @@ int run_global_host_event_handler(host *hst){
 	gettimeofday(&start_time,NULL);
 #endif
 
-#ifdef USE_EVENT_BROKER
-	/* send event data to broker */
-	end_time.tv_sec=0L;
-	end_time.tv_usec=0L;
-	broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,GLOBAL_HOST_EVENTHANDLER,(void *)hst,hst->current_state,hst->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,global_host_event_handler,NULL,NULL,NULL);
-#endif
-
 	/* get the raw command line */
 	get_raw_command_line(global_host_event_handler_ptr,global_host_event_handler,&raw_command,macro_options);
 	if(raw_command==NULL)
@@ -524,8 +541,24 @@ int run_global_host_event_handler(host *hst){
 	if(log_event_handlers==TRUE){
 		asprintf(&raw_logentry,"GLOBAL HOST EVENT HANDLER: %s;$HOSTSTATE$;$HOSTSTATETYPE$;$HOSTATTEMPT$;%s\n",hst->name,global_host_event_handler);
 		process_macros(raw_logentry,&processed_logentry,macro_options);
-		logit(NSLOG_EVENT_HANDLER,FALSE,processed_logentry);
+		logit(NSLOG_EVENT_HANDLER,FALSE,"%s",processed_logentry);
 		}
+
+#ifdef USE_EVENT_BROKER
+	/* send event data to broker */
+	end_time.tv_sec=0L;
+	end_time.tv_usec=0L;
+	neb_result=broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,GLOBAL_HOST_EVENTHANDLER,(void *)hst,hst->current_state,hst->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,global_host_event_handler,processed_command,NULL,NULL);
+
+	/* neb module wants to override (or cancel) the event handler - perhaps it will run the eventhandler itself */
+	if(neb_result==NEBERROR_CALLBACKOVERRIDE) {
+		my_free(processed_command);
+		my_free(raw_command);
+		my_free(raw_logentry);
+		my_free(processed_logentry);
+		return OK;
+	}
+#endif
 
 	/* run the command */
 	result=my_system(processed_command,event_handler_timeout,&early_timeout,&exectime,&command_output,0);
@@ -568,6 +601,7 @@ int run_host_event_handler(host *hst){
 #ifdef USE_EVENT_BROKER
 	struct timeval start_time;
 	struct timeval end_time;
+	int neb_result=OK;
 #endif
 	int macro_options=STRIP_ILLEGAL_MACRO_CHARS|ESCAPE_MACRO_CHARS;
 
@@ -588,13 +622,6 @@ int run_host_event_handler(host *hst){
 	gettimeofday(&start_time,NULL);
 #endif
 
-#ifdef USE_EVENT_BROKER
-	/* send event data to broker */
-	end_time.tv_sec=0L;
-	end_time.tv_usec=0L;
-	broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,HOST_EVENTHANDLER,(void *)hst,hst->current_state,hst->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,hst->event_handler,NULL,NULL,NULL);
-#endif
-
 	/* get the raw command line */
 	get_raw_command_line(hst->event_handler_ptr,hst->event_handler,&raw_command,macro_options);
 	if(raw_command==NULL)
@@ -612,8 +639,24 @@ int run_host_event_handler(host *hst){
 	if(log_event_handlers==TRUE){
 		asprintf(&raw_logentry,"HOST EVENT HANDLER: %s;$HOSTSTATE$;$HOSTSTATETYPE$;$HOSTATTEMPT$;%s\n",hst->name,hst->event_handler);
 		process_macros(raw_logentry,&processed_logentry,macro_options);
-		logit(NSLOG_EVENT_HANDLER,FALSE,processed_logentry);
+		logit(NSLOG_EVENT_HANDLER,FALSE,"%s",processed_logentry);
 		}
+
+#ifdef USE_EVENT_BROKER
+	/* send event data to broker */
+	end_time.tv_sec=0L;
+	end_time.tv_usec=0L;
+	neb_result=broker_event_handler(NEBTYPE_EVENTHANDLER_START,NEBFLAG_NONE,NEBATTR_NONE,HOST_EVENTHANDLER,(void *)hst,hst->current_state,hst->state_type,start_time,end_time,exectime,event_handler_timeout,early_timeout,result,hst->event_handler,processed_command,NULL,NULL);
+
+	/* neb module wants to override (or cancel) the event handler - perhaps it will run the eventhandler itself */
+	if(neb_result==NEBERROR_CALLBACKOVERRIDE) {
+		my_free(processed_command);
+		my_free(raw_command);
+		my_free(raw_logentry);
+		my_free(processed_logentry);
+		return OK;
+	}
+#endif
 
 	/* run the command */
 	result=my_system(processed_command,event_handler_timeout,&early_timeout,&exectime,&command_output,0);
@@ -742,9 +785,8 @@ int handle_host_state(host *hst){
 		if(hst->state_type==HARD_STATE || (hst->state_type==SOFT_STATE && log_host_retries==TRUE))
 			log_host_event(hst);
 
-		/* check for start of flexible (non-fixed) scheduled downtime */
-		if(hst->state_type==HARD_STATE)
-			check_pending_flex_host_downtime(hst);
+		/* check for start of flexible (non-fixed) scheduled downtime in soft/hard states */
+		check_pending_flex_host_downtime(hst);
 
 		/* notify contacts about the recovery or problem if its a "hard" state */
 		if(hst->state_type==HARD_STATE){

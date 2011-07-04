@@ -15,22 +15,22 @@ class IcingaApiSearchIdoPgsql
 
 	public $tablePrefix = 'icinga_';
 	public $postProcess = false;
-
+	public $groupByCols = array();
 	public $clearVariables = array();
-
+	public $hasArithmeticField = false;
+	public $originalGrouping = array();
 	public $statements = array (
 		'fieldsSuffix'	=> false,
 		'group'			=> ' group by %s ',
 		'order'			=> ' order by ',
-		'limit'			=> ' limit %s '
+		'limit'			=> ' limit %s offset %s'
 	);
 
 	public $queryMap = array (
 		self::TARGET_INSTANCE =>
 			'select
 				${FIELDS}
-			from ${TABLE_PREFIX}instances i
-			where 1
+			from ${TABLE_PREFIX}instances AS i
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -40,23 +40,23 @@ class IcingaApiSearchIdoPgsql
 			'select
 				distinct ${FIELDS}
 			from
-				${TABLE_PREFIX}objects oh
-			${if_table:h:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.object_id}
-			${if_table:hs:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = oh.object_id}
-			${if_table:i,h:inner join ${TABLE_PREFIX}instances i on i.instance_id = h.instance_id}
-			${if_table:hcg,h:inner join ${TABLE_PREFIX}host_contactgroups hcg on hcg.host_id = h.host_id}
-			${if_table:cg,h:inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
-			${if_table:ocg,hcg,h:inner join ${TABLE_PREFIX}objects ocg on ocg.object_id = hcg.contactgroup_object_id and ocg.objecttype_id = 11}
-			${if_table:cgm,cg,hcg,h:inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
-			${if_table:oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}objects oc on oc.object_id = cgm.contact_object_id}
-			${if_table:hgm:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.object_id}
-			${if_table:hg,hgm:inner join ${TABLE_PREFIX}hostgroups hg on hg.hostgroup_id = hgm.hostgroup_id}
-			${if_table:ohg,hg,hgm:inner join ${TABLE_PREFIX}objects ohg on ohg.object_id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.object_id = cvsh.object_id}
-			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.object_id = cvsc.object_id}
+				${TABLE_PREFIX}objects AS oh
+			inner join ${TABLE_PREFIX}hosts AS h on h.host_object_id = oh.object_id
+			inner join ${TABLE_PREFIX}hoststatus AS hs on hs.host_object_id = oh.object_id
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = h.instance_id
+			${if_table:hcg,h:inner join ${TABLE_PREFIX}host_contactgroups AS hcg on hcg.host_id = h.host_id}
+			${if_table:cg,h:inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
+			${if_table:ocg,hcg,h:inner join ${TABLE_PREFIX}objects AS ocg on ocg.object_id = hcg.contactgroup_object_id and ocg.objecttype_id = 11}
+			${if_table:cgm,cg,hcg,h:inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id}
+			${if_table:hgm:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+			${if_table:hg,hgm:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
+			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
 			where
 				oh.objecttype_id = 1
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -64,29 +64,29 @@ class IcingaApiSearchIdoPgsql
 			'select
 				distinct ${FIELDS}
 			from
-				${TABLE_PREFIX}objects os
-			${if_table:s:inner join ${TABLE_PREFIX}services s on s.service_object_id = os.object_id}
-			${if_table:i,s:inner join ${TABLE_PREFIX}instances i on i.instance_id = s.instance_id}
-			${if_table:scg,s:inner join ${TABLE_PREFIX}service_contactgroups scg on scg.service_id = s.service_id}
-			${if_table:cg,scg,s:inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
-			${if_table:cgm,cg,scg,s:inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
-			${if_table:oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}objects oc on oc.object_id = cgm.contact_object_id}
-			${if_table:ss:inner join ${TABLE_PREFIX}servicestatus ss on ss.service_object_id = os.object_id}
-			${if_table:ocg,scg,s:inner join ${TABLE_PREFIX}objects ocg on ocg.object_id = scg.contactgroup_object_id and ocg.objecttype_id = 11}
-			${if_table:hs,s:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = s.host_object_id}
-			${if_table:oh,s:inner join ${TABLE_PREFIX}objects oh on oh.object_id = s.host_object_id and oh.objecttype_id = 1}
-			${if_table:sgm:left join icinga_servicegroup_members sgm on sgm.service_object_id = os.object_id}
-			${if_table:sg,sgm:left join icinga_servicegroups sg on sg.servicegroup_id = sgm.servicegroup_id}
-			${if_table:osg,sg,sgm:left join icinga_objects osg on osg.object_id = sg.servicegroup_object_id}
-			${if_table:hgm,oh,s:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.object_id}
-			${if_table:hg,hgm,oh,s:inner join ${TABLE_PREFIX}hostgroups hg on hg.hostgroup_id = hgm.hostgroup_id}
-			${if_table:ohg,hg,hgm,oh,s:inner join ${TABLE_PREFIX}objects ohg on ohg.object_id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh,s:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.object_id = cvsh.object_id}
-			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.object_id = cvss.object_id}
-			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.object_id = cvsc.object_id}
+				${TABLE_PREFIX}objects AS os
+			inner join ${TABLE_PREFIX}services AS s on s.service_object_id = os.object_id
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = s.instance_id
+			inner join ${TABLE_PREFIX}service_contactgroups AS scg on scg.service_id = s.service_id
+			${if_table:cg,scg,s:inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
+			${if_table:cgm,cg,scg,s:inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id}
+			inner join ${TABLE_PREFIX}servicestatus AS ss on ss.service_object_id = os.object_id
+			${if_table:ocg,scg,s:inner join ${TABLE_PREFIX}objects AS ocg on ocg.object_id = scg.contactgroup_object_id and ocg.objecttype_id = 11}
+			${if_table:hs,s:inner join ${TABLE_PREFIX}hoststatus AS hs on hs.host_object_id = s.host_object_id}
+			${if_table:oh,s:inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = s.host_object_id and oh.objecttype_id = 1}
+			${if_table:sgm:left join ${TABLE_PREFIX}servicegroup_members AS sgm on sgm.service_object_id = os.object_id}
+			${if_table:sg,sgm:left join ${TABLE_PREFIX}servicegroups AS sg on sg.servicegroup_id = sgm.servicegroup_id}
+			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}objects AS osg on osg.object_id = sg.servicegroup_object_id}
+			${if_table:hgm,oh,s:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+			${if_table:hg,hgm,oh,s:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm,oh,s:inner join ${TABLE_PREFIX}objects ohg AS on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:cvsh,oh,s:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
+			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus AS cvss on os.object_id = cvss.object_id}
+			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
 			where
 				os.objecttype_id = 2
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -94,13 +94,13 @@ class IcingaApiSearchIdoPgsql
 			'select
 				distinct ${FIELDS}
 			from
-				${TABLE_PREFIX}objects ohg
-			${if_table:hg:inner join ${TABLE_PREFIX}hostgroups hg on hg.hostgroup_object_id = ohg.object_id}
-			${if_table:hgm,hg:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.hostgroup_id = hg.hostgroup_id}
-			${if_table:oh,hgm,hg:inner join ${TABLE_PREFIX}objects oh on oh.object_id = hgm.host_object_id and oh.objecttype_id = 1}
+				${TABLE_PREFIX}objects AS ohg
+			${if_table:hg:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_object_id = ohg.object_id}
+			${if_table:hgm,hg:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.hostgroup_id = hg.hostgroup_id}
+			${if_table:oh,hgm,hg:inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = hgm.host_object_id and oh.objecttype_id = 1}
 			where
 				ohg.objecttype_id = 3
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -108,13 +108,13 @@ class IcingaApiSearchIdoPgsql
 			'select
 				distinct ${FIELDS}
 			from
-				${TABLE_PREFIX}objects osg
-			${if_table:sg:inner join ${TABLE_PREFIX}servicegroups sg on sg.servicegroup_object_id = osg.object_id}
-			${if_table:sgm,sg:inner join ${TABLE_PREFIX}servicegroup_members sgm on sgm.servicegroup_id = sg.servicegroup_id}
-			${if_table:os,sgm,sg:inner join ${TABLE_PREFIX}objects os on os.object_id = sgm.service_object_id and os.objecttype_id = 2}
+				${TABLE_PREFIX}objects AS osg
+			${if_table:sg:inner join ${TABLE_PREFIX}servicegroups AS sg on sg.servicegroup_object_id = osg.object_id}
+			${if_table:sgm,sg:inner join ${TABLE_PREFIX}servicegroup_members AS sgm on sgm.servicegroup_id = sg.servicegroup_id}
+			${if_table:os,sgm,sg:inner join ${TABLE_PREFIX}objects AS os on os.object_id = sgm.service_object_id and os.objecttype_id = 2}
 			where
 				osg.objecttype_id=4
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -122,14 +122,14 @@ class IcingaApiSearchIdoPgsql
 			'select
 				distinct ${FIELDS}
 			from
-				 ${TABLE_PREFIX}objects ocg
-			${if_table:cg:inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = ocg.object_id}
-			${if_table:cgm,cg:inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
-			${if_table:oc,cgm,cg:inner join ${TABLE_PREFIX}objects oc on oc.object_id = cgm.contact_object_id and oc.objecttype_id = 10}
-			${if_table:cvsc,oc,cgm,cg:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.object_id = cvsc.object_id}
+				 ${TABLE_PREFIX}objects AS ocg
+			${if_table:cg:inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = ocg.object_id}
+			${if_table:cgm,cg:inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg:inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id and oc.objecttype_id = 10}
+			${if_table:cvsc,oc,cgm,cg:inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
 			where
 				ocg.objecttype_id = 11
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -137,12 +137,12 @@ class IcingaApiSearchIdoPgsql
 			'select
 				distinct ${FIELDS}
 			from
-				${TABLE_PREFIX}objects otp
-			${if_table:tp:inner join ${TABLE_PREFIX}timeperiods tp on tp.timeperiod_object_id = otp.object_id}
-			${if_table:tptr,tp:inner join ${TABLE_PREFIX}timeperiod_timeranges tptr on tptr.timeperiod_id = tp.timeperiod_id}
+				${TABLE_PREFIX}objects AS otp
+			${if_table:tp:inner join ${TABLE_PREFIX}timeperiods AS tp on tp.timeperiod_object_id = otp.object_id}
+			${if_table:tptr,tp:inner join ${TABLE_PREFIX}timeperiod_timeranges AS tptr on tptr.timeperiod_id = tp.timeperiod_id}
 			where
 				otp.objecttype_id = 9
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
@@ -150,9 +150,8 @@ class IcingaApiSearchIdoPgsql
 			'select
 				distinct ${FIELDS}
 			from 
-				${TABLE_PREFIX}customvariables cv
-			${if_table:cvs:inner join ${TABLE_PREFIX}customvariablestatus cvs on cvs.object_id = cv.object_id}
-			where 1
+				${TABLE_PREFIX}customvariables AS cv
+			${if_table:cvs:inner join ${TABLE_PREFIX}customvariablestatus AS cvs on cvs.object_id = cv.object_id}
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -161,8 +160,7 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from
-				${TABLE_PREFIX}configfilevariables cfv
-			where 1
+				${TABLE_PREFIX}configfilevariables AS cfv
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -171,10 +169,10 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from
-				${TABLE_PREFIX}processevents pe
+				${TABLE_PREFIX}processevents AS pe
 			where
 				pe.event_type = 100
-				${FILTER}
+				${FILTER_AND}
 			order by
 				pe.event_time desc
 			limit 1',
@@ -182,31 +180,29 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from
-				${TABLE_PREFIX}logentries le
-			where 1 
+				${TABLE_PREFIX}logentries AS le
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
 		self::TARGET_HOST_STATUS_SUMMARY => 
 			'select
-				${FIELDS:hs.current_state HOST_STATE, count(hs.current_state) COUNT}
+				${FIELDS:hs.current_state AS HOST_STATE, count(hs.current_state) AS COUNT}
 			from
-				${TABLE_PREFIX}hoststatus hs
-			${if_table:oh:inner join ${TABLE_PREFIX}objects oh on oh.object_id = hs.host_object_id}
-			${if_table:h,oh:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.object_id}
-			${if_table:i,h,oh:inner join ${TABLE_PREFIX}instances i on i.instance_id = h.instance_id}
-			${if_table:hcg,h,oh:-- inner join ${TABLE_PREFIX}host_contactgroups hcg on hcg.host_id = h.host_id}
-			${if_table:cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
-			${if_table:ocg,hcg,h,oh:-- inner join ${TABLE_PREFIX}objects ocg on ocg.object_id = hcg.contactgroup_object_id}
-			${if_table:cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
-			${if_table:oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}objects oc on oc.object_id = cgm.contact_object_id}
-			${if_table:hgm,oh:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.object_id}
-			${if_table:hg,hgm,oh:inner join ${TABLE_PREFIX}hostgroups hg on hg.hostgroup_id = hgm.hostgroup_id}
-			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.object_id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.object_id = cvsh.object_id}
-			${if_table:cvsc,oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.object_id = cvsc.object_id}
-			where 1
+				${TABLE_PREFIX}hoststatus AS hs
+			inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = hs.host_object_id
+			inner join ${TABLE_PREFIX}hosts AS h on h.host_object_id = oh.object_id
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = h.instance_id
+			${if_table:hcg,h,oh:-- inner join ${TABLE_PREFIX}host_contactgroups AS hcg on hcg.host_id = h.host_id}
+			${if_table:cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
+			${if_table:ocg,hcg,h,oh:-- inner join ${TABLE_PREFIX}objects AS ocg on ocg.object_id = hcg.contactgroup_object_id}
+			${if_table:cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id}
+			${if_table:hgm,oh:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+			${if_table:hg,hgm,oh:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
+			${if_table:cvsc,oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
 			${FILTER}
 			group by
 				hs.current_state
@@ -214,26 +210,25 @@ class IcingaApiSearchIdoPgsql
 			${LIMIT}',
 		self::TARGET_SERVICE_STATUS_SUMMARY =>
 			'select
-				${FIELDS:ss.current_state SERVICE_STATE, count(ss.current_state) COUNT}
+				${FIELDS:ss.current_state AS SERVICE_STATE, count(ss.current_state) AS COUNT}
 			from
-				${TABLE_PREFIX}servicestatus ss
-			${if_table:os:inner join ${TABLE_PREFIX}objects os on os.object_id = ss.service_object_id}
-			${if_table:s,os:inner join ${TABLE_PREFIX}services s on s.service_object_id = os.object_id}
-			${if_table:i,s,os:inner join ${TABLE_PREFIX}instances i on i.instance_id = s.instance_id}
-			${if_table:scg,s,os:-- inner join ${TABLE_PREFIX}service_contactgroups scg on scg.service_id = s.service_id}
-			${if_table:cg,scg,s,os:-- inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
-			${if_table:cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
-			${if_table:oc,cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}objects oc on oc.object_id = cgm.contact_object_id}
-			${if_table:ocg,scg,s,os:-- inner join ${TABLE_PREFIX}objects ocg on ocg.object_id = scg.contactgroup_object_id}
-			${if_table:hs,s,os,:-- inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = s.host_object_id}
-			${if_table:oh,s,os:inner join ${TABLE_PREFIX}objects oh on oh.object_id = s.host_object_id}
-			${if_table:hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.object_id}
-			${if_table:hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroups hg on hg.hostgroup_id = hgm.hostgroup_id}
-			${if_table:ohg,hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}objects ohg on ohg.object_id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.object_id = cvsh.object_id}
-			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.object_id = cvss.object_id}
-			${if_table:cvsc,oc,cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.object_id = cvsc.object_id}
-			where 1
+				${TABLE_PREFIX}servicestatus AS ss
+			inner join ${TABLE_PREFIX}objects AS os on os.object_id = ss.service_object_id
+			inner join ${TABLE_PREFIX}services AS s on s.service_object_id = os.object_id
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = s.instance_id
+			${if_table:scg,s,os:-- inner join ${TABLE_PREFIX}service_contactgroups AS scg on scg.service_id = s.service_id}
+			${if_table:cg,scg,s,os:-- inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
+			${if_table:cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id}
+			${if_table:ocg,scg,s,os:-- inner join ${TABLE_PREFIX}objects AS ocg on ocg.object_id = scg.contactgroup_object_id}
+			${if_table:hs,s,os,:-- inner join ${TABLE_PREFIX}hoststatus AS hs on hs.host_object_id = s.host_object_id}
+			${if_table:oh,s,os:inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = s.host_object_id}
+			${if_table:hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+			${if_table:hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
+			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus AS cvss on os.object_id = cvss.object_id}
+			${if_table:cvsc,oc,cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
 			${FILTER}
 			group by
 				ss.current_state
@@ -243,20 +238,19 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from 
-				${TABLE_PREFIX}statehistory sh
-			${if_table:oh:inner join ${TABLE_PREFIX}objects oh on oh.object_id = sh.object_id and oh.objecttype_id = 1}
-			${if_table:h,oh:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.object_id}
-			${if_table:i,h:inner join ${TABLE_PREFIX}instances i on i.instance_id = h.instance_id}
-			${if_table:hcg,h:inner join ${TABLE_PREFIX}host_contactgroups hcg on hcg.host_id = h.host_id}
-			${if_table:cg,h:inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
-			${if_table:ocg,hcg,h:inner join ${TABLE_PREFIX}objects ocg on ocg.object_id = hcg.contactgroup_object_id and ocg.objecttype_id = 11}
-			${if_table:cgm,cg,hcg,h:inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
-			${if_table:oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}objects oc on oc.object_id = cgm.contact_object_id}
-			${if_table:hgm,oh:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.object_id}
-			${if_table:hg,hgm,oh:inner join ${TABLE_PREFIX}hostgroups hg on hg.hostgroup_id = hgm.hostgroup_id}
-			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.object_id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.object_id = cvsh.object_id}
-			where 1
+				${TABLE_PREFIX}statehistory AS sh
+			inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = sh.object_id and oh.objecttype_id = 1
+			inner join ${TABLE_PREFIX}hosts AS h on h.host_object_id = oh.object_id
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = h.instance_id
+			${if_table:hcg,h:inner join ${TABLE_PREFIX}host_contactgroups AS hcg on hcg.host_id = h.host_id}
+			${if_table:cg,h:inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
+			${if_table:ocg,hcg,h:inner join ${TABLE_PREFIX}objects AS ocg on ocg.object_id = hcg.contactgroup_object_id and ocg.objecttype_id = 11}
+			${if_table:cgm,cg,hcg,h:inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id}
+			${if_table:hgm,oh:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+			${if_table:hg,hgm,oh:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
@@ -265,37 +259,36 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from 
-				${TABLE_PREFIX}statehistory sh
-			${if_table:os:inner join ${TABLE_PREFIX}objects os on os.object_id = sh.object_id and os.objecttype_id = 2}
-			${if_table:s,os:inner join ${TABLE_PREFIX}services s on s.service_object_id = os.object_id}
-			${if_table:i,s:inner join ${TABLE_PREFIX}instances i on i.instance_id = s.instance_id}
-			${if_table:oh,s,os:inner join ${TABLE_PREFIX}objects oh on oh.object_id = s.host_object_id}
-			${if_table:h,oh,s,os:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.object_id}
-			${if_table:scg,s:inner join ${TABLE_PREFIX}service_contactgroups scg on scg.service_id = s.service_id}
-			${if_table:cg,scg,s:inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
-			${if_table:cgm,cg,scg,s:inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
-			${if_table:oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}objects oc on oc.object_id = cgm.contact_object_id}
-			${if_table:hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.object_id}
-			${if_table:hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroups hg on hg.hostgroup_id = hgm.hostgroup_id}
-			${if_table:ohg,hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}objects ohg on ohg.object_id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.object_id = cvsh.object_id}
-			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.object_id = cvss.object_id}
-			where 1
+				${TABLE_PREFIX}statehistory AS sh
+			inner join ${TABLE_PREFIX}objects AS os on os.object_id = sh.object_id and os.objecttype_id = 2
+			inner join ${TABLE_PREFIX}services AS s on s.service_object_id = os.object_id
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = s.instance_id
+			${if_table:oh,s,os:inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = s.host_object_id}
+			${if_table:h,oh,s,os:inner join ${TABLE_PREFIX}hosts AS h on h.host_object_id = oh.object_id}
+			${if_table:scg,s:inner join ${TABLE_PREFIX}service_contactgroups AS scg on scg.service_id = s.service_id}
+			${if_table:cg,scg,s:inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
+			${if_table:cgm,cg,scg,s:inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id}
+			${if_table:hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+			${if_table:hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
+			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus AS cvss on os.object_id = cvss.object_id}
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
 		self::TARGET_HOST_PARENTS =>
 			'select
-				${FIELDS:ohp.object_id HOST_PARENT_OBJECT_ID, ohp.name1 HOST_PARENT_NAME, oh.object_id HOST_CHILD_OBJECT_ID, oh.name1 HOST_CHILD_NAME}
+				${FIELDS:ohp.object_id  AS HOST_PARENT_OBJECT_ID, ohp.name1  AS HOST_PARENT_NAME, oh.object_id  AS HOST_CHILD_OBJECT_ID, oh.name1  AS HOST_CHILD_NAME}
 			from
-				${TABLE_PREFIX}objects ohp
-			${if_table:hph:inner join ${TABLE_PREFIX}host_parenthosts hph on hph.parent_host_object_id = ohp.object_id}
-			${if_table:h,hph:inner join ${TABLE_PREFIX}hosts h on h.host_id = hph.host_id}
-			${if_table:oh,h,hph:inner join ${TABLE_PREFIX}objects oh on oh.object_id = h.host_object_id and oh.objecttype_id = 1}
+				${TABLE_PREFIX}objects  AS ohp
+			${if_table:hph:inner join ${TABLE_PREFIX}host_parenthosts AS hph on hph.parent_host_object_id = ohp.object_id}
+			${if_table:h,hph:inner join ${TABLE_PREFIX}hosts  AS h on h.host_id = hph.host_id}
+			${if_table:oh,h,hph:inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = h.host_object_id and oh.objecttype_id = 1}
 			where
 				ohp.objecttype_id = 1
-			${FILTER}
+			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY:ohp.name1 asc, oh.name1 asc}
 			${LIMIT}',
@@ -303,13 +296,12 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from
-				${TABLE_PREFIX}notifications n
-			${if_table:on:inner join ${TABLE_PREFIX}objects `on` on on.object_id = n.object_id and on.is_active = 1}
-			${if_table:s,on:left join ${TABLE_PREFIX}services s on s.service_object_id = on.object_id}
-			${if_table:h,s,on:left join ${TABLE_PREFIX}hosts h on h.host_object_id = on.object_id or h.host_object_id = s.host_object_id}
-			${if_table:oh,h,s,on:left join ${TABLE_PREFIX}objects oh on oh.object_id = h.host_object_id}
-			${if_table:os,s,on:left join ${TABLE_PREFIX}objects os on os.object_id = s.service_object_id}
-			where 1
+				${TABLE_PREFIX}notifications AS n
+			inner join ${TABLE_PREFIX}objects AS obn on obn.object_id = n.object_id and obn.is_active = 1
+			${if_table:s,on:left join ${TABLE_PREFIX}service ASs s on s.service_object_id = obn.object_id}
+			${if_table:h,s,on:left join ${TABLE_PREFIX}hosts AS h on h.host_object_id = obn.object_id or h.host_object_id = s.host_object_id}
+			${if_table:oh,h,s,on:left join ${TABLE_PREFIX}objects AS oh on oh.object_id = h.host_object_id}
+			${if_table:os,s,on:left join ${TABLE_PREFIX}objects AS os on os.object_id = s.service_object_id}
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY:n.start_time asc}
@@ -318,12 +310,12 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from
-				${TABLE_PREFIX}hostgroups hg
-			${if_table:ohg:inner join ${TABLE_PREFIX}objects ohg on ohg.object_id = hg.hostgroup_object_id and ohg.is_active = 1}
-			${if_table:hgm:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.hostgroup_id = hg.hostgroup_id}
-			${if_table:oh,hgm:inner join ${TABLE_PREFIX}objects oh on oh.object_id = hgm.host_object_id}
-			${if_table:hs,oh,hgm:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = oh.object_id}
-			where 1
+				${TABLE_PREFIX}hostgroups AS hg
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = hg.instance_id
+			${if_table:ohg:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id and ohg.is_active = 1}
+			${if_table:hgm:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.hostgroup_id = hg.hostgroup_id}
+			${if_table:oh,hgm:inner join ${TABLE_PREFIX}objects AS oh on oh.object_id = hgm.host_object_id}
+			${if_table:hs,oh,hgm:inner join ${TABLE_PREFIX}hoststatus AS hs on hs.host_object_id = oh.object_id}
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY:hs.current_state asc}
@@ -332,20 +324,92 @@ class IcingaApiSearchIdoPgsql
 			'select
 				${FIELDS}
 			from
-			${TABLE_PREFIX}servicegroups sg
-			${if_table:osg:inner join ${TABLE_PREFIX}objects osg on osg.object_id = sg.servicegroup_object_id and osg.is_active = 1}
-			${if_table:sgm:inner join ${TABLE_PREFIX}servicegroup_members sgm on sgm.servicegroup_id = sg.servicegroup_id}
-			${if_table:os,sgm:inner join ${TABLE_PREFIX}objects os on os.object_id = sgm.service_object_id}
-			${if_table:ss,os,sgm:inner join ${TABLE_PREFIX}servicestatus ss on ss.service_object_id = os.object_id}
-			where 1
+			${TABLE_PREFIX}servicegroups AS sg
+			inner join ${TABLE_PREFIX}instances AS i on i.instance_id = sg.instance_id
+			${if_table:osg:inner join ${TABLE_PREFIX}objects AS osg on osg.object_id = sg.servicegroup_object_id and osg.is_active = 1}
+			${if_table:sgm:inner join ${TABLE_PREFIX}servicegroup_members AS sgm on sgm.servicegroup_id = sg.servicegroup_id}
+			${if_table:os,sgm:inner join ${TABLE_PREFIX}objects AS os on os.object_id = sgm.service_object_id}
+			${if_table:ss,os,sgm:inner join ${TABLE_PREFIX}servicestatus AS ss on ss.service_object_id = os.object_id}
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY:ss.current_state asc}
-			${LIMIT}'
-	);
+			${LIMIT}',
+		self::TARGET_COMMENT =>
+			'select
+				${FIELDS}
+			from
+			${TABLE_PREFIX}comments AS co
+			${FILTER}
+			${GROUPBY}
+			${ORDERBY}
+			${LIMIT}',
 
-	// COLUMNS
+		self::TARGET_HOST_SERVICE =>
+			'select
+				distinct ${FIELDS}
+			from
+				${TABLE_PREFIX}objects AS oh
+			inner join ${TABLE_PREFIX}objects AS os on os.object_id = oh.object_id
+			left join ${TABLE_PREFIX}hosts AS h on h.host_object_id = oh.object_id
+			left join ${TABLE_PREFIX}hoststatus AS hs on hs.host_object_id = oh.object_id
+			left join ${TABLE_PREFIX}services AS s on s.service_object_id = os.object_id
+			left join ${TABLE_PREFIX}servicestatus AS ss on ss.service_object_id = os.object_id
+			left join ${TABLE_PREFIX}instances AS i on i.instance_id = h.instance_id
+			${if_table:hcg,h:inner join ${TABLE_PREFIX}host_contactgroups AS hcg on hcg.host_id = h.host_id}
+			${if_table:cg,h:inner join ${TABLE_PREFIX}contactgroups AS cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
+			${if_table:ocg,hcg,h:inner join ${TABLE_PREFIX}objects AS ocg on ocg.object_id = hcg.contactgroup_object_id and ocg.objecttype_id = 11}
+			${if_table:cgm,cg,hcg,h:inner join ${TABLE_PREFIX}contactgroup_members AS cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}objects AS oc on oc.object_id = cgm.contact_object_id}
+			${if_table:hgm:inner join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+			${if_table:hg,hgm:inner join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm:inner join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
+			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus AS cvsh on oh.object_id = cvsh.object_id}
+			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus AS cvsc on oc.object_id = cvsc.object_id}
+
+			where
+				oh.objecttype_id = 1 OR oh.objecttype_id = 2
+			${FILTER_AND}
+			${GROUPBY}
+			${ORDERBY}
+			${LIMIT}',
+		self::TARGET_HOST_SERVICE =>
+			'select
+				 distinct ${FIELDS}
+			from
+				${TABLE_PREFIX}objects AS op
+
+			left join ${TABLE_PREFIX}objects AS os on os.object_id = op.object_id and op.objecttype_id = 2
+
+			left join ${TABLE_PREFIX}services AS s on s.service_object_id = op.object_id
+			left join ${TABLE_PREFIX}servicestatus AS ss on ss.service_object_id = op.object_id
+
+			inner join ${TABLE_PREFIX}objects AS oh on (oh.object_id = op.object_id and op.objecttype_id = 1) OR oh.object_id = s.host_object_id
+			inner join ${TABLE_PREFIX}hosts AS h on h.host_object_id = oh.object_id
+
+			left join ${TABLE_PREFIX}instances AS i on i.instance_id = h.instance_id
+
+			${if_table:hgm:left join ${TABLE_PREFIX}hostgroup_members AS hgm on hgm.host_object_id = oh.object_id}
+
+			${if_table:hg,hgm:left join ${TABLE_PREFIX}hostgroups AS hg on hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm:left join ${TABLE_PREFIX}objects AS ohg on ohg.object_id = hg.hostgroup_object_id}
+
+
+			${if_table:sgm:left join ${TABLE_PREFIX}servicegroup_members AS sgm on sgm.service_object_id = os.object_id}
+			${if_table:sg,sgm:left join ${TABLE_PREFIX}servicegroups AS sg on sg.servicegroup_id = sgm.servicegroup_id}
+			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}objects AS osg on osg.object_id = sg.servicegroup_object_id}
+
+			left join ${TABLE_PREFIX}hoststatus AS hs on hs.host_object_id = oh.object_id
+
+			where (op.objecttype_id = 1 OR op.objecttype_id = 2)
+
+			${FILTER_AND}
+			${GROUPBY}
+			${ORDERBY}
+			${LIMIT}'
+		);
+			// COLUMNS
 	public $columns = array(
+		'PROBLEMS_OBJECT_ID' => array('op', 'object_id'),
 		// Program information
 		'PROGRAM_INSTANCE_ID' => array('pe', 'instance_id'),
 		'PROGRAM_DATE' => array('pe', 'program_date'),
@@ -442,6 +506,7 @@ class IcingaApiSearchIdoPgsql
 		'HOST_EXECUTION_TIME' => array('hs', 'execution_time'),
 		'HOST_NEXT_CHECK' => array('hs', 'next_check'),
 		'HOST_HAS_BEEN_CHECKED' => array('hs', 'has_been_checked'),
+		'HOST_SHOULD_BE_SCHEDULED' => array('hs', 'should_be_scheduled'),
 		'HOST_LAST_HARD_STATE_CHANGE' => array('hs', 'last_hard_state_change'),
 		'HOST_LAST_NOTIFICATION' => array('hs', 'last_notification'),
 		'HOST_STATE_TYPE' => array('hs', 'state_type'),
@@ -465,7 +530,8 @@ class IcingaApiSearchIdoPgsql
 		'HOST_CHILD_NAME' => array('oh', 'name1'),
 		'HOST_CUSTOMVARIABLE_NAME' => array('cvsh', 'varname'),
 		'HOST_CUSTOMVARIABLE_VALUE' => array('cvsh', 'varvalue'),
-	
+		'HOST_IS_PENDING' => array('hs','has_been_checked','(%s-hs.should_be_scheduled)*-1'),
+
 		// Service data
 		'SERVICE_ID' => array('s', 'service_id'),
 		'SERVICE_INSTANCE_ID' => array('s', 'instance_id'),
@@ -501,6 +567,8 @@ class IcingaApiSearchIdoPgsql
 		'SERVICE_EXECUTION_TIME' => array('ss', 'execution_time'),
 		'SERVICE_NEXT_CHECK' => array('ss', 'next_check'),
 		'SERVICE_HAS_BEEN_CHECKED' => array('ss', 'has_been_checked'),
+		'SERVICE_SHOULD_BE_SCHEDULED' => array('ss', 'should_be_scheduled'),
+		'SERVICE_LAST_HARD_STATE' => array('ss', 'last_hard_state'),
 		'SERVICE_LAST_HARD_STATE_CHANGE' => array('ss', 'last_hard_state_change'),
 		'SERVICE_LAST_NOTIFICATION' => array('ss', 'last_notification'),
 		'SERVICE_STATE_TYPE' => array('ss', 'state_type'),
@@ -518,7 +586,9 @@ class IcingaApiSearchIdoPgsql
 		'SERVICE_STATUS_ALL' => array('ss', '*'),
 		'SERVICE_CUSTOMVARIABLE_NAME' => array('cvss', 'varname'),
 		'SERVICE_CUSTOMVARIABLE_VALUE' => array('cvss', 'varvalue'),
-	
+		'SERVICE_STATE_COUNT' => array('count(ss', 'current_state)'),
+		'SERVICE_IS_PENDING' => array('ss','has_been_checked','(%s-ss.should_be_scheduled)*-1'),
+
 		// Config vars
 		'CONFIG_VAR_ID' => array('cfv', 'configfilevariable_id'),
 		'CONFIG_VAR_INSTANCE_ID' => array('cfv', 'instance_id'),
@@ -566,13 +636,30 @@ class IcingaApiSearchIdoPgsql
 		'NOTIFICATION_LONG_OUTPUT' => array('n', 'long_output'),
 		'NOTIFICATION_ESCALATED' => array('n', 'escalated'),
 		'NOTIFICATION_NOTIFIED' => array('n', 'contacts_notified'),
-		'NOTIFICATION_OBJECT_ID' => array('on', 'object_id'),
-		'NOTIFICATION_OBJECTTYPE_ID' => array('on', 'objecttype_id'),
+		'NOTIFICATION_OBJECT_ID' => array('obn', 'object_id'),
+		'NOTIFICATION_OBJECTTYPE_ID' => array('obn', 'objecttype_id'),
 
 		// Summary queries
 		'HOSTGROUP_SUMMARY_COUNT' => array('oh', 'object_id', 'count(%s)'),
 		'SERVICEGROUP_SUMMARY_COUNT' => array('ss', 'current_state', 'count(%s)'),
-	);
+	
+		// Comments
+		'COMMENT_ID' => array('co', 'comment_id'),
+		'COMMENT_INSTANCE_ID' => array('co', 'instance_id'),
+		'COMMENT_ENTRY_TIME' => array('co', 'entry_time'),
+		'COMMENT_ENTRY_TIME_USEC' => array('co', 'entry_time_usec'),
+		'COMMENT_TYPE' => array('co', 'comment_type'),
+		'COMMENT_ENTRY_TYPE' => array('co', 'entry_type'),
+		'COMMENT_OBJECT_ID' => array('co', 'object_id'),
+		'COMMENT_TIME' => array('co', 'comment_time'),
+		'COMMENT_INTERNAL_ID' => array('co', 'internal_comment_id'),
+		'COMMENT_AUTHOR_NAME' => array('co', 'author_name'),
+		'COMMENT_DATA' => array('co', 'comment_data'),
+		'COMMENT_IS_PERSISTENT' => array('co', 'is_persistent'),
+		'COMMENT_SOURCE' => array('co', 'comment_source'),
+		'COMMENT_EXPIRES' => array('co', 'expires'),
+		'COMMENT_EXPIRATION_TIME' => array('co', 'expiration_time')
+		);
 
 	/*
 	 * METHODS
@@ -586,7 +673,9 @@ class IcingaApiSearchIdoPgsql
 		$returnValue = array($this->statements['limit']);
 
 		if ($searchLimit !== false) {
-			array_push($returnValue, implode(',', $searchLimit));
+			array_push($returnValue, 
+					   isset($searchLimit[1]) ? $searchLimit[1] : $searchLimit[0],
+					   isset($searchLimit[1]) ? $searchLimit[0] : 0);
 		} else {
 			array_push($returnValue, false);
 		}
@@ -601,6 +690,39 @@ class IcingaApiSearchIdoPgsql
 	public function createQueryGroup ($searchGroup = false, $resultColumns = false) {
 		$returnValue = array($this->statements['group']);
 
+		if (!empty($searchGroup) || $this->hasArithmeticField) {
+			if($this->hasArithmeticField) {
+				foreach ($resultColumns as $currentColumn) {
+					// the following functions are not allowed in oracle groups
+					if(preg_match("/(count|max|avg|min|sum|stddev|variance)/",$currentColumn))
+						continue;
+
+					if (!in_array($currentColumn, $searchGroup)) {
+						array_push($searchGroup, $currentColumn);
+					}
+				}
+			}
+			$this->originalGrouping = implode(',', $searchGroup);
+			if($this->hasArithmeticField)
+				$searchGroup = array_merge($searchGroup,$this->groupByCols);
+
+			array_push($returnValue, implode(',', $searchGroup));
+		} else {
+			array_push($returnValue, false);
+		}
+
+
+		return $returnValue;
+	}
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see objects/search/ido_interfaces/IcingaApiSearchIdoInterface#createQueryGroup($searchGroup)
+	 */
+	/*public function createQueryGroup ($searchGroup = false, $resultColumns = false) {
+		$returnValue = array($this->statements['group']);
+	
 		if (!empty($searchGroup)) {
 			array_push($returnValue, implode(',', $searchGroup));
 		} else {
@@ -609,7 +731,9 @@ class IcingaApiSearchIdoPgsql
 
 		return $returnValue;
 	}
-
+	*/
+	
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see objects/search/ido_interfaces/IcingaApiSearchIdoInterface#postProcessQuery($query, $resultColumnKeys, $searchOrder, $searchLimit)

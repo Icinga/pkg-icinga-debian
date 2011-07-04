@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- * COMMENTS.C - Comment functions for Nagios
+ * COMMENTS.C - Comment functions for Icinga
  *
  * Copyright (c) 1999-2008 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
@@ -45,7 +45,6 @@
 
 comment     *comment_list=NULL;
 int	    defer_comment_sorting = 0;
-static int  unsorted_comments = 0;
 comment     **comment_hashlist=NULL;
 
 
@@ -74,7 +73,7 @@ int initialize_comment_data(char *config_file){
 /* removes old/invalid comments */
 int cleanup_comment_data(char *config_file){
 	int result=OK;
-	
+
 	/**** IMPLEMENTATION-SPECIFIC CALLS ****/
 #ifdef USE_XCDDEFAULT
 	result=xcddefault_cleanup_comment_data(config_file);
@@ -217,7 +216,7 @@ int delete_comment(int type, unsigned long comment_id){
 			comment_list=this_comment->next;
 		else
 			last_comment->next=next_comment;
-		
+
 		/* free memory */
 		my_free(this_comment->host_name);
 		my_free(this_comment->service_description);
@@ -229,7 +228,7 @@ int delete_comment(int type, unsigned long comment_id){
 	        }
 	else
 		result=ERROR;
-	
+
 	/**** IMPLEMENTATION-SPECIFIC CALLS ****/
 #ifdef USE_XCDDEFAULT
 	if(type==HOST_COMMENT)
@@ -248,7 +247,7 @@ int delete_host_comment(unsigned long comment_id){
 
 	/* delete the comment from memory */
 	result=delete_comment(HOST_COMMENT,comment_id);
-	
+
 	return result;
         }
 
@@ -257,10 +256,10 @@ int delete_host_comment(unsigned long comment_id){
 /* deletes a service comment */
 int delete_service_comment(unsigned long comment_id){
 	int result=OK;
-	
+
 	/* delete the comment from memory */
 	result=delete_comment(SERVICE_COMMENT,comment_id);
-	
+
 	return result;
         }
 
@@ -285,7 +284,7 @@ int delete_all_host_comments(char *host_name){
 
 	if(host_name==NULL)
 		return ERROR;
-	
+
 	/* delete host comments from memory */
 	for(temp_comment=get_first_comment_by_host(host_name);temp_comment!=NULL;temp_comment=get_next_comment_by_host(host_name,temp_comment)){
 		if(temp_comment->comment_type==HOST_COMMENT)
@@ -303,7 +302,7 @@ int delete_host_acknowledgement_comments(host *hst){
 
 	if(hst==NULL)
 		return ERROR;
-	
+
 	/* delete comments from memory */
 	for(temp_comment=get_first_comment_by_host(hst->name);temp_comment!=NULL;temp_comment=get_next_comment_by_host(hst->name,temp_comment)){
 		if(temp_comment->comment_type==HOST_COMMENT && temp_comment->entry_type==ACKNOWLEDGEMENT_COMMENT && temp_comment->persistent==FALSE)
@@ -322,7 +321,7 @@ int delete_all_service_comments(char *host_name, char *svc_description){
 
 	if(host_name==NULL || svc_description==NULL)
 		return ERROR;
-	
+
 	/* delete service comments from memory */
 	for(temp_comment=comment_list;temp_comment!=NULL;temp_comment=next_comment){
 		next_comment=temp_comment->next;
@@ -342,7 +341,7 @@ int delete_service_acknowledgement_comments(service *svc){
 
 	if(svc==NULL)
 		return ERROR;
-	
+
 	/* delete comments from memory */
 	for(temp_comment=comment_list;temp_comment!=NULL;temp_comment=next_comment){
 		next_comment=temp_comment->next;
@@ -395,7 +394,7 @@ int add_comment_to_hashlist(comment *new_comment){
 		comment_hashlist=(comment **)malloc(sizeof(comment *)*COMMENT_HASHSLOTS);
 		if(comment_hashlist==NULL)
 			return 0;
-		
+
 		for(i=0;i<COMMENT_HASHSLOTS;i++)
 			comment_hashlist[i]=NULL;
 	        }
@@ -505,7 +504,6 @@ int add_comment(int comment_type, int entry_type, char *host_name, char *svc_des
 	if(defer_comment_sorting){
 		new_comment->next=comment_list;
 		comment_list=new_comment;
-		unsorted_comments++;
 		}
 	else{
 		/* add new comment to comment list, sorted by comment id */
@@ -535,7 +533,7 @@ int add_comment(int comment_type, int entry_type, char *host_name, char *svc_des
 #ifdef NSCORE
 #ifdef USE_EVENT_BROKER
 	/* send data to event broker */
-	broker_comment_data(NEBTYPE_COMMENT_LOAD,NEBFLAG_NONE,NEBATTR_NONE,comment_type,entry_type,host_name,svc_description,entry_time,author,comment_data,persistent,source,expires,entry_time,comment_id,NULL);
+	broker_comment_data(NEBTYPE_COMMENT_LOAD,NEBFLAG_NONE,NEBATTR_NONE,comment_type,entry_type,host_name,svc_description,entry_time,author,comment_data,persistent,source,expires,expire_time,comment_id,NULL);
 #endif
 #endif
 
@@ -549,34 +547,37 @@ static int comment_compar(const void *p1, const void *p2){
 	}
 
 int sort_comments(void){
-	comment **array, *last_comment;
-	int i = 0;
+	comment **array, *temp_comment;
+	unsigned long i=0, unsorted_comments=0;
 
 	if(!defer_comment_sorting)
 		return OK;
 	defer_comment_sorting=0;
+
+	temp_comment = comment_list;
+	while(temp_comment!=NULL) {
+		temp_comment = temp_comment->next;
+		unsorted_comments++;
+		}
 
 	if(!unsorted_comments)
 		return OK;
 
 	if(!(array=malloc(sizeof(*array)*unsorted_comments)))
 		return ERROR;
-	while(comment_list && i<unsorted_comments){
+	while(comment_list){
 		array[i++]=comment_list;
 		comment_list=comment_list->next;
 	}
-	if (comment_list || i<unsorted_comments)
-		return ERROR;
 
 	qsort((void *)array, i, sizeof(*array), comment_compar);
-	comment_list = last_comment = array[0];
+	comment_list = temp_comment = array[0];
 	for (i=1; i<unsorted_comments;i++){
-		last_comment->next = array[i];
-		last_comment = last_comment->next;
+		temp_comment->next = array[i];
+		temp_comment = temp_comment->next;
 		}
-	last_comment->next = NULL;
+	temp_comment->next = NULL;
 	my_free(array);
-	unsorted_comments = 0;
 	return OK;
 	}
 
@@ -686,14 +687,14 @@ comment *get_next_comment_by_host(char *host_name, comment *start){
 
 /* find a service comment by id */
 comment *find_service_comment(unsigned long comment_id){
-	
+
 	return find_comment(comment_id,SERVICE_COMMENT);
         }
 
 
 /* find a host comment by id */
 comment *find_host_comment(unsigned long comment_id){
-	
+
 	return find_comment(comment_id,HOST_COMMENT);
         }
 
@@ -715,12 +716,12 @@ comment *find_comment(unsigned long comment_id, int comment_type){
 /* find a comment by comment_type, host_name, service_desc (NULL if hostcomment), entry_time, author, comment_data */
 comment *find_comment_by_similar_content(int comment_type, char *hostname, char *service_description, char *author, char *comment_data){
 	comment *temp_comment=NULL;
- 
+
 	for(temp_comment=comment_list;temp_comment!=NULL;temp_comment=temp_comment->next){
-		if(temp_comment->comment_type==comment_type 
-			&& strcmp(temp_comment->host_name,hostname)==0 
-			&& (service_description==NULL || strcmp(temp_comment->service_description,service_description)==0) 
-			&& strcmp(temp_comment->author,author)==0 
+		if(temp_comment->comment_type==comment_type
+			&& strcmp(temp_comment->host_name,hostname)==0
+			&& (service_description==NULL || strcmp(temp_comment->service_description,service_description)==0)
+			&& strcmp(temp_comment->author,author)==0
 			&& strcmp(temp_comment->comment_data,comment_data)==0)
 			return temp_comment;
 			}

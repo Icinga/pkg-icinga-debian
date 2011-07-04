@@ -154,7 +154,7 @@
 
   <para>Benutzen Sie yast zur Installation der Pakete für das RDBMS, das Sie verwenden möchten, also "mysql", "mysql-devel" und
   "mysql-client" bzw. "postgresql", "postgresql-devel" und "postgresql-server". Bei OpenSuSE 11 (SLES 11) lautet der Name des Packages statt
-  "mysql-devel" nun "libmysqlclient-devel".</para>
+  "mysql-devel" nun "libmysqlclient-devel". Die devel-Pakete sind ggf. auf den SDK-DVDs zu finden.</para>
 
   <para>Es ist ziemlich wahrscheinlich, dass es keine libdbi-Packages gibt, so dass Sie die Sourcen herunterladen und kompilieren müssen.
   Ersetzen Sie dabei &lt;rdbm&gt; durch Ihr RDBM wie mysql oder pgsql. Bitte beachten Sie, dass der Oracle-Treiber noch nicht funktioniert.
@@ -223,6 +223,9 @@
   <note>
     <para>Bei einigen usermod-Versionen (z.B. OpenSuSE 11 bzw. SLES 11) fehlt die Option -a. In diesen Fällen kann sie entfallen.</para>
   </note>
+  <important>
+    <para>Solaris unterstützt nur Gruppennamen bis max. 8 Zeichen, verwenden Sie icingcmd anstelle von icinga-cmd.</para>
+  </important>
 
   <para><emphasis role="bold">&name-icinga; und die Plugins herunterladen</emphasis></para>
 
@@ -230,7 +233,9 @@
 
   <programlisting> #&gt; cd /usr/src</programlisting>
 
-  <para>Holen Sie den aktuellen icinga-core-Snapshot aus dem &name-icinga; GIT <programlisting> #&gt; git clone git://git.icinga.org/icinga-core.git</programlisting>
+  <para>Holen Sie den aktuellen icinga-core-Snapshot aus dem &name-icinga; GIT <programlisting> #&gt; git clone git://git.icinga.org/icinga-core.git
+ #&gt; git submodule init
+ #&gt; git submodule update</programlisting>
   oder von der <link xlink:href="http://www.icinga.org/">&name-icinga;-Website</link>.</para>
 
   <para>Vergessen Sie nicht die <link xlink:href="http://www.nagiosplugins.org/">Nagios Plugins</link>.</para>
@@ -242,17 +247,18 @@
   <programlisting> #&gt; cd /usr/src/ 
  #&gt; tar xvzf icinga-&ver-icinga;.tar.gz 
  #&gt; cd icinga-&ver-icinga;</programlisting>
+  <note><para>Dieser absolute Pfad ist gemeint, wenn im Nachfolgenden von '/path/to/icinga-src/' die Rede ist.</para></note>
 
   <para>Führen Sie das &name-icinga;-configure-Script aus. Durch die Nutzung des --help-Flags erhalten Sie Hilfe zu den Optionen.</para>
 
   <programlisting> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils</programlisting>
 
-  <caution>
+  <important>
     <para>Das Kompilieren auf Solaris kann wegen unerfüllten Bibliotheksabhängigkeiten von gethostbyname fehlschlagen. Wenn dies der Fall
     ist, führen Sie folgenden Befehl vor configure aus:</para>
 
     <programlisting> #&gt; export LIBS=-lsocket -lnsl</programlisting>
-  </caution>
+  </important>
 
   <para><emphasis role="bold">Mit <emphasis role="bold">SSL</emphasis>-Verschlüsselung:</emphasis></para>
 
@@ -268,14 +274,16 @@
       <para>Wenn Sie von einer Oracle-Datenbank auf ein anderes RDBMS wechseln möchten, dann müssen Sie die &name-idoutils; erneut
       kompilieren und installieren!</para>
     </note> <programlisting> #&gt; make distclean
- #&gt; ./configure --enable-idoutils</programlisting> Kompilieren Sie den &name-icinga;-Source-Code. Es gibt auch eine extra Option für
+ #&gt; ./configure --enable-idoutils</programlisting></para>
+<para><emphasis role="bold">Kompilieren und Installieren</emphasis></para>
+<para>Kompilieren Sie den &name-icinga;-Source-Code. Es gibt auch eine extra Option für
   &name-idoutils; (<emphasis>make idoutils</emphasis>), wenn Sie nur dieses Module erneut kompilieren möchten. Um mögliche Optionen zu
   sehen, rufen Sie lediglich "make" auf.<programlisting> #&gt; make all</programlisting> Installieren Sie die Binaries, das Init-Script,
   Beispiel-Konfigurationsdateien und setzen Sie die Berechtigungen für das External-Command-Verzeichnis. <programlisting> #&gt; make install 
  #&gt; make install-init 
  #&gt; make install-config 
  #&gt; make install-commandmode 
- # make install-idoutils</programlisting> oder kürzer <programlisting> #&gt; make fullinstall</programlisting></para>
+ #&gt; make install-idoutils</programlisting> oder kürzer <programlisting> #&gt; make fullinstall</programlisting></para>
 
   <para>Die Icinga-API wird beim Aufruf von "make install" installiert, wenn Sie nur die Icinga-API (nach)installieren möchten, nutzen Sie:
   <programlisting> #&gt; make install-api</programlisting>Die Icinga-API ist Voraussetzung für das Icinga Web-Interface (nicht für die
@@ -329,6 +337,7 @@
   <para><emphasis role="bold">&name-mysql;:</emphasis></para>
 
   <para><emphasis>Anlegen von Datenbank, Benutzer und Berechtigungen</emphasis></para>
+    <note><para>Falls Sie gerade ein neues Datenbanksystem installiert haben, dann müssen Sie den Datenbank-Server-Prozess starten, bevor Sie eine Datenbank anlegen können. Im Falle von &name-mysql; benutzen Sie <code>/etc/init.d/mysqld start</code>.</para></note>
 
   <programlisting> #&gt; mysql -u root -p
   
@@ -423,16 +432,18 @@
   <para>Icinga stellt das klassische Web-Interface zur Verfügung ("Classic Web", "die CGIs"). Sie können dieses wie folgt
   installieren:</para>
 
-  <programlisting> #&gt; make cgis
- #&gt; make install-cgis</programlisting>
+  <programlisting> #&gt; cd /path/to/icinga-src
+ #&gt; make cgis
+ #&gt; make install-cgis
+ #&gt; make install-html</programlisting>
 
   <para>Wenn Sie stattdessen das neue Icinga Web installieren wollen, lesen Sie bitte <link linkend="icinga-web-scratch">Installation des
   Web-Interface</link>.</para>
 
   <para>Installieren Sie die &name-icinga;-Web-Konfigurationsdatei im &name-apache; conf.d-Verzeichnis.</para>
 
-  <screen> #&gt; cd /path/to/icinga-src
- #&gt; make install-webconf</screen>
+  <programlisting> #&gt; cd /path/to/icinga-src
+ #&gt; make install-webconf</programlisting>
 
   <para>Legen Sie ein <emphasis>icingaadmin</emphasis>-Konto an, um sich am klassischen Web-Interface anmelden zu können. Merken Sie sich
   das Passwort, das Sie diesem Konto geben - Sie brauchen es später.</para>

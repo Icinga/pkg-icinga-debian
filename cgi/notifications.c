@@ -5,7 +5,7 @@
  * Copyright (c) 1999-2008 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
  *
- * This CGI program will display the notification events for 
+ * This CGI program will display the notification events for
  * a given host or contact or for all contacts/hosts.
  *
  * License:
@@ -36,6 +36,7 @@ extern char url_html_path[MAX_FILENAME_LENGTH];
 extern char url_images_path[MAX_FILENAME_LENGTH];
 extern char url_docs_path[MAX_FILENAME_LENGTH];
 extern char url_stylesheets_path[MAX_FILENAME_LENGTH];
+extern char url_js_path[MAX_FILENAME_LENGTH];
 
 extern int    log_rotation_method;
 
@@ -54,8 +55,6 @@ extern int    log_rotation_method;
 
 void display_notifications(void);
 
-void document_header(int);
-void document_footer(void);
 int process_cgivars(void);
 
 authdata current_authdata;
@@ -72,10 +71,15 @@ char *query_svc_description="";
 int notification_options=NOTIFICATION_ALL;
 int use_lifo=TRUE;
 
-int embedded=FALSE;
-int display_header=TRUE;
-int daemon_check=TRUE;
+extern int embedded;
+extern int display_header;
+extern int daemon_check;
+extern int content_type;
 
+extern char *csv_delimiter;
+extern char *csv_data_enclosure;
+
+int CGI_ID=NOTIFICATIONS_CGI_ID;
 
 int main(void){
 	int result=OK;
@@ -92,32 +96,32 @@ int main(void){
 	/* read the CGI configuration file */
 	result=read_cgi_config_file(get_cgi_config_location());
 	if(result==ERROR){
-		document_header(FALSE);
+		document_header(CGI_ID,FALSE);
 		cgi_config_file_error(get_cgi_config_location());
-		document_footer();
+		document_footer(CGI_ID);
 		return ERROR;
 	        }
 
 	/* read the main configuration file */
 	result=read_main_config_file(main_config_file);
 	if(result==ERROR){
-		document_header(FALSE);
+		document_header(CGI_ID,FALSE);
 		main_config_file_error(main_config_file);
-		document_footer();
+		document_footer(CGI_ID);
 		return ERROR;
 	        }
 
 	/* read all object configuration data */
 	result=read_all_object_configuration_data(main_config_file,READ_ALL_OBJECT_DATA);
 	if(result==ERROR){
-		document_header(FALSE);
+		document_header(CGI_ID,FALSE);
 		object_data_error();
-		document_footer();
+		document_footer(CGI_ID);
 		return ERROR;
                 }
 
 
-	document_header(TRUE);
+	document_header(CGI_ID,TRUE);
 
 	/* get authentication information */
 	get_authentication_information(&current_authdata);
@@ -134,7 +138,7 @@ int main(void){
 
 		/* left column of top row */
 		printf("<td align=left valign=top width=33%%>\n");
-	
+
 		if(query_type==FIND_SERVICE)
 			snprintf(temp_buffer,sizeof(temp_buffer)-1,"Service Notifications");
 		else if(query_type==FIND_HOST){
@@ -278,75 +282,13 @@ int main(void){
 	/* display notifications */
 	display_notifications();
 
-	document_footer();
+	document_footer(CGI_ID);
 
 	/* free allocated memory */
 	free_memory();
 	
 	return OK;
         }
-
-
-
-void document_header(int use_stylesheet){
-	char date_time[MAX_DATETIME_LENGTH];
-	time_t current_time;
-	time_t expire_time;
-
-	printf("Cache-Control: no-store\r\n");
-	printf("Pragma: no-cache\r\n");
-
-	time(&current_time);
-	get_time_string(&current_time,date_time,(int)sizeof(date_time),HTTP_DATE_TIME);
-	printf("Last-Modified: %s\r\n",date_time);
-
-	expire_time=(time_t)0L;
-	get_time_string(&expire_time,date_time,(int)sizeof(date_time),HTTP_DATE_TIME);
-	printf("Expires: %s\r\n",date_time);
-
-	printf("Content-type: text/html\r\n\r\n");
-
-	if(embedded==TRUE)
-		return;
-
-	printf("<html>\n");
-	printf("<head>\n");
-	printf("<link rel=\"shortcut icon\" href=\"%sfavicon.ico\" type=\"image/ico\">\n",url_images_path);
-	printf("<title>\n");
-	printf("Alert Notifications\n");
-	printf("</title>\n");
-
-	if(use_stylesheet==TRUE){
-		printf("<LINK REL='stylesheet' TYPE='text/css' HREF='%s%s'>\n",url_stylesheets_path,COMMON_CSS);
-		printf("<LINK REL='stylesheet' TYPE='text/css' HREF='%s%s'>\n",url_stylesheets_path,NOTIFICATIONS_CSS);
-	        }
-	
-	printf("</head>\n");
-
-	printf("<body CLASS='notifications'>\n");
-
-	/* include user SSI header */
-	include_ssi_files(NOTIFICATIONS_CGI,SSI_HEADER);
-
-	return;
-        }
-
-
-
-void document_footer(void){
-
-	if(embedded==TRUE)
-		return;
-
-	/* include user SSI footer */
-	include_ssi_files(NOTIFICATIONS_CGI,SSI_FOOTER);
-
-	printf("</body>\n");
-	printf("</html>\n");
-
-	return;
-        }
-
 
 int process_cgivars(void){
 	char **variables;
@@ -443,6 +385,12 @@ int process_cgivars(void){
 			use_lifo=FALSE;
 		        }
 
+		/* we found the CSV output option */
+		else if(!strcmp(variables[x],"csvoutput")){
+			display_header=FALSE;
+			content_type=CSV_CONTENT;
+			}
+
 		/* we found the embed option */
 		else if(!strcmp(variables[x],"embedded"))
 			embedded=TRUE;
@@ -456,11 +404,11 @@ int process_cgivars(void){
 			daemon_check=FALSE;
                 }
 
-	/* 
+	/*
 	 * Set some default values if not already set.
 	 * Done here as they won't be set if variable
-	 * not provided via cgi parameters 
-	 * Only required for hosts & contacts, not services 
+	 * not provided via cgi parameters
+	 * Only required for hosts & contacts, not services
 	 * as there is no service_name=all option
 	 */
 	if(query_type == FIND_HOST && strlen(query_host_name) == 0) {
@@ -477,8 +425,6 @@ int process_cgivars(void){
 
 	return error;
         }
-
-
 
 void display_notifications(void){
 	mmapfile *thefile=NULL;
@@ -506,51 +452,68 @@ void display_notifications(void){
 		if(result!=LIFO_OK){
 			if(result==LIFO_ERROR_MEMORY){
 				printf("<P><DIV CLASS='warningMessage'>Not enough memory to reverse log file - displaying notifications in natural order...</DIV></P>");
-			        }
+			}
 			else if(result==LIFO_ERROR_FILE){
 				printf("<P><DIV CLASS='errorMessage'>Error: Cannot open log file '%s' for reading!</DIV></P>",log_file_to_use);
 				return;
-			        }
+			}
 			use_lifo=FALSE;
-		        }
-	        }
+		}
+	}
 
 	if(use_lifo==FALSE){
 
 		if((thefile=mmap_fopen(log_file_to_use))==NULL){
 			printf("<P><DIV CLASS='errorMessage'>Error: Cannot open log file '%s' for reading!</DIV></P>",log_file_to_use);
 			return;
-		        }
-	        }
+		}
+	}
 
-	printf("<p>\n");
-	printf("<div align='center'>\n");
+	if(content_type==CSV_CONTENT) {
+		printf("%sHOST%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
+		printf("%sSERVICE%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
+		printf("%sTYPE%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
+		printf("%sTIME%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
+		printf("%sCONTACT%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
+		printf("%sNOTIFICATION_COMMAND%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
+		printf("%sINFORMATION%s\n",csv_data_enclosure,csv_data_enclosure);
+	} else {
+		printf("<p>\n");
+		printf("<div align='center'>\n");
 
-	printf("<table border=0 CLASS='notifications'>\n");
-	printf("<tr>\n");
-	printf("<th CLASS='notifications'>Host</th>\n");
-	printf("<th CLASS='notifications'>Service</th>\n");
-	printf("<th CLASS='notifications'>Type</th>\n");
-	printf("<th CLASS='notifications'>Time</th>\n");
-	printf("<th CLASS='notifications'>Contact</th>\n");
-	printf("<th CLASS='notifications'>Notification Command</th>\n");
-	printf("<th CLASS='notifications'>Information</th>\n");
-	printf("</tr>\n");
+		printf("<table border=0 CLASS='notifications'>\n");
+
+                /* add export to csv link */
+                if(getenv("QUERY_STRING")!=NULL) {
+			printf("<TR><TD colspan='7'><DIV class='csv_export_link'><A HREF='%s?%s&csvoutput' target='_blank'>Export to CSV</A></DIV></TD></TR>\n",NOTIFICATIONS_CGI,strdup(getenv("QUERY_STRING")));
+		} else {
+			printf("<TR><TD colspan='7'><DIV class='csv_export_link'><A HREF='%s?csvoutput' target='_blank'>Export to CSV</A></DIV></TD></TR>\n",NOTIFICATIONS_CGI);
+		}
+
+		printf("<tr>\n");
+		printf("<th CLASS='notifications'>Host</th>\n");
+		printf("<th CLASS='notifications'>Service</th>\n");
+		printf("<th CLASS='notifications'>Type</th>\n");
+		printf("<th CLASS='notifications'>Time</th>\n");
+		printf("<th CLASS='notifications'>Contact</th>\n");
+		printf("<th CLASS='notifications'>Notification Command</th>\n");
+		printf("<th CLASS='notifications'>Information</th>\n");
+		printf("</tr>\n");
+	}
 
 	total_notifications=0;
-  
+
 	while(1){
 
 		free(input);
-    
+
 		if(use_lifo==TRUE){
 			if((input=pop_lifo())==NULL)
 				break;
-		        }
-		else{
+		} else {
 			if((input=mmap_fgets(thefile))==NULL)
 				break;
-		        }
+		}
 
 		strip(input);
 
@@ -561,7 +524,7 @@ void display_notifications(void){
 				notification_type=HOST_NOTIFICATION;
 			else
 				notification_type=SERVICE_NOTIFICATION;
-      
+
 			/* get the date/time */
 			temp_buffer=(char *)strtok(input,"]");
 			t=(time_t)(temp_buffer==NULL)?0L:strtoul(temp_buffer+1,NULL,10);
@@ -584,7 +547,7 @@ void display_notifications(void){
 				temp_buffer=(char *)strtok(NULL,";");
 				snprintf(service_name,sizeof(service_name),"%s",(temp_buffer==NULL)?"":temp_buffer);
 				service_name[sizeof(service_name)-1]='\x0';
-			        }
+			}
 
 			/* get the alert level */
 			temp_buffer=(char *)strtok(NULL,";");
@@ -596,77 +559,74 @@ void display_notifications(void){
 				if(!strcmp(alert_level,"CRITICAL")){
 					notification_detail_type=NOTIFICATION_SERVICE_CRITICAL;
 					strcpy(alert_level_class,"CRITICAL");
-				        }
+				}
 				else if(!strcmp(alert_level,"WARNING")){
 					notification_detail_type=NOTIFICATION_SERVICE_WARNING;
 					strcpy(alert_level_class,"WARNING");
-				        }
+				}
 				else if(!strcmp(alert_level,"RECOVERY") || !strcmp(alert_level,"OK")){
 					strcpy(alert_level,"OK");
 					notification_detail_type=NOTIFICATION_SERVICE_RECOVERY;
 					strcpy(alert_level_class,"OK");
-				        }
+				}
 				else if(strstr(alert_level,"CUSTOM (")){
 					notification_detail_type=NOTIFICATION_SERVICE_CUSTOM;
 					strcpy(alert_level_class,"CUSTOM");
-				        }
+				}
 				else if(strstr(alert_level,"ACKNOWLEDGEMENT (")){
 					notification_detail_type=NOTIFICATION_SERVICE_ACK;
 					strcpy(alert_level_class,"ACKNOWLEDGEMENT");
-				        }
+				}
 				else if(strstr(alert_level,"FLAPPINGSTART (")){
 					strcpy(alert_level,"FLAPPING START");
 					notification_detail_type=NOTIFICATION_SERVICE_FLAP;
 					strcpy(alert_level_class,"UNKNOWN");
-				        }
+				}
 				else if(strstr(alert_level,"FLAPPINGSTOP (")){
 					strcpy(alert_level,"FLAPPING STOP");
 					notification_detail_type=NOTIFICATION_SERVICE_FLAP;
 					strcpy(alert_level_class,"UNKNOWN");
-				        }
-				else{
+				} else {
 					strcpy(alert_level,"UNKNOWN");
 					notification_detail_type=NOTIFICATION_SERVICE_UNKNOWN;
 					strcpy(alert_level_class,"UNKNOWN");
-				        }
-			        }
-
-			else{
+				}
+			} else{
 
 				if(!strcmp(alert_level,"DOWN")){
 					strncpy(alert_level,"HOST DOWN",sizeof(alert_level));
 					strcpy(alert_level_class,"HOSTDOWN");
 					notification_detail_type=NOTIFICATION_HOST_DOWN;
-				        }
+				}
 				else if(!strcmp(alert_level,"UNREACHABLE")){
 					strncpy(alert_level,"HOST UNREACHABLE",sizeof(alert_level));
 					strcpy(alert_level_class,"HOSTUNREACHABLE");
 					notification_detail_type=NOTIFICATION_HOST_UNREACHABLE;
-				        }
+				}
 				else if(!strcmp(alert_level,"RECOVERY") || !strcmp(alert_level,"UP")){
 					strncpy(alert_level,"HOST UP",sizeof(alert_level));
 					strcpy(alert_level_class,"HOSTUP");
 					notification_detail_type=NOTIFICATION_HOST_RECOVERY;
-				        }
+				}
 				else if(strstr(alert_level,"CUSTOM (")){
 					strcpy(alert_level_class,"HOSTCUSTOM");
 					notification_detail_type=NOTIFICATION_HOST_CUSTOM;
-				        }
+				}
 				else if(strstr(alert_level,"ACKNOWLEDGEMENT (")){
 					strcpy(alert_level_class,"HOSTACKNOWLEDGEMENT");
 					notification_detail_type=NOTIFICATION_HOST_ACK;
-				        }
+				}
 				else if(strstr(alert_level,"FLAPPINGSTART (")){
 					strcpy(alert_level,"FLAPPING START");
 					strcpy(alert_level_class,"UNKNOWN");
 					notification_detail_type=NOTIFICATION_HOST_FLAP;
-				        }
+				}
 				else if(strstr(alert_level,"FLAPPINGSTOP (")){
 					strcpy(alert_level,"FLAPPING STOP");
 					strcpy(alert_level_class,"UNKNOWN");
 					notification_detail_type=NOTIFICATION_HOST_FLAP;
-				        }
-			        }
+				}
+			}
 
 			/* get the method name */
 			temp_buffer=(char *)strtok(NULL,";");
@@ -677,26 +637,26 @@ void display_notifications(void){
 			temp_buffer=strtok(NULL,";");
 
 			show_entry=FALSE;
-      
+
 			/* if we're searching by contact, filter out unwanted contact */
 			if(query_type==FIND_CONTACT){
 				if(find_all==TRUE)
 					show_entry=TRUE;
 				else if(!strcmp(query_contact_name,contact_name))
 					show_entry=TRUE;
-			        }
+			}
 
 			else if(query_type==FIND_HOST){
 				if(find_all==TRUE)
 					show_entry=TRUE;
 				else if(!strcmp(query_host_name,host_name))
 					show_entry=TRUE;
-			        }
+			}
 
 			else if(query_type==FIND_SERVICE){
 				if(!strcmp(query_host_name,host_name) && !strcmp(query_svc_description,service_name))
 					show_entry=TRUE;
-			        }
+			}
 
 			if(show_entry==TRUE){
 				if(notification_options==NOTIFICATION_ALL)
@@ -707,70 +667,81 @@ void display_notifications(void){
 					show_entry=TRUE;
 				else if(notification_detail_type & notification_options)
 					show_entry=TRUE;
-				else 
+				else
 					show_entry=FALSE;
-			        }
+			}
 
 			/* make sure user has authorization to view this notification */
 			if(notification_type==HOST_NOTIFICATION){
 				temp_host=find_host(host_name);
 				if(is_authorized_for_host(temp_host,&current_authdata)==FALSE)
 					show_entry=FALSE;
-			        }
-			else{
+			} else{
 				temp_host=find_host(host_name);
 				temp_service=find_service(host_name,service_name);
 				if(is_authorized_for_service(temp_service,&current_authdata)==FALSE)
 					show_entry=FALSE;
-			        }
+			}
 
 			if(show_entry==TRUE){
 
 				total_notifications++;
 
-				if(odd){
+				if(odd)
 					odd=0;
-					printf("<tr CLASS='notificationsOdd'>\n");
-				        }
-				else{
-					odd=1;
-					printf("<tr CLASS='notificationsEven'>\n");
-				        }
-				printf("<td CLASS='notifications%s'><a href='%s?type=%d&host=%s'>%s</a></td>\n",(odd)?"Even":"Odd",EXTINFO_CGI,DISPLAY_HOST_INFO,url_encode(host_name),(temp_host->display_name!=NULL)?temp_host->display_name:temp_host->name);
-				if(notification_type==SERVICE_NOTIFICATION){
-					printf("<td CLASS='notifications%s'><a href='%s?type=%d&host=%s",(odd)?"Even":"Odd",EXTINFO_CGI,DISPLAY_SERVICE_INFO,url_encode(host_name));
-					printf("&service=%s'>%s</a></td>\n",url_encode(service_name),(temp_service->display_name!=NULL)?temp_service->display_name:temp_service->description);
-				        }
 				else
-					printf("<td CLASS='notifications%s'>N/A</td>\n",(odd)?"Even":"Odd");
-				printf("<td CLASS='notifications%s'>%s</td>\n",alert_level_class,alert_level);
-				printf("<td CLASS='notifications%s'>%s</td>\n",(odd)?"Even":"Odd",date_time);
-				printf("<td CLASS='notifications%s'><a href='%s?type=contacts#%s'>%s</a></td>\n",(odd)?"Even":"Odd",CONFIG_CGI,url_encode(contact_name),contact_name);
-				printf("<td CLASS='notifications%s'><a href='%s?type=commands#%s'>%s</a></td>\n",(odd)?"Even":"Odd",CONFIG_CGI,url_encode(method_name),method_name);
-				printf("<td CLASS='notifications%s'>%s</td>\n",(odd)?"Even":"Odd",html_encode(temp_buffer,FALSE));
-				printf("</tr>\n");
-			        }
-		        }
-	        }
+					odd=1;
+				
+				if(content_type==CSV_CONTENT) {
+					printf("%s%s%s%s",csv_data_enclosure,(temp_host->display_name!=NULL)?temp_host->display_name:temp_host->name,csv_data_enclosure,csv_delimiter);
+					if(notification_type==SERVICE_NOTIFICATION)
+						printf("%s%s%s%s",csv_data_enclosure,(temp_service->display_name!=NULL)?temp_service->display_name:temp_service->description,csv_data_enclosure,csv_delimiter);
+					else
+						printf("%sN/A%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
+					printf("%s%s%s%s",csv_data_enclosure,alert_level,csv_data_enclosure,csv_delimiter);
+					printf("%s%s%s%s",csv_data_enclosure,date_time,csv_data_enclosure,csv_delimiter);
+					printf("%s%s%s%s",csv_data_enclosure,contact_name,csv_data_enclosure,csv_delimiter);
+					printf("%s%s%s%s",csv_data_enclosure,method_name,csv_data_enclosure,csv_delimiter);
+					printf("%s%s%s\n",csv_data_enclosure,escape_newlines(temp_buffer),csv_data_enclosure);
+				} else {
+					printf("<tr CLASS='notifications%s'>\n",(odd)?"Even":"Odd");
+					printf("<td CLASS='notifications%s'><a href='%s?type=%d&host=%s'>%s</a></td>\n",(odd)?"Even":"Odd",EXTINFO_CGI,DISPLAY_HOST_INFO,url_encode(host_name),(temp_host->display_name!=NULL)?temp_host->display_name:temp_host->name);
+					if(notification_type==SERVICE_NOTIFICATION){
+						printf("<td CLASS='notifications%s'><a href='%s?type=%d&host=%s",(odd)?"Even":"Odd",EXTINFO_CGI,DISPLAY_SERVICE_INFO,url_encode(host_name));
+						printf("&service=%s'>%s</a></td>\n",url_encode(service_name),(temp_service->display_name!=NULL)?temp_service->display_name:temp_service->description);
+					} else
+						printf("<td CLASS='notifications%s'>N/A</td>\n",(odd)?"Even":"Odd");
+					printf("<td CLASS='notifications%s'>%s</td>\n",alert_level_class,alert_level);
+					printf("<td CLASS='notifications%s'>%s</td>\n",(odd)?"Even":"Odd",date_time);
+					printf("<td CLASS='notifications%s'><a href='%s?type=contacts#%s'>%s</a></td>\n",(odd)?"Even":"Odd",CONFIG_CGI,url_encode(contact_name),contact_name);
+					printf("<td CLASS='notifications%s'><a href='%s?type=commands#%s'>%s</a></td>\n",(odd)?"Even":"Odd",CONFIG_CGI,url_encode(method_name),method_name);
+					printf("<td CLASS='notifications%s'>%s</td>\n",(odd)?"Even":"Odd",html_encode(temp_buffer,FALSE));
+					printf("</tr>\n");
+				}
+			}
+		}
+	}
 
 
-	printf("</table>\n");
+	if(content_type!=CSV_CONTENT){
+		printf("</table>\n");
 
-	printf("</div>\n");
-	printf("</p>\n");
+		printf("</div>\n");
+		printf("</p>\n");
 
-	if(total_notifications==0){
-		printf("<P><DIV CLASS='errorMessage'>No notifications have been recorded");
-		if(find_all==FALSE){
-			if(query_type==FIND_SERVICE)
-				printf(" for this service");
-			else if(query_type==FIND_CONTACT)
-				printf(" for this contact");
-			else
-				printf(" for this host");
-		        }
-		printf(" in %s log file</DIV></P>",(log_archive==0)?"the current":"this archived");
-	        }
+		if(total_notifications==0){
+			printf("<P><DIV CLASS='errorMessage'>No notifications have been recorded");
+			if(find_all==FALSE){
+				if(query_type==FIND_SERVICE)
+					printf(" for this service");
+				else if(query_type==FIND_CONTACT)
+					printf(" for this contact");
+				else
+					printf(" for this host");
+			}
+			printf(" in %s log file</DIV></P>",(log_archive==0)?"the current":"this archived");
+		}
+	}
 
 	free(input);
 

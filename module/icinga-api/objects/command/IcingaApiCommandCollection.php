@@ -56,6 +56,7 @@ class IcingaApiCommandCollection
 		// 'DEL_HOST_DOWNTIME'						=> array(self::COMMAND_HOST, self::COMMAND_ID),
 		'SCHEDULE_HOST_CHECK'					=> array(self::COMMAND_HOST, self::COMMAND_CHECKTIME),
 		'SCHEDULE_HOST_DOWNTIME'				=> array(self::COMMAND_HOST, self::COMMAND_STARTTIME, self::COMMAND_ENDTIME, self::COMMAND_FIXED, self::COMMAND_DATA, self::COMMAND_DURATION, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),	
+		'SCHEDULE_HOST_SVC_DOWNTIME'			=> array(self::COMMAND_HOST, self::COMMAND_STARTTIME, self::COMMAND_ENDTIME, self::COMMAND_FIXED, self::COMMAND_DATA, self::COMMAND_DURATION, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),
 		'PROCESS_HOST_CHECK_RESULT'				=> array(self::COMMAND_HOST, self::COMMAND_RETURN_CODE, self::COMMAND_OUTPUT, self::COMMAND_PERFDATA),
 		'ACKNOWLEDGE_HOST_PROBLEM'				=> array(self::COMMAND_HOST, self::COMMAND_STICKY, self::COMMAND_NOTIFY, self::COMMAND_PERSISTENT, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),
 		'ADD_HOST_COMMENT'						=> array(self::COMMAND_HOST, self::COMMAND_DATA, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),
@@ -180,7 +181,8 @@ class IcingaApiCommandCollection
 			'required'	=> false
 		),
 		self::COMMAND_DATA => array(
-			'type'	=> 'textarea',
+			'type'	=> 'hidden',
+			'defaultValue' => 1,
 			'required'	=> false
 		),
 		self::COMMAND_NOTIFICATION_OPTIONS => array (

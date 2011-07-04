@@ -3,7 +3,31 @@
 
 AC_PREREQ(2.61)
 AC_INIT(IcingaApi.php)
+
+AC_PROG_GREP
+
 AC_PREFIX_DEFAULT(/usr/local/icinga)
+
+# helper functions (check aclocal.m4 from icinga-web)
+AC_DEFUN([ACICINGA_USER_GUESS],[
+   $2=$3
+   for x in $1; do
+    AC_MSG_CHECKING([if user $x exists])
+     AS_IF([ $GREP -q "^$x:" /etc/passwd ],
+           [ AC_MSG_RESULT([found]); $2=$x ; break],
+           [ AC_MSG_RESULT([not found]) ])
+   done
+  ])
+
+AC_DEFUN([ACICINGA_GROUP_GUESS],[
+   $2=$3
+   for x in $1; do
+    AC_MSG_CHECKING([if group $x exists])
+     AS_IF([ $GREP -q "^$x:" /etc/group ],
+           [ AC_MSG_RESULT([found]); $2=$x ; break],
+           [ AC_MSG_RESULT([not found]) ])
+   done
+])
 
 # Checks for programs.
 AC_PROG_INSTALL
@@ -35,6 +59,26 @@ AC_SUBST(command_user)
 AC_SUBST(command_grp)
 COMMAND_OPTS="-o $command_user -g $command_grp"
 AC_SUBST(COMMAND_OPTS)
+
+# Users for webfiles
+AC_ARG_WITH([web_user],
+	AS_HELP_STRING([--with-web-user=USER], [username for web writable files (default www-data)]),
+	web_user=$withval,
+	ACICINGA_USER_GUESS([www wwwrun www-data apache httpd nobody],[web_user],[www-data])
+)
+
+AC_ARG_WITH([web_group],
+	AS_HELP_STRING([--with-web-group=GROUP], [group for web writable files (default www-data)]),
+	web_group=$withval,
+	ACICINGA_GROUP_GUESS([www www-data apache httpd nogroup nobody],[web_group], [www-data])
+)
+AC_SUBST(web_user)
+AC_SUBST(web_group)
+
+INSTALL_OPTS_WEB="-o $web_user -g $web_group"
+AC_SUBST(INSTALL_OPTS_WEB)
+
+
 
 CFLAGS=""
 AC_SUBST(CFLAGS)

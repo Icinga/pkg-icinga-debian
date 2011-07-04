@@ -24,13 +24,13 @@ abstract class IcingaApiSearch
 	protected $joinTables = array();
 	protected $searchTarget = false;
 	protected $searchType = false;
-	protected $searchFilter = array();
+	protected $searchFilter = null;
 	protected $searchFilterAppend = array();
 	protected $searchGroup = array();
 	protected $searchOrder = array();
+	protected $searchOrderColumns = array();
 	protected $searchLimit = false;
 	protected $ifSettings = false;
-
 	protected $icingaType = null;
 	protected $columns = false;
 
@@ -165,25 +165,33 @@ abstract class IcingaApiSearch
 	}
 	
 	/**
+	 * You should now use createFilter and createFilterGroup and use them as the filter parameter
+	 * Using $value and $defaultMatch is @deprecated
 	 * (non-PHPdoc)
 	 * @see objects/search/IcingaApiSearchInterface#setSearchFilter()
 	 */
 	public function setSearchFilter ($filter, $value = false, $defaultMatch = IcingaApi::MATCH_EXACT) {
+		if(!$this->searchFilter)
+			$this->searchFilter = IcingaApiSearchFilterGroup::createInstance($this);
+		
+		if($filter instanceof IcingaApiSearchFilterInterface) {
+			$this->searchFilter->addFilter($filter);
 
-		if (!is_array($filter) && $value === false) {
-
+		} else if (!is_array($filter) && $value === false) {
 			throw new IcingaApiSearchException('setSearchFilter(): invalid definition of key-value pair(s)!');
-
-		} else {
-
+		
+		} else { // support the previous behaviour of the API and wrap it with filtergroups
 			// convert filter into array
 			if (!is_array($filter)) {
 				$filter = array(array($filter, $value, $defaultMatch));
+			} else {
+				if(isset($filter["val"])) {
+					$this->reIndexFilter($filter);
+				}
 			}
-
+			
 			// loop through array and apply filters
 			foreach ($filter as $filterData) {
-
 				// check length
 				$filterDataCount = count($filterData);
 				if ($filterDataCount < 1 || $filterDataCount > 3) {
@@ -193,40 +201,45 @@ abstract class IcingaApiSearch
 				if ($filterDataCount == 2) {
 					$filterData[2] = $defaultMatch;
 				}
-
-				// get columns
-				if (($filterDataTmp = $this->getColumn($filterData[0])) !== false) {
-					$filterData[0] = $filterDataTmp;
-				} else {
-					throw new IcingaApiSearchException('setSearchFilter(): Unknown result column "' . $filterData[0] . '"!');
-				}
-
-				// set key if necessary
-				if (!array_key_exists($filterData[0], $this->searchFilter)) {
-					$this->searchFilter[$filterData[0]] = array();
-				}
-
-				// set match type if necessary
-				if (!array_key_exists($filterData[2], $this->searchFilter[$filterData[0]])) {
-					$this->searchFilter[$filterData[0]][$filterData[2]] = array();
-				}
+				
+				$matchType = $filterData[2];
 
 				// add values to filter
+				$filtersForGroup = $this->createFilterGroup();
+				$filtersForGroup->setType(IcingaApi::SEARCH_OR);
 				if (!is_array($filterData[1])) {
 					$filterData[1] = array($filterData[1]);
 				}
 				foreach ($filterData[1] as $filterValue) {
-					if (!in_array($filterValue, $this->searchFilter[$filterData[0]][$filterData[2]])) {
-						array_push($this->searchFilter[$filterData[0]][$filterData[2]], $filterValue);
-					}
+					icingaApiDebugger::logDebug("Adding filter ".$filterData[0]." ".$filterData[2]." ".$filterValue);
+					$filtersForGroup->addFilter($this->createFilter($filterData[0],$filterValue,$filterData[2]));
 				}
-
+				$this->searchFilter->addFilter($filtersForGroup);
 			}
 		}
 
 		return $this;
 	}
 
+	protected function reIndexFilter(&$filter) {
+		$filter[1] = $filter["val"];
+		$filter[0] = $filter["field"];
+		$filter[2] = $filter["op"];
+		unset($filter["val"]);
+		unset($filter["field"]);
+		unset($filter["op"]);
+		$filter = array($filter);
+	}
+
+	public function createFilterGroup($type = null) {
+		$filterGroup = IcingaApiSearchFilterGroup::createInstance($this,$type);
+		return $filterGroup;
+	}
+
+	public function createFilter($field = null,$value = null,$match = null) {
+		$filter = IcingaApiSearchFilter::createInstance($this,$field,$value,$match);
+		return $filter;
+	}
 	
 	/**
 	 * (non-PHPdoc)
@@ -272,6 +285,7 @@ abstract class IcingaApiSearch
 	 * @see objects/search/IcingaApiSearchInterface#setSearchOrder()
 	 */
 	public function setSearchOrder ($column, $direction = 'asc') {
+		
 		if (!is_array($column)) {
 			$column = array($column);
 		}
@@ -279,6 +293,7 @@ abstract class IcingaApiSearch
 			if (($processedColumn = $this->getColumn($currentColumn)) !== false) {
 				$processedColumn .= ' ' . $direction;
 				array_push($this->searchOrder, $processedColumn);
+				array_push($this->searchOrderColumns,$currentColumn);
 			}
 		}
 		return $this;
@@ -377,6 +392,7 @@ abstract class IcingaApiSearch
 		if ($dbType !== false) {
 			$classSuffix = ucfirst(strtolower($dbType));
 			$class = 'IcingaApiSearch' . $sourceType . $classSuffix;
+			icingaApiDebugger::logDebug("Creating new interface ".$class);
 			$this->ifSettings = new $class;
 			$success = true;
 		}
@@ -392,19 +408,13 @@ abstract class IcingaApiSearch
 	 * @author	Christian Doebler <christian.doebler@netways.de>
 	 */
 	public function fetch () {
-		if ($this->debug !== false) {
-			if (array_key_exists(self::DEBUG_OVERALL_TIME, $this->debug)) {
-				$this->debug[self::DEBUG_OVERALL_TIME] = microtime(true) - $this->debug[self::DEBUG_OVERALL_TIME];
-			}
-			foreach ($this->debug as $key => $value) {
-				echo "$key: $value<br/>";
-			}
-		}
+		
 	}
 
 }
 
 // extend exceptions
-class IcingaApiSearchException extends IcingaApiException {}
+class IcingaApiSearchException extends IcingaApiException {	
+}
 
 ?>

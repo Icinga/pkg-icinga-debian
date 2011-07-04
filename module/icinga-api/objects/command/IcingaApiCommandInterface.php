@@ -29,8 +29,8 @@ interface IcingaApiCommandInterface {
 	 * @return	IcingaApiCommandSend Object		current interface object
 	 * @author	Christian Doebler <christian.doebler@netways.de>
 	 */
-	public function setCommand (array $command);
-
+	public function setCommand ($command);
+	
 	/**
 	 * sends the commands by using the current interface
 	 * @param	void

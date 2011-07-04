@@ -100,6 +100,7 @@ extern int      daemon_dumps_core;
 
 extern int      nagios_pid;
 
+extern int      use_daemon_log;
 extern int	use_syslog;
 extern int	use_syslog_local_facility;
 extern int	syslog_local_facility;
@@ -109,6 +110,7 @@ extern int      log_service_retries;
 extern int      log_host_retries;
 extern int      log_event_handlers;
 extern int      log_external_commands;
+extern int      log_external_commands_user;
 extern int      log_passive_checks;
 
 extern unsigned long      logging_options;
@@ -148,13 +150,6 @@ extern int      check_host_freshness;
 extern int      auto_reschedule_checks;
 
 extern int      additional_freshness_latency;
-
-extern int      check_for_updates;
-extern int      bare_update_check;
-extern time_t   last_update_check;
-extern char     *last_program_version;
-extern int      update_available;
-extern char     *new_program_version;
 
 extern int      use_aggressive_host_checking;
 extern unsigned long cached_host_check_horizon;
@@ -236,6 +231,9 @@ extern int      child_processes_fork_twice;
 
 extern int      enable_embedded_perl;
 extern int      use_embedded_perl_implicitly;
+
+extern int      stalking_event_handlers_for_hosts;
+extern int      stalking_event_handlers_for_services;
 
 extern int      date_format;
 
@@ -4190,234 +4188,6 @@ int generate_check_stats(void){
 	}
 
 
-
-
-/******************************************************************/
-/************************ UPDATE FUNCTIONS ************************/
-/******************************************************************/
-
-/* check for new releases of Icinga */
-int check_for_nagios_updates(int force, int reschedule){
-	time_t current_time;
-	int result=OK;
-	int api_result=OK;
-	int do_check=TRUE;
-	time_t next_check=0L;
-	unsigned int rand_seed=0;
-	int randnum=0;
-
-	time(&current_time);
-
-	/*
-	printf("NOW: %s",ctime(&current_time));
-	printf("LAST CHECK: %s",ctime(&last_update_check));
-	*/
-
-	/* seed the random generator */
-	rand_seed=(unsigned int)(current_time+nagios_pid);
-	srand(rand_seed);
-
-	/* update chekcs are disabled */
-	if(check_for_updates==FALSE)
-		do_check=FALSE;
-	/* we checked for updates recently, so don't do it again */
-	if((current_time-last_update_check)<MINIMUM_UPDATE_CHECK_INTERVAL)
-		do_check=FALSE;
-	/* the check is being forced */
-	if(force==TRUE)
-		do_check=TRUE;
-
-	/* do a check */
-	if(do_check==TRUE){
-
-		/*printf("RUNNING QUERY...\n");*/
-
-		/* query api */
-		api_result=query_update_api();
-		}
-
-	/* should we reschedule the update check? */
-	if(reschedule==TRUE){
-
-		/*printf("RESCHEDULING...\n");*/
-
-		randnum=rand();
-		/*
-		printf("RAND: %d\n",randnum);
-		printf("RANDMAX: %d\n",RAND_MAX);
-		printf("UCIW: %d\n",UPDATE_CHECK_INTERVAL_WOBBLE);
-		printf("MULT: %f\n",(float)randnum/RAND_MAX);
-		*/
-
-
-
-		/* we didn't do an update, so calculate next possible update time */
-		if(do_check==FALSE){
-			next_check=last_update_check+BASE_UPDATE_CHECK_INTERVAL;
-			next_check=next_check+(unsigned long)( ((float)randnum/RAND_MAX) * UPDATE_CHECK_INTERVAL_WOBBLE);
-			}
-
-		/* we tried to check for an update */
-		else{
-
-			/* api query was okay */
-			if(api_result==OK){
-				next_check=current_time+BASE_UPDATE_CHECK_INTERVAL;
-				next_check+=(unsigned long)( ((float)randnum/RAND_MAX) * UPDATE_CHECK_INTERVAL_WOBBLE);
-				}
-
-			/* query resulted in an error - retry at a shorter interval */
-			else{
-				next_check=current_time+BASE_UPDATE_CHECK_RETRY_INTERVAL;
-				next_check+=(unsigned long)( ((float)randnum/RAND_MAX) * UPDATE_CHECK_RETRY_INTERVAL_WOBBLE);
-				}
-			}
-
-		/* make sure next check isn't in the past - if it is, schedule a check in 1 minute */
-		if(next_check<current_time)
-			next_check=current_time+60;
-
-		/*printf("NEXT CHECK: %s",ctime(&next_check));*/
-
-		/* schedule the next update event */
-		schedule_new_event(EVENT_CHECK_PROGRAM_UPDATE,TRUE,next_check,FALSE,BASE_UPDATE_CHECK_INTERVAL,NULL,TRUE,NULL,NULL,0);
-		}
-
-	return result;
-	}
-
-
-
-/* checks for updates at api.nagios.org */
-int query_update_api(void){
-	char *api_server="api.icinga.org";
-	char *api_path="/versioncheck/";
-	char *api_query=NULL;
-	char *api_query_opts=NULL;
-	char *buf=NULL;
-	char recv_buf[1024];
-	int report_install=FALSE;
-	int result=OK;
-	char *ptr=NULL;
-	int current_line=0;
-	int buf_index=0;
-	int in_header=TRUE;
-	char *var=NULL;
-	char *val=NULL;
-	int sd=0;
-	int send_len=0;
-	int recv_len=0;
-	int update_check_succeeded=FALSE;
-
-	/* report a new install, upgrade, or rollback */
-	/* Icinga monitors the world and we monitor Icinga taking over the world. :-) */
-	if(last_update_check==(time_t)0L)
-		report_install=TRUE;
-	if(last_program_version==NULL || strcmp(PROGRAM_VERSION,last_program_version))
-		report_install=TRUE;
-	if(report_install==TRUE){
-		asprintf(&api_query_opts,"&firstcheck=1");
-		if(last_program_version!=NULL)
-			asprintf(&api_query_opts,"%s&last_version=%s",api_query_opts,last_program_version);
-		}
-
-	/* generate the query */
-	if(bare_update_check==FALSE) {
-		asprintf(&api_query,"v=1&product=icinga&tinycheck=1&stableonly=1&version=%s%s",PROGRAM_VERSION,(api_query_opts==NULL)?"":api_query_opts);
-	} else {
-		asprintf(&api_query,"v=1&product=icinga&tinycheck=1&stableonly=1");
-	}
-
-	/* generate the HTTP request */
-	asprintf(&buf,"POST %s HTTP/1.0\r\nUser-Agent: Nagios/%s\r\nConnection: close\r\nHost: %s\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %lu\r\n\r\n%s\r\n",api_path, PROGRAM_VERSION, api_server, (unsigned long)strlen(api_query), api_query);
-
-	/*
-	printf("SENDING...\n");
-	printf("==========\n");
-	printf("%s",buf);
-	printf("\n");
-	*/
-
-
-	result=my_tcp_connect(api_server,80,&sd,2);
-	/*printf("CONN RESULT: %d, SD: %d\n",result,sd);*/
-	if(sd>0){
-
-		/* send request */
-		send_len=strlen(buf);
-		result=my_sendall(sd,buf,&send_len,2);
-		/*printf("SEND RESULT: %d, SENT: %d\n",result,send_len);*/
-
-		/* get response */
-		recv_len=sizeof(recv_buf);
-		result=my_recvall(sd,recv_buf,&recv_len,2);
-		recv_buf[sizeof(recv_buf)-1]='\x0';
-		/*printf("RECV RESULT: %d, RECEIVED: %d\n",result,recv_len);*/
-
-		/*
-		printf("\n");
-		printf("RECEIVED...\n");
-		printf("===========\n");
-		printf("%s",recv_buf);
-		printf("\n");
-		*/
-
-		/* close connection */
-		close(sd);
-
-		/* parse the result */
-		in_header=TRUE;
-		while((ptr=get_next_string_from_buf(recv_buf,&buf_index,sizeof(recv_buf)))){
-
-			strip(ptr);
-			current_line++;
-
-			if(!strcmp(ptr,"")){
-				in_header=FALSE;
-				continue;
-				}
-			if(in_header==TRUE)
-				continue;
-
-			var=strtok(ptr,"=");
-			val=strtok(NULL,"\n");
-			/*printf("VAR: %s, VAL: %s\n",var,val);*/
-
-			if(!strcmp(var,"UPDATE_AVAILABLE")){
-				update_available=atoi(val);
-				/* we were successful */
-				update_check_succeeded=TRUE;
-				}
-			else if(!strcmp(var,"UPDATE_VERSION")){
-				if(new_program_version)
-					my_free(new_program_version);
-				new_program_version=strdup(val);
-				}
-			else if(!strcmp(var,"UPDATE_RELEASEDATE")){
-				}
-			}
-		}
-
-	/* cleanup */
-	my_free(buf);
-	my_free(api_query);
-	my_free(api_query_opts);
-
-	/* we were successful! */
-	if(update_check_succeeded==TRUE){
-
-		time(&last_update_check);
-		if(last_program_version)
-			free(last_program_version);
-		last_program_version=(char *)strdup(PROGRAM_VERSION);
-		}
-
-	return OK;
-	}
-
-
-
-
 /******************************************************************/
 /************************* MISC FUNCTIONS *************************/
 /******************************************************************/
@@ -4535,10 +4305,6 @@ void free_memory(void){
 	my_free(nagios_user);
 	my_free(nagios_group);
 
-	/* free version strings */
-	my_free(last_program_version);
-	my_free(new_program_version);
-
 	/* free file/path variables */
 	my_free(log_file);
 	my_free(debug_file);
@@ -4594,7 +4360,11 @@ int reset_variables(void){
 	use_regexp_matches=FALSE;
 	use_true_regexp_matching=FALSE;
 
+	use_daemon_log=DEFAULT_USE_DAEMON_LOG;
+
 	use_syslog=DEFAULT_USE_SYSLOG;
+	use_syslog_local_facility=DEFAULT_USE_SYSLOG_LOCAL_FACILITY;
+	syslog_local_facility=DEFAULT_SYSLOG_LOCAL_FACILITY;
 	log_service_retries=DEFAULT_LOG_SERVICE_RETRIES;
 	log_host_retries=DEFAULT_LOG_HOST_RETRIES;
 	log_initial_states=DEFAULT_LOG_INITIAL_STATES;
@@ -4602,6 +4372,7 @@ int reset_variables(void){
 	log_notifications=DEFAULT_NOTIFICATION_LOGGING;
 	log_event_handlers=DEFAULT_LOG_EVENT_HANDLERS;
 	log_external_commands=DEFAULT_LOG_EXTERNAL_COMMANDS;
+	log_external_commands_user=DEFAULT_LOG_EXTERNAL_COMMANDS_USER;
 	log_passive_checks=DEFAULT_LOG_PASSIVE_CHECKS;
 
 	logging_options=NSLOG_RUNTIME_ERROR | NSLOG_RUNTIME_WARNING | NSLOG_VERIFICATION_ERROR | NSLOG_VERIFICATION_WARNING | NSLOG_CONFIG_ERROR | NSLOG_CONFIG_WARNING | NSLOG_PROCESS_INFO | NSLOG_HOST_NOTIFICATION | NSLOG_SERVICE_NOTIFICATION | NSLOG_EVENT_HANDLER | NSLOG_EXTERNAL_COMMAND | NSLOG_PASSIVE_CHECK | NSLOG_HOST_UP | NSLOG_HOST_DOWN | NSLOG_HOST_UNREACHABLE | NSLOG_SERVICE_OK | NSLOG_SERVICE_WARNING | NSLOG_SERVICE_UNKNOWN | NSLOG_SERVICE_CRITICAL | NSLOG_INFO_MESSAGE;
@@ -4712,6 +4483,9 @@ int reset_variables(void){
 
         enable_embedded_perl=DEFAULT_ENABLE_EMBEDDED_PERL;
 	use_embedded_perl_implicitly=DEFAULT_USE_EMBEDDED_PERL_IMPLICITLY;
+
+	stalking_event_handlers_for_hosts=DEFAULT_STALKING_EVENT_HANDLERS_FOR_HOSTS;
+	stalking_event_handlers_for_services=DEFAULT_STALKING_EVENT_HANDLERS_FOR_SERVICES;
 
 	external_command_buffer_slots=DEFAULT_EXTERNAL_COMMAND_BUFFER_SLOTS;
 

@@ -11,7 +11,7 @@ class IcingaApiConnectionLivestatus extends IcingaApiConnection {
 	 * VARIABLES
 	 */
 
-	
+	public $type = 'Livestatus';
 
 	/*
 	 * METHODS

@@ -8,7 +8,7 @@
 abstract class IcingaApiConnectionDatabase
 	extends IcingaApiConnection
 	implements IcingaApiConnectionInterface {
-
+	public $type = 'Database';
 	/*
 	 * VARIABLES
 	 */
@@ -112,7 +112,7 @@ abstract class IcingaApiConnectionDatabase
 			}
 			$this->config = $config;
 
-			if ($this->config['type'] != 'oci') {
+			if ($this->config['type'] != 'oci' && $this->config['type'] != 'oci8')  {
 
 				$this->databaseDsn = sprintf(
 					'%s:host=%s;dbname=%s',
@@ -124,6 +124,9 @@ abstract class IcingaApiConnectionDatabase
 					$this->databaseDsn .= ';port=' . (int)$this->config['port'];
 				}
 
+			} else if( $this->config['type'] == 'oci8') {
+				$this->databaseDsn = $this->config['type'].$this->config['host']."/".$this->config['database'];
+				
 			} else {
 
 				if (array_key_exists('port', $this->config)) {
@@ -169,9 +172,9 @@ abstract class IcingaApiConnectionDatabase
 			try {
 
 				if ($connectionAttributes !== false) {
-					$this->connectionObject = new PDO($this->databaseDsn, $this->config['user'], $this->config['password'], $connectionAttributes);
+					$this->connectionObject = icingaApiPDO::getPDO($this->databaseDsn, $this->config['user'], $this->config['password'], $connectionAttributes);
 				} else {
-					$this->connectionObject = new PDO($this->databaseDsn, $this->config['user'], $this->config['password']);
+					$this->connectionObject = icingaApiPDO::getPDO($this->databaseDsn, $this->config['user'], $this->config['password']);
 				}
 
 			} catch (PDOException $e) {
@@ -181,7 +184,6 @@ abstract class IcingaApiConnectionDatabase
 			}
 
 		}
-
 		return $this;
 
 	}

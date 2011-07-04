@@ -20,17 +20,40 @@
 
     <para>If you are using &name-idoutils; database as data source, install PHP-PDO.</para>
 
-    <para><emphasis role="bold">&name-rhel;/&name-fedora;/&name-centos;</emphasis></para>
+    <itemizedlist>
+        <listitem>
+            <para><emphasis role="bold">&name-rhel;/&name-fedora;/&name-centos;</emphasis></para>
 
-    <para>Make sure you have a repository/packages for PHP 5.2.x - RHEL/CentOS only support 5.1.6 out of the box.</para>
+            <para>Make sure you have a repository/packages for PHP 5.2.x - RHEL/CentOS only support 5.1.6 out of the box.</para>
 
-    <programlisting># yum install php-pdo php-mysql|pgsql</programlisting>
+            <programlisting> # yum install php-pdo php-mysql|pgsql</programlisting>
+        </listitem>
 
-    <para><emphasis role="bold">&name-debian;/&name-ubuntu;</emphasis></para>
+        <listitem>
+            <para><emphasis role="bold">&name-debian;/&name-ubuntu;</emphasis></para>
 
-    <programlisting># apt-get install php5 php5-mysql|pgsql</programlisting>
+            <programlisting> # apt-get install php5 php5-mysql|pgsql</programlisting>
+        </listitem>
+
+        <listitem>
+            <para><emphasis role="bold">&name-opensuse;</emphasis></para>
+
+            <para>Please use yast to install the packages php5, php5-pdo, and php5-mysql|php5-pgsql.</para>
+        </listitem>
+    </itemizedlist>
 
     <para><emphasis role="bold">Installation and Configuration</emphasis></para>
+
+    <note>
+        <para>&name-api; is already included in the package with Core, &name-idoutils; and docs and also installed during 'make install'. If you
+        already installed this package, there's no need to install &name-api;. It is located by default in /usr/local/icinga/share/icinga-api/ and you
+        can skip this section!</para>
+    </note>
+
+    <note>
+        <para>If you just require &name-api; for Icinga-Web, and already installed the Core with &name-idoutils;, skip this Howto and refer directly
+        to <link linkend="icinga-web-scratch">installing Icinga Web</link>.</para>
+    </note>
 
     <orderedlist>
         <listitem>
@@ -42,7 +65,7 @@
 
             <para>or if you just need an update:</para>
 
-            <programlisting># cd icinga-api &amp;&amp; git pull origin master</programlisting>
+            <programlisting> # cd icinga-api &amp;&amp; git pull origin master</programlisting>
 
             <para>or download the software using <link
             xlink:href="https://git.icinga.org/index?p=icinga-api.git;a=snapshot;h=refs/heads/master;sf=tgz">https://git.icinga.org/index?p=icinga-api.git;a=snapshot;h=refs/heads/master;sf=tgz</link>.</para>
@@ -55,18 +78,28 @@
 
             <programlisting> # tar xzvf icinga-api-(version).tar.gz
  # ./configure</programlisting>
-<para>You can set the prefix where it will be installed, and point Icinga API where your Icinga and IDOUtils config is located and which users are required to run (those settings are directly applied when installing the API through Icinga Core Installation).</para>
-<programlisting># ./configure --datarootdir=/usr/local/icinga/share --sysconfdir=/usr/local/icinga/etc --with-command-user=icinga-cmd --with-command-group=icinga-cmd --with-icinga-user=icinga --with-icinga-group=icinga</programlisting>
 
-<programlisting># make install</programlisting>
+            <para>You can set the prefix where it will be installed, and point &name-api; where your Icinga and IDOUtils config is located and which
+            users are required to run (those settings are directly applied when installing the API through Icinga Core Installation).</para>
 
+            <programlisting> # ./configure --datarootdir=/usr/local/icinga/share \
+   --sysconfdir=/usr/local/icinga/etc \
+   --with-command-user=icinga-cmd \
+   --with-command-group=icinga-cmd \
+   --with-icinga-user=icinga \
+   --with-icinga-group=icinga \
+   --with-web-user=www-data \
+   --with-web-group=www-data</programlisting>
+            <note><para>The --with-web... directives have to be set. Otherwise the web logs will not be written correctly. This may also lead to
+            an empty main cronk. Please note that the values of user and group differ across distributions.</para></note>
+
+            <programlisting> # make install</programlisting>
         </listitem>
+    </orderedlist>
 
-        <listitem>
-            <para><emphasis role="bold">Configuration</emphasis></para>
+    <para><emphasis role="bold">Configuration</emphasis></para>
 
-            <para>If you are developing you own Addon based on the Icinga API, you need the following associative array.
-<programlisting> $idoConfig = array (
+    <para>If you are developing you own Addon based on the &name-api;, you need the following associative array. <programlisting> $idoConfig = array (
     'type'         =&gt; '&lt;Type of database&gt;',
     'host'         =&gt; '&lt;Database hostname&gt;', 
     'database'     =&gt; '&lt;Databasename&gt;',
@@ -76,7 +109,7 @@
     'table_prefix' =&gt; '&lt;table prefix&gt;', 
  );</programlisting> Example:</para>
 
-            <programlisting> $idoConfig = array (
+    <programlisting> $idoConfig = array (
     'type'         =&gt; 'mysql',
     'host'         =&gt; 'localhost',
     'database'     =&gt; 'ido',
@@ -85,11 +118,26 @@
     'persistent'   =&gt; true,
     'table_prefix' =&gt; 'icinga_',
  );</programlisting>
-        </listitem>
-    </orderedlist>
+
+    <para><emphasis role="bold">Supported Backends</emphasis></para>
+
+    <para>Currently the following backend types are available. More information about that can be found in doc/icinga-api-types.txt. <itemizedlist>
+            <listitem>
+                <para>&name-idoutils; DB - OK</para>
+            </listitem>
+
+            <listitem>
+                <para>Livestatus Module - experimental, not for productive usage</para>
+            </listitem>
+
+            <listitem>
+                <para>Filebased, status.dat - experimental, not for productive usage</para>
+            </listitem>
+        </itemizedlist></para>
 
     <para><emphasis role="bold">Use of the API</emphasis></para>
-<para>Examples can be found in doc/examples</para>
+
+    <para>Examples can be found in doc/examples</para>
 
     <orderedlist>
         <listitem>

@@ -1048,9 +1048,9 @@ int xodtemplate_begin_object_definition(char *input, int options, int config_fil
 
 	case XODTEMPLATE_SERVICEESCALATION:
 		xod_begin_def(serviceescalation);
-#ifdef USE_ST_BASED_ESCAL_RANGES
 		new_serviceescalation->first_notification=-2;
 		new_serviceescalation->last_notification=-2;
+#ifdef USE_ST_BASED_ESCAL_RANGES
 		new_serviceescalation->first_warning_notification=-2;
 		new_serviceescalation->last_warning_notification=-2;
 		new_serviceescalation->first_critical_notification=-2;
@@ -1126,9 +1126,9 @@ int xodtemplate_begin_object_definition(char *input, int options, int config_fil
 
 	case XODTEMPLATE_HOSTESCALATION:
 		xod_begin_def(hostescalation);
-#ifdef USE_ST_BASED_ESCAL_RANGES
 		new_hostescalation->first_notification=-2;
 		new_hostescalation->last_notification=-2;
+#ifdef USE_ST_BASED_ESCAL_RANGE		
 		new_hostescalation->first_down_notification=-2;
 		new_hostescalation->last_down_notification=-2;
 		new_hostescalation->first_unreachable_notification=-2;
@@ -5479,6 +5479,7 @@ int xodtemplate_duplicate_hostescalation(xodtemplate_hostescalation *temp_hostes
                         return ERROR;
                 
                 /* string defaults */
+		new_escalationcondition->next=NULL;
                 new_escalationcondition->host_name=NULL;
                 new_escalationcondition->service_description=NULL;
                 
@@ -5502,6 +5503,7 @@ int xodtemplate_duplicate_hostescalation(xodtemplate_hostescalation *temp_hostes
                 new_escalationcondition->escalate_on_unknown=temp_escalationcondition->escalate_on_unknown;
                 new_escalationcondition->escalate_on_unreachable=temp_escalationcondition->escalate_on_unreachable;
                 new_escalationcondition->escalate_on_warning=temp_escalationcondition->escalate_on_warning;
+		new_escalationcondition->connector=temp_escalationcondition->connector;
                 
                 /* first escalation condition is head of the condition list */
                 if(new_hostescalation->condition==NULL){
@@ -5632,6 +5634,7 @@ int xodtemplate_duplicate_serviceescalation(xodtemplate_serviceescalation *temp_
                         return ERROR;
  
                 /* string defaults */
+		new_escalationcondition->next=NULL;
                 new_escalationcondition->host_name=NULL;
                 new_escalationcondition->service_description=NULL;
  
@@ -5655,6 +5658,7 @@ int xodtemplate_duplicate_serviceescalation(xodtemplate_serviceescalation *temp_
                 new_escalationcondition->escalate_on_unknown=temp_escalationcondition->escalate_on_unknown;
                 new_escalationcondition->escalate_on_unreachable=temp_escalationcondition->escalate_on_unreachable;
                 new_escalationcondition->escalate_on_warning=temp_escalationcondition->escalate_on_warning;
+		new_escalationcondition->connector=temp_escalationcondition->connector;
                 
                 /* first escalation condition is head of the condition list */
                 if(new_serviceescalation->condition==NULL){
@@ -13102,10 +13106,11 @@ int xodtemplate_expand_servicegroups(xodtemplate_memberlist **list, xodtemplate_
         }
 
 
-/* expands services (host name is not expanded) */
+/* expands services and hosts as well */
 int xodtemplate_expand_services(xodtemplate_memberlist **list, xodtemplate_memberlist **reject_list, char *host_name, char *services, int _config_file, int _start_line){
 	char *service_names=NULL;
 	char *temp_ptr=NULL;
+	xodtemplate_host *temp_host=NULL;
 	xodtemplate_service *temp_service=NULL;
 	regex_t preg;
 	regex_t preg2;
@@ -13240,16 +13245,37 @@ int xodtemplate_expand_services(xodtemplate_memberlist **list, xodtemplate_membe
 					temp_ptr++;
 		                        }
 
-				/* find the service */
-				if((temp_service=xodtemplate_find_real_service(host_name,temp_ptr))!=NULL){
+				/* excluding all hosts is not allowed */
+				if(strcmp(host_name,"!*")) {
 
-					found_match=TRUE;
+					/* test match against all hosts */
+					for(temp_host=xodtemplate_host_list;temp_host!=NULL;temp_host=temp_host->next){
 
-					/* add service to the list */
-					xodtemplate_add_member_to_memberlist((reject_item==TRUE)?reject_list:list,host_name,temp_service->service_description);
-				        }
-			        }
-		        }
+						if(temp_host->host_name==NULL)
+						    continue;
+						
+						if(host_name[0]=='!'){
+							host_name++;
+							if (reject_item==FALSE)
+								reject_item=TRUE;
+						}
+
+						/* if there are all hosts given or just a single host, find a service for each of them */
+						if(!strcmp(host_name,"*") || !strcmp(temp_host->host_name,host_name)){
+
+							/* find the service */
+							if((temp_service=xodtemplate_find_real_service(temp_host->host_name,temp_ptr))!=NULL){
+
+								found_match=TRUE;
+									
+								/* add service to the list */
+								xodtemplate_add_member_to_memberlist((reject_item==TRUE)?reject_list:list,temp_host->host_name,temp_service->service_description);
+							}
+						} 
+					}
+				}
+			}
+		}
 
 		/* we didn't find a match */
 		if(found_match==FALSE && reject_item==FALSE){
