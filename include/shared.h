@@ -1,3 +1,28 @@
+/*****************************************************************************
+ *
+ * SHARED.H - Include file for shared functions and structs
+ *
+ * Copyright (c) 2010-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2010-2011 Icinga Development Team (http://www.icinga.org)
+ *
+ * License:
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *****************************************************************************/
+
+
 #ifndef INCLUDE__shared_h__
 #define INCLUDE__shared_h__
 
@@ -12,6 +37,9 @@ typedef struct mmapfile_struct {
 	unsigned long current_line;
 	void *mmap_buf;
 } mmapfile;
+
+/* only usable on compile-time initialized arrays, for obvious reasons */
+#define ARRAY_SIZE(ary) (sizeof(ary) / sizeof(ary[0]))
 
 extern char *my_strtok(char *buffer, char *tokens);
 extern char *my_strsep(char **stringp, const char *delim);

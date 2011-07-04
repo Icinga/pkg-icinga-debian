@@ -221,6 +221,26 @@
         </row>
 
         <row>
+          <entry><para> <link linkend="macrolist-hostaddress6">$HOSTADDRESS6$</link> </para></entry>
+
+          <entry><para>Ja</para></entry>
+
+          <entry><para>Ja</para></entry>
+
+          <entry><para>Ja</para></entry>
+
+          <entry><para>Ja</para></entry>
+
+          <entry><para>Ja</para></entry>
+
+          <entry><para>Ja</para></entry>
+
+          <entry><para>Ja</para></entry>
+
+          <entry><para>Ja</para></entry>
+        </row>
+
+        <row>
           <entry><para> <link linkend="macrolist-hoststate">$HOSTSTATE$</link> </para></entry>
 
           <entry><para>Ja</para></entry>
@@ -3587,6 +3607,13 @@
         </row>
 
         <row>
+          <entry><para><anchor xreflabel="$HOSTADDRESS6$" xml:id="macrolist-hostaddress6" />$HOSTADDRESS6$</para></entry>
+
+          <entry><para>Zweite/IPv6-Adresse des Hosts. Dieser Wert wird aus der <emphasis>address6</emphasis>-Direktive in der <link
+          linkend="objectdefinitions-host">Host-Definition</link> genommen (verfügbar ab &name-icinga; 1.3).</para></entry>
+        </row>
+
+        <row>
           <entry><para><anchor xreflabel="$HOSTSTATE$" xml:id="macrolist-hoststate" />$HOSTSTATE$</para></entry>
 
           <entry><para>Eine Zeichenkette, die den aktuellen Status des Hosts angibt ("UP", "DOWN" oder
@@ -4969,7 +4996,7 @@
 
   <para><anchor xml:id="macrolist-note8" /><emphasis role="bold"><superscript>8</superscript></emphasis> Diese Bestätigungsmakros
   sind veraltet. Nutzen Sie statt dessen die mehr generischen Makros $NOTIFICATIONAUTHOR$, $NOTIFICATIONAUTHORNAME$,
-  $NOTIFICATIONAUTHORALIAS$ oder $NOTIFICATIONAUTHORCOMMENT$</para>
+  $NOTIFICATIONAUTHORALIAS$ oder $NOTIFICATIONCOMMENT$</para>
 
   <para><anchor xml:id="macrolist-note9" /><emphasis role="bold"><superscript>9</superscript></emphasis> Diese Makros sind nur als
   On-Demand-Makros verfügbar - d.h. Sie müssen ein zusätzliches Argument übergeben, um sie zu nutzen. Diese Makros sind nicht als
@@ -5136,6 +5163,7 @@
   <indexterm zone="macrolist-hostdisplayname"><primary>Makros</primary><secondary>$HOSTDISPLAYNAME$</secondary></indexterm>
   <indexterm zone="macrolist-hostalias"><primary>Makros</primary><secondary>$HOSTALIAS$</secondary></indexterm>
   <indexterm zone="macrolist-hostaddress"><primary>Makros</primary><secondary>$HOSTADDRESS$</secondary></indexterm>
+  <indexterm zone="macrolist-hostaddress6"><primary>Makros</primary><secondary>$HOSTADDRESS6$</secondary></indexterm>
   <indexterm zone="macrolist-hoststate"><primary>Makros</primary><secondary>$HOSTSTATE$</secondary></indexterm>
   <indexterm zone="macrolist-hoststateid"><primary>Makros</primary><secondary>$HOSTSTATEID$</secondary></indexterm>
   <indexterm zone="macrolist-lasthoststate"><primary>Makros</primary><secondary>$LASTHOSTSTATE$</secondary></indexterm>

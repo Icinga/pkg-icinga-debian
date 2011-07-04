@@ -3,7 +3,8 @@
  * BROKER.H - Event broker includes for Icinga
  *
  * Copyright (c) 2002-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -200,9 +201,9 @@ void broker_program_status(int,int,int,struct timeval *);
 void broker_host_status(int,int,int,host *,struct timeval *);
 void broker_service_status(int,int,int,service *,struct timeval *);
 void broker_contact_status(int,int,int,contact *,struct timeval *);
-void broker_notification_data(int,int,int,int,int,struct timeval,struct timeval,void *,char *,char *,int,int,struct timeval *);
-void broker_contact_notification_data(int,int,int,int,int,struct timeval,struct timeval,void *,contact *,char *,char *,int,struct timeval *);
-void broker_contact_notification_method_data(int,int,int,int,int,struct timeval,struct timeval,void *,contact *,char *,char *,char *,int,struct timeval *);
+int broker_notification_data(int,int,int,int,int,struct timeval,struct timeval,void *,char *,char *,int,int,struct timeval *);
+int broker_contact_notification_data(int,int,int,int,int,struct timeval,struct timeval,void *,contact *,char *,char *,int,struct timeval *);
+int broker_contact_notification_method_data(int,int,int,int,int,struct timeval,struct timeval,void *,contact *,char *,char *,char *,int,struct timeval *);
 void broker_adaptive_program_data(int,int,int,int,unsigned long,unsigned long,unsigned long,unsigned long,struct timeval *);
 void broker_adaptive_host_data(int,int,int,host *,int,unsigned long,unsigned long,struct timeval *);
 void broker_adaptive_service_data(int,int,int,service *,int,unsigned long,unsigned long,struct timeval *);

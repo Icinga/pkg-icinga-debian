@@ -17,11 +17,13 @@
 
     <pubdate>&ver-pubdate;</pubdate>
 
+<!--
     <copyright>
-      <year>2009-2010</year>
+      <year>2009-2011</year>
 
       <holder>Icinga Development Team</holder>
     </copyright>
+-->
 
     <keywordset>
       <keyword>Supervision</keyword>
@@ -32,6 +34,10 @@
 
       <keyword>&name-linux;</keyword>
     </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2009-2011 Icinga Development Team.</para>
+    </legalnotice>
 
     <legalnotice>
       <para>Portions copyright © by Nagios/Icinga community members - see the THANKS file in the &name-icinga; core sources for more
@@ -62,15 +68,23 @@
 
     <revhistory>
       <revision>
-        <revnumber>1.2 Stable</revnumber>
+        <revnumber>1.3</revnumber>
+
+        <date>2011-02-16</date>
+
+        <revremark>1.3 Icinga Documentation</revremark>
+      </revision>
+
+<!--      <revision>
+        <revnumber>1.2</revnumber>
 
         <date>2010-10-06</date>
 
-        <revremark>1.2 Stable Icinga Documentation</revremark>
+        <revremark>1.2 Icinga Documentation</revremark>
       </revision>
 
       <revision>
-        <revnumber>1.0.3 Stable</revnumber>
+        <revnumber>1.0.3</revnumber>
 
         <date>2010-08-18</date>
 
@@ -78,7 +92,7 @@
       </revision>
 
       <revision>
-        <revnumber>1.0.2 Stable</revnumber>
+        <revnumber>1.0.2</revnumber>
 
         <date>2010-06-30</date>
 
@@ -86,7 +100,7 @@
       </revision>
 
       <revision>
-        <revnumber>1.0.1 Stable</revnumber>
+        <revnumber>1.0.1</revnumber>
 
         <date>2010-03-03</date>
 
@@ -94,11 +108,11 @@
       </revision>
 
       <revision>
-        <revnumber>1.0 Stable</revnumber>
+        <revnumber>1.0</revnumber>
 
         <date>2009-12-16</date>
 
-        <revremark>1.0 Stable Icinga Documentation</revremark>
+        <revremark>1.0 Icinga Documentation</revremark>
       </revision>
 
       <revision>
@@ -108,7 +122,7 @@
 
         <revremark>1.0 RC1 Icinga Documentation</revremark>
       </revision>
-
+-->
       <revision>
         <revnumber>0.1</revnumber>
 
@@ -149,6 +163,8 @@
     <xi:include href="quickstart-icinga-freebsd.xml" />
 
     <xi:include href="quickstart-idoutils.xml" />
+
+    <xi:include href="quickstart-idoutils-freebsd.xml" />
 
     <xi:include href="howtos.xml" />
 
@@ -226,9 +242,13 @@
 
     <xi:include href="cgis.xml" />
 
-    <xi:include href="icinga-web-scratch.xml" />
+    <xi:include href="cgiparams.xml" />
 
-    <xi:include href="icinga-web-intro.xml" />
+    <xi:include href="icinga-web-scratch.xml" />
+<xi:include href="icinga-web-config.xml" />
+<xi:include href="upgrading_icingaweb.xml" />
+
+    <xi:include href="icinga-web-introduction.xml" />
 
     <xi:include href="icinga-web-pnp.xml" />
   </chapter>
@@ -313,12 +333,14 @@
     <xi:include href="int-tcpwrappers.xml" />
 
     <xi:include href="int-mklivestatus.xml" />
+<xi:include href="reporting.xml" />
   </chapter>
 
   <chapter version="5.0" xml:id="ch10">
-    <title>&name-icinga; Addons</title>
+    <title>weitere Software</title>
 
     <xi:include href="addons.xml" />
+    <xi:include href="nsca.xml" />
   </chapter>
 
   <chapter version="5.0" xml:id="ch11">

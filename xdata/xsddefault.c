@@ -2,9 +2,9 @@
  *
  * XSDDEFAULT.C - Default external status data input routines for Icinga
  *
- * Copyright (c) 2009 Nagios Core Development Team and Community Contributors
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -108,8 +108,6 @@ extern int check_external_commands;
 extern int external_command_buffer_slots;
 extern circular_buffer external_command_buffer;
 
-extern char *macro_x[MACRO_X_COUNT];
-
 extern host *host_list;
 extern service *service_list;
 extern contact *contact_list;
@@ -154,6 +152,8 @@ int xsddefault_grab_config_info(char *config_file){
 	char *input2=NULL;
 	mmapfile *thefile2;
 	char *temp_buffer;
+#else
+	icinga_macros *mac;
 #endif
 
 
@@ -239,14 +239,16 @@ int xsddefault_grab_config_info(char *config_file){
 		return ERROR;
 
 #ifdef NSCORE
+	mac = get_global_macros();
+
 	/* save the status file macro */
-	my_free(macro_x[MACRO_STATUSDATAFILE]);
-	if((macro_x[MACRO_STATUSDATAFILE]=(char *)strdup(xsddefault_status_log)))
-		strip(macro_x[MACRO_STATUSDATAFILE]);
+	my_free(mac->x[MACRO_STATUSDATAFILE]);
+	if((mac->x[MACRO_STATUSDATAFILE]=(char *)strdup(xsddefault_status_log)))
+		strip(mac->x[MACRO_STATUSDATAFILE]);
 #endif
 
 	return OK;
-        }
+}
 
 
 /* processes a single directive */
@@ -363,7 +365,7 @@ int xsddefault_save_status_data(void){
 	if((fd=mkstemp(temp_file))==-1){
 
 		/* log an error */
-		logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to create temp file for writing status data!\n");
+		logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to create temp file for writing status data: %s\n", strerror(errno));
 
 		/* free memory */
 		my_free(temp_file);
@@ -377,7 +379,7 @@ int xsddefault_save_status_data(void){
 		unlink(temp_file);
 
 		/* log an error */
-		logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to open temp file '%s' for writing status data!\n",temp_file);
+		logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to open temp file '%s' for writing status data: %s\n",temp_file, strerror(errno));
 
 		/* free memory */
 		my_free(temp_file);

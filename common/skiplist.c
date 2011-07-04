@@ -3,7 +3,8 @@
  * SKIPLIST.C - Skiplist functions for use in Icinga event/object lists
  *
  * Copyright (c) 2008 Ethan Galstad
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * Notes:
  * 
@@ -69,7 +70,6 @@ int skiplist_insert(skiplist *list, void *data){
 	skiplistnode *nextnode=NULL;
 	skiplistnode *newnode=NULL;
 	int level=0;
-	int x=0;
 
 	if(list==NULL || data==NULL){
 		return SKIPLIST_ERROR_ARGS;

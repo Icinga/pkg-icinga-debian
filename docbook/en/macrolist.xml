@@ -219,6 +219,26 @@
         </row>
 
         <row>
+          <entry><para> <link linkend="macrolist-hostaddress6">$HOSTADDRESS6$</link> </para></entry>
+
+          <entry><para>Yes</para></entry>
+
+          <entry><para>Yes</para></entry>
+
+          <entry><para>Yes</para></entry>
+
+          <entry><para>Yes</para></entry>
+
+          <entry><para>Yes</para></entry>
+
+          <entry><para>Yes</para></entry>
+
+          <entry><para>Yes</para></entry>
+
+          <entry><para>Yes</para></entry>
+        </row>
+
+        <row>
           <entry><para> <link linkend="macrolist-hoststate">$HOSTSTATE$</link> </para></entry>
 
           <entry><para>Yes</para></entry>
@@ -3581,6 +3601,13 @@
         </row>
 
         <row>
+          <entry><para><anchor xreflabel="$HOSTADDRESS6$" xml:id="macrolist-hostaddress6" />$HOSTADDRESS6$</para></entry>
+
+          <entry><para>Secondary/IPv6 address of the host. This value is taken from the <emphasis>address6</emphasis> directive in the <link
+          linkend="objectdefinitions-host">host definition</link> (starting with &name-icinga; 1.3).</para></entry>
+        </row>
+
+        <row>
           <entry><para><anchor xreflabel="$HOSTSTATE$" xml:id="macrolist-hoststate" />$HOSTSTATE$</para></entry>
 
           <entry><para>A string indicating the current state of the host ("UP", "DOWN", or "UNREACHABLE").</para></entry>
@@ -4917,7 +4944,7 @@
 
   <para><anchor xml:id="macrolist-note8" /><emphasis role="bold"><superscript> 8</superscript></emphasis> These acknowledgement
   macros are deprecated. Use the more generic $NOTIFICATIONAUTHOR$, $NOTIFICATIONAUTHORNAME$, $NOTIFICATIONAUTHORALIAS$ or
-  $NOTIFICATIONAUTHORCOMMENT$ macros instead.</para>
+  $NOTIFICATIONCOMMENT$ macros instead.</para>
 
   <para><anchor xml:id="macrolist-note9" /><emphasis role="bold"><superscript> 9</superscript></emphasis> These macro are only
   available as on-demand macros - e.g. you must supply an additional argument with them in order to use them. These macros are not
@@ -4933,6 +4960,7 @@
   <indexterm zone="macrolist-hostdisplayname"><primary>Macros</primary><secondary>$HOSTDISPLAYNAME$</secondary></indexterm>
   <indexterm zone="macrolist-hostalias"><primary>Macros</primary><secondary>$HOSTALIAS$</secondary></indexterm>
   <indexterm zone="macrolist-hostaddress"><primary>Macros</primary><secondary>$HOSTADDRESS$</secondary></indexterm>
+  <indexterm zone="macrolist-hostaddress6"><primary>Macros</primary><secondary>$HOSTADDRESS6$</secondary></indexterm>
   <indexterm zone="macrolist-hoststate"><primary>Macros</primary><secondary>$HOSTSTATE$</secondary></indexterm>
   <indexterm zone="macrolist-hoststateid"><primary>Macros</primary><secondary>$HOSTSTATEID$</secondary></indexterm>
   <indexterm zone="macrolist-lasthoststate"><primary>Macros</primary><secondary>$LASTHOSTSTATE$</secondary></indexterm>

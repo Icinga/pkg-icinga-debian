@@ -81,6 +81,11 @@
     </listitem>
   </itemizedlist>
 
+  <para><emphasis role="bold">Optional</emphasis></para>
+
+  <para>At one time or another you may need to use SNMP-based checks so it is a good idea to install the required packages now. Otherwise
+  some plugins are not compiled i.e. not available when you need them and it would require a recompile of the plugins.</para>
+
   <para><emphasis role="bold">New features for the &name-idoutils;:</emphasis></para>
 
   <para><emphasis role="bold">SSL- Encryption between idomod and ido2db</emphasis></para>
@@ -146,13 +151,22 @@
 
   <para><emphasis role="bold">&name-opensuse;:</emphasis></para>
 
-  <para>Use yast to install the packages for the RDBMS you want to use, i.e. "mysql", "mysql-devel", "mysql-client" or "postgresql",
-  "postgresql-devel", "postgresql-server". In OpenSuSE 11 (SLES 11) the name of the package was changed from "mysql-devel" to
-  "libmysqlclient-devel". The devel packages might be placed on the SDK DVDs.</para>
+  <para>Please use YaST to install at least the packages gd, gd-devel, libjpeg, libjpeg-devel, libpng, libpng-devel and, optionally,
+  net-snmp, net-snmp-devel and perl-net-snmp.</para>
+  <note><para>The devel packages might be place on the SDK DVDs.</para></note>
 
-  <para>It is most likely that there aren't any libdbi packages so you have to download and compile the sources. Replace &lt;rdbm&gt; with
-  your desired RDBM like mysql or pgsql. Remember that the Oracle driver is not yet working and read the appropriate section with ocilib
-  instead of libdbi.</para>
+  <para><emphasis role="bold">&name-mysql;:</emphasis></para>
+  <para>Use YaST to install the packages for the RDBMS you want to use, i.e. "mysql", "mysql-devel", "mysql-client" and the libdbi
+  packages "libdbi", "libdbi-devel", "libdbi-drivers" and "libdbi-dbd-mysql".</para> 
+  <note><para>In OpenSuSE 11 (SLES 11) the name of the package was changed from "mysql-devel" to "libmysqlclient-devel".</para></note>
+
+  <para><emphasis role="bold">&name-postgres;:</emphasis></para>
+  <para>Use YaST to install the packages for the RDBMS you want to use, i.e. "postgresql", "postgresql-devel", "postgresql-server" and
+  the libdbi packages "libdbi", "libdbi-devel" and "libdbi-drivers".</para>
+
+  <para>Using old OpenSuSE (SLES) versions including version 10 it is most likely that there aren't any libdbi packages so you have to
+  download and compile the sources. Replace &lt;rdbm&gt; with your desired RDBM like mysql or pgsql. Remember that the Oracle driver is
+  not yet working and read the appropriate section with ocilib instead of libdbi.</para>
 
   <orderedlist>
     <listitem>
@@ -228,13 +242,14 @@
   <programlisting> #&gt; cd /usr/src</programlisting>
 
   <para>Either fetch the actual icinga-core snapshot from &name-icinga; GIT <programlisting> #&gt; git clone git://git.icinga.org/icinga-core.git
+ #&gt; cd icinga-core
  #&gt; git submodule init
  #&gt; git submodule update</programlisting> or from the <link xlink:href="http://www.icinga.org/">&name-icinga; Website</link> . Don't
   forget to download the <link xlink:href="http://www.nagiosplugins.org/">Nagios Plugins</link></para>
 
   <para><emphasis role="bold">Compile and Install &name-icinga; with &name-idoutils;</emphasis></para>
 
-  <para>Extract the &name-icinga; source code tarball (or change directory to the GIT snapshot)</para>
+  <para>Extract the &name-icinga; source code tarball</para>
 
   <programlisting xml:space="preserve"> #&gt; cd /usr/src/ 
  #&gt; tar xvzf icinga-&ver-icinga;.tar.gz 
@@ -287,6 +302,7 @@
  #&gt; make install-commandmode 
  #&gt; make install-idoutils </programlisting> or shorter <programlisting> #&gt; make fullinstall</programlisting></para>
 
+<note><para>Install IDOUtils and applicable event broker modules only using the primary make install target. Do not manually copy and overwrite the existing module as this will result in a segfault on icinga core which is using idomod.o directly preventing usage of a temporary copy explicitely. This is useful for <link xlink:href="&url-omd;">OMD.</link></para></note>
   <para>The &name-icinga;-API will be installed during "make install" so if you are required to install it manually please try:
   <programlisting> #&gt; make install-api</programlisting>This will be mandatory for Icinga-Web.</para>
 
@@ -505,7 +521,8 @@
   enforcing/targeted mode:</para>
 
   <programlisting> #&gt; chcon -R -t httpd_sys_script_exec_t &url-icinga-base;/sbin/
- #&gt; chcon -R -t httpd_sys_content_t &url-icinga-base;/share/</programlisting>
+ #&gt; chcon -R -t httpd_sys_content_t &url-icinga-base;/share/
+ #&gt; chcon -t httpd_sys_script_rw_t &url-icinga-base;/var/rw/icinga.cmd</programlisting>
 
   <para><emphasis role="bold">Start &name-idoutils; and &name-icinga;</emphasis></para>
 
@@ -584,6 +601,7 @@
   <para>Congratulations! You successfully installed &name-icinga; with &name-idoutils;. Your journey into monitoring has just begun. You'll
   no doubt want to monitor more than just your local machine, so check out the chapter on <link linkend="ch02">"Getting Started"</link>
   about "Monitoring ..."</para>
+
 
   <indexterm zone="quickstart-idoutils">
     <primary>Quickstart</primary>

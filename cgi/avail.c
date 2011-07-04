@@ -3,7 +3,7 @@
  * AVAIL.C -  Icinga Availability CGI
  *
  * Copyright (c) 2000-2010 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -204,7 +204,7 @@ int include_soft_states=FALSE;
 char *hostgroup_name="";
 char *host_name="";
 char *servicegroup_name="";
-char *svc_description="";
+char *service_desc="";
 
 void create_subject_list(void);
 void add_subject(int,char *,char *);
@@ -285,7 +285,7 @@ int main(int argc, char **argv){
 	result=read_cgi_config_file(get_cgi_config_location());
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		cgi_config_file_error(get_cgi_config_location());
+		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
 		document_footer(CGI_ID);
 		return ERROR;
 		}
@@ -294,7 +294,7 @@ int main(int argc, char **argv){
 	result=read_main_config_file(main_config_file);
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		main_config_file_error(main_config_file);
+		print_error(main_config_file, ERROR_CGI_MAIN_CFG);
 		document_footer(CGI_ID);
 		return ERROR;
 		}
@@ -303,7 +303,7 @@ int main(int argc, char **argv){
 	result=read_all_object_configuration_data(main_config_file,READ_ALL_OBJECT_DATA);
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		object_data_error();
+		print_error(NULL, ERROR_CGI_OBJECT_DATA);
 		document_footer(CGI_ID);
 		return ERROR;
 		}
@@ -312,7 +312,7 @@ int main(int argc, char **argv){
 	result=read_all_status_data(get_cgi_config_location(),READ_ALL_STATUS_DATA);
 	if(result==ERROR && daemon_check==TRUE){
 		document_header(CGI_ID,FALSE);
-		status_data_error();
+		print_error(NULL, ERROR_CGI_STATUS_DATA);
 		document_footer(CGI_ID);
 		return ERROR;
 		}
@@ -421,16 +421,16 @@ int main(int argc, char **argv){
 				printf("<BR>\n");
 #ifdef USE_TRENDS
 				printf("<a href='%s?host=%s",TRENDS_CGI,url_encode(host_name));
-				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s&includesoftstates=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d'>View Trends For This Service</a><BR>\n",url_encode(svc_description),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
+				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s&includesoftstates=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d'>View Trends For This Service</a><BR>\n",url_encode(service_desc),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
 #endif
 #ifdef USE_HISTOGRAM
 				printf("<a href='%s?host=%s",HISTOGRAM_CGI,url_encode(host_name));
-				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View Alert Histogram For This Service</a><BR>\n",url_encode(svc_description),t1,t2,(assume_state_retention==TRUE)?"yes":"no");
+				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View Alert Histogram For This Service</a><BR>\n",url_encode(service_desc),t1,t2,(assume_state_retention==TRUE)?"yes":"no");
 #endif
 				printf("<A HREF='%s?host=%s&",HISTORY_CGI,url_encode(host_name));
-				printf("service=%s'>View Alert History For This Service</A><BR>\n",url_encode(svc_description));
+				printf("service=%s'>View Alert History For This Service</A><BR>\n",url_encode(service_desc));
 				printf("<A HREF='%s?host=%s&",NOTIFICATIONS_CGI,url_encode(host_name));
-				printf("service=%s'>View Notifications For This Service</A><BR>\n",url_encode(svc_description));
+				printf("service=%s'>View Notifications For This Service</A><BR>\n",url_encode(service_desc));
 				}
 
 			printf("</TD></TR>\n");
@@ -448,7 +448,7 @@ int main(int argc, char **argv){
 			temp_host=find_host(host_name);
 
 			/* find the service */
-			temp_service=find_service(host_name,svc_description);
+			temp_service=find_service(host_name,service_desc);
 
 			printf("<DIV ALIGN=CENTER CLASS='dataTitle'>\n");
 			if(display_type==DISPLAY_HOST_AVAIL){
@@ -496,11 +496,14 @@ int main(int argc, char **argv){
 		/* right hand column of top row */
 		printf("<td align=right valign=bottom width=33%%>\n");
 
+		printf("<form method=\"GET\" action=\"%s\">\n",AVAIL_CGI);
 		printf("<table border=0 CLASS='optBox'>\n");
 
 		if(display_type!=DISPLAY_NO_AVAIL && get_date_parts==FALSE){
 
-			printf("<form method=\"GET\" action=\"%s\">\n",AVAIL_CGI);
+			printf("<tr><td valign=top align=left class='optBoxItem'>First assumed %s state:</td><td valign=top align=left class='optBoxItem'>%s</td></tr>\n",(display_type==DISPLAY_SERVICE_AVAIL)?"service":"host",(display_type==DISPLAY_HOST_AVAIL || display_type==DISPLAY_HOSTGROUP_AVAIL || display_type==DISPLAY_SERVICEGROUP_AVAIL)?"First assumed service state":"");
+			printf("<tr>\n");
+			printf("<td valign=top align=left class='optBoxItem'>\n");
 
 			printf("<input type='hidden' name='t1' value='%lu'>\n",(unsigned long)t1);
 			printf("<input type='hidden' name='t2' value='%lu'>\n",(unsigned long)t2);
@@ -513,7 +516,7 @@ int main(int argc, char **argv){
 			if(display_type==DISPLAY_HOST_AVAIL || display_type==DISPLAY_SERVICE_AVAIL)
 				printf("<input type='hidden' name='host' value='%s'>\n",escape_string(host_name));
 			if(display_type==DISPLAY_SERVICE_AVAIL)
-				printf("<input type='hidden' name='service' value='%s'>\n",escape_string(svc_description));
+				printf("<input type='hidden' name='service' value='%s'>\n",escape_string(service_desc));
 			if(display_type==DISPLAY_SERVICEGROUP_AVAIL)
 				printf("<input type='hidden' name='servicegroup' value='%s'>\n",escape_string(servicegroup_name));
 
@@ -522,9 +525,6 @@ int main(int argc, char **argv){
 			printf("<input type='hidden' name='assumestatesduringnotrunning' value='%s'>\n",(assume_states_during_notrunning==TRUE)?"yes":"no");
 			printf("<input type='hidden' name='includesoftstates' value='%s'>\n",(include_soft_states==TRUE)?"yes":"no");
 
-			printf("<tr><td valign=top align=left class='optBoxItem'>First assumed %s state:</td><td valign=top align=left class='optBoxItem'>%s</td></tr>\n",(display_type==DISPLAY_SERVICE_AVAIL)?"service":"host",(display_type==DISPLAY_HOST_AVAIL || display_type==DISPLAY_HOSTGROUP_AVAIL || display_type==DISPLAY_SERVICEGROUP_AVAIL)?"First assumed service state":"");
-			printf("<tr>\n");
-			printf("<td valign=top align=left class='optBoxItem'>\n");
 			if(display_type==DISPLAY_HOST_AVAIL || display_type==DISPLAY_HOSTGROUP_AVAIL || display_type==DISPLAY_SERVICEGROUP_AVAIL){
 				printf("<select name='initialassumedhoststate'>\n");
 				printf("<option value=%d %s>Unspecified\n",AS_NO_DATA,(initial_assumed_host_state==AS_NO_DATA)?"SELECTED":"");
@@ -588,8 +588,6 @@ int main(int argc, char **argv){
 			printf("<input type='submit' value='Update'>\n");
 			printf("</td>\n");
 			printf("</tr>\n");
-
-			printf("</form>\n");
 		        }
 
 		/* display context-sensitive help */
@@ -615,6 +613,7 @@ int main(int argc, char **argv){
 		printf("</td></tr>\n");
 
 		printf("</table>\n");
+		printf("</form>\n");
 
 		printf("</td>\n");
 
@@ -648,7 +647,7 @@ int main(int argc, char **argv){
 		if(display_type==DISPLAY_HOST_AVAIL || display_type==DISPLAY_SERVICE_AVAIL)
 			printf("<input type='hidden' name='host' value='%s'>\n",escape_string(host_name));
 		if(display_type==DISPLAY_SERVICE_AVAIL)
-			printf("<input type='hidden' name='service' value='%s'>\n",escape_string(svc_description));
+			printf("<input type='hidden' name='service' value='%s'>\n",escape_string(service_desc));
 		if(display_type==DISPLAY_SERVICEGROUP_AVAIL)
 			printf("<input type='hidden' name='servicegroup' value='%s'>\n",escape_string(servicegroup_name));
 
@@ -974,13 +973,16 @@ int main(int argc, char **argv){
 			if(display_type==DISPLAY_HOST_AVAIL && show_all_hosts==FALSE)
 				is_authorized=is_authorized_for_host(find_host(host_name),&current_authdata);
 			else
-				is_authorized=is_authorized_for_service(find_service(host_name,svc_description),&current_authdata);
+				is_authorized=is_authorized_for_service(find_service(host_name,service_desc),&current_authdata);
 		        }
 
-		if(is_authorized==FALSE)
-			printf("<P><DIV ALIGN=CENTER CLASS='errorMessage'>It appears as though you are not authorized to view information for the specified %s...</DIV></P>\n",(display_type==DISPLAY_HOST_AVAIL)?"host":"service");
+		if(is_authorized==FALSE) {
+			if (display_type==DISPLAY_HOST_AVAIL)
+				print_generic_error_message("It appears as though you are not authorized to view information for the specified host...",NULL,0);
+			else
+				print_generic_error_message("It appears as though you are not authorized to view information for the specified service...",NULL,0);
 
-		else{
+		}else{
 
 			time(&report_start_time);
 
@@ -1127,12 +1129,12 @@ int process_cgivars(void){
 				break;
 			        }
 
-			if((svc_description=(char *)strdup(variables[x]))==NULL)
-				svc_description="";
-			strip_html_brackets(svc_description);
+			if((service_desc=(char *)strdup(variables[x]))==NULL)
+				service_desc="";
+			strip_html_brackets(service_desc);
 
 			display_type=DISPLAY_SERVICE_AVAIL;
-			show_all_services=(strcmp(svc_description,"all"))?FALSE:TRUE;
+			show_all_services=(strcmp(service_desc,"all"))?FALSE:TRUE;
 		        }
 
 		/* we found first time argument */
@@ -2424,11 +2426,11 @@ void create_subject_list(void){
 	        }
 
 	/* we're displaying a specific service */
-	else if(display_type==DISPLAY_SERVICE_AVAIL && svc_description && strcmp(svc_description,"")){
+	else if(display_type==DISPLAY_SERVICE_AVAIL && service_desc && strcmp(service_desc,"")){
 
 		/* we're only displaying a specific service */
 		if(show_all_services==FALSE)
-			add_subject(SERVICE_SUBJECT,host_name,svc_description);
+			add_subject(SERVICE_SUBJECT,host_name,service_desc);
 
 		/* we're displaying all services */
 		else{
@@ -2813,7 +2815,7 @@ void scan_log_file_for_archived_state_data(char *filename){
 	char *input=NULL;
 	char *input2=NULL;
 	char entry_host_name[MAX_INPUT_BUFFER];
-	char entry_svc_description[MAX_INPUT_BUFFER];
+	char entry_service_desc[MAX_INPUT_BUFFER];
 	char *plugin_output=NULL;
 	char *temp_buffer=NULL;
 	time_t time_stamp;
@@ -2935,11 +2937,11 @@ void scan_log_file_for_archived_state_data(char *filename){
 
 				/* get service description */
 				temp_buffer=my_strtok(NULL,";");
-				strncpy(entry_svc_description,(temp_buffer==NULL)?"":temp_buffer,sizeof(entry_svc_description));
-				entry_svc_description[sizeof(entry_svc_description)-1]='\x0';
+				strncpy(entry_service_desc,(temp_buffer==NULL)?"":temp_buffer,sizeof(entry_service_desc));
+				entry_service_desc[sizeof(entry_service_desc)-1]='\x0';
 
 				/* see if there is a corresponding subject for this service */
-				temp_subject=find_subject(SERVICE_SUBJECT,entry_host_name,entry_svc_description);
+				temp_subject=find_subject(SERVICE_SUBJECT,entry_host_name,entry_service_desc);
 				if(temp_subject==NULL)
 					continue;
 
@@ -2982,11 +2984,11 @@ void scan_log_file_for_archived_state_data(char *filename){
 
 				/* get service description */
 				temp_buffer=my_strtok(NULL,";");
-				strncpy(entry_svc_description,(temp_buffer==NULL)?"":temp_buffer,sizeof(entry_svc_description));
-				entry_svc_description[sizeof(entry_svc_description)-1]='\x0';
+				strncpy(entry_service_desc,(temp_buffer==NULL)?"":temp_buffer,sizeof(entry_service_desc));
+				entry_service_desc[sizeof(entry_service_desc)-1]='\x0';
 
 				/* see if there is a corresponding subject for this service */
-				temp_subject=find_subject(SERVICE_SUBJECT,entry_host_name,entry_svc_description);
+				temp_subject=find_subject(SERVICE_SUBJECT,entry_host_name,entry_service_desc);
 				if(temp_subject==NULL)
 					continue;
 
@@ -3386,24 +3388,8 @@ void display_specific_hostgroup_availability(hostgroup *hg){
 	unsigned long time_indeterminate;
 	avail_subject *temp_subject;
         host *temp_host;
-        service *temp_service;
-        int days, hours, minutes, seconds;
-        char time_indeterminate_string[48];
-        char time_determinate_string[48];
-        char total_time_string[48];
         char *csv_header[34];
-        double percent_time_ok=0.0;
-        double percent_time_warning=0.0;
-        double percent_time_unknown=0.0;
-        double percent_time_critical=0.0;
         double percent_time_indeterminate=0.0;
-        double percent_time_ok_known=0.0;
-        double percent_time_warning_known=0.0;
-        double percent_time_unknown_known=0.0;
-        double percent_time_critical_known=0.0;
-        char time_up_string[48];
-        char time_down_string[48];
-        char time_unreachable_string[48];
 	double percent_time_up=0.0;
 	double percent_time_down=0.0;
 	double percent_time_unreachable=0.0;
@@ -3423,19 +3409,7 @@ void display_specific_hostgroup_availability(hostgroup *hg){
         double percent_time_down_unscheduled_known=0.0;
         double percent_time_unreachable_scheduled_known=0.0;
         double percent_time_unreachable_unscheduled_known=0.0;
-        char time_up_scheduled_string[48];
-        char time_up_unscheduled_string[48];
-        char time_down_scheduled_string[48];
-        char time_down_unscheduled_string[48];
-        char time_unreachable_scheduled_string[48];
-        char time_unreachable_unscheduled_string[48];
 
-        char time_indeterminate_scheduled_string[48];
-        char time_indeterminate_unscheduled_string[48];
-        double percent_time_indeterminate_scheduled=0.0;
-        double percent_time_indeterminate_unscheduled=0.0;
-        char time_indeterminate_notrunning_string[48];
-        char time_indeterminate_nodata_string[48];
         double percent_time_indeterminate_notrunning=0.0;
         double percent_time_indeterminate_nodata=0.0;
 
@@ -3446,15 +3420,6 @@ void display_specific_hostgroup_availability(hostgroup *hg){
 	double average_percent_time_unreachable=0.0;
 	double average_percent_time_unreachable_known=0.0;
 	double average_percent_time_indeterminate=0.0;
-
-        double average_percent_time_ok=0.0;
-        double average_percent_time_ok_known=0.0;
-        double average_percent_time_unknown=0.0;
-        double average_percent_time_unknown_known=0.0;
-        double average_percent_time_warning=0.0;
-        double average_percent_time_warning_known=0.0;
-        double average_percent_time_critical=0.0;
-        double average_percent_time_critical_known=0.0;
 
 	int current_subject=0;
 	int i=0;
@@ -3651,51 +3616,6 @@ void display_specific_hostgroup_availability(hostgroup *hg){
 	} else if(content_type==CSV_CONTENT){
 		/* average */
 		/* left for future rework */
-		/*
-		printf("%sAverage%s%s",csv_data_enclosure,csv_data_enclosure,csv_delimiter);
-
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-
-		printf("%s%2.3f%%%s%s",csv_data_enclosure,average_percent_time_up,csv_data_enclosure,csv_delimiter);
-		printf("%s%2.3f%%%s%s",csv_data_enclosure,average_percent_time_up_known,csv_data_enclosure,csv_delimiter);
-
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-
-		printf("%s%2.3f%%%s%s",csv_data_enclosure,average_percent_time_down,csv_data_enclosure,csv_delimiter);
-		printf("%s%2.3f%%%s%s",csv_data_enclosure,average_percent_time_down_known,csv_data_enclosure,csv_delimiter);
-
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-
-		printf("%s%2.3f%%%s%s",csv_data_enclosure,average_percent_time_unreachable,csv_data_enclosure,csv_delimiter);
-		printf("%s%2.3f%%%s%s",csv_data_enclosure,average_percent_time_unreachable_known,csv_data_enclosure,csv_delimiter);
-
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%2.3f%%%s%s",csv_data_enclosure,0.0,csv_data_enclosure,csv_delimiter);
-                                printf("%s%lu%s%s",    csv_data_enclosure,0,csv_data_enclosure,csv_delimiter);
-
-		printf("%s%2.3f%%%s%s",csv_data_enclosure,average_percent_time_indeterminate,csv_data_enclosure,csv_delimiter);
-		*/
-
 	}
 
 	return;
@@ -3731,14 +3651,6 @@ void display_specific_servicegroup_availability(servicegroup *sg){
         avail_subject *temp_subject;
         service *temp_service;
 	host *temp_host;
-        int days, hours, minutes, seconds;
-        char time_ok_string[48];
-        char time_warning_string[48];
-        char time_unknown_string[48];
-        char time_critical_string[48];
-        char time_indeterminate_string[48];
-        char time_determinate_string[48];
-        char total_time_string[48];
         double percent_time_ok=0.0;
         double percent_time_warning=0.0;
         double percent_time_unknown=0.0;
@@ -3749,34 +3661,23 @@ void display_specific_servicegroup_availability(servicegroup *sg){
         double percent_time_unknown_known=0.0;
         double percent_time_critical_known=0.0;
 
-        char time_critical_scheduled_string[48];
-        char time_critical_unscheduled_string[48];
         double percent_time_critical_scheduled=0.0;
         double percent_time_critical_unscheduled=0.0;
         double percent_time_critical_scheduled_known=0.0;
         double percent_time_critical_unscheduled_known=0.0;
-        char time_unknown_scheduled_string[48];
-        char time_unknown_unscheduled_string[48];
         double percent_time_unknown_scheduled=0.0;
         double percent_time_unknown_unscheduled=0.0;
         double percent_time_unknown_scheduled_known=0.0;
         double percent_time_unknown_unscheduled_known=0.0;
-        char time_warning_scheduled_string[48];
-        char time_warning_unscheduled_string[48];
         double percent_time_warning_scheduled=0.0;
         double percent_time_warning_unscheduled=0.0;
         double percent_time_warning_scheduled_known=0.0;
         double percent_time_warning_unscheduled_known=0.0;
-        char time_ok_scheduled_string[48];
-        char time_ok_unscheduled_string[48];
         double percent_time_ok_scheduled=0.0;
         double percent_time_ok_unscheduled=0.0;
         double percent_time_ok_scheduled_known=0.0;
         double percent_time_ok_unscheduled_known=0.0;
 
-        char time_up_string[48];
-        char time_down_string[48];
-        char time_unreachable_string[48];
         double percent_time_up=0.0;
         double percent_time_down=0.0;
         double percent_time_unreachable=0.0;
@@ -3795,12 +3696,6 @@ void display_specific_servicegroup_availability(servicegroup *sg){
         double percent_time_down_unscheduled_known=0.0;
         double percent_time_unreachable_scheduled_known=0.0;
         double percent_time_unreachable_unscheduled_known=0.0;
-        char time_up_scheduled_string[48];
-        char time_up_unscheduled_string[48];
-        char time_down_scheduled_string[48];
-        char time_down_unscheduled_string[48];
-        char time_unreachable_scheduled_string[48];
-        char time_unreachable_unscheduled_string[48];
 
         double average_percent_time_up=0.0;
         double average_percent_time_up_known=0.0;
@@ -3821,12 +3716,6 @@ void display_specific_servicegroup_availability(servicegroup *sg){
 
         int current_subject=0;
 
-        char time_indeterminate_scheduled_string[48];
-        char time_indeterminate_unscheduled_string[48];
-        double percent_time_indeterminate_scheduled=0.0;
-        double percent_time_indeterminate_unscheduled=0.0;
-        char time_indeterminate_notrunning_string[48];
-        char time_indeterminate_nodata_string[48];
         double percent_time_indeterminate_notrunning=0.0;
         double percent_time_indeterminate_nodata=0.0;
 
@@ -4984,7 +4873,7 @@ void display_service_availability(void){
 	/* we're only getting data for one service */
 	if(show_all_services==FALSE){
 
-		temp_subject=find_subject(SERVICE_SUBJECT,host_name,svc_description);
+		temp_subject=find_subject(SERVICE_SUBJECT,host_name,service_desc);
 		if(temp_subject==NULL)
 			return;
 
@@ -5092,9 +4981,9 @@ void display_service_availability(void){
 #ifdef USE_TRENDS
 			printf("<p align='center'>\n");
 			printf("<a href='%s?host=%s",TRENDS_CGI,url_encode(host_name));
-			printf("&service=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d'>",url_encode(svc_description),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
+			printf("&service=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d'>",url_encode(service_desc),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
 			printf("<img src='%s?createimage&smallimage&host=%s",TRENDS_CGI,url_encode(host_name));
-			printf("&service=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d' border=1 alt='Service State Trends' title='Service State Trends' width='500' height='20'>",url_encode(svc_description),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
+			printf("&service=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d' border=1 alt='Service State Trends' title='Service State Trends' width='500' height='20'>",url_encode(service_desc),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
 			printf("</a><br>\n");
 			printf("</p>\n");
 #endif

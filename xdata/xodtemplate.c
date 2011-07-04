@@ -3,7 +3,8 @@
  * XODTEMPLATE.C - Template-based object configuration data input routines
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * Description:
  *
@@ -72,7 +73,6 @@
 #ifdef NSCORE
 extern int use_regexp_matches;
 extern int use_true_regexp_matching;
-extern char *macro_x[MACRO_X_COUNT];
 extern int verify_config;
 extern int test_scheduling;
 extern int use_precached_objects;
@@ -123,6 +123,8 @@ char *xodtemplate_cache_file=NULL;
 char *xodtemplate_precache_file=NULL;
 
 int presorted_objects=FALSE;
+
+extern int allow_empty_hostgroup_assignment;
 
 int xodtemplate_create_escalation_condition(char*, xodtemplate_escalation_condition*);
 
@@ -501,7 +503,10 @@ int xodtemplate_grab_config_info(char *main_config_file){
 	char *var=NULL;
 	char *val=NULL;
 	mmapfile *thefile=NULL;
-	
+#ifdef NSCORE
+	icinga_macros *mac;
+#endif
+
 	/* open the main config file for reading */
 	if((thefile=mmap_fopen(main_config_file))==NULL)
 		return ERROR;
@@ -552,10 +557,12 @@ int xodtemplate_grab_config_info(char *main_config_file){
 		return ERROR;
 
 #ifdef NSCORE
+	mac = get_global_macros();
+
 	/* save the object cache file macro */
-	my_free(macro_x[MACRO_OBJECTCACHEFILE]);
-	if((macro_x[MACRO_OBJECTCACHEFILE]=(char *)strdup(xodtemplate_cache_file)))
-		strip(macro_x[MACRO_OBJECTCACHEFILE]);
+	my_free(mac->x[MACRO_OBJECTCACHEFILE]);
+	if((mac->x[MACRO_OBJECTCACHEFILE]=(char *)strdup(xodtemplate_cache_file)))
+		strip(mac->x[MACRO_OBJECTCACHEFILE]);
 #endif
 
 	return OK;
@@ -2429,6 +2436,10 @@ int xodtemplate_add_object_property(char *input, int options){
 			if((temp_host->address=(char *)strdup(value))==NULL)
 				result=ERROR;
 		        }
+		else if(!strcmp(variable,"address6")){
+			if((temp_host->address6=(char *)strdup(value))==NULL)
+				result=ERROR;
+		        }
 		else if(!strcmp(variable,"parents")){
 			if(strcmp(value,XODTEMPLATE_NULL)){
 				if((temp_host->parents=(char *)strdup(value))==NULL)
@@ -4200,6 +4211,7 @@ int xodtemplate_duplicate_services(void){
 	int result=OK;
 	xodtemplate_service *temp_service=NULL;
 	xodtemplate_memberlist *temp_memberlist=NULL;
+	xodtemplate_memberlist *temp_rejectlist=NULL;
 	xodtemplate_memberlist *this_memberlist=NULL;
 	char *host_name=NULL;
 	int first_item=FALSE;
@@ -4211,6 +4223,26 @@ int xodtemplate_duplicate_services(void){
 		/* skip service definitions without enough data */
 		if(temp_service->hostgroup_name==NULL && temp_service->host_name==NULL)
 			continue;
+
+		/* If hostgroup is not null and hostgroup has no members, check to see if */
+		/* allow_empty_hostgroup_assignment is set to 1 - if it is, continue without error  */
+		if(temp_service->hostgroup_name!=NULL){
+			if(xodtemplate_expand_hostgroups(&temp_memberlist,&temp_rejectlist,temp_service->hostgroup_name,temp_service->_config_file,temp_service->_start_line)==ERROR){
+				return ERROR;
+				}
+			else{
+				xodtemplate_free_memberlist(&temp_rejectlist);
+				if (temp_memberlist!=NULL){
+					xodtemplate_free_memberlist(&temp_memberlist);
+					}
+				else{
+					/* User is ok with hostgroup -> service mappings with no hosts */
+					if(allow_empty_hostgroup_assignment==1){
+						continue;
+                                               }
+					}
+				}
+			}
 
 		/* skip services that shouldn't be registered */
 		if(temp_service->register_object==FALSE)
@@ -4272,9 +4304,10 @@ int xodtemplate_duplicate_services(void){
 		}
 
                 /* skip service definitions without enough data */
+		/* make host_name optional for services, only warn */
                 if(temp_service->host_name==NULL){
-			logit(NSLOG_CONFIG_ERROR,TRUE,"Error: No host_name found for service definition or used template (config file '%s', starting on line %d)\n",xodtemplate_config_file_name(temp_service->_config_file),temp_service->_start_line);
-			return ERROR;
+			logit(NSLOG_CONFIG_WARNING,TRUE,"Warning: No host_name found for service definition or used template (config file '%s', starting on line %d)\n",xodtemplate_config_file_name(temp_service->_config_file),temp_service->_start_line);
+			result=ERROR;
 		}
 
 		if(temp_service->service_description==NULL){
@@ -4362,6 +4395,7 @@ int xodtemplate_duplicate_objects(void){
 
 	char *service_descriptions=NULL;
 	int first_item=FALSE;
+	int same_host_servicedependency=FALSE;
 
 
 	/*************************************/
@@ -4821,6 +4855,11 @@ int xodtemplate_duplicate_objects(void){
 				my_free(temp_servicedependency->dependent_hostgroup_name);
 				}
 
+			/* Detected same host servicegroups dependencies */
+			same_host_servicedependency=FALSE;
+			if(temp_servicedependency->host_name==NULL && temp_servicedependency->hostgroup_name==NULL)
+				same_host_servicedependency=TRUE;
+
 			/* duplicate service dependency entries */
 			first_item=TRUE;
 			for(temp_dependentservice=dependent_servicelist;temp_dependentservice!=NULL;temp_dependentservice=temp_dependentservice->next){
@@ -4838,10 +4877,14 @@ int xodtemplate_duplicate_objects(void){
 					my_free(temp_servicedependency->dependent_service_description);
 					temp_servicedependency->dependent_service_description=(char *)strdup(temp_dependentservice->name2);
 
+					/* Same host servicegroups dependencies: Use dependentservice host_name for master host_name */
+					if(same_host_servicedependency==TRUE)
+						temp_servicedependency->host_name=(char*)strdup(temp_dependentservice->name1);
+
 					/* clear the dependent servicegroup */
 					temp_servicedependency->have_dependent_servicegroup_name=FALSE;
 					my_free(temp_servicedependency->dependent_servicegroup_name);
-				
+
 					if(temp_servicedependency->dependent_host_name==NULL || temp_servicedependency->dependent_service_description==NULL){
 						xodtemplate_free_memberlist(&dependent_servicelist);
 						return ERROR;
@@ -4852,7 +4895,11 @@ int xodtemplate_duplicate_objects(void){
 					}
 
 				/* duplicate service dependency definition */
-				result=xodtemplate_duplicate_servicedependency(temp_servicedependency,temp_servicedependency->host_name,temp_servicedependency->service_description,NULL,NULL,temp_dependentservice->name1,temp_dependentservice->name2,NULL,NULL);
+				/* Same host servicegroups dependencies: Use dependentservice host_name for master host_name instead of undefined (not yet) master host_name */
+				if(same_host_servicedependency==TRUE)
+					result=xodtemplate_duplicate_servicedependency(temp_servicedependency,temp_dependentservice->name1,temp_servicedependency->service_description,NULL,NULL,temp_dependentservice->name1,temp_dependentservice->name2,NULL,NULL);
+				else
+					result=xodtemplate_duplicate_servicedependency(temp_servicedependency,temp_servicedependency->host_name,temp_servicedependency->service_description,NULL,NULL,temp_dependentservice->name1,temp_dependentservice->name2,NULL,NULL);
 
 				/* exit on error */
 				if(result==ERROR){
@@ -7015,6 +7062,8 @@ int xodtemplate_resolve_host(xodtemplate_host *this_host){
 			this_host->alias=(char *)strdup(template_host->alias);
 		if(this_host->address==NULL && template_host->address!=NULL)
 			this_host->address=(char *)strdup(template_host->address);
+		if(this_host->address6==NULL && template_host->address6!=NULL)
+			this_host->address6=(char *)strdup(template_host->address6);
 
 		xodtemplate_get_inherited_string(&template_host->have_parents,&template_host->parents,&this_host->have_parents,&this_host->parents);
 		xodtemplate_get_inherited_string(&template_host->have_host_groups,&template_host->host_groups,&this_host->have_host_groups,&this_host->host_groups);
@@ -9065,14 +9114,16 @@ int xodtemplate_register_hostgroup(xodtemplate_hostgroup *this_hostgroup){
 		return ERROR;
 	        }
 
-	for(host_name=strtok(this_hostgroup->members,",");host_name!=NULL;host_name=strtok(NULL,",")){
-		strip(host_name);
-		new_hostsmember=add_host_to_hostgroup(new_hostgroup,host_name);
-		if(new_hostsmember==NULL){
-			logit(NSLOG_CONFIG_ERROR,TRUE,"Error: Could not add host '%s' to hostgroup (config file '%s', starting on line %d)\n",host_name,xodtemplate_config_file_name(this_hostgroup->_config_file),this_hostgroup->_start_line);
-			return ERROR;
+	if (this_hostgroup->members!=NULL) {
+		for(host_name=strtok(this_hostgroup->members,",");host_name!=NULL;host_name=strtok(NULL,",")){
+			strip(host_name);
+			new_hostsmember=add_host_to_hostgroup(new_hostgroup,host_name);
+			if(new_hostsmember==NULL){
+				logit(NSLOG_CONFIG_ERROR,TRUE,"Error: Could not add host '%s' to hostgroup (config file '%s', starting on line %d)\n",host_name,xodtemplate_config_file_name(this_hostgroup->_config_file),this_hostgroup->_start_line);
+				return ERROR;
+			        }
 		        }
-	        }
+		}
 
 	return OK;
         }
@@ -9099,21 +9150,23 @@ int xodtemplate_register_servicegroup(xodtemplate_servicegroup *this_servicegrou
 		return ERROR;
 	        }
 
-	for(host_name=strtok(this_servicegroup->members,",");host_name!=NULL;host_name=strtok(NULL,",")){
-		strip(host_name);
-		svc_description=strtok(NULL,",");
-		if(svc_description==NULL){
-			logit(NSLOG_CONFIG_ERROR,TRUE,"Error: Missing service name in servicegroup definition (config file '%s', starting on line %d)\n",xodtemplate_config_file_name(this_servicegroup->_config_file),this_servicegroup->_start_line);
-			return ERROR;
-	                }
-		strip(svc_description);
+	if(this_servicegroup->members!=NULL) {
+		for(host_name=strtok(this_servicegroup->members,",");host_name!=NULL;host_name=strtok(NULL,",")){
+			strip(host_name);
+			svc_description=strtok(NULL,",");
+			if(svc_description==NULL){
+				logit(NSLOG_CONFIG_ERROR,TRUE,"Error: Missing service name in servicegroup definition (config file '%s', starting on line %d)\n",xodtemplate_config_file_name(this_servicegroup->_config_file),this_servicegroup->_start_line);
+				return ERROR;
+		                }
+			strip(svc_description);
 
-		new_servicesmember=add_service_to_servicegroup(new_servicegroup,host_name,svc_description);
-		if(new_servicesmember==NULL){
-			logit(NSLOG_CONFIG_ERROR,TRUE,"Error: Could not add service '%s' on host '%s' to servicegroup (config file '%s', starting on line %d)\n",svc_description,host_name,xodtemplate_config_file_name(this_servicegroup->_config_file),this_servicegroup->_start_line);
-			return ERROR;
+			new_servicesmember=add_service_to_servicegroup(new_servicegroup,host_name,svc_description);
+			if(new_servicesmember==NULL){
+				logit(NSLOG_CONFIG_ERROR,TRUE,"Error: Could not add service '%s' on host '%s' to servicegroup (config file '%s', starting on line %d)\n",svc_description,host_name,xodtemplate_config_file_name(this_servicegroup->_config_file),this_servicegroup->_start_line);
+				return ERROR;
+			        }
 		        }
-	        }
+		}
 
 	return OK;
         }
@@ -9330,9 +9383,11 @@ int xodtemplate_register_host(xodtemplate_host *this_host){
 		this_host->alias=(char *)strdup(this_host->host_name);
 	if(this_host->address==NULL && this_host->host_name!=NULL)
 		this_host->address=(char *)strdup(this_host->host_name);
+	if(this_host->address6==NULL && this_host->host_name!=NULL)
+		this_host->address6=(char *)strdup(this_host->host_name);
 
 	/* add the host definition */
-	new_host=add_host(this_host->host_name,this_host->display_name,this_host->alias,(this_host->address==NULL)?this_host->host_name:this_host->address,this_host->check_period,this_host->initial_state,this_host->check_interval,this_host->retry_interval,this_host->max_check_attempts,this_host->notify_on_recovery,this_host->notify_on_down,this_host->notify_on_unreachable,this_host->notify_on_flapping,this_host->notify_on_downtime,this_host->notification_interval,this_host->first_notification_delay,this_host->notification_period,this_host->notifications_enabled,this_host->check_command,this_host->active_checks_enabled,this_host->passive_checks_enabled,this_host->event_handler,this_host->event_handler_enabled,this_host->flap_detection_enabled,this_host->low_flap_threshold,this_host->high_flap_threshold,this_host->flap_detection_on_up,this_host->flap_detection_on_down,this_host->flap_detection_on_unreachable,this_host->stalk_on_up,this_host->stalk_on_down,this_host->stalk_on_unreachable,this_host->process_perf_data,this_host->failure_prediction_enabled,this_host->failure_prediction_options,this_host->check_freshness,this_host->freshness_threshold,this_host->notes,this_host->notes_url,this_host->action_url,this_host->icon_image,this_host->icon_image_alt,this_host->vrml_image,this_host->statusmap_image,this_host->x_2d,this_host->y_2d,this_host->have_2d_coords,this_host->x_3d,this_host->y_3d,this_host->z_3d,this_host->have_3d_coords,TRUE,this_host->retain_status_information,this_host->retain_nonstatus_information,this_host->obsess_over_host);
+	new_host=add_host(this_host->host_name,this_host->display_name,this_host->alias,(this_host->address==NULL)?this_host->host_name:this_host->address,(this_host->address6==NULL)?this_host->host_name:this_host->address6,this_host->check_period,this_host->initial_state,this_host->check_interval,this_host->retry_interval,this_host->max_check_attempts,this_host->notify_on_recovery,this_host->notify_on_down,this_host->notify_on_unreachable,this_host->notify_on_flapping,this_host->notify_on_downtime,this_host->notification_interval,this_host->first_notification_delay,this_host->notification_period,this_host->notifications_enabled,this_host->check_command,this_host->active_checks_enabled,this_host->passive_checks_enabled,this_host->event_handler,this_host->event_handler_enabled,this_host->flap_detection_enabled,this_host->low_flap_threshold,this_host->high_flap_threshold,this_host->flap_detection_on_up,this_host->flap_detection_on_down,this_host->flap_detection_on_unreachable,this_host->stalk_on_up,this_host->stalk_on_down,this_host->stalk_on_unreachable,this_host->process_perf_data,this_host->failure_prediction_enabled,this_host->failure_prediction_options,this_host->check_freshness,this_host->freshness_threshold,this_host->notes,this_host->notes_url,this_host->action_url,this_host->icon_image,this_host->icon_image_alt,this_host->vrml_image,this_host->statusmap_image,this_host->x_2d,this_host->y_2d,this_host->have_2d_coords,this_host->x_3d,this_host->y_3d,this_host->z_3d,this_host->have_3d_coords,TRUE,this_host->retain_status_information,this_host->retain_nonstatus_information,this_host->obsess_over_host);
 
 
 	/* return with an error if we couldn't add the host */
@@ -10754,6 +10809,8 @@ int xodtemplate_cache_objects(char *cache_file){
 			fprintf(fp,"\talias\t%s\n",temp_host->alias);
 		if(temp_host->address)
 			fprintf(fp,"\taddress\t%s\n",temp_host->address);
+		if(temp_host->address6)
+			fprintf(fp,"\taddress6\t%s\n",temp_host->address6);
 		if(temp_host->parents)
 			fprintf(fp,"\tparents\t%s\n",temp_host->parents);
 		if(temp_host->check_period)
@@ -11979,6 +12036,7 @@ int xodtemplate_free_memory(void){
 		my_free(this_host->host_name);
 		my_free(this_host->alias);
 		my_free(this_host->address);
+		my_free(this_host->address6);
 		my_free(this_host->parents);
 		my_free(this_host->host_groups);
 		my_free(this_host->check_command);

@@ -3,7 +3,7 @@
  * TRENDS.C -  Icinga State Trends CGI
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -97,6 +97,7 @@ extern skiplist *object_skiplists[NUM_OBJECT_SKIPLISTS];
 #define TIMEPERIOD_LAST24HOURS	11
 #define TIMEPERIOD_LAST7DAYS	12
 #define TIMEPERIOD_LAST31DAYS   13
+#define TIMEPERIOD_NEXTPROBLEM  14
 
 #define MIN_TIMESTAMP_SPACING	10
 
@@ -134,7 +135,6 @@ int end_day=1;
 int end_month=1;
 int end_year=2000;
 
-int display_type=DISPLAY_NO_TRENDS;
 extern int content_type;
 int input_type=GET_INPUT_NONE;
 int timeperiod_type=TIMEPERIOD_LAST24HOURS;
@@ -151,10 +151,6 @@ int assume_initial_states=TRUE;
 int assume_state_retention=TRUE;
 int assume_states_during_notrunning=TRUE;
 int include_soft_states=FALSE;
-
-char *host_name="";
-char *svc_description="";
-
 
 
 void graph_all_trend_data(void);
@@ -188,7 +184,7 @@ int color_yellow=0;
 int color_orange=0;
 FILE *image_file=NULL;
 
-int image_width=600;
+int image_width=900;
 int image_height=300;
 
 #define HOST_DRAWING_WIDTH	498
@@ -238,6 +234,20 @@ unsigned long time_warning=0L;
 unsigned long time_unknown=0L;
 unsigned long time_critical=0L;
 
+int problem_found;
+
+int display_type=DISPLAY_NO_TRENDS;
+int show_all_hosts=TRUE;
+int show_all_hostgroups=TRUE;
+int show_all_servicegroups=TRUE;
+
+char *host_name="";
+char *host_filter=NULL;
+char *hostgroup_name=NULL;
+char *servicegroup_name=NULL;
+char *service_desc="";
+char *service_filter=NULL;
+
 int CGI_ID=TRENDS_CGI_ID;
 
 int main(int argc, char **argv){
@@ -259,17 +269,22 @@ int main(int argc, char **argv){
 	time_t t3;
 	time_t current_time;
 	struct tm *t;
-
+	time_t old_t1;
+	time_t old_t2;
+	archived_state *temp_as;
+	time_t problem_t1=0;
+	time_t problem_t2=0;
+	time_t margin;
 
 	/* reset internal CGI variables */
 	reset_cgi_vars();
-	
+
 	/* read the CGI configuration file */
 	result=read_cgi_config_file(get_cgi_config_location());
 	if(result==ERROR){
 		if(content_type==HTML_CONTENT){
 			document_header(CGI_ID,FALSE);
-			cgi_config_file_error(get_cgi_config_location());
+			print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
 			document_footer(CGI_ID);
 		        }
 		return ERROR;
@@ -280,7 +295,7 @@ int main(int argc, char **argv){
 	if(result==ERROR){
 		if(content_type==HTML_CONTENT){
 			document_header(CGI_ID,FALSE);
-			main_config_file_error(main_config_file);
+			print_error(main_config_file, ERROR_CGI_MAIN_CFG);
 			document_footer(CGI_ID);
 		        }
 		return ERROR;
@@ -321,7 +336,7 @@ int main(int argc, char **argv){
 	if(result==ERROR){
 		if(content_type==HTML_CONTENT){
 			document_header(CGI_ID,FALSE);
-			object_data_error();
+			print_error(NULL, ERROR_CGI_OBJECT_DATA);
 			document_footer(CGI_ID);
 		        }
 		return ERROR;
@@ -332,7 +347,7 @@ int main(int argc, char **argv){
 	if(result==ERROR && daemon_check==TRUE){
 		if(content_type==HTML_CONTENT){
 			document_header(CGI_ID,FALSE);
-			status_data_error();
+			print_error(NULL, ERROR_CGI_STATUS_DATA);
 			document_footer(CGI_ID);
 		        }
 		return ERROR;
@@ -356,8 +371,11 @@ int main(int argc, char **argv){
 		if(t1>t2)
 			t1=t2-(60*60*24);
 	        }
-			
+
 	if(content_type==HTML_CONTENT && display_header==TRUE){
+
+		old_t1=t1;
+		old_t2=t2;
 
 		/* begin top table */
 		printf("<table border=0 width=100%% cellspacing=0 cellpadding=0>\n");
@@ -374,6 +392,69 @@ int main(int argc, char **argv){
 			snprintf(temp_buffer,sizeof(temp_buffer)-1,"Host and Service State Trends");
 		temp_buffer[sizeof(temp_buffer)-1]='\x0';
 		display_info_table(temp_buffer,FALSE,&current_authdata, daemon_check);
+
+		if (timeperiod_type==TIMEPERIOD_NEXTPROBLEM) {
+			problem_t1=0;
+			problem_t2=0;
+
+			t1=t2;
+			t2=current_time;
+			read_archived_state_data();
+			problem_found=FALSE;
+
+			if(display_type==DISPLAY_HOST_TRENDS){
+				for(temp_as=as_list;temp_as!=NULL;temp_as=temp_as->next){
+					if((temp_as->entry_type==HOST_DOWN || temp_as->entry_type==HOST_UNREACHABLE) && temp_as->time_stamp>t1){
+						problem_t1=temp_as->time_stamp;
+						problem_found=TRUE;
+						break;
+					}
+				}
+
+				if(problem_found==TRUE){
+					for(;temp_as!=NULL;temp_as=temp_as->next){
+						if(temp_as->entry_type==AS_HOST_UP && temp_as->time_stamp>problem_t1){
+							problem_t2=temp_as->time_stamp;
+							break;
+						}
+					}
+				}
+			} else{
+				for(temp_as=as_list;temp_as!=NULL;temp_as=temp_as->next){
+					if((temp_as->entry_type==AS_SVC_UNKNOWN || temp_as->entry_type==AS_SVC_CRITICAL || temp_as->entry_type==AS_SVC_WARNING) && temp_as->time_stamp>t1){
+						problem_t1=temp_as->time_stamp;
+						problem_found=TRUE;
+						break;
+					}
+				}
+
+				if(problem_found==TRUE){
+					for(;temp_as!=NULL;temp_as=temp_as->next){
+						if(temp_as->entry_type==AS_SVC_OK && temp_as->time_stamp>problem_t1){
+							problem_t2=temp_as->time_stamp;
+							break;
+						}
+					}
+				}
+			}
+
+			if(problem_found==TRUE) {
+				if (problem_t2==0){
+					margin=12*60*60;
+					problem_t2=problem_t1;
+				} else {
+					margin=(problem_t2-problem_t1)/2;
+				}
+
+				t1=problem_t1-margin;
+				t2=problem_t2+margin;
+			}
+		}
+
+		if (timeperiod_type==TIMEPERIOD_NEXTPROBLEM && problem_found==FALSE){
+			t1=old_t1;
+			t2=old_t2;
+		}
 
 		if(display_type!=DISPLAY_NO_TRENDS && input_type==GET_INPUT_NONE){
 
@@ -392,13 +473,13 @@ int main(int argc, char **argv){
 			else{
 				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&includesoftstates=%s&assumestateretention=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d'>View Trends For This Host</a><BR>\n",TRENDS_CGI,url_encode(host_name),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
 				printf("<a href='%s?host=%s",AVAIL_CGI,url_encode(host_name));
-				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s&includesoftstates=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d&show_log_entries'>View Availability Report For This Service</a><BR>\n",url_encode(svc_description),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
+				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s&includesoftstates=%s&assumeinitialstates=%s&assumestatesduringnotrunning=%s&initialassumedservicestate=%d&backtrack=%d&show_log_entries'>View Availability Report For This Service</a><BR>\n",url_encode(service_desc),t1,t2,(include_soft_states==TRUE)?"yes":"no",(assume_state_retention==TRUE)?"yes":"no",(assume_initial_states==TRUE)?"yes":"no",(assume_states_during_notrunning==TRUE)?"yes":"no",initial_assumed_service_state,backtrack_archives);
 				printf("<a href='%s?host=%s",HISTOGRAM_CGI,url_encode(host_name));
-				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View Alert Histogram For This Service</a><BR>\n",url_encode(svc_description),t1,t2,(assume_state_retention==TRUE)?"yes":"no");
+				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View Alert Histogram For This Service</a><BR>\n",url_encode(service_desc),t1,t2,(assume_state_retention==TRUE)?"yes":"no");
 				printf("<A HREF='%s?host=%s&",HISTORY_CGI,url_encode(host_name));
-				printf("service=%s'>View Alert History For This Service</A><BR>\n",url_encode(svc_description));
+				printf("service=%s'>View Alert History For This Service</A><BR>\n",url_encode(service_desc));
 				printf("<A HREF='%s?host=%s&",NOTIFICATIONS_CGI,url_encode(host_name));
-				printf("service=%s'>View Notifications For This Service</A><BR>\n",url_encode(svc_description));
+				printf("service=%s'>View Notifications For This Service</A><BR>\n",url_encode(service_desc));
 		                }
 
 			printf("</TD></TR>\n");
@@ -417,7 +498,7 @@ int main(int argc, char **argv){
                 	temp_host=find_host(host_name);
 
         	        /* find the service */
-	                temp_service=find_service(host_name,svc_description);
+	                temp_service=find_service(host_name,service_desc);
 
 			printf("<DIV ALIGN=CENTER CLASS='dataTitle'>\n");
 			if(display_type==DISPLAY_HOST_TRENDS)
@@ -445,11 +526,14 @@ int main(int argc, char **argv){
 		/* right hand column of top row */
 		printf("<td align=right valign=bottom width=33%%>\n");
 
+		printf("<form method=\"GET\" action=\"%s\">\n",TRENDS_CGI);
 		printf("<table border=0 CLASS='optBox'>\n");
 
 		if(display_type!=DISPLAY_NO_TRENDS && input_type==GET_INPUT_NONE){
 
-			printf("<form method=\"GET\" action=\"%s\">\n",TRENDS_CGI);
+			printf("<tr><td CLASS='optBoxItem' valign=top align=left>First assumed %s state:</td><td CLASS='optBoxItem' valign=top align=left>Backtracked archives:</td></tr>\n",(display_type==DISPLAY_HOST_TRENDS)?"host":"service");
+			printf("<tr><td CLASS='optBoxItem' valign=top align=left>");
+
 			if(display_popups==FALSE)
 				printf("<input type='hidden' name='nopopups' value=''>\n");
 			if(use_map==FALSE)
@@ -458,15 +542,13 @@ int main(int argc, char **argv){
 			printf("<input type='hidden' name='t2' value='%lu'>\n",(unsigned long)t2);
 			printf("<input type='hidden' name='host' value='%s'>\n",escape_string(host_name));
 			if(display_type==DISPLAY_SERVICE_TRENDS)
-				printf("<input type='hidden' name='service' value='%s'>\n",escape_string(svc_description));
+				printf("<input type='hidden' name='service' value='%s'>\n",escape_string(service_desc));
 
 			printf("<input type='hidden' name='assumeinitialstates' value='%s'>\n",(assume_initial_states==TRUE)?"yes":"no");
 			printf("<input type='hidden' name='assumestateretention' value='%s'>\n",(assume_state_retention==TRUE)?"yes":"no");
 			printf("<input type='hidden' name='assumestatesduringnotrunning' value='%s'>\n",(assume_states_during_notrunning==TRUE)?"yes":"no");
 			printf("<input type='hidden' name='includesoftstates' value='%s'>\n",(include_soft_states==TRUE)?"yes":"no");
 
-			printf("<tr><td CLASS='optBoxItem' valign=top align=left>First assumed %s state:</td><td CLASS='optBoxItem' valign=top align=left>Backtracked archives:</td></tr>\n",(display_type==DISPLAY_HOST_TRENDS)?"host":"service");
-			printf("<tr><td CLASS='optBoxItem' valign=top align=left>");
 			if(display_type==DISPLAY_HOST_TRENDS){
 				printf("<input type='hidden' name='initialassumedservicestate' value='%d'>",initial_assumed_service_state);
 				printf("<select name='initialassumedhoststate'>\n");
@@ -506,6 +588,10 @@ int main(int argc, char **argv){
 			printf("<option value=lastmonth %s>Last Month\n",(timeperiod_type==TIMEPERIOD_LASTMONTH)?"SELECTED":"");
 			printf("<option value=thisyear %s>This Year\n",(timeperiod_type==TIMEPERIOD_THISYEAR)?"SELECTED":"");
 			printf("<option value=lastyear %s>Last Year\n",(timeperiod_type==TIMEPERIOD_LASTYEAR)?"SELECTED":"");
+			if(display_type==DISPLAY_HOST_TRENDS)
+				printf("<option value=nextproblem %s>Next Host Problem\n",(timeperiod_type==TIMEPERIOD_NEXTPROBLEM)?"SELECTED":"");
+			else
+				printf("<option value=nextproblem %s>Next Service Problem\n",(timeperiod_type==TIMEPERIOD_NEXTPROBLEM)?"SELECTED":"");
 			printf("</select>\n");
 			printf("</td><td CLASS='optBoxItem' valign=top align=left>\n");
 			printf("<select name='zoom'>\n");
@@ -523,8 +609,6 @@ int main(int argc, char **argv){
 			printf("</td><td CLASS='optBoxItem' valign=top align=left>\n");
 			printf("<input type='submit' value='Update'>\n");
 			printf("</td></tr>\n");
-
-			printf("</form>\n");
 		        }
 
 		/* display context-sensitive help */
@@ -550,6 +634,7 @@ int main(int argc, char **argv){
 		printf("</td></tr>\n");
 
 		printf("</table>\n");
+		printf("</form>\n");
 
 		printf("</td>\n");
 
@@ -568,14 +653,18 @@ int main(int argc, char **argv){
 			is_authorized=FALSE;
 	        }
 	else if(display_type==DISPLAY_SERVICE_TRENDS){
-		temp_service=find_service(host_name,svc_description);
+		temp_service=find_service(host_name,service_desc);
 		if(temp_service==NULL || is_authorized_for_service(temp_service,&current_authdata)==FALSE)
 			is_authorized=FALSE;
 	        }
 	if(is_authorized==FALSE){
 
-		if(content_type==HTML_CONTENT)
-			printf("<P><DIV ALIGN=CENTER CLASS='errorMessage'>It appears as though you are not authorized to view information for the specified %s...</DIV></P>\n",(display_type==DISPLAY_HOST_TRENDS)?"host":"service");
+		if(content_type==HTML_CONTENT) {
+			if (display_type==DISPLAY_HOST_TRENDS)
+				print_generic_error_message("It appears as though you are not authorized to view information for the specified host...",NULL,0);
+			else
+				print_generic_error_message("It appears as though you are not authorized to view information for the specified service...",NULL,0);
+		}
 
 		document_footer(CGI_ID);
 		free_memory();
@@ -583,6 +672,13 @@ int main(int argc, char **argv){
 	        }
 #endif
 
+	if(timeperiod_type==TIMEPERIOD_NEXTPROBLEM && problem_found==FALSE) {
+		print_generic_error_message("No problem found between end of display and end of recording.",NULL,0);
+
+		document_footer(CGI_ID);
+		free_memory();
+		return ERROR;
+	}
 
 	/* set drawing parameters, etc */
 
@@ -592,7 +688,7 @@ int main(int argc, char **argv){
 	        }
 	else{
 		image_height=300;
-		image_width=600;
+		image_width=900;
 	        }
 
 	if(display_type==DISPLAY_HOST_TRENDS){
@@ -690,7 +786,7 @@ int main(int argc, char **argv){
 		        temp_host=find_host(host_name);
 
 		        /* find the service */
-		        temp_service=find_service(host_name,svc_description);
+		        temp_service=find_service(host_name,service_desc);
 
 			/* title */
 			snprintf(start_time,sizeof(start_time)-1,"%s",ctime(&t1));
@@ -750,11 +846,11 @@ int main(int argc, char **argv){
 			printf("&includesoftstates=%s",(include_soft_states==TRUE)?"yes":"no");
 			printf("&host=%s",url_encode(host_name));
 			if(display_type==DISPLAY_SERVICE_TRENDS)
-				printf("&service=%s",url_encode(svc_description));
+				printf("&service=%s",url_encode(service_desc));
 			if(backtrack_archives>0)
 				printf("&backtrack=%d",backtrack_archives);
 			printf("&zoom=%d",zoom_factor);
-			printf("' BORDER=0 name='trendsimage' useMap='#trendsmap' width=900>\n");
+			printf("' BORDER=0 name='trendsimage' useMap='#trendsmap' width=%d>\n", image_width);
 			printf("</DIV>\n");
 		        }
 
@@ -807,10 +903,10 @@ int main(int argc, char **argv){
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
-			printf("<TABLE BORDER=0 cellspacing=0 cellpadding=10>\n");
 			printf("<form method=\"GET\" action=\"%s\">\n",TRENDS_CGI);
 			printf("<input type='hidden' name='input' value='getoptions'>\n");
 
+			printf("<TABLE BORDER=0 cellspacing=0 cellpadding=10>\n");
 			printf("<tr><td class='reportSelectSubTitle' valign=center>Host:</td>\n");
 			printf("<td class='reportSelectItem' valign=center>\n");
 			printf("<select name='host'>\n");
@@ -827,8 +923,8 @@ int main(int argc, char **argv){
 			printf("<input type='submit' value='Continue to Step 3'>\n");
 			printf("</td></tr>\n");
 
-			printf("</form>\n");
 			printf("</TABLE>\n");
+			printf("</form>\n");
 
 			printf("</DIV></P>\n");
 		        }
@@ -863,11 +959,11 @@ int main(int argc, char **argv){
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 			
-			printf("<TABLE BORDER=0 cellpadding=5>\n");
 			printf("<form method=\"GET\" action=\"%s\" name=\"serviceform\">\n",TRENDS_CGI);
 			printf("<input type='hidden' name='input' value='getoptions'>\n");
 			printf("<input type='hidden' name='host' value='%s'>\n",(first_service==NULL)?"unknown":(char *)escape_string(first_service));
 
+			printf("<TABLE BORDER=0 cellpadding=5>\n");
 			printf("<tr><td class='reportSelectSubTitle'>Service:</td>\n");
 			printf("<td class='reportSelectItem'>\n");
 			printf("<select name='service' onFocus='document.serviceform.host.value=gethostname(this.selectedIndex);' onChange='document.serviceform.host.value=gethostname(this.selectedIndex);'>\n");
@@ -885,8 +981,8 @@ int main(int argc, char **argv){
 			printf("<input type='submit' value='Continue to Step 3'>\n");
 			printf("</td></tr>\n");
 
-			printf("</form>\n");
 			printf("</TABLE>\n");
+			printf("</form>\n");
 
 			printf("</DIV></P>\n");
 		        }
@@ -908,12 +1004,12 @@ int main(int argc, char **argv){
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
-			printf("<TABLE BORDER=0 CELLPADDING=5>\n");
 			printf("<form method=\"GET\" action=\"%s\">\n",TRENDS_CGI);
 			printf("<input type='hidden' name='host' value='%s'>\n",escape_string(host_name));
 			if(display_type==DISPLAY_SERVICE_TRENDS)
-				printf("<input type='hidden' name='service' value='%s'>\n",escape_string(svc_description));
+				printf("<input type='hidden' name='service' value='%s'>\n",escape_string(service_desc));
 
+			printf("<TABLE BORDER=0 CELLPADDING=5>\n");
 			printf("<tr><td class='reportSelectSubTitle' align=right>Report period:</td>\n");
 			printf("<td class='reportSelectItem'>\n");
 			printf("<select name='timeperiod'>\n");
@@ -1050,8 +1146,8 @@ int main(int argc, char **argv){
 
 			printf("<tr><td></td><td class='reportSelectItem'><input type='submit' value='Create Report'></td></tr>\n");
 
-			printf("</form>\n");
 			printf("</TABLE>\n");
+			printf("</form>\n");
 
 			printf("</DIV></P>\n");
 
@@ -1070,8 +1166,8 @@ int main(int argc, char **argv){
 
 			printf("<P><DIV ALIGN=CENTER>\n");
 
-			printf("<TABLE BORDER=0 cellpadding=5>\n");
 			printf("<form method=\"GET\" action=\"%s\">\n",TRENDS_CGI);
+			printf("<TABLE BORDER=0 cellpadding=5>\n");
 
 			printf("<tr><td class='reportSelectSubTitle' align=right>Type:</td>\n");
 			printf("<td class='reportSelectItem'>\n");
@@ -1085,8 +1181,8 @@ int main(int argc, char **argv){
 			printf("<input type='submit' value='Continue to Step 2'>\n");
 			printf("</td></tr>\n");
 
-			printf("</form>\n");
 			printf("</TABLE>\n");
+			printf("</form>\n");
 
 			printf("</DIV></P>\n");
 		        }
@@ -1142,9 +1238,9 @@ int process_cgivars(void){
 				break;
 			        }
 
-			if((svc_description=(char *)strdup(variables[x]))==NULL)
-				svc_description="";
-			strip_html_brackets(svc_description);
+			if((service_desc=(char *)strdup(variables[x]))==NULL)
+				service_desc="";
+			strip_html_brackets(service_desc);
 
 			display_type=DISPLAY_SERVICE_TRENDS;
 		        }
@@ -1312,6 +1408,8 @@ int process_cgivars(void){
 				timeperiod_type=TIMEPERIOD_THISYEAR;
 			else if(!strcmp(variables[x],"lastyear"))
 				timeperiod_type=TIMEPERIOD_LASTYEAR;
+			else if(!strcmp(variables[x],"nextproblem"))
+				timeperiod_type=TIMEPERIOD_NEXTPROBLEM;
 			else if(!strcmp(variables[x],"last24hours"))
 				timeperiod_type=TIMEPERIOD_LAST24HOURS;
 			else if(!strcmp(variables[x],"last7days"))
@@ -1601,7 +1699,7 @@ void graph_all_trend_data(void){
 	if(display_type==DISPLAY_HOST_TRENDS)
 		hststatus=find_hoststatus(host_name);
 	else
-		svcstatus=find_servicestatus(host_name,svc_description);
+		svcstatus=find_servicestatus(host_name,service_desc);
 
 
 	/************************************/
@@ -2101,7 +2199,7 @@ void graph_trend_data(int first_state,int last_state,time_t real_start_time,time
 
 		printf("href='%s?t1=%lu&t2=%lu&host=%s",TRENDS_CGI,(unsigned long)next_start_time,(unsigned long)next_end_time,url_encode(host_name));
 		if(display_type==DISPLAY_SERVICE_TRENDS)
-			printf("&service=%s",url_encode(svc_description));
+			printf("&service=%s",url_encode(service_desc));
 		printf("&assumeinitialstates=%s",(assume_initial_states==TRUE)?"yes":"no");
 		printf("&initialassumedhoststate=%d",initial_assumed_host_state);
 		printf("&initialassumedservicestate=%d",initial_assumed_service_state);
@@ -2331,7 +2429,7 @@ void scan_log_file_for_archived_state_data(char *filename){
 	char *input=NULL;
 	char *input2=NULL;
 	char entry_host_name[MAX_INPUT_BUFFER];
-	char entry_svc_description[MAX_INPUT_BUFFER];
+	char entry_service_desc[MAX_INPUT_BUFFER];
 	char *plugin_output=NULL;
 	char *temp_buffer=NULL;
 	time_t time_stamp;
@@ -2448,10 +2546,10 @@ void scan_log_file_for_archived_state_data(char *filename){
 				
 				/* get service description */
 				temp_buffer=my_strtok(NULL,";");
-				strncpy(entry_svc_description,(temp_buffer==NULL)?"":temp_buffer,sizeof(entry_svc_description));
-				entry_svc_description[sizeof(entry_svc_description)-1]='\x0';
+				strncpy(entry_service_desc,(temp_buffer==NULL)?"":temp_buffer,sizeof(entry_service_desc));
+				entry_service_desc[sizeof(entry_service_desc)-1]='\x0';
 
-				if(strcmp(svc_description,entry_svc_description))
+				if(strcmp(service_desc,entry_service_desc))
 					continue;
 
 				/* state types */
@@ -2712,6 +2810,9 @@ void convert_timeperiod_to_times(int type){
 		t2=mktime(t);
 		t->tm_year--;
 		t1=mktime(t);
+		break;
+	case TIMEPERIOD_NEXTPROBLEM:
+		/* Time period will be defined later */
 		break;
 	case TIMEPERIOD_LAST7DAYS:
 		t2=current_time;

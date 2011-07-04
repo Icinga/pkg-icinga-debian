@@ -3,7 +3,7 @@
  * STATUSMAP.C - Icinga Network Status Map CGI
  *
  * Copyright (c) 1999-2008 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * Description:
  *
@@ -38,6 +38,8 @@
 
 #include <gd.h>			/* Boutell's GD library function */
 #include <gdfonts.h>		/* GD library small font definition */
+
+static icinga_macros *mac;
 
 /*#define DEBUG*/
 
@@ -166,9 +168,6 @@ extern int color_transparency_index_r;
 extern int color_transparency_index_g;
 extern int color_transparency_index_b;
 
-int show_all_hosts=TRUE;
-char *host_name="all";
-
 extern int embedded;
 extern int refresh;
 extern int display_header;
@@ -221,10 +220,24 @@ layer *layer_list=NULL;
 int exclude_layers=TRUE;
 int all_layers=FALSE;
 
+int display_type=DISPLAY_HOSTS;
+int show_all_hosts=TRUE;
+int show_all_hostgroups=TRUE;
+int show_all_servicegroups=TRUE;
+
+char *host_name="all";
+char *host_filter=NULL;
+char *hostgroup_name=NULL;
+char *servicegroup_name=NULL;
+char *service_desc=NULL;
+char *service_filter=NULL;
+
 int CGI_ID=STATUSMAP_CGI_ID;
 
 int main(int argc, char **argv){
 	int result;
+
+	mac = get_global_macros();
 
 	/* reset internal variables */
 	reset_cgi_vars();
@@ -234,7 +247,7 @@ int main(int argc, char **argv){
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
 		if(content_type==HTML_CONTENT)
-			cgi_config_file_error(get_cgi_config_location());
+			print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
 		document_footer(CGI_ID);
 		return ERROR;
 	        }
@@ -250,7 +263,7 @@ int main(int argc, char **argv){
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
 		if(content_type==HTML_CONTENT)
-			main_config_file_error(main_config_file);
+			print_error(main_config_file, ERROR_CGI_MAIN_CFG);
 		document_footer(CGI_ID);
 		return ERROR;
 	        }
@@ -260,7 +273,7 @@ int main(int argc, char **argv){
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
 		if(content_type==HTML_CONTENT)
-			object_data_error();
+			print_error(NULL, ERROR_CGI_OBJECT_DATA);
 		document_footer(CGI_ID);
 		return ERROR;
                 }
@@ -270,7 +283,7 @@ int main(int argc, char **argv){
 	if(result==ERROR && daemon_check==TRUE){
 		document_header(CGI_ID,FALSE);
 		if(content_type==HTML_CONTENT)
-			status_data_error();
+			print_error(NULL, ERROR_CGI_STATUS_DATA);
 		document_footer(CGI_ID);
 		free_memory();
 		return ERROR;
@@ -1844,7 +1857,7 @@ void write_host_popup_text(host *hst){
 	        }
 
 	/* grab macros */
-	grab_host_macros(hst);
+	grab_host_macros_r(mac, hst);
 
 	/* strip nasty stuff from plugin output */
 	sanitize_plugin_output(temp_status->plugin_output);
@@ -1855,7 +1868,7 @@ void write_host_popup_text(host *hst){
 	if(hst->icon_image==NULL)
 		printf("%s",UNKNOWN_ICON_IMAGE);
 	else{
-		process_macros(hst->icon_image,&processed_string,0);
+		process_macros_r(mac, hst->icon_image,&processed_string,0);
 		printf("%s",processed_string);
 		free(processed_string);
 		}
@@ -1865,6 +1878,7 @@ void write_host_popup_text(host *hst){
 	printf("<tr><td class=\\\"popupText\\\">Name:</td><td class=\\\"popupText\\\"><b>%s</b></td></tr>",escape_string(hst->name));
 	printf("<tr><td class=\\\"popupText\\\">Alias:</td><td class=\\\"popupText\\\"><b>%s</b></td></tr>",escape_string(hst->alias));
 	printf("<tr><td class=\\\"popupText\\\">Address:</td><td class=\\\"popupText\\\"><b>%s</b></td></tr>",html_encode(hst->address,TRUE));
+	printf("<tr><td class=\\\"popupText\\\">Address6:</td><td class=\\\"popupText\\\"><b>%s</b></td></tr>",html_encode(hst->address6,TRUE));
 	printf("<tr><td class=\\\"popupText\\\">State:</td><td class=\\\"popupText\\\"><b>");
 
 	/* get the status of the host (pending, up, down, or unreachable) */
