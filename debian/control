@@ -1,8 +1,10 @@
 Source: icinga
 Section: net
 Priority: optional
-Maintainer: Debian Nagios Maintainer Group <pkg-nagios-devel@lists.alioth.debian.org>
-Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
+Maintainer: Progress Developers <progress-devel@lists.progress-linux.org>
+Uploaders: Daniel Baumann <daniel.baumann@progress-linux.org>
+XSBC-Original-Maintainer: Debian Nagios Maintainer Group <pkg-nagios-devel@lists.alioth.debian.org>
+XSBC-Original-Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
 Standards-Version: 3.9.0
 Vcs-Browser: http://git.debian.org/?p=pkg-nagios/icinga.git
 Vcs-Git: git://git.debian.org/pkg-nagios/icinga.git
