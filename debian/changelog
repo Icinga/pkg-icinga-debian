@@ -1,0 +1,71 @@
+icinga (1.2-1) unstable; urgency=low
+
+  * New upstream version
+    - Remove 80_remove_daemoncheck_cgi (now upstream)
+  * bump standards version (no changes)
+  * Icinga Plugins does not exist
+  * Fix typo in watch file
+  * Add japanese debconf translation (Closes: #598368)
+    Thanks Hideki Yamane
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 09 Aug 2010 18:23:06 +0200
+
+icinga (1.0.2-1) unstable; urgency=low
+
+  * New upstream version
+  * Bump standards version (no changes needed)
+  * Fix eventhandler paths
+  * Remove 40_fix_spurious_dollar_signs_added_to_command_lines - 
+    now upstream
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 03 Jul 2010 12:28:08 +0200
+
+icinga (1.0.1-4) unstable; urgency=low
+
+  * Fix mini_epn p1 path 
+  * Backport several ido2db fixes from git
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Closes: #579934
+  * [Debconf translation updates]
+  * Spanish (Omar Campagne).  Closes: #579656,#581823
+  * Czech (Martin Sin).  Closes: #580471
+  * Basque (Iñaki Larrañaga Murgoitio).  Closes: #580478
+  * Danish (Joe Hansen).  Closes: #580571,#580572
+  * Brazilian Portuguese (Bruno Gurgel Gomes de Oliveira).
+    Closes: #580656, #581562
+  * Russian (Yuri Kozlov).  Closes: #580765
+  * Italian (Luca Monducci).  Closes: #580768
+  * Vietnamese (Clytie Siddall).  Closes: #581538
+  * Portuguese (Américo Monteiro).  Closes: #582319
+  * German (Matthias Julius).  Closes: #582348
+  * French (Steve Petruzzello).  Closes: #582643
+  * Swedish (Martin Bagge).  Closes: #582699
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 13 Apr 2010 11:52:52 +0200
+
+icinga (1.0.1-3) unstable; urgency=low
+
+  * its nagios-plugins, not icinga-plugins 
+  * Use alternatives for mini_epn (Closes: #577493)
+  * Don't depend on non-existing virtual facility $icinga 
+    (Closes: #577166) 
+  * Update french po translation (Closes: #577152)
+  * Update russian po translation (Closes: #577170) 
+  * Update swedish po translation (Closes: #577553)
+  * Update portuguese po translation (Closes: #577137)
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 08 Apr 2010 19:58:16 +0200
+
+icinga (1.0.1-2) unstable; urgency=low
+
+  * Fix maintainer address
+  * Disable context sensitive help
+  * Recommend php5-mysql | php5-pgsql for the phpapi package
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 07 Apr 2010 14:31:39 +0200
+
+icinga (1.0.1-1) unstable; urgency=low
+
+  * Initial packaging (Closes: #573880)
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 27 Mar 2010 09:59:41 +0100

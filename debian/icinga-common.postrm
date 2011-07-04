@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+# some shorthands for sanity
+en="/etc/icinga"
+enc="/etc/icinga/objetcs"
+usn="/usr/share/icinga"
+
+case "$1" in
+  remove)
+  	;;
+  purge)
+        for file in $en/resource.cfg /var/log/icinga /var/run/icinga \
+	            /var/lib/icinga /var/lib/icinga/spool \
+		    /var/lib/icinga/spool/checkresults \
+		    /var/cache/icinga /var/lib/icinga/rw; do
+	    dpkg-statoverride --force --remove $file 2>/dev/null || true
+	done
+        rm -rf /var/run/icinga /var/log/icinga /var/lib/icinga \
+	       /var/cache/icinga
+    ;;
+esac
+
+#DEBHELPER#
