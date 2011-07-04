@@ -32,9 +32,10 @@
   <p><span class="bold"><strong>Introducion</strong></span></p>
 
   <p>The new Icinga Web is under heavy development so please keep in mind that some information in this howto might change without any
-  further notice. If you require more detailed information about installing, please check doc/INSTALL. More information about the overall
-  architecture can be found on our website: <a class="link" href="http://www.icinga.org/architecture/" target="_top">http://www.icinga.org/architecture/</a>. If you
-  want know more about Icinga web development and the module architecture, please check out the development wiki of Icinga Web: <a class="link" href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web" target="_top">Icinga Wiki</a></p>
+  further notice. If you require more detailed information about installing, please check doc/INSTALL.</p>
+
+  <p>More information about the overall architecture can be found on our website: <a class="link" href="http://www.icinga.org/architecture/" target="_top">http://www.icinga.org/architecture/</a>. If you want know more about Icinga web development and
+  the module architecture, please check out the development wiki of Icinga Web: <a class="link" href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web" target="_top">Icinga Wiki</a></p>
 
   <div class="orderedlist"><ol class="orderedlist" type="1">
 <li class="listitem">
@@ -49,6 +50,17 @@
       box.</p>
 
       <pre class="programlisting"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-pdo php5-gd php5-ldap php5-mysql</pre>
+
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+        <p>For Ubuntu you install the required PDO extensions with php5 and php5-mysql! There is no php5-pdo package
+        available.</p>
+      </td></tr>
+</table></div>
 
       <p><span class="bold"><strong>Fedora / RHEL / CentOS</strong></span></p>
 
@@ -157,8 +169,7 @@
 
       <pre class="programlisting"> #&gt; make install-apache-config</pre>
 
-      <p>If you don't need an alias, you can alternatively use the old behavior setting a symlink instead:
-</p>
+      <p>If you don't need an alias, you can alternatively use the old behavior setting a symlink instead: </p>
 <pre class="programlisting"> #&gt; make install-javascript</pre>
 
       <p>Make reports after install:</p>
@@ -182,11 +193,12 @@
 
       <p>All required tests should pass successfully. Maybe you have to alter the php.ini for the framework.</p>
 
-      <p>In case of the gpc_magic_quote setting, you have to disable both entries (apache and cli php.ini). The locations depend on the
-      distributions used.</p>
+      <p>In case of the gpc_magic_quote setting, you have to disable both entries (apache and cli php.ini). If you use php &lt; 5.3.0,
+      you have to set "safe_mode" to "off". The locations depend on the distributions used.</p>
 
       <pre class="programlisting"> #&gt; vi /etc/php5/apache/php.ini
    magic_quotes_gpc = off
+   safe_mode = off
 
  #&gt; vi /etc/php5/cli/php.ini
    magic_quotes_gpc = off</pre>
@@ -215,8 +227,7 @@
       <p></p>
 
       <pre class="programlisting"> SQL&gt; GRANT USAGE ON *.* TO 'icinga_web'@'localhost' IDENTIFIED BY 'icinga_web';
- SQL&gt; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON icinga_web.* TO 'icinga_web'@'localhost';
- SQL&gt; FLUSH PRIVILEGES;</pre>
+ SQL&gt; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON icinga_web.* TO 'icinga_web'@'localhost';</pre>
 
       <p><span class="bold"><strong>MySQL</strong></span></p>
 
@@ -227,20 +238,16 @@
         GRANT USAGE ON *.* TO 'icinga_web'@'localhost' IDENTIFIED BY 'icinga_web' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0;
    
         GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON icinga_web.* TO 'icinga_web'@'localhost';
- 
-        FLUSH PRIVILEGES ;
 
         quit</pre>
 
       <p><span class="bold"><strong>Create Database</strong></span></p>
 
-      <p>Icinga Web ships with Doctrine so you can initialise, upgrade or drop the database directly using 'make'.</p>
+      <p>Icinga Web ships with Doctrine so you can initialise or drop the database directly using 'make'.</p>
 
       <pre class="programlisting"> #&gt; make db-initialize      - creates a spick-and-span database</pre>
 
       <pre class="programlisting"> #&gt; make db-drop            - drops your database with a security query to avoid casualties</pre>
-
-      <pre class="programlisting"> #&gt; make db-upgrade         - upgrades old tables to a newer version (Just the same as db-initialize with a better name ;-))</pre>
 
       <pre class="programlisting"> #&gt; make db-doc2sql         - if you require plain SQL scripts, use this option to generate SQL from Doctrine. This can be useful for packaging or manual db install</pre>
 
@@ -256,7 +263,7 @@
 
       <p>If you require manual database creation e.g. for package building, you can extract the plain SQL scripts using:</p>
 
-      <pre class="programlisting"> # make db-doc2sql</pre>
+      <pre class="programlisting"> #&gt; make db-doc2sql</pre>
 
       <p>and then use the generated scripts on the freshly created database.</p>
     </li>
@@ -274,7 +281,7 @@
       <p>Normally you can set the database credentials during configure, but if you want to recheck or even change them, please adapt
       those to your needs.</p>
 
-      <pre class="programlisting"> # vi app/config/databases.xml</pre>
+      <pre class="programlisting"> #&gt; vi app/config/databases.xml</pre>
 
       <pre class="programlisting">    &lt;databases default="icinga_web"&gt;
                         &lt;database name="icinga_web" class="AgaviDoctrineDatabase"&gt;
@@ -312,17 +319,18 @@
       <p>Those settings are directly within Icinga Web which provides the given information in an appropriate way to the Icinga API. Keep
       a look into app/modules/Web/config/icinga-io.xml.xml for the IcingaApi factories: IcingaData and IcingaCommand.</p>
 
-      <pre class="programlisting"> # vi app/modules/Web/config/icinga-io.xml</pre>
+      <pre class="programlisting"> #&gt; vi app/modules/Web/config/icinga-io.xml</pre>
 
-     <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
 <td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
 <th align="left">Note</th>
 </tr>
-<tr><td align="left" valign="top"> <p>Optional: Your specific Icinga connection settings like api credentials config can be set in
-      app/modules/Web/config/icinga-io.site.xml and will be used in the first place. This won't get overwritten during upgrade process.
-      </p>
-</td></tr>
+<tr><td align="left" valign="top">
+        <p>Optional: Your specific Icinga connection settings like api credentials config can be set in
+        app/modules/Web/config/icinga-io.site.xml and will be used in the first place. This won't get overwritten during upgrade
+        process.</p>
+      </td></tr>
 </table></div>
 
       <p>In IcingaData you can set the credentials for the Icinga API e.g. using the Icinga IDOUtils database.</p>
@@ -420,7 +428,7 @@
       </td></tr>
 </table></div>
 
-      <pre class="programlisting"> # rm -rf app/cache/config/*.php</pre>
+      <pre class="programlisting"> #&gt; rm -rf app/cache/config/*.php</pre>
     </li>
 <li class="listitem">
       <p><span class="bold"><strong>Apache settings</strong></span></p>
@@ -431,7 +439,7 @@
           <p>mod_rewrite enabled, maybe you have to create a link:</p>
         </li></ul></div>
 
-      <pre class="programlisting"> # ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load</pre>
+      <pre class="programlisting"> #&gt; ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load</pre>
 
       <p>Using OpenSuSE you can use "a2enmod rewrite" to activate the module. If that doesn't work you have to edit the file
       "/etc/sysconfig/apache2". The module "rewrite" has to be appended to the line "APACHE_MODULES=...".</p>
@@ -492,7 +500,7 @@
       :</p>
 
       <pre class="programlisting">#&gt; cat /etc/apache2/icinga-web.conf
-#
+
 # icinga-web apache configuration
 # - Enable all options .htaccess
 # - Add extjs library to alias
@@ -605,10 +613,15 @@ Alias /icinga-web /usr/local/icinga-web/pub
       <p>* PHP Fatal error: Allowed memory size of ... bytes exhausted (tried to allocate ... bytes) =&gt; Check your php.ini (both
       apache2 and cli) and adjust memory_limit to 128M or higher.</p>
 
+      <p>* PHP Fatal error: Uncaught exception 'AgaviCacheException' with message 'Failed to write cache file
+      /usr/local/icinga-web/app/cache/config/config_handlers.xml_development__xxxx.php" generated from configuration file
+      /usr/local/icinga-web/app/config/config_handlers.xml". Please make sure you have set correct write permissions for directory
+      /usr/local/icinga-web/app/cache.... = &gt; Check /etc/php5/apache/php.ini, set safe_mode = off.</p>
+
       <p>* Could not connect to API. The API Connector returned the following message: getConnection failed: Database connection failed:
       SQLSTATE[28000] [1045] Access denied for user 'icinga'@'localhost' (using password: YES))</p>
 
-      <p>=&gt; check your IDOUtils DB credentials in ido2db.cfg and add those to app/module/Web/config/module.xml as API credentials.
+      <p>=&gt; check your IDOUtils DB credentials in ido2db.cfg and add those to Icinga Web configuration as preferred DB credentials for IDO (see above).
       With 1.0.3 you can set those values directly during configure</p>
 
       <p>* touch: cannot touch `/usr/local/icinga-web/.../cache/testfile.txt': Permission denied =&gt; Your configuration in the xml
@@ -628,15 +641,16 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <p>* Counts in the Status Cronk do not match your configuration? =&gt; Check with the Backend, e.g. IDOUtils DB, selecting the
       counts for the status tables.</p>
-<p>* No Data shwon in Cronks? =&gt; Make sure that all permissions are set correctly, escecially the log/</p>
+
+      <p>* No Data shown in Cronks? =&gt; Make sure that all permissions are set correctly, escecially the log/</p>
 
       <p>If you have any updates on that please do not hesitate to report back! :-)</p>
     </li>
 </ol></div>
 
-  <a class="indexterm" name="id4818171"></a>
+  <a class="indexterm" name="id4317991"></a>
 
-  <a class="indexterm" name="id4818342"></a>
+  <a class="indexterm" name="id4318000"></a>
 </div>
 <div class="navfooter">
 <hr>

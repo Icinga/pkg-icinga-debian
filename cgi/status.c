@@ -184,6 +184,7 @@ extern int embedded;
 extern int display_header;
 extern int daemon_check;
 extern int content_type;
+extern int escape_html_tags;
 
 extern char *csv_delimiter;
 extern char *csv_data_enclosure;
@@ -5478,7 +5479,11 @@ void show_hostcommand_table(void){
 void print_comment_icon(char *host_name, char *svc_description) {
 	comment *temp_comment=NULL;
 	char *comment_entry_type="";
-	char comment_data[MAX_INPUT_BUFFER];
+	char comment_data[MAX_INPUT_BUFFER]="";
+	int len,output_len;
+	int x,y;
+	char *escaped_output_string=NULL;
+	int saved_escape_html_tags_var=FALSE;
 
 	if(svc_description==NULL){
 		printf("<TD ALIGN=center valign=center><A HREF='%s?type=%d&host=%s'",EXTINFO_CGI,DISPLAY_HOST_INFO,url_encode(host_name));
@@ -5509,7 +5514,56 @@ void print_comment_icon(char *host_name, char *svc_description) {
 						break;
 				}
 				snprintf(comment_data,sizeof(comment_data)-1,"%s",temp_comment->comment_data);
-				printf("<tr><td nowrap>%s</td><td>%s</td></tr>",comment_entry_type,html_encode(comment_data,TRUE));
+				comment_data[sizeof(comment_data)-1]='\x0';
+
+				/* we need up to twice the space to do the conversion of single, double quotes and back slash's */
+				len=(int)strlen(comment_data);
+				output_len=len*2;
+				if((escaped_output_string=(char *)malloc(output_len+1))!=NULL) {
+
+					strcpy(escaped_output_string,"");
+
+					for(x=0,y=0;x<=len;x++){
+						/* end of string */
+						if((char)comment_data[x]==(char)'\x0'){
+							escaped_output_string[y]='\x0';
+							break;
+						} else if((char)comment_data[x]==(char)'\'') {
+							escaped_output_string[y]='\x0';
+							if((int)strlen(escaped_output_string)<(output_len-2)){
+								strcat(escaped_output_string,"\\'");
+								y+=2;
+							}
+						} else if((char)comment_data[x]==(char)'"') {
+							escaped_output_string[y]='\x0';
+							if((int)strlen(escaped_output_string)<(output_len-2)){
+								strcat(escaped_output_string,"\\\"");
+								y+=2;
+							}
+						} else if((char)comment_data[x]==(char)'\\') {
+							escaped_output_string[y]='\x0';
+							if((int)strlen(escaped_output_string)<(output_len-2)){
+								strcat(escaped_output_string,"\\\\");
+								y+=2;
+							}
+						} else {
+							escaped_output_string[y++]=comment_data[x];
+						}
+					}
+					escaped_output_string[++y]='\x0';
+				} else {
+					strcpy(escaped_output_string,comment_data);
+				}
+
+				/* in the tooltips we have to escape all characters */
+				saved_escape_html_tags_var=escape_html_tags;
+				escape_html_tags=TRUE;
+
+				printf("<tr><td nowrap>%s</td><td>%s</td></tr>",comment_entry_type,html_encode(escaped_output_string,TRUE));
+
+				escape_html_tags=saved_escape_html_tags_var;
+
+				free(escaped_output_string);
 			}
 		}
 		/* under http://www.ebrueggeman.com/skinnytip/documentation.php#reference you can find the config options of skinnytip */
