@@ -15,7 +15,7 @@ if [ -n "$ICINGADEBUG" ]; then
   set -x
 fi
 
-# location of the default apache configuration for nagios.
+# location of the default apache configuration for icinga
 apacheconf=$en/apache2.conf
 # location of the default htpasswd authentication file.
 htpw=$en/htpasswd.users
@@ -47,6 +47,18 @@ case "$1" in
 	db_get icinga/adminpassword
 	admpass="$RET"
 
+	unwanted_servers=""
+
+	#check which servers to uninclude
+	for s in $wc_httpd_supported
+	do
+		if ! echo $servers | grep -q $s
+		then
+			unwanted_servers="$s $unwanted_servers"
+		fi
+	done
+
+
 	ucf --debconf-ok /usr/share/doc/icinga-cgi/examples/apache2.conf $apacheconf
 
 	# configure the web servers, if it is desired
@@ -58,6 +70,19 @@ case "$1" in
 				wc_httpd_invoke "reload" $running_servers
 			fi
 		fi	
+	fi
+
+	if [ "$unwanted_servers" ]; then
+		servers_to_deconf="$(wc_httpd_apache_configured $apacheconf icinga $unwanted_servers)"
+		if [ "$servers_to_deconf" ]; then
+			if wc_httpd_apache_uninclude $apacheconf icinga $servers_to_deconf; then
+				# reload the selected servers if they are running
+				running_servers="$(wc_httpd_running $unwanted_servers)"
+				if [ "$running_servers" ]; then
+					wc_httpd_invoke "reload" $running_servers
+				fi
+			fi
+		fi
 	fi
 
 
