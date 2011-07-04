@@ -1,3 +1,10 @@
+icinga (1.2.1-1) unstable; urgency=low
+
+  * New upstream release
+  * Add apache vhost example (Closes: #599555)
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 25 Oct 2010 08:26:07 +0200
+
 icinga (1.2-1~artax1) artax; urgency=low
 
   * Uploading to artax.
