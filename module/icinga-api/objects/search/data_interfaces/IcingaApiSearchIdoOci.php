@@ -48,7 +48,7 @@ class IcingaApiSearchIdoOci
 				distinct ${FIELDS}
 			from
 				${TABLE_PREFIX}objects oh
-			${if_table:h:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.id}
+			inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.id
 			${if_table:hs:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = oh.id}
 			${if_table:i,h:inner join ${TABLE_PREFIX}instances i on i.id = h.instance_id}
 			${if_table:hcg,h:inner join ${TABLE_PREFIX}host_contactgroups hcg on hcg.host_id = h.id}
@@ -62,7 +62,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
-				oh.objecttype_id = 1
+				oh.objecttype_id = 1 and h.config_type=1
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -72,7 +72,7 @@ class IcingaApiSearchIdoOci
 				distinct ${FIELDS}
 			from
 				${TABLE_PREFIX}objects os
-			${if_table:s:inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id}
+			inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id
 			${if_table:i,s:inner join ${TABLE_PREFIX}instances i on i.id = s.instance_id}
 			${if_table:scg,s:inner join ${TABLE_PREFIX}service_contactgroups scg on scg.service_id = s.id}
 			${if_table:cg,scg,s:inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
@@ -92,7 +92,7 @@ class IcingaApiSearchIdoOci
 			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
-				os.objecttype_id = 2
+				os.objecttype_id = 2 and s.config_type=1
 			${FILTER_AND}
 			${GROUPBY}
 			${ORDERBY}
@@ -187,18 +187,19 @@ class IcingaApiSearchIdoOci
 			'select
 				${FIELDS}
 			from
-				${TABLE_PREFIX}logentries le 
+				${TABLE_PREFIX}logentries le
+				${if_table:i:inner join ${TABLE_PREFIX}instances i on i.id = le.instance_id} 
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY}
 			${LIMIT}',
 		self::TARGET_HOST_STATUS_SUMMARY => 
 			'select
-				${FIELDS:hs.current_state HOST_STATE, count(hs.current_state) COUNT}
+				${FIELDS:hs.current_state HOST_STATE, count(DISTINCT hs.host_object_id) COUNT}
 			from
 				${TABLE_PREFIX}hoststatus hs
-			${if_table:oh:inner join ${TABLE_PREFIX}objects oh on oh.id = hs.host_object_id}
-			${if_table:h,oh:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.id}
+			inner join ${TABLE_PREFIX}objects oh on oh.id = hs.host_object_id
+			inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.id
 			${if_table:i,h,oh:inner join ${TABLE_PREFIX}instances i on i.id = h.instance_id}
 			${if_table:hcg,h,oh:-- inner join ${TABLE_PREFIX}host_contactgroups hcg on hcg.host_id = h.id}
 			${if_table:cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = hcg.contactgroup_object_id}
@@ -210,18 +211,19 @@ class IcingaApiSearchIdoOci
 			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
 			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvsc,oc,cgm,cg,hcg,h,oh:-- inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
-			${FILTER}
+			where h.config_type=1
+			${FILTER_AND}
 			group by
 				hs.current_state
 			${ORDERBY:hs.current_state}
 			${LIMIT}',
 		self::TARGET_SERVICE_STATUS_SUMMARY =>
 			'select
-				${FIELDS:ss.current_state SERVICE_STATE, count(ss.current_state) COUNT}
+				${FIELDS:ss.current_state SERVICE_STATE, count(DISTINCT ss.service_object_id) COUNT}
 			from
 				${TABLE_PREFIX}servicestatus ss
-			${if_table:os:inner join ${TABLE_PREFIX}objects os on os.id = ss.service_object_id}
-			${if_table:s,os:inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id}
+			inner join ${TABLE_PREFIX}objects os on os.id = ss.service_object_id
+			inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id
 			${if_table:i,s,os:inner join ${TABLE_PREFIX}instances i on i.id = s.instance_id}
 			${if_table:scg,s,os:-- inner join ${TABLE_PREFIX}service_contactgroups scg on scg.service_id = s.id}
 			${if_table:cg,scg,s,os:-- inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
@@ -236,7 +238,8 @@ class IcingaApiSearchIdoOci
 			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
 			${if_table:cvsc,oc,cgm,cg,scg,s,os:--inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
-			${FILTER}
+			where s.config_type=1
+			${FILTER_AND}
 			group by
 				ss.current_state
 			${ORDERBY:ss.current_state}
@@ -351,6 +354,64 @@ class IcingaApiSearchIdoOci
 			${FILTER}
 			${GROUPBY}
 			${ORDERBY:co.comment_time asc}
+			${LIMIT}',
+		
+		self::TARGET_DOWNTIMEHISTORY => 
+			'select
+				distinct ${FIELDS}
+			from
+			${TABLE_PREFIX}downtimehistory dth
+			
+			left join ${TABLE_PREFIX}objects os ON os.id = dth.object_id
+			left join ${TABLE_PREFIX}services s ON s.service_object_id = os.id
+			${if_table:ss:left join ${TABLE_PREFIX}servicestatus ss on ss.service_object_id = os.id}
+			
+			left join ${TABLE_PREFIX}objects oh ON oh.id = s.host_object_id OR oh.id = dth.object_id
+			${if_table:h:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.id}
+			${if_table:hs:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = ohid}
+			
+			${if_table:hgm:left join ${TABLE_PREFIX}hostgroup_members hgm ON hgm.host_object_id = ohid}
+			${if_table:hg,hgm:left join ${TABLE_PREFIX}hostgroups hg ON hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm:left join ${TABLE_PREFIX}objects ohg ON ohgid = hg.hostgroup_object_id}
+			
+			${if_table:sgm:left join ${TABLE_PREFIX}servicegroup_members sgm on sgm.service_object_id = osid}
+			${if_table:sg,sgm:left join ${TABLE_PREFIX}servicegroups sg on sg.servicegroup_id = sgm.servicegroup_id}
+			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}objects osg on osgid = sg.servicegroup_object_id}
+			
+			${if_table:i,dth:left join ${TABLE_PREFIX}instances i on i.id = dth.instance_id}
+			
+			${FILTER}
+			${GROUPBY}
+			${ORDERBY}
+			${LIMIT}',
+		
+		self::TARGET_DOWNTIME => 
+			'select
+				distinct ${FIELDS}
+			from
+			${TABLE_PREFIX}scheduleddowntime dt
+			
+			left join ${TABLE_PREFIX}objects os ON os.id = dt.object_id
+			left join ${TABLE_PREFIX}services s ON s.service_object_id = os.id
+			${if_table:ss:left join ${TABLE_PREFIX}servicestatus ss on ss.service_object_id = os.id}
+			
+			left join ${TABLE_PREFIX}objects oh ON oh.id = s.host_object_id OR oh.id = dt.object_id
+			${if_table:h:inner join ${TABLE_PREFIX}hosts h on h.host_object_id = oh.id}
+			${if_table:hs:inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = oh.id}
+			
+			${if_table:hgm:left join ${TABLE_PREFIX}hostgroup_members hgm ON hgm.host_object_id = oh.id}
+			${if_table:hg,hgm:left join ${TABLE_PREFIX}hostgroups hg ON hg.hostgroup_id = hgm.hostgroup_id}
+			${if_table:ohg,hg,hgm:left join ${TABLE_PREFIX}objects ohg ON ohg.id = hg.hostgroup_object_id}
+			
+			${if_table:sgm:left join ${TABLE_PREFIX}servicegroup_members sgm on sgm.service_object_id = os.id}
+			${if_table:sg,sgm:left join ${TABLE_PREFIX}servicegroups sg on sg.servicegroup_id = sgm.servicegroup_id}
+			${if_table:osg,sg,sgm:left join ${TABLE_PREFIX}objects osg on osg.id = sg.servicegroup_object_id}
+			
+			${if_table:i,dt:left join ${TABLE_PREFIX}instances i on i.id = dt.instance_id}
+			
+			${FILTER}
+			${GROUPBY}
+			${ORDERBY}
 			${LIMIT}'
 			);
 
@@ -419,6 +480,7 @@ class IcingaApiSearchIdoOci
 		'HOST_ALIAS' => array('h', 'alias'),
 		'HOST_DISPLAY_NAME' => array('h', 'display_name'),
 		'HOST_ADDRESS' => array('h', 'address'),
+		'HOST_ADDRESS6' => array('h', 'address6'),
 		'HOST_ACTIVE_CHECKS_ENABLED' => array('h', 'active_checks_enabled'),
 		'HOST_CONFIG_TYPE' => array('h', 'config_type'),
 		'HOST_FLAP_DETECTION_ENABLED' => array('hs', 'flap_detection_enabled'),
@@ -602,7 +664,46 @@ class IcingaApiSearchIdoOci
 		'COMMENT_IS_PERSISTENT' => array('co', 'is_persistent'),
 		'COMMENT_SOURCE' => array('co', 'comment_source'),
 		'COMMENT_EXPIRES' => array('co', 'expires'),
-		'COMMENT_EXPIRATION_TIME' => array('co', 'expiration_time')
+		'COMMENT_EXPIRATION_TIME' => array('co', 'expiration_time'),
+	
+			// Downtimehistory
+		'DOWNTIMEHISTORY_ID' => array ('dthh', 'downtimehistory_id'),
+		'DOWNTIMEHISTORY_INSTANCE_ID' => array ('dth', 'instance_id'),
+		'DOWNTIMEHISTORY_DOWNTIME_TYPE' => array ('dth', 'downtime_type'),
+		'DOWNTIMEHISTORY_OBJECT_ID' => array ('dth', 'object_id'),
+		'DOWNTIMEHISTORY_ENTRY_TIME' => array ('dth', 'entry_time'),
+		'DOWNTIMEHISTORY_AUTHOR_NAME' => array ('dth', 'author_name'),
+		'DOWNTIMEHISTORY_COMMENT_DATA' => array ('dth', 'comment_data'),
+		'DOWNTIMEHISTORY_INTERNAL_DOWNTIME_ID' => array ('dth', 'internal_downtime_id'),
+		'DOWNTIMEHISTORY_TRIGGERED_BY_ID' => array ('dth', 'triggered_by_id'),
+		'DOWNTIMEHISTORY_IS_FIXED' => array ('dth', 'is_fixed'),
+		'DOWNTIMEHISTORY_DURATION' => array ('dth', 'duration'),
+		'DOWNTIMEHISTORY_SCHEDULED_START_TIME' => array ('dth', 'scheduled_start_time'),
+		'DOWNTIMEHISTORY_SCHEDULED_END_TIME' => array ('dth', 'scheduled_end_time'),
+		'DOWNTIMEHISTORY_WAS_STARTED' => array ('dth', 'was_started'),
+		'DOWNTIMEHISTORY_ACTUAL_START_TIME' => array ('dth', 'actual_start_time'),
+		'DOWNTIMEHISTORY_ACTUAL_START_TIME_USEC' => array ('dth', 'actual_start_time_usec'),
+		'DOWNTIMEHISTORY_ACTUAL_END_TIME' => array ('dth', 'actual_end_time'),
+		'DOWNTIMEHISTORY_ACTUAL_END_TIME_USEC' => array ('dth', 'actual_end_time_usec'),
+		'DOWNTIMEHISTORY_WAS_CANCELLED' => array ('dth', 'was_cancelled'),
+		
+			// Downtime
+		'DOWNTIME_ID' => array ('dt', 'scheduleddowntime_id'),
+		'DOWNTIME_INSTANCE_ID' => array ('dt', 'instance_id'),
+		'DOWNTIME_DOWNTIME_TYPE' => array ('dt', 'downtime_type'),
+		'DOWNTIME_OBJECT_ID' => array ('dt', 'object_id'),
+		'DOWNTIME_ENTRY_TIME' => array ('dt', 'entry_time'),
+		'DOWNTIME_AUTHOR_NAME' => array ('dt', 'author_name'),
+		'DOWNTIME_COMMENT_DATA' => array ('dt', 'comment_data'),
+		'DOWNTIME_INTERNAL_DOWNTIME_ID' => array ('dt', 'internal_downtime_id'),
+		'DOWNTIME_TRIGGERED_BY_ID' => array ('dt', 'triggered_by_id'),
+		'DOWNTIME_IS_FIXED' => array ('dt', 'is_fixed'),
+		'DOWNTIME_DURATION' => array ('dt', 'duration'),
+		'DOWNTIME_SCHEDULED_START_TIME' => array ('dt', 'scheduled_start_time'),
+		'DOWNTIME_SCHEDULED_END_TIME' => array ('dt', 'scheduled_end_time'),
+		'DOWNTIME_WAS_STARTED' => array ('dt', 'was_started'),
+		'DOWNTIME_ACTUAL_START_TIME' => array ('dt', 'actual_start_time'),
+		'DOWNTIME_ACTUAL_START_TIME_USEC' => array ('dt', 'actual_start_time_usec')
 	
 		);
 

@@ -23,7 +23,29 @@
   <para>During development there may be cases where the handling of bugfixes might touch the userspace. We try to avoid this as far as
   possible but sometimes it is inevitable.</para>
 
-  <para><emphasis role="bold">&name-icinga; 0.8.0 to &name-icinga; &ver-icinga;</emphasis></para>
+  <para><emphasis role="bold">Normal &name-icinga; update Path</emphasis></para>
+
+  <para>If there's a new &name-icinga; version available on &url-icinga; you should consider updating. Newer versions contain bugfixes,
+  minor or major, which makes it even more important to get the latest and the greatest. If you already installed &name-icinga; using the
+  quickstart guides it's rather easy to install newer versions. It's also possible to perform that without root privileges by doing an
+  install from source. It highly depends on your likings.</para>
+
+  <para>Make sure you'll have a safe backup of your &name-icinga; installation and configs. If anything goes wrong you can restore your old
+  setup rather easy.</para>
+
+  <para>Regular updates of &name-icinga; are possible just by re-installing &name-icinga;. Please keep in mind that
+  <code>configure</code> requires the same parameters as before - look it up in <code>config.log</code> and save that in a safe
+  location.</para>
+
+  <para>Become the icinga user. Debian/Ubuntu users might use <code>sudo -s icinga</code>. <programlisting> $&gt; su -l icinga</programlisting>
+  Get the latest Icinga version from &url-icinga; and extract it. Then run configure like you did with the old version. <programlisting> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils</programlisting>
+  Compile the source. <programlisting> #&gt; make all</programlisting> Please make sure that you don't overwrite your configs - always make
+  a backup! Don't use <code>make install-config</code> and/or <code>make install-webconf</code> if you want to manually diff the config
+  files. <programlisting> #&gt; make install install-base install-cgis install-html install-init install-commandmode install-idoutils</programlisting>
+  or decide what you want to upgrade by just typing 'make' which shows all available options. Check your config and restart Icinga.
+  <programlisting> #&gt; /etc/init.d/icinga checkconfig
+ #&gt; /etc/init.d/icinga restart</programlisting> That's it!</para>
+<para><emphasis role="bold">&name-icinga; 0.8.0 to &name-icinga; &ver-icinga;</emphasis></para>
 
   <para>Archived Logfilename</para>
 
@@ -39,29 +61,6 @@
    newfilename=`echo $oldfilename | sed -e 's/Icinga/icinga/g'`
    mv $oldfilename $newfilename
  done</programlisting>
-
-  <para><emphasis role="bold">Normal &name-icinga; update Path</emphasis></para>
-
-  <para>If there's a new &name-icinga; version available on &url-icinga; you should consider updating. Newer versions contain bugfixes,
-  minor or major, which makes it even more important to get the latest and the greatest. If you already installed &name-icinga; using the
-  quickstart guides it's rather easy to install newer versions. It's also possible to perform that without root privileges by doing an
-  install from source. It highly depends on your likings.</para>
-
-  <para>Make sure you'll have a safe backup of your &name-icinga; installation and configs. If anything goes wrong you can restore your old
-  setup rather easy.</para>
-
-  <para>Regular updates of &name-icinga; are possible by just by re-installing &name-icinga;. Please keep in mind that
-  <code>configure</code> requires the same parameters as before - look it up in <code>config.log</code> and save that in a safe
-  location.</para>
-
-  <para>Become the icinga user. Debian/Ubuntu users might use <code>sudo -s icinga</code>. <programlisting> $&gt; su -l icinga</programlisting>
-  Get the latest Icinga version from &url-icinga; and extract it. Then run configure like you did with the old version. <programlisting> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils</programlisting>
-  Compile the source. <programlisting> #&gt; make all</programlisting> Please make sure that you don't overwrite your configs - always make
-  a backup! Don't use <code>make install-config</code> and/or <code>make install-webconf</code> if you want to manually diff the config
-  files. <programlisting> #&gt; make install install-base install-cgis install-html install-init install-commandmode install-idoutils</programlisting>
-  or decide what you want to upgrade by just typing 'make' which shows all available options. Check your config and restart Icinga.
-  <programlisting> #&gt; /etc/init.d/icinga checkconfig
- #&gt; /etc/init.d/icinga restart</programlisting> That's it!</para>
 
   <para><emphasis role="bold"><anchor xml:id="upgrading-nagios3x" /> Upgrading from &name-nagios; 3.x Releases</emphasis></para>
 
@@ -93,8 +92,10 @@
     <listitem>
       <para>the environment macros start with ICINGA_</para>
 
-      <para>PNP4Nagios is aware of that since 0.6rc1 (2009.09.20). check_multi includes support since v0.21 (2010.06.03), but you have to
-      rerun the installation using 'configure --with-nagios_name=icinga' so that check_multi contains the correct values.</para>
+      <para>PNP4Nagios is aware of that since 0.6rc1 (2009.09.20) but the macros are needed in "sync" mode only.</para>
+      <para>check_multi includes support since v0.21 (2010.06.03), but you have to rerun the installation using
+      'configure --with-nagios_name=icinga' so that check_multi contains the correct values. You can use the option "-s" instead to set
+      certain values.</para>
     </listitem>
 
     <listitem>
@@ -311,5 +312,17 @@
     <primary>Upgrading</primary>
 
     <secondary>from &name-nagios; version 2.x</secondary>
+  </indexterm>
+
+  <indexterm zone="upgrading-nagios3x">
+    <primary>Nagios</primary>
+
+    <secondary>migrating from &name-nagios; to &name-icinga;</secondary>
+  </indexterm>
+
+  <indexterm zone="upgrading-nagios3x">
+    <primary>Migration</primary>
+
+    <secondary>from &name-nagios; to &name-icinga;</secondary>
   </indexterm>
 </section>

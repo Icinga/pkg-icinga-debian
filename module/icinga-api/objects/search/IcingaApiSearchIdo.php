@@ -488,10 +488,16 @@ class IcingaApiSearchIdo
 				$filterStatement = null;
 				$queryValues = array();
 			}
-
-			// add custom filter to append
-			$filterStatement .= $this->getFilterAppendix();
 			
+			// add custom filter to append
+			$appendix = $this->getFilterAppendix();
+			if (!$filterStatement) {
+				// Remove some useless things at the beginning
+				$appendix = preg_replace('/^\s*(and|or)\s+/i', '', $appendix);
+			}
+
+			$filterStatement .= $appendix;
+	
 			// replace query variable by filter
 			$query = str_replace('${FILTER}', ($filterStatement ? " WHERE " : '').$filterStatement, $query);
 			
@@ -574,7 +580,8 @@ class IcingaApiSearchIdo
 		self::TARGET_HOST_PARENTS => array('ohp','hph','h','oh','ohg','cvsh','cvss'),
 		self::TARGET_NOTIFICATIONS => array('n','on','obn','s','h','oh','os','ohg','cvsh','cvss'),
 		self::TARGET_HOSTGROUP_SUMMARY => array('hg','ohg','hgm','oh','hs','ohg','cvsh','cvss','cg'),
-		self::TARGET_SERVICEGROUP_SUMMARY => array('sg','osg','sgm','ss','os','ohg','cvsh','cvss','cg')
+		self::TARGET_SERVICEGROUP_SUMMARY => array('sg','osg','sgm','ss','os','ohg','cvsh','cvss','cg'),
+		self::TARGET_HOST_SERVICE => array('op','os','s','ss','oh','h','i','hgm','hg','ohg','sgm','sg','osg')
 	);
 	
 	/**
@@ -583,8 +590,10 @@ class IcingaApiSearchIdo
 	 * @author Jannis Moßhammer <jannis.mosshammer@netways.de>
 	 */
 	public function getAffectedColumns() {
-		if(!$this->getSearchTarget())
-			return array();
+		if (!$this->getSearchTarget() || !isset($this->tableMap[$this->getSearchTarget()])) {
+			return array ();
+		}
+		
 		$map = $this->tableMap[$this->getSearchTarget()];
 		$affected = array();
 		$columns = $this->ifSettings->columns;

@@ -3,7 +3,8 @@
  * UTILS.C - Miscellaneous utility functions for Icinga
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -56,12 +57,8 @@ extern char	*p1_file;
 extern char     *nagios_user;
 extern char     *nagios_group;
 
-extern char     *macro_x[MACRO_X_COUNT];
 extern char     *macro_x_names[MACRO_X_COUNT];
-extern char     *macro_argv[MAX_COMMAND_ARGUMENTS];
 extern char     *macro_user[MAX_USER_MACROS];
-extern char     *macro_contactaddress[MAX_CONTACT_ADDRESSES];
-extern char     *macro_ondemand;
 extern customvariablesmember *macro_custom_host_vars;
 extern customvariablesmember *macro_custom_service_vars;
 extern customvariablesmember *macro_custom_contact_vars;
@@ -292,7 +289,7 @@ extern int errno;
 
 
 /* executes a system command - used for notifications, event handlers, etc. */
-int my_system(char *cmd,int timeout,int *early_timeout,double *exectime,char **output,int max_output_length){
+int my_system_r(icinga_macros *mac, char *cmd,int timeout,int *early_timeout,double *exectime,char **output,int max_output_length){
         pid_t pid=0;
 	int status=0;
 	int result=0;
@@ -319,7 +316,7 @@ int my_system(char *cmd,int timeout,int *early_timeout,double *exectime,char **o
 #endif
 
 
-	log_debug_info(DEBUGL_FUNCTIONS,0,"my_system()\n");
+	log_debug_info(DEBUGL_FUNCTIONS,0,"my_system_r()\n");
 
 	/* initialize return variables */
 	if(output!=NULL)
@@ -420,7 +417,7 @@ int my_system(char *cmd,int timeout,int *early_timeout,double *exectime,char **o
 
 	/* return an error if we couldn't fork */
 	if(pid==-1){
-		logit(NSLOG_RUNTIME_WARNING,TRUE,"Warning: fork() in my_system() failed for command \"%s\"\n",cmd);
+		logit(NSLOG_RUNTIME_WARNING,TRUE,"Warning: fork() in my_system_r() failed for command \"%s\"\n",cmd);
 
 		/* close both ends of the pipe */
 		close(fd[0]);
@@ -436,7 +433,7 @@ int my_system(char *cmd,int timeout,int *early_timeout,double *exectime,char **o
 		setpgid(0,0);
 
 		/* set environment variables */
-		set_all_macro_environment_vars(TRUE);
+		set_all_macro_environment_vars_r(mac, TRUE);
 
 		/* ADDED 11/12/07 EG */
 		/* close external command file and shut down worker thread */
@@ -547,13 +544,13 @@ int my_system(char *cmd,int timeout,int *early_timeout,double *exectime,char **o
 		alarm(0);
 
 		/* clear environment variables */
-		set_all_macro_environment_vars(FALSE);
+		set_all_macro_environment_vars_r(mac, FALSE);
 
 #ifndef DONT_USE_MEMORY_PERFORMANCE_TWEAKS
 		/* free allocated memory */
 		/* this needs to be done last, so we don't free memory for variables before they're used above */
 		if(free_child_process_memory==TRUE)
-			free_memory();
+			free_memory(mac);
 #endif
 
 		_exit(result);
@@ -669,12 +666,20 @@ int my_system(char *cmd,int timeout,int *early_timeout,double *exectime,char **o
 	        }
 
 	return result;
-        }
+}
 
+/*
+ * For API compatibility, we must include a my_system() whose
+ * signature doesn't include the icinga_macros variable.
+ * IDOUtils uses this. Possibly other modules as well.
+ */
+int my_system(char *cmd,int timeout,int *early_timeout,double *exectime,char **output,int max_output_length){
+	return my_system_r(get_global_macros(), cmd, timeout, early_timeout, exectime, output, max_output_length);
+}
 
 
 /* given a "raw" command, return the "expanded" or "whole" command line */
-int get_raw_command_line(command *cmd_ptr, char *cmd, char **full_command, int macro_options){
+int get_raw_command_line_r(icinga_macros *mac, command *cmd_ptr, char *cmd, char **full_command, int macro_options){
 	char temp_arg[MAX_COMMAND_BUFFER]="";
 	char *arg_buffer=NULL;
 	register int x=0;
@@ -682,10 +687,10 @@ int get_raw_command_line(command *cmd_ptr, char *cmd, char **full_command, int m
 	register int arg_index=0;
 	register int escaped=FALSE;
 
-	log_debug_info(DEBUGL_FUNCTIONS,0,"get_raw_command_line()\n");
+	log_debug_info(DEBUGL_FUNCTIONS,0,"get_raw_command_line_r()\n");
 
 	/* clear the argv macros */
-	clear_argv_macros();
+	clear_argv_macros_r(mac);
 
 	/* make sure we've got all the requirements */
 	if(cmd_ptr==NULL || full_command==NULL)
@@ -696,6 +701,7 @@ int get_raw_command_line(command *cmd_ptr, char *cmd, char **full_command, int m
 	/* get the full command line */
 	*full_command=(char *)strdup((cmd_ptr->command_line==NULL)?"":cmd_ptr->command_line);
 
+	/* XXX: Crazy indent */
 	/* get the command arguments */
 	if(cmd!=NULL){
 
@@ -737,18 +743,27 @@ int get_raw_command_line(command *cmd_ptr, char *cmd, char **full_command, int m
 
 			/* ADDED 01/29/04 EG */
 			/* process any macros we find in the argument */
-			process_macros(temp_arg,&arg_buffer,macro_options);
+			process_macros_r(mac, temp_arg,&arg_buffer,macro_options);
 
-			macro_argv[x]=arg_buffer;
+			mac->argv[x]=arg_buffer;
 			}
 		}
 
 	log_debug_info(DEBUGL_COMMANDS|DEBUGL_CHECKS|DEBUGL_MACROS,2,"Expanded Command Output: %s\n",*full_command);
 
 	return OK;
-        }
+}
 
+/*
+ * This function modifies the global macro struct and is thus not
+ * threadsafe
+ */
+int get_raw_command_line(command *cmd_ptr, char *cmd, char **full_command, int macro_options){
+	icinga_macros *mac;
 
+	mac = get_global_macros();
+	return get_raw_command_line_r(mac, cmd_ptr, cmd, full_command, macro_options);
+}
 
 
 
@@ -809,7 +824,7 @@ int check_time_against_period(time_t test_time, timeperiod *tperiod){
 	time_t start_time=(time_t)0L;
 	time_t end_time=(time_t)0L;
 	int found_match=FALSE;
-	struct tm *t;
+	struct tm *t, tm_s;
 	int daterange_type=0;
 	unsigned long days=0L;
 	time_t day_range_start=(time_t)0L;
@@ -839,7 +854,7 @@ int check_time_against_period(time_t test_time, timeperiod *tperiod){
 	tperiod->exclusions=first_timeperiodexclusion;
 
 	/* save values for later */
-	t=localtime((time_t *)&test_time);
+	t = localtime_r(&test_time, &tm_s);
 	test_time_year=t->tm_year;
 	test_time_mon=t->tm_mon;
 	test_time_mday=t->tm_mday;
@@ -1105,7 +1120,7 @@ void get_earliest_time(time_t pref_time, time_t *valid_time, time_t current_time
 	if((level%2) == 0){
 		_get_next_valid_time_per_timeperiod(pref_time,&earliest_time,current_time,tperiod);
 		if(*valid_time == 0)
-			*valid_time=earliest_time;	
+			*valid_time=earliest_time;
 		else if(earliest_time<*valid_time)
 			*valid_time=earliest_time;
 	}
@@ -1130,7 +1145,7 @@ void _get_next_valid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 	timerange *temp_timerange;
 	daterange *temp_daterange;
 	unsigned long midnight=0L;
-	struct tm *t;
+	struct tm *t, tm_s;
 	time_t day_start=(time_t)0L;
 	time_t day_range_start=(time_t)0L;
 	time_t day_range_end=(time_t)0L;
@@ -1168,7 +1183,7 @@ void _get_next_valid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 		}
 
 	/* calculate the start of the day (midnight, 00:00 hours) of preferred time */
-	t=localtime((time_t *)&preferred_time);
+	t = localtime_r(&preferred_time, &tm_s);
 	t->tm_sec=0;
 	t->tm_min=0;
 	t->tm_hour=0;
@@ -1181,7 +1196,7 @@ void _get_next_valid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 	pref_time_wday=t->tm_wday;
 
 	/* save current time values for later */
-	t=localtime((time_t *)&current_time);
+	t = localtime_r(&current_time, &tm_s);
 	current_time_year=t->tm_year;
 	current_time_mon=t->tm_mon;
 	current_time_mday=t->tm_mday;
@@ -1524,7 +1539,7 @@ void get_min_invalid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 	timerange *temp_timerange;
 	daterange *temp_daterange;
 	unsigned long midnight=0L;
-	struct tm *t;
+	struct tm *t, tm_s;
 	time_t day_start=(time_t)0L;
 	time_t day_range_start=(time_t)0L;
 	time_t day_range_end=(time_t)0L;
@@ -1542,7 +1557,7 @@ void get_min_invalid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 	unsigned long advance_interval=0L;
 	int year=0; /* new */
 	int month=0; /* new */
-	
+
 	int pref_time_year=0;
 	int pref_time_mon=0;
 	int pref_time_mday=0;
@@ -1564,7 +1579,7 @@ void get_min_invalid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 		}
 
 	/* calculate the start of the day (midnight, 00:00 hours) of preferred time */
-	t=localtime((time_t *)&preferred_time);
+	t = localtime_r(&preferred_time, &tm_s);
 	t->tm_sec=0;
 	t->tm_min=0;
 	t->tm_hour=0;
@@ -1576,9 +1591,9 @@ void get_min_invalid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 	pref_time_mon=t->tm_mon;
 	pref_time_mday=t->tm_mday;
 	pref_time_wday=t->tm_wday;
-	
+
 	/* save current time values for later */
-	t=localtime((time_t *)&current_time);
+	t = localtime_r(&current_time, &tm_s);
 	current_time_year=t->tm_year;
 	current_time_mon=t->tm_mon;
 	current_time_mday=t->tm_mday;
@@ -1674,7 +1689,7 @@ void get_min_invalid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 			case DATERANGE_MONTH_DATE:
 				/* use same year as was calculated for start time above */
 				end_time=calculate_time_from_day_of_month(year,temp_daterange->emon,temp_daterange->emday);
-				/* advance a year if necessary: august 5 - feburary 2 */
+				/* advance a year if necessary: august 5 - february 2 */
 				if(end_time<start_time){
 					year++;
 					end_time=calculate_time_from_day_of_month(year,temp_daterange->emon,temp_daterange->emday);
@@ -1864,15 +1879,15 @@ void get_min_invalid_time_per_timeperiod(time_t pref_time, time_t *valid_time, t
 
 
 
-/* given a preferred time, get the next valid time within a time period */ 
+/* given a preferred time, get the next valid time within a time period */
 void get_next_valid_time(time_t pref_time, time_t *valid_time, timeperiod *tperiod){
         time_t current_time=(time_t)0L;
- 
+
         log_debug_info(DEBUGL_FUNCTIONS,0,"get_next_valid_time()\n");
- 
+
         /* get time right now, preferred time must be now or in the future */
         time(&current_time);
- 
+
         _get_next_valid_time(pref_time, current_time, valid_time, tperiod);
 }
 
@@ -2053,12 +2068,12 @@ time_t calculate_time_from_weekday_of_month(int year, int month, int weekday, in
 /* get the next time to schedule a log rotation */
 time_t get_next_log_rotation_time(void){
 	time_t current_time;
-	struct tm *t;
+	struct tm *t, tm_s;
 	int is_dst_now=FALSE;
 	time_t run_time;
 
 	time(&current_time);
-	t=localtime(&current_time);
+	t = localtime_r(&current_time, &tm_s);
 	t->tm_min=0;
 	t->tm_sec=0;
 	is_dst_now=(t->tm_isdst>0)?TRUE:FALSE;
@@ -2118,7 +2133,7 @@ void setup_sighandler(void){
 	signal(SIGQUIT,sighandler);
 	signal(SIGTERM,sighandler);
 	signal(SIGHUP,sighandler);
-	if(daemon_dumps_core==FALSE || daemon_mode==FALSE)
+	if(daemon_dumps_core==FALSE && daemon_mode==TRUE)
 		signal(SIGSEGV,sighandler);
 
 	return;
@@ -2252,10 +2267,10 @@ void host_check_sighandler(int sig){
 
 	/* force the child process (service check) to exit... */
 	_exit(STATE_CRITICAL);
-        }
+}
 
 
-/* handle timeouts when executing commands via my_system() */
+/* handle timeouts when executing commands via my_system_r() */
 void my_system_sighandler(int sig){
 
 	/* force the child process to exit... */
@@ -3381,14 +3396,98 @@ int my_rename(char *source, char *dest){
 	return rename_result;
         }
 
+/*
+ * copy a file from the path at source to the already opened
+ * destination file dest.
+ * This is handy when creating tempfiles with mkstemp()
+ */
+int my_fdcopy(char *source, char *dest, int dest_fd){
+	int source_fd, rd_result = 0, wr_result = 0;
+	unsigned long tot_written = 0, tot_read = 0, buf_size = 0;
+	struct stat st;
+	char *buf;
+
+	/* open source file for reading */
+	if((source_fd=open(source,O_RDONLY,0644)) < 0){
+		logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to open file '%s' for reading: %s\n",source,strerror(errno));
+		return ERROR;
+	}
+
+	/*
+	 * find out how large the source-file is so we can be sure
+	 * we've written all of it
+	 */
+	if (fstat(source_fd, &st) < 0) {
+		logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to stat source file '%s' for my_fcopy(): %s\n", source, strerror(errno));
+		close(source_fd);
+		return ERROR;
+	}
+
+	/*
+	 * If the file is huge, read it and write it in chunks.
+	 * This value (128K) is the result of "pick-one-at-random"
+	 * with some minimal testing and may not be optimal for all
+	 * hardware setups, but it should work ok for most. It's
+	 * faster than 1K buffers and 1M buffers, so change at your
+	 * own peril. Note that it's useful to make it fit in the L2
+	 * cache, so larger isn't necessarily better.
+	 */
+	buf_size = st.st_size > 128 << 10 ? 128 << 10 : st.st_size;
+	buf = malloc(buf_size);
+	if (!buf) {
+		logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to malloc(%lu) bytes: %s\n", buf_size, strerror(errno));
+		close(source_fd);
+		return ERROR;
+	}
+	/* most of the times, this loop will be gone through once */
+	while (tot_written < st.st_size) {
+		int loop_wr = 0;
+
+		rd_result = read(source_fd, buf, buf_size);
+		if (rd_result < 0) {
+			if (errno == EAGAIN || errno == EINTR)
+				continue;
+			logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: my_fcopy() failed to read from '%s': %s\n", source, strerror(errno));
+			break;
+		}
+		tot_read += rd_result;
+
+		while (loop_wr < rd_result) {
+			wr_result = write(dest_fd, buf + loop_wr, rd_result - loop_wr);
+
+			if (wr_result < 0) {
+				if (errno == EAGAIN || errno == EINTR)
+					continue;
+				logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: my_fcopy() failed to write to '%s': %s\n", dest, strerror(errno));
+				break;
+			}
+			loop_wr += wr_result;
+		}
+		if (wr_result < 0)
+			break;
+		tot_written += loop_wr;
+	}
+
+	/*
+	 * clean up irregardless of how things went. dest_fd comes from
+	 * our caller, so we mustn't close it.
+	 */
+	close(source_fd);
+	free(buf);
+
+	if (rd_result < 0 || wr_result < 0) {
+		/* don't leave half-written files around */
+		unlink(dest);
+		return ERROR;
+	}
+
+	return OK;
+}
 
 
 /* copies a file */
 int my_fcopy(char *source, char *dest){
-	char buffer[MAX_INPUT_BUFFER]={0};
-	int source_fd=-1;
-	int dest_fd=-1;
-	int bytes_read=0;
+	int dest_fd, result;
 
 	/* make sure we have something */
 	if(source==NULL || dest==NULL)
@@ -3398,31 +3497,15 @@ int my_fcopy(char *source, char *dest){
 	unlink(dest);
 
         /* open destination file for writing */
-        if((dest_fd=open(dest,O_WRONLY|O_TRUNC|O_CREAT|O_APPEND,0644))>0){
-                /* open source file for reading */
-                if((source_fd=open(source,O_RDONLY,0644))>0){
-                        /* copy file contents */
-                        while((bytes_read=read(source_fd,buffer,sizeof(buffer)))>0)
-                                write(dest_fd,buffer,bytes_read);
-                        close(source_fd);
-                        close(dest_fd);
-                        }
-                /* error opening the source file */
-                else{
-                        close(dest_fd);
-                        logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to open file '%s' for reading: %s\n",source,strerror(errno));
-                        return ERROR;
-                        }
-                }
-        /* error opening destination file */
-        else{
-                close(dest_fd);
+	if((dest_fd=open(dest,O_WRONLY|O_TRUNC|O_CREAT|O_APPEND,0644)) < 0){
                 logit(NSLOG_RUNTIME_ERROR,TRUE,"Error: Unable to open file '%s' for writing: %s\n",dest,strerror(errno));
 		return ERROR;
-                }
-
-	return OK;
         }
+
+	result = my_fdcopy(source, dest, dest_fd);
+	close(dest_fd);
+	return result;
+}
 
 
 /******************************************************************/
@@ -3511,7 +3594,7 @@ int dbuf_strcat(dbuf *db, char *buf){
 /* initializes embedded perl interpreter */
 int init_embedded_perl(char **env){
 #ifdef EMBEDDEDPERL
-	void **embedding=NULL;
+	char **embedding=NULL;
 	int exitstatus=0;
 	int argc=2;
 	struct stat stat_buf;
@@ -3526,7 +3609,7 @@ int init_embedded_perl(char **env){
 
 	else{
 
-		embedding=(void **)malloc(2*sizeof(char *));
+		embedding=malloc(2*sizeof(char *));
 		if(embedding==NULL)
 			return ERROR;
 		*embedding=strdup("");
@@ -3694,24 +3777,32 @@ int init_command_file_worker_thread(void){
 int shutdown_command_file_worker_thread(void){
 	int result=0;
 
-	/* CHANGED 11/12/07 EG */
-	/* cancel/join worker thread only if we're the main (parent) process */
+	/* 2010-01-04 AE:
+	 * calling pthread_cancel(0) will cause segfaults with some
+	 * thread libraries. It's possible that will happen if the
+	 * user has a number of config files larger than the max
+	 * open file descriptor limit (ulimit -n) and some retarded
+	 * eventbroker module leaks filedescriptors, since we'll then
+	 * enter the cleanup() routine from main() before we've
+	 * spawned any threads.
+	 */
+	if (worker_threads[COMMAND_WORKER_THREAD]) {
+		/* tell the worker thread to exit */
+		result=pthread_cancel(worker_threads[COMMAND_WORKER_THREAD]);
 
-	/* tell the worker thread to exit */
-	result=pthread_cancel(worker_threads[COMMAND_WORKER_THREAD]);
-
-	/* wait for the worker thread to exit */
-	if(result==0){
-		result=pthread_join(worker_threads[COMMAND_WORKER_THREAD],NULL);
+		/* wait for the worker thread to exit */
+		if(result==0){
+			result=pthread_join(worker_threads[COMMAND_WORKER_THREAD],NULL);
 		}
 
-	/* we're being called from a fork()'ed child process - can't cancel thread, so just cleanup memory */
-	else{
-		cleanup_command_file_worker_thread(NULL);
-		}
+		/* we're being called from a fork()'ed child process - can't cancel thread, so just cleanup memory */
+		else {
+			cleanup_command_file_worker_thread(NULL);
+ 		}
+	}
 
 	return OK;
-        }
+}
 
 
 /* clean up resources used by command file worker thread */
@@ -4231,17 +4322,16 @@ void cleanup(void){
 #endif
 
 	/* free all allocated memory - including macros */
-	free_memory();
+	free_memory(get_global_macros());
 
 	return;
 	}
 
 
 /* free the memory allocated to the linked lists */
-void free_memory(void){
+void free_memory(icinga_macros *mac){
 	timed_event *this_event=NULL;
 	timed_event *next_event=NULL;
-	register int x=0;
 
 	/* free all allocated memory for the object definitions */
 	free_object_data();
@@ -4285,15 +4375,15 @@ void free_memory(void){
 	my_free(ocsp_command);
 	my_free(ochp_command);
 
-	/* free memory associated with macros */
-	for(x=0;x<MAX_COMMAND_ARGUMENTS;x++)
-		my_free(macro_argv[x]);
-
-	for(x=0;x<MAX_USER_MACROS;x++)
-		my_free(macro_user[x]);
-
-	for(x=0;x<MACRO_X_COUNT;x++)
-		my_free(macro_x[x]);
+	/*
+	 * free memory associated with macros.
+	 * It's ok to only free the volatile ones, as the non-volatile
+	 * are always free()'d before assignment if they're set.
+	 * Doing a full free of them here means we'll wipe the constant
+	 * macros when we get a reload or restart request through the
+	 * command pipe, or when we receive a SIGHUP.
+	 */
+	clear_volatile_macros_r(mac);
 
 	free_macrox_names();
 
@@ -4318,7 +4408,7 @@ void free_memory(void){
 	my_free(log_archive_path);
 
 	return;
-	}
+}
 
 
 /* free a notification list that was created */

@@ -3,7 +3,7 @@
  * EXTINFO.C -  Icinga Extended Information CGI
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -29,6 +29,8 @@
 #include "../include/comments.h"
 #include "../include/downtime.h"
 #include "../include/statusdata.h"
+
+static icinga_macros *mac;
 
 /* make sure gcc3 won't hit here */
 #ifndef GCCTOOOLD
@@ -131,6 +133,9 @@ char *servicegroup_name="";
 char *service_desc="";
 
 int display_type=DISPLAY_PROCESS_INFO;
+int show_all_hosts=TRUE;
+int show_all_hostgroups=TRUE;
+int show_all_servicegroups=TRUE;
 
 int sort_type=SORT_ASCENDING;
 int sort_option=SORT_NEXTCHECKTIME;
@@ -157,6 +162,7 @@ int main(void){
 	service *temp_service=NULL;
 	servicegroup *temp_servicegroup=NULL;
 
+	mac = get_global_macros();
 
 	/* get the arguments passed in the URL */
 	process_cgivars();
@@ -168,7 +174,7 @@ int main(void){
 	result=read_cgi_config_file(get_cgi_config_location());
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		cgi_config_file_error(get_cgi_config_location());
+		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -177,7 +183,7 @@ int main(void){
 	result=read_main_config_file(main_config_file);
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		main_config_file_error(main_config_file);
+		print_error(main_config_file, ERROR_CGI_MAIN_CFG);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -186,7 +192,7 @@ int main(void){
 	result=read_all_object_configuration_data(main_config_file,READ_ALL_OBJECT_DATA);
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		object_data_error();
+		print_error(NULL, ERROR_CGI_OBJECT_DATA);
 		document_footer(CGI_ID);
 		return ERROR;
         }
@@ -195,7 +201,7 @@ int main(void){
 	result=read_all_status_data(get_cgi_config_location(),READ_ALL_STATUS_DATA);
 	if(result==ERROR && daemon_check==TRUE){
 		document_header(CGI_ID,FALSE);
-		status_data_error();
+		print_error(NULL, ERROR_CGI_STATUS_DATA);
 		document_footer(CGI_ID);
 		free_memory();
 		return ERROR;
@@ -246,11 +252,11 @@ int main(void){
 		if(display_type==DISPLAY_HOST_INFO || display_type==DISPLAY_SERVICE_INFO){
 
 			temp_host=find_host(host_name);
-			grab_host_macros(temp_host);
+			grab_host_macros_r(mac, temp_host);
 
 			if(display_type==DISPLAY_SERVICE_INFO){
 				temp_service=find_service(host_name,service_desc);
-				grab_service_macros(temp_service);
+				grab_service_macros_r(mac, temp_service);
 			}
 
 			/* write some Javascript helper functions */
@@ -261,6 +267,9 @@ int main(void){
 				printf("}\n");
 				printf("function nagios_get_host_address()\n{\n");
 				printf("return \"%s\";\n",temp_host->address);
+				printf("}\n");
+				printf("function nagios_get_host_address6()\n{\n");
+				printf("return \"%s\";\n",temp_host->address6);
 				printf("}\n");
 				if(temp_service!=NULL){
 					printf("function nagios_get_service_description()\n{\n");
@@ -274,13 +283,13 @@ int main(void){
 		/* find the hostgroup */
 		else if(display_type==DISPLAY_HOSTGROUP_INFO){
 			temp_hostgroup=find_hostgroup(hostgroup_name);
-			grab_hostgroup_macros(temp_hostgroup);
+			grab_hostgroup_macros_r(mac, temp_hostgroup);
 		}
 
 		/* find the servicegroup */
 		else if(display_type==DISPLAY_SERVICEGROUP_INFO){
 			temp_servicegroup=find_servicegroup(servicegroup_name);
-			grab_servicegroup_macros(temp_servicegroup);
+			grab_servicegroup_macros_r(mac, temp_servicegroup);
 		}
 
 		if((display_type==DISPLAY_HOST_INFO && temp_host!=NULL) || (display_type==DISPLAY_SERVICE_INFO && temp_host!=NULL && temp_service!=NULL) || (display_type==DISPLAY_HOSTGROUP_INFO && temp_hostgroup!=NULL) || (display_type==DISPLAY_SERVICEGROUP_INFO && temp_servicegroup!=NULL)){
@@ -362,7 +371,7 @@ int main(void){
 						if(found==TRUE)
 							printf(", ");
 
-						printf("<A HREF='%s?hostgroup=%s&style=overview'>%s</A>",STATUS_CGI,url_encode(temp_hostgroup->group_name),temp_hostgroup->group_name);
+						printf("<A HREF='%s?hostgroup=%s&style=overview'>%s</A>",STATUS_CGI,url_encode(temp_hostgroup->group_name),html_encode((temp_hostgroup->alias!=NULL)?temp_hostgroup->alias:temp_hostgroup->group_name,TRUE));
 						found=TRUE;
 						}
 					}
@@ -371,7 +380,12 @@ int main(void){
 					printf("No hostgroups");
 
 				printf("</DIV><BR>\n");
-				printf("<DIV CLASS='data'>%s</DIV>\n",temp_host->address);
+
+				if(!strcmp(temp_host->address6,temp_host->name)){
+					printf("<DIV CLASS='data'>%s</DIV>\n",temp_host->address);
+				} else {
+					printf("<DIV CLASS='data'>%s, %s</DIV>\n",temp_host->address,temp_host->address6);
+				}
 		        }
 			if(display_type==DISPLAY_SERVICE_INFO){
 
@@ -385,7 +399,7 @@ int main(void){
 						if(found==TRUE)
 							printf(", ");
 
-						printf("<A HREF='%s?servicegroup=%s&style=overview'>%s</A>",STATUS_CGI,url_encode(temp_servicegroup->group_name),temp_servicegroup->group_name);
+						printf("<A HREF='%s?servicegroup=%s&style=overview'>%s</A>",STATUS_CGI,url_encode(temp_servicegroup->group_name),html_encode((temp_servicegroup->alias!=NULL)?temp_servicegroup->alias:temp_servicegroup->group_name,TRUE));
 						found=TRUE;
 					        }
                                         }
@@ -394,7 +408,11 @@ int main(void){
 					printf("No servicegroups.");
                                 printf("</DIV><BR>\n");
 
-				printf("<DIV CLASS='data'>%s</DIV>\n",temp_host->address);
+				if(!strcmp(temp_host->address6,temp_host->name)){
+                                        printf("<DIV CLASS='data'>%s</DIV>\n",temp_host->address);
+                                } else {
+                                        printf("<DIV CLASS='data'>%s, %s</DIV>\n",temp_host->address,temp_host->address6);
+                                }
 			}
 			if(display_type==DISPLAY_HOSTGROUP_INFO){
 
@@ -403,7 +421,7 @@ int main(void){
 				printf("<DIV CLASS='dataTitle'>(%s)</DIV>\n",temp_hostgroup->group_name);
 
 				if(temp_hostgroup->notes!=NULL){
-					process_macros(temp_hostgroup->notes,&processed_string,0);
+					process_macros_r(mac, temp_hostgroup->notes,&processed_string,0);
 					printf("<p>%s</p>",processed_string);
 					free(processed_string);
 				}
@@ -415,7 +433,7 @@ int main(void){
 				printf("<DIV CLASS='dataTitle'>(%s)</DIV>\n",temp_servicegroup->group_name);
 
 				if(temp_servicegroup->notes!=NULL){
-					process_macros(temp_servicegroup->notes,&processed_string,0);
+					process_macros_r(mac, temp_servicegroup->notes,&processed_string,0);
 					printf("<p>%s</p>",processed_string);
 					free(processed_string);
 				}
@@ -424,7 +442,7 @@ int main(void){
 			if(display_type==DISPLAY_SERVICE_INFO){
 				if(temp_service->icon_image!=NULL){
 					printf("<img src='%s",url_logo_images_path);
-					process_macros(temp_service->icon_image,&processed_string,0);
+					process_macros_r(mac, temp_service->icon_image,&processed_string,0);
 					printf("%s",processed_string);
 					free(processed_string);
 					printf("' border=0 alt='%s' title='%s'><BR CLEAR=ALL>",(temp_service->icon_image_alt==NULL)?"":temp_service->icon_image_alt,(temp_service->icon_image_alt==NULL)?"":temp_service->icon_image_alt);
@@ -432,7 +450,7 @@ int main(void){
 				if(temp_service->icon_image_alt!=NULL)
 					printf("<font size=-1><i>( %s )</i></font>\n",temp_service->icon_image_alt);
 				if(temp_service->notes!=NULL){
-					process_macros(temp_service->notes,&processed_string,0);
+					process_macros_r(mac, temp_service->notes,&processed_string,0);
 					printf("<p>%s</p>\n",processed_string);
 					free(processed_string);
 				}
@@ -441,7 +459,7 @@ int main(void){
 			if(display_type==DISPLAY_HOST_INFO){
 				if(temp_host->icon_image!=NULL){
 					printf("<img src='%s",url_logo_images_path);
-					process_macros(temp_host->icon_image,&processed_string,0);
+					process_macros_r(mac, temp_host->icon_image,&processed_string,0);
 					printf("%s",processed_string);
 					free(processed_string);
 					printf("' border=0 alt='%s' title='%s'><BR CLEAR=ALL>",(temp_host->icon_image_alt==NULL)?"":temp_host->icon_image_alt,(temp_host->icon_image_alt==NULL)?"":temp_host->icon_image_alt);
@@ -449,7 +467,7 @@ int main(void){
 				if(temp_host->icon_image_alt!=NULL)
 					printf("<font size=-1><i>( %s )</i><font>\n",temp_host->icon_image_alt);
 				if(temp_host->notes!=NULL){
-					process_macros(temp_host->notes,&processed_string,0);
+					process_macros_r(mac, temp_host->notes,&processed_string,0);
 					printf("<p>%s</p>\n",processed_string);
 					free(processed_string);
 				}
@@ -465,7 +483,7 @@ int main(void){
 
 			printf("<TABLE BORDER='0'>\n");
 			if(temp_host->action_url!=NULL && strcmp(temp_host->action_url,"")){
-				process_macros(temp_host->action_url,&processed_string,0);
+				process_macros_r(mac, temp_host->action_url,&processed_string,0);
 				BEGIN_MULTIURL_LOOP
 				printf("<TR><TD ALIGN='right'>\n");
 				printf("<A HREF='");
@@ -477,7 +495,7 @@ int main(void){
 				free(processed_string);
 		        }
 			if(temp_host->notes_url!=NULL && strcmp(temp_host->notes_url,"")){
-				process_macros(temp_host->notes_url,&processed_string,0);
+				process_macros_r(mac, temp_host->notes_url,&processed_string,0);
 				BEGIN_MULTIURL_LOOP
 				printf("<TR><TD ALIGN='right'>\n");
 				printf("<A HREF='");
@@ -497,7 +515,7 @@ int main(void){
 			printf("<TABLE BORDER='0'><TR><TD ALIGN='right'>\n");
 
 			if(temp_service->action_url!=NULL && strcmp(temp_service->action_url,"")){
-				process_macros(temp_service->action_url,&processed_string,0);
+				process_macros_r(mac, temp_service->action_url,&processed_string,0);
 				BEGIN_MULTIURL_LOOP
 				printf("<A HREF='");
 				printf("%s",processed_string);
@@ -507,7 +525,7 @@ int main(void){
 				free(processed_string);
 		        }
 			if(temp_service->notes_url!=NULL && strcmp(temp_service->notes_url,"")){
-				process_macros(temp_service->notes_url,&processed_string,0);
+				process_macros_r(mac, temp_service->notes_url,&processed_string,0);
 				BEGIN_MULTIURL_LOOP
 				printf("<A HREF='");
 				printf("%s",processed_string);
@@ -817,9 +835,7 @@ void show_process_info(void){
 	/* make sure the user has rights to view system information */
 	if(is_authorized_for_system_information(&current_authdata)==FALSE){
 
-		printf("<P><DIV CLASS='errorMessage'>It appears as though you do not have permission to view process information...</DIV></P>\n");
-		printf("<P><DIV CLASS='errorDescription'>If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI<br>");
-		printf("and check the authorization options in your CGI configuration file.</DIV></P>\n");
+		print_generic_error_message("It appears as though you do not have permission to view process information...","If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI and check the authorization options in your CGI configuration file.",0);
 
 		return;
 	}
@@ -926,7 +942,7 @@ void show_process_info(void){
 		printf("<TR><TD CLASS='dataVar'>Last Log File Rotation:</TD><TD CLASS='dataVal'>%s</TD></TR>\n",(last_log_rotation==(time_t)0)?"N/A":last_log_rotation_time);
 
 		/* PID */
-		printf("<TR><TD CLASS='dataVar'>Icinga PID</TD><TD CLASS='dataval'>%d</TD></TR>\n",nagios_pid);
+		printf("<TR><TD CLASS='dataVar'>Icinga PID</TD><TD CLASS='dataVal'>%d</TD></TR>\n",nagios_pid);
 
 		/* notifications enabled */
 		printf("<TR><TD CLASS='dataVar'>Notifications Enabled?</TD><TD CLASS='dataVal'><DIV CLASS='notifications%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(enable_notifications==TRUE)?"ENABLED":"DISABLED",(enable_notifications==TRUE)?"YES":"NO");
@@ -1087,11 +1103,7 @@ void show_host_info(void){
 
 	/* make sure the user has rights to view host information */
 	if(is_authorized_for_host(temp_host,&current_authdata)==FALSE){
-
-		printf("<P><DIV CLASS='errorMessage'>It appears as though you do not have permission to view information for this host...</DIV></P>\n");
-		printf("<P><DIV CLASS='errorDescription'>If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI<br>");
-		printf("and check the authorization options in your CGI configuration file.</DIV></P>\n");
-
+		print_generic_error_message("It appears as though you do not have permission to view information for this host...","If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI and check the authorization options in your CGI configuration file.",0);
 		return;
 	}
 
@@ -1100,11 +1112,11 @@ void show_host_info(void){
 
 	/* make sure host information exists */
 	if(temp_host==NULL){
-		printf("<P><DIV CLASS='errorMessage'>Error: Host Not Found!</DIV></P>>");
+		print_generic_error_message("Error: Host Not Found!",NULL,0);
 		return;
 		}
 	if(temp_hoststatus==NULL){
-		printf("<P><DIV CLASS='errorMessage'>Error: Host Status Information Not Found!</DIV></P");
+		print_generic_error_message("Error: Host Status Information Not Found!",NULL,0);
 		return;
 		}
 
@@ -1185,7 +1197,10 @@ void show_host_info(void){
 		get_time_string(&temp_hoststatus->last_check,date_time,(int)sizeof(date_time),SHORT_DATE_TIME);
 		printf("<TR><TD CLASS='dataVar'>Last Check Time:</td><td CLASS='dataVal'>%s</td></tr>\n",date_time);
 
-		printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'>%s</TD></TR>\n",(temp_hoststatus->check_type==HOST_CHECK_ACTIVE)?"ACTIVE":"PASSIVE");
+		if (temp_hoststatus->check_type==HOST_CHECK_ACTIVE)
+			printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'><A HREF='%s?type=command&expand=%s'>ACTIVE</A></TD></TR>\n",
+				CONFIG_CGI,url_encode(temp_host->host_check_command));
+		else printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'>PASSIVE</TD></TR>\n");
 
 		printf("<TR><TD CLASS='dataVar' NOWRAP>Check Latency / Duration:</TD><TD CLASS='dataVal'>");
 		if(temp_hoststatus->check_type==HOST_CHECK_ACTIVE)
@@ -1243,7 +1258,9 @@ void show_host_info(void){
 		printf("<TR><TD class='stateInfoTable2'>\n");
 		printf("<TABLE BORDER=0>\n");
 
-		printf("<TR><TD CLASS='dataVar'>Active Checks:</TD><TD CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_hoststatus->checks_enabled==TRUE)?"ENABLED":"DISABLED",(temp_hoststatus->checks_enabled==TRUE)?"ENABLED":"DISABLED");
+		if ((temp_host->host_check_command)&&(*temp_host->host_check_command!='\0'))
+			printf("<TR><TD CLASS='dataVar'><A HREF='%s?type=command&expand=%s'>Active Checks:</A></TD><TD CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",CONFIG_CGI,url_encode(temp_host->host_check_command),(temp_hoststatus->checks_enabled==TRUE)?"ENABLED":"DISABLED",(temp_hoststatus->checks_enabled==TRUE)?"ENABLED":"DISABLED");
+		else printf("<TR><TD CLASS='dataVar'>Active Checks:</TD><TD CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_hoststatus->checks_enabled==TRUE)?"ENABLED":"DISABLED",(temp_hoststatus->checks_enabled==TRUE)?"ENABLED":"DISABLED");
 
 		printf("<TR><TD CLASS='dataVar'>Passive Checks:</TD><td CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_hoststatus->accept_passive_host_checks==TRUE)?"ENABLED":"DISABLED",(temp_hoststatus->accept_passive_host_checks)?"ENABLED":"DISABLED");
 
@@ -1251,7 +1268,10 @@ void show_host_info(void){
 
 		printf("<TR><TD CLASS='dataVar'>Notifications:</td><td CLASS='dataVal'><DIV CLASS='notifications%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></td></tr>\n",(temp_hoststatus->notifications_enabled)?"ENABLED":"DISABLED",(temp_hoststatus->notifications_enabled)?"ENABLED":"DISABLED");
 
-		printf("<TR><TD CLASS='dataVar'>Event Handler:</td><td CLASS='dataVal'><DIV CLASS='eventhandlers%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></td></tr>\n",(temp_hoststatus->event_handler_enabled)?"ENABLED":"DISABLED",(temp_hoststatus->event_handler_enabled)?"ENABLED":"DISABLED");
+		if ((temp_host->event_handler)&&(*temp_host->event_handler!='\0'))
+			printf("<TR><TD CLASS='dataVar'><A HREF='%s?type=command&expand=%s'>Event Handler:</A></td><td CLASS='dataVal'><DIV CLASS='eventhandlers%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></td></tr>\n",CONFIG_CGI,url_encode(temp_host->event_handler),(temp_hoststatus->event_handler_enabled)?"ENABLED":"DISABLED",(temp_hoststatus->event_handler_enabled)?"ENABLED":"DISABLED");
+		else printf("<TR><TD CLASS='dataVar'>Event Handler:</td><td CLASS='dataVal'><DIV CLASS='eventhandlers%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></td></tr>\n",(temp_hoststatus->event_handler_enabled)?"ENABLED":"DISABLED",(temp_hoststatus->event_handler_enabled)?"ENABLED":"DISABLED");
+
 
 		printf("<TR><TD CLASS='dataVar'>Flap Detection:</td><td CLASS='dataVal'><DIV CLASS='flapdetection%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></td></tr>\n",(temp_hoststatus->flap_detection_enabled==TRUE)?"ENABLED":"DISABLED",(temp_hoststatus->flap_detection_enabled==TRUE)?"ENABLED":"DISABLED");
 
@@ -1339,6 +1359,10 @@ void show_host_info(void){
 		else
 			printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='Enable Flap Detection For This Host' TITLE='Enable Flap Detection For This Host'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>Enable flap detection for this host</a></td></tr>\n",url_images_path,ENABLED_ICON,CMD_CGI,CMD_ENABLE_HOST_FLAP_DETECTION,url_encode(host_name));
 
+                printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='Add a new Host comment' TITLE='Add a new Host comment'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s'>",url_images_path,COMMENT_ICON,CMD_CGI,CMD_ADD_HOST_COMMENT,(display_type==DISPLAY_COMMENTS)?"":url_encode(host_name));
+                printf("Add a new Host comment</a></td>");
+
+
 		printf("</TABLE>\n");
 		}
         else if (is_authorized_for_read_only(&current_authdata)==TRUE){
@@ -1395,9 +1419,7 @@ void show_service_info(void){
 	/* make sure the user has rights to view service information */
 	if(is_authorized_for_service(temp_service,&current_authdata)==FALSE){
 
-		printf("<P><DIV CLASS='errorMessage'>It appears as though you do not have permission to view information for this service...</DIV></P>\n");
-		printf("<P><DIV CLASS='errorDescription'>If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI<br>");
-		printf("and check the authorization options in your CGI configuration file.</DIV></P>\n");
+		print_generic_error_message("It appears as though you do not have permission to view information for this service...","If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI and check the authorization options in your CGI configuration file.",0);
 
 		return;
 	        }
@@ -1407,11 +1429,11 @@ void show_service_info(void){
 
 	/* make sure service information exists */
 	if(temp_service==NULL){
-		printf("<P><DIV CLASS='errorMessage'>Error: Service Not Found!</DIV></P>");
+		print_generic_error_message("Error: Service Not Found!",NULL,0);
 		return;
 		}
 	if(temp_svcstatus==NULL){
-		printf("<P><DIV CLASS='errorMessage'>Error: Service Status Not Found!</DIV></P>");
+		print_generic_error_message("Error: Service Status Not Found!",NULL,0);
 		return;
 		}
 
@@ -1497,7 +1519,10 @@ void show_service_info(void){
 		get_time_string(&temp_svcstatus->last_check,date_time,(int)sizeof(date_time),SHORT_DATE_TIME);
 		printf("<TR><TD CLASS='dataVar'>Last Check Time:</TD><TD CLASS='dataVal'>%s</TD></TR>\n",date_time);
 
-		printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'>%s</TD></TR>\n",(temp_svcstatus->check_type==SERVICE_CHECK_ACTIVE)?"ACTIVE":"PASSIVE");
+		if (temp_svcstatus->check_type==SERVICE_CHECK_ACTIVE)
+			printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'><A HREF='%s?type=command&expand=%s'>ACTIVE</A></TD></TR>\n",
+				CONFIG_CGI,url_encode(temp_service->service_check_command));
+		else printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'>PASSIVE</TD></TR>\n");
 
 		printf("<TR><TD CLASS='dataVar' NOWRAP>Check Latency / Duration:</TD><TD CLASS='dataVal'>");
 		if(temp_svcstatus->check_type==SERVICE_CHECK_ACTIVE)
@@ -1557,7 +1582,9 @@ void show_service_info(void){
 		printf("<TR><TD class='stateInfoTable2'>\n");
 		printf("<TABLE BORDER=0>\n");
 
-		printf("<TR><TD CLASS='dataVar'>Active Checks:</TD><td CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_svcstatus->checks_enabled)?"ENABLED":"DISABLED",(temp_svcstatus->checks_enabled)?"ENABLED":"DISABLED");
+		if ((temp_service->service_check_command)&&(*temp_service->service_check_command!='\0'))
+			printf("<TR><TD CLASS='dataVar'><A HREF='%s?type=command&expand=%s'>Active Checks:</A></TD><td CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",CONFIG_CGI,url_encode(temp_service->service_check_command),(temp_svcstatus->checks_enabled)?"ENABLED":"DISABLED",(temp_svcstatus->checks_enabled)?"ENABLED":"DISABLED");
+		else printf("<TR><TD CLASS='dataVar'>Active Checks:</TD><td CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_svcstatus->checks_enabled)?"ENABLED":"DISABLED",(temp_svcstatus->checks_enabled)?"ENABLED":"DISABLED");
 
 		printf("<TR><TD CLASS='dataVar'>Passive Checks:</TD><td CLASS='dataVal'><DIV CLASS='checks%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_svcstatus->accept_passive_service_checks==TRUE)?"ENABLED":"DISABLED",(temp_svcstatus->accept_passive_service_checks)?"ENABLED":"DISABLED");
 
@@ -1565,7 +1592,9 @@ void show_service_info(void){
 
 		printf("<TR><td CLASS='dataVar'>Notifications:</TD><td CLASS='dataVal'><DIV CLASS='notifications%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_svcstatus->notifications_enabled)?"ENABLED":"DISABLED",(temp_svcstatus->notifications_enabled)?"ENABLED":"DISABLED");
 
-		printf("<TR><TD CLASS='dataVar'>Event Handler:</TD><td CLASS='dataVal'><DIV CLASS='eventhandlers%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_svcstatus->event_handler_enabled)?"ENABLED":"DISABLED",(temp_svcstatus->event_handler_enabled)?"ENABLED":"DISABLED");
+		if ((temp_service->event_handler)&&(*temp_service->event_handler!='\0'))
+			printf("<TR><TD CLASS='dataVar'><A HREF='%s?type=command&expand=%s'>Event Handler:</A></td><td CLASS='dataVal'><DIV CLASS='eventhandlers%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></td></tr>\n",CONFIG_CGI,url_encode(temp_service->event_handler),(temp_svcstatus->event_handler_enabled)?"ENABLED":"DISABLED",(temp_svcstatus->event_handler_enabled)?"ENABLED":"DISABLED");
+		else printf("<TR><TD CLASS='dataVar'>Event Handler:</td><td CLASS='dataVal'><DIV CLASS='eventhandlers%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></td></tr>\n",(temp_svcstatus->event_handler_enabled)?"ENABLED":"DISABLED",(temp_svcstatus->event_handler_enabled)?"ENABLED":"DISABLED");
 
 		printf("<TR><TD CLASS='dataVar'>Flap Detection:</TD><td CLASS='dataVal'><DIV CLASS='flapdetection%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n",(temp_svcstatus->flap_detection_enabled==TRUE)?"ENABLED":"DISABLED",(temp_svcstatus->flap_detection_enabled==TRUE)?"ENABLED":"DISABLED");
 
@@ -1680,6 +1709,11 @@ void show_service_info(void){
 			printf("&service=%s'>Enable flap detection for this service</a></td></tr>\n",url_encode(service_desc));
 		        }
 
+                printf("<tr CLASS='command'><td><img src='%s%s' border=0 ALT='Add a new Service comment' TITLE='Add a new Service comment'></td><td CLASS='command'><a href='%s?cmd_typ=%d&host=%s&",url_images_path,COMMENT_ICON,CMD_CGI,CMD_ADD_SVC_COMMENT,(display_type==DISPLAY_COMMENTS)?"":url_encode(host_name));
+                printf("service=%s'>",(display_type==DISPLAY_COMMENTS)?"":url_encode(service_desc));
+                printf("Add a new Service comment</a></td>");
+
+
 		printf("</table>\n");
 		}
         else if (is_authorized_for_read_only(&current_authdata)==TRUE){
@@ -1726,16 +1760,14 @@ void show_hostgroup_info(void){
 	/* make sure the user has rights to view hostgroup information */
 	if(is_authorized_for_hostgroup(temp_hostgroup,&current_authdata)==FALSE){
 
-		printf("<P><DIV CLASS='errorMessage'>It appears as though you do not have permission to view information for this hostgroup...</DIV></P>\n");
-		printf("<P><DIV CLASS='errorDescription'>If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI<br>");
-		printf("and check the authorization options in your CGI configuration file.</DIV></P>\n");
+		print_generic_error_message("It appears as though you do not have permission to view information for this hostgroup...","If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI and check the authorization options in your CGI configuration file.",0);
 
 		return;
 	        }
 
 	/* make sure hostgroup information exists */
 	if(temp_hostgroup==NULL){
-		printf("<P><DIV CLASS='errorMessage'>Error: Hostgroup Not Found!</DIV></P>");
+		print_generic_error_message("Error: Hostgroup Not Found!",NULL,0);
 		return;
 		}
 
@@ -1818,19 +1850,15 @@ void show_servicegroup_info(){
 
 	/* make sure the user has rights to view servicegroup information */
 	if(is_authorized_for_servicegroup(temp_servicegroup,&current_authdata)==FALSE){
-
-		printf("<P><DIV CLASS='errorMessage'>It appears as though you do not have permission to view information for this servicegroup...</DIV></P>\n");
-		printf("<P><DIV CLASS='errorDescription'>If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI<br>");
-		printf("and check the authorization options in your CGI configuration file.</DIV></P>\n");
-
+		print_generic_error_message("It appears as though you do not have permission to view information for this servicegroup...","If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI and check the authorization options in your CGI configuration file.",0);
 		return;
-	        }
+	}
 
 	/* make sure servicegroup information exists */
 	if(temp_servicegroup==NULL){
-		printf("<P><DIV CLASS='errorMessage'>Error: Servicegroup Not Found!</DIV></P>");
+		print_generic_error_message("Error: Servicegroup Not Found!",NULL,0);
 		return;
-		}
+	}
 
 
 	printf("<DIV ALIGN=CENTER>\n");
@@ -2482,31 +2510,6 @@ void show_comments(int type){
 		printf("<A NAME=%sCOMMENTS></A>\n",(type==HOST_COMMENT)?"HOST":"SERVICE");
 		printf("<DIV CLASS='commentTitle'>%s Comments</DIV>\n",(type==HOST_COMMENT)?"Host":"Service");
 
-		printf("<TABLE BORDER=0 align=center>\n");
-		printf("<tr CLASS='comment' valign=middle><td><img src='%s%s' border=0></td>",url_images_path,COMMENT_ICON);
-
-		if(type==HOST_COMMENT){
-			printf("<td><a href='%s?cmd_typ=%d&host=%s'>",CMD_CGI,CMD_ADD_HOST_COMMENT,(display_type==DISPLAY_COMMENTS)?"":url_encode(host_name));
-		}else{
-			printf("<td><a href='%s?cmd_typ=%d&host=%s&",CMD_CGI,CMD_ADD_SVC_COMMENT,(display_type==DISPLAY_COMMENTS)?"":url_encode(host_name));
-			printf("service=%s'>",(display_type==DISPLAY_COMMENTS)?"":url_encode(service_desc));
-			}
-		printf("Add a new %s comment</a></td>",(type==HOST_COMMENT)?"Host":"Service");
-
-		/* display delete all comments for single hosts or services */
-		if(display_type!=DISPLAY_COMMENTS) {
-			printf("<td><img src='%s%s' border=0 align=center></td>",url_images_path,DELETE_ICON);
-			if(type==HOST_COMMENT)
-				printf("<td><a href='%s?cmd_typ=%d&host=%s' CLASS='comment'>",CMD_CGI,CMD_DEL_ALL_HOST_COMMENTS,url_encode(host_name));
-			else{
-				printf("<td><a href='%s?cmd_typ=%d&host=%s&",CMD_CGI,CMD_DEL_ALL_SVC_COMMENTS,url_encode(host_name));
-				printf("service=%s' CLASS='comment'>",url_encode(service_desc));
-				}
-			printf("Delete all %s comments</a></td>",(type==HOST_COMMENT)?"Host":"Service");
-		}
-		printf("</tr>\n");
-		printf("</TABLE>\n");
-
 		printf("<form name='tableform%s' id='tableform%s'>",(type==HOST_COMMENT)?"host":"service",(type==HOST_COMMENT)?"host":"service");
 		printf("<input type=hidden name=buttonCheckboxChecked>");
 		printf("<input type=hidden name='hiddencmdfield' value=%d>",(type==HOST_COMMENT)?CMD_DEL_HOST_COMMENT:CMD_DEL_SVC_COMMENT);
@@ -2853,11 +2856,7 @@ void show_scheduling_queue(void){
 
 	/* make sure the user has rights to view system information */
 	if(is_authorized_for_system_information(&current_authdata)==FALSE){
-
-		printf("<P><DIV CLASS='errorMessage'>It appears as though you do not have permission to view process information...</DIV></P>\n");
-		printf("<P><DIV CLASS='errorDescription'>If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI<br>");
-		printf("and check the authorization options in your CGI configuration file.</DIV></P>\n");
-
+		print_generic_error_message("It appears as though you do not have permission to view cheduling queue...","If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI and check the authorization options in your CGI configuration file.",0);
 		return;
 	}
 

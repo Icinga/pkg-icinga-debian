@@ -3,7 +3,8 @@
  * MACROS.C - Common macro functions for Icinga
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -50,32 +51,41 @@ extern servicegroup     *servicegroup_list;
 extern command          *command_list;
 extern timeperiod       *timeperiod_list;
 
+char *macro_x_names[MACRO_X_COUNT]; /* the macro names */
+char *macro_user[MAX_USER_MACROS]; /* $USERx$ macros */
 
-char            *macro_x[MACRO_X_COUNT];
-char            *macro_x_names[MACRO_X_COUNT];
-char            *macro_argv[MAX_COMMAND_ARGUMENTS];
-char            *macro_user[MAX_USER_MACROS];
-char            *macro_contactaddress[MAX_CONTACT_ADDRESSES];
-char            *macro_ondemand=NULL;
-customvariablesmember *macro_custom_host_vars=NULL;
-customvariablesmember *macro_custom_service_vars=NULL;
-customvariablesmember *macro_custom_contact_vars=NULL;
+/**
+ * These point to their corresponding pointer arrays in global_macros
+ * AFTER macros have been initialized.
+ *
+ * They really only exist so that eventbroker modules that reference
+ * them won't need to be re-compiled, although modules that rely
+ * on their values after having run a certain command will require an
+ * update
+ */
+char **macro_x = NULL;
 
-host            *macro_host_ptr=NULL;
-hostgroup       *macro_hostgroup_ptr=NULL;
-service         *macro_service_ptr=NULL;
-servicegroup    *macro_servicegroup_ptr=NULL;
-contact         *macro_contact_ptr=NULL;
-contactgroup    *macro_contactgroup_ptr=NULL;
+/**
+ * scoped to this file to prevent (unintentional) mischief,
+ * but see base/notifications.c for how to use it
+ */
+static icinga_macros global_macros;
 
+
+icinga_macros *get_global_macros(void){
+	return &global_macros;
+}
 
 
 /******************************************************************/
 /************************ MACRO FUNCTIONS *************************/
 /******************************************************************/
 
-/* replace macros in notification commands with their values */
-int process_macros(char *input_buffer, char **output_buffer, int options){
+/**
+ * replace macros in notification commands with their values,
+ * the thread-safe version
+ */
+int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffer, int options){
 	char *temp_buffer=NULL;
 	char *save_buffer=NULL;
 	char *buf_ptr=NULL;
@@ -93,7 +103,7 @@ int process_macros(char *input_buffer, char **output_buffer, int options){
 	int macro_options=0;
 
 
-	log_debug_info(DEBUGL_FUNCTIONS,0,"process_macros()\n");
+	log_debug_info(DEBUGL_FUNCTIONS,0,"process_macros_r()\n");
 
 	if(output_buffer==NULL)
 		return ERROR;
@@ -150,7 +160,7 @@ int process_macros(char *input_buffer, char **output_buffer, int options){
 			clean_options=0;
 
 			/* grab the macro value */
-			result=grab_macro_value(temp_buffer,&selected_macro,&clean_options,&free_macro);
+			result=grab_macro_value_r(mac, temp_buffer,&selected_macro,&clean_options,&free_macro);
 			log_debug_info(DEBUGL_MACROS,2,"  Processed '%s', Clean Options: %d, Free: %d\n",temp_buffer,clean_options,free_macro);
 
 			/* an error occurred - we couldn't parse the macro, so continue on */
@@ -247,24 +257,29 @@ int process_macros(char *input_buffer, char **output_buffer, int options){
 		free(save_buffer);
 
 	return OK;
-	}
+}
 
+int process_macros(char *input_buffer, char **output_buffer, int options){
+	return process_macros_r(&global_macros, input_buffer, output_buffer, options);
+}
 
 
 /******************************************************************/
 /********************** MACRO GRAB FUNCTIONS **********************/
 /******************************************************************/
 
-/* grab macros that are specific to a particular host */
-int grab_host_macros(host *hst){
+/**
+ * grab macros that are specific to a particular host
+ */
+int grab_host_macros_r(icinga_macros *mac, host *hst){
 
 	/* clear host-related macros */
-	clear_host_macros();
-	clear_hostgroup_macros();
+	clear_host_macros_r(mac);
+	clear_hostgroup_macros_r(mac);
 
 	/* save pointer to host */
-	macro_host_ptr=hst;
-	macro_hostgroup_ptr=NULL;
+	mac->host_ptr=hst;
+	mac->hostgroup_ptr=NULL;
 
 	if(hst==NULL)
 		return ERROR;
@@ -272,81 +287,105 @@ int grab_host_macros(host *hst){
 #ifdef NSCORE
 	/* save pointer to host's first/primary hostgroup */
 	if(hst->hostgroups_ptr)
-		macro_hostgroup_ptr=(hostgroup *)hst->hostgroups_ptr->object_ptr;
+		mac->hostgroup_ptr=(hostgroup *)hst->hostgroups_ptr->object_ptr;
 #endif
 
 	return OK;
-        }
+}
+
+int grab_host_macros(host *hst){
+        return grab_host_macros_r(&global_macros, hst);
+}
 
 
-/* grab hostgroup macros */
-int grab_hostgroup_macros(hostgroup *hg){
+/**
+ * grab hostgroup macros
+ */
+int grab_hostgroup_macros_r(icinga_macros *mac, hostgroup *hg){
 
 	/* clear hostgroup macros */
-	clear_hostgroup_macros();
+	clear_hostgroup_macros_r(mac);
 
 	/* save the hostgroup pointer for later */
-	macro_hostgroup_ptr=hg;
+	mac->hostgroup_ptr=hg;
 
 	if(hg==NULL)
 		return ERROR;
 
 	return OK;
-	}
+}
+
+int grab_hostgroup_macros(hostgroup *hg){
+        return grab_hostgroup_macros_r(&global_macros, hg);
+}
 
 
-/* grab macros that are specific to a particular service */
-int grab_service_macros(service *svc){
+/**
+ * grab macros that are specific to a particular service
+ */
+int grab_service_macros_r(icinga_macros *mac, service *svc){
 
 	/* clear service-related macros */
-	clear_service_macros();
-	clear_servicegroup_macros();
+	clear_service_macros_r(mac);
+	clear_servicegroup_macros_r(mac);
 
 	/* save pointer for later */
-	macro_service_ptr=svc;
-	macro_servicegroup_ptr=NULL;
-	
+	mac->service_ptr=svc;
+	mac->servicegroup_ptr=NULL;
+
 	if(svc==NULL)
 		return ERROR;
 
 #ifdef NSCORE
 	/* save first/primary servicegroup pointer for later */
 	if(svc->servicegroups_ptr)
-		macro_servicegroup_ptr=(servicegroup *)svc->servicegroups_ptr->object_ptr;
+		mac->servicegroup_ptr=(servicegroup *)svc->servicegroups_ptr->object_ptr;
 #endif
 
 	return OK;
-        }
+}
+
+int grab_service_macros(service *svc){
+	return grab_service_macros_r(&global_macros, svc);
+}
 
 
 
-/* grab macros that are specific to a particular servicegroup */
-int grab_servicegroup_macros(servicegroup *sg){
+/**
+ * grab macros that are specific to a particular servicegroup
+ */
+int grab_servicegroup_macros_r(icinga_macros *mac, servicegroup *sg){
 
 	/* clear servicegroup macros */
-	clear_servicegroup_macros();
+	clear_servicegroup_macros_r(mac);
 
 	/* save the pointer for later */
-	macro_servicegroup_ptr=sg;
+	mac->servicegroup_ptr=sg;
 
 	if(sg==NULL)
 		return ERROR;
 
 	return OK;
-	}
+}
+
+int grab_servicegroup_macros(servicegroup *sg){
+        return grab_servicegroup_macros_r(&global_macros, sg);
+}
 
 
 
-/* grab macros that are specific to a particular contact */
-int grab_contact_macros(contact *cntct){
+/**
+ * grab macros that are specific to a particular contact
+ */
+int grab_contact_macros_r(icinga_macros *mac, contact *cntct){
 
 	/* clear contact-related macros */
-	clear_contact_macros();
-	clear_contactgroup_macros();
+	clear_contact_macros_r(mac);
+	clear_contactgroup_macros_r(mac);
 
 	/* save pointer to contact for later */
-	macro_contact_ptr=cntct;
-	macro_contactgroup_ptr=NULL;
+	mac->contact_ptr=cntct;
+	mac->contactgroup_ptr=NULL;
 
 	if(cntct==NULL)
 		return ERROR;
@@ -354,35 +393,48 @@ int grab_contact_macros(contact *cntct){
 #ifdef NSCORE
 	/* save pointer to first/primary contactgroup for later */
 	if(cntct->contactgroups_ptr)
-		macro_contactgroup_ptr=(contactgroup *)cntct->contactgroups_ptr->object_ptr;
+		mac->contactgroup_ptr=(contactgroup *)cntct->contactgroups_ptr->object_ptr;
 #endif
 
 	return OK;
-	}
+}
+
+int grab_contact_macros(contact *cntct){
+        return grab_contact_macros_r(&global_macros, cntct);
+}
 
 
-/* grab contactgroup macros */
-int grab_contactgroup_macros(contactgroup *cg){
+
+/**
+ * grab contactgroup macros
+ */
+int grab_contactgroup_macros_r(icinga_macros *mac, contactgroup *cg){
 
         /* clear contactgroup macros */
-        clear_contactgroup_macros();
- 
+        clear_contactgroup_macros_r(mac);
+
         /* save pointer to contactgroup for later */
-        macro_contactgroup_ptr=cg;
- 
+        mac->contactgroup_ptr=cg;
+
         if(cg==NULL)
                 return ERROR;
- 
+
         return OK;
-        }
+}
+
+int grab_contactgroup_macros(contactgroup *cg){
+        return grab_contactgroup_macros_r(&global_macros, cg);
+}
 
 
 /******************************************************************/
 /******************* MACRO GENERATION FUNCTIONS *******************/
 /******************************************************************/
 
-/* this is the big one */
-int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int *free_macro){
+/**
+ * this is the big one
+ */
+int grab_macro_value_r(icinga_macros *mac, char *macro_buffer, char **output, int *clean_options, int *free_macro){
 	char *buf=NULL;
 	char *ptr=NULL;
 	char *macro_name=NULL;
@@ -443,10 +495,10 @@ int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int 
 
 		if(!strcmp(macro_name,macro_x_names[x])){
 
-			log_debug_info(DEBUGL_MACROS,2,"  macro_x[%d] (%s) match.\n",x,macro_x_names[x]);
+			log_debug_info(DEBUGL_MACROS,2,"  macros[%d] (%s) match.\n",x,macro_x_names[x]);
 
 			/* get the macro value */
-			result=grab_macrox_value(x,arg[0],arg[1],output,free_macro);
+			result=grab_macrox_value_r(mac, x,arg[0],arg[1],output,free_macro);
 
 			/* post-processing */
 			/* host/service output/perfdata and author/comment macros should get cleaned */
@@ -483,7 +535,7 @@ int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int 
 			}
 
 		/* use a pre-computed macro value */
-		*output=macro_argv[x-1];
+		*output=mac->argv[x-1];
 		*free_macro=FALSE;
 		}
 
@@ -514,13 +566,13 @@ int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int 
 		if(arg[0]==NULL){
 
 			/* use the saved pointer */
-			if((temp_contact=macro_contact_ptr)==NULL){
+			if((temp_contact=mac->contact_ptr)==NULL){
 				my_free(buf);
 				return ERROR;
 				}
 
 			/* get the macro value */
-			result=grab_contact_address_macro(x,temp_contact,output);
+			result=grab_contact_address_macro_r(mac, x,temp_contact,output);
 			}
 
 		/* on-demand macro */
@@ -545,7 +597,7 @@ int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int 
 #endif
 
 					/* get the macro value for this contact */
-					grab_contact_address_macro(x,temp_contact,&temp_buffer);
+					grab_contact_address_macro_r(mac, x,temp_contact,&temp_buffer);
 
 					if(temp_buffer==NULL)
 						continue;
@@ -573,7 +625,7 @@ int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int 
 					}
 
 				/* get the macro value */
-				result=grab_contact_address_macro(x,temp_contact,output);
+				result=grab_contact_address_macro_r(mac, x,temp_contact,output);
 				}
 			}
 		}
@@ -582,7 +634,7 @@ int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int 
 	else if(macro_name[0]=='_'){
 
 		/* get the macro value */
-		result=grab_custom_macro_value(macro_name,arg[0],arg[1],output);
+		result=grab_custom_macro_value_r(mac, macro_name,arg[0],arg[1],output);
 
 		}
 
@@ -596,11 +648,17 @@ int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int 
 	my_free(buf);
 
 	return result;
-	}
+}
+
+int grab_macro_value(char *macro_buffer, char **output, int *clean_options, int *free_macro){
+	return grab_macro_value_r(&global_macros, macro_buffer, output, clean_options, free_macro);
+}
 
 
-
-int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int *free_macro){
+/**
+ * grab macrox value
+ */
+int grab_macrox_value_r(icinga_macros *mac, int macro_type, char *arg1, char *arg2, char **output, int *free_macro){
 	host *temp_host=NULL;
 	hostgroup *temp_hostgroup=NULL;
 	hostsmember *temp_hostsmember=NULL;
@@ -652,6 +710,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 	case MACRO_HOSTNAME:
 	case MACRO_HOSTALIAS:
 	case MACRO_HOSTADDRESS:
+	case MACRO_HOSTADDRESS6:
 	case MACRO_LASTHOSTCHECK:
 	case MACRO_LASTHOSTSTATECHANGE:
 	case MACRO_HOSTOUTPUT:
@@ -706,11 +765,11 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 				}
 
 			/* else use saved host pointer */
-			else if((temp_host=macro_host_ptr)==NULL)
+			else if((temp_host=mac->host_ptr)==NULL)
 				return ERROR;
 
 			/* get the host macro value */
-			result=grab_standard_host_macro(macro_type,temp_host,output,free_macro);
+			result=grab_standard_host_macro_r(mac, macro_type,temp_host,output,free_macro);
 			}
 
 		/* a host macro with a hostgroup name and delimiter */
@@ -733,7 +792,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 #endif
 
 				/* get the macro value for this host */
-				grab_standard_host_macro(macro_type,temp_host,&temp_buffer,&free_sub_macro);
+				grab_standard_host_macro_r(mac, macro_type,temp_host,&temp_buffer,&free_sub_macro);
 
 				if(temp_buffer==NULL)
 					continue;
@@ -766,7 +825,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 		/* a standard hostgroup macro */
 		/* use the saved hostgroup pointer */
 		if(arg1==NULL){
-			if((temp_hostgroup=macro_hostgroup_ptr)==NULL)
+			if((temp_hostgroup=mac->hostgroup_ptr)==NULL)
 				return ERROR;
 			}
 
@@ -777,7 +836,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 			}
 
 		/* get the hostgroup macro value */
-		result=grab_standard_hostgroup_macro(macro_type,temp_hostgroup,output);
+		result=grab_standard_hostgroup_macro_r(mac, macro_type,temp_hostgroup,output);
 		break;
 
 		/******************/
@@ -828,10 +887,10 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 		/* use saved service pointer */
 		if(arg1==NULL && arg2==NULL){
 
-			if((temp_service=macro_service_ptr)==NULL)
+			if((temp_service=mac->service_ptr)==NULL)
 				return ERROR;
 
-			result=grab_standard_service_macro(macro_type,temp_service,output,free_macro);
+			result=grab_standard_service_macro_r(mac, macro_type,temp_service,output,free_macro);
 			}
 
 		/* else and ondemand macro... */
@@ -840,13 +899,13 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 			/* if first arg is blank, it means use the current host name */
 			if(arg1==NULL || arg1[0]=='\x0'){
 
-				if(macro_host_ptr==NULL)
+				if(mac->host_ptr==NULL)
 					return ERROR;
 
-				if((temp_service=find_service(macro_host_ptr->name,arg2))){
+				if((temp_service=find_service(mac->host_ptr->name,arg2))){
 
 					/* get the service macro value */
-					result=grab_standard_service_macro(macro_type,temp_service,output,free_macro);
+					result=grab_standard_service_macro_r(mac, macro_type,temp_service,output,free_macro);
 					}
 				}
 
@@ -854,7 +913,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 			else if((temp_service=find_service(arg1,arg2))){
 
 				/* get the service macro value */
-				result=grab_standard_service_macro(macro_type,temp_service,output,free_macro);
+				result=grab_standard_service_macro_r(mac, macro_type,temp_service,output,free_macro);
 				}
 
 			/* else we have a service macro with a servicegroup name and a delimiter... */
@@ -877,7 +936,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 #endif
 
 					/* get the macro value for this service */
-					grab_standard_service_macro(macro_type,temp_service,&temp_buffer,&free_sub_macro);
+					grab_standard_service_macro_r(mac, macro_type,temp_service,&temp_buffer,&free_sub_macro);
 
 					if(temp_buffer==NULL)
 						continue;
@@ -912,7 +971,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 		/* a standard servicegroup macro */
 		/* use the saved servicegroup pointer */
 		if(arg1==NULL){
-			if((temp_servicegroup=macro_servicegroup_ptr)==NULL)
+			if((temp_servicegroup=mac->servicegroup_ptr)==NULL)
 				return ERROR;
 			}
 
@@ -923,7 +982,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 			}
 
 		/* get the servicegroup macro value */
-		result=grab_standard_servicegroup_macro(macro_type,temp_servicegroup,output);
+		result=grab_standard_servicegroup_macro_r(mac, macro_type,temp_servicegroup,output);
 		break;
 
 		/******************/
@@ -944,11 +1003,11 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 				}
 
 			/* else use saved contact pointer */
-			else if((temp_contact=macro_contact_ptr)==NULL)
+			else if((temp_contact=mac->contact_ptr)==NULL)
 				return ERROR;
 
 			/* get the contact macro value */
-			result=grab_standard_contact_macro(macro_type,temp_contact,output);
+			result=grab_standard_contact_macro_r(mac, macro_type,temp_contact,output);
 			}
 
 		/* a contact macro with a contactgroup name and delimiter */
@@ -971,7 +1030,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 #endif
 
 				/* get the macro value for this contact */
-				grab_standard_contact_macro(macro_type,temp_contact,&temp_buffer);
+				grab_standard_contact_macro_r(mac, macro_type,temp_contact,&temp_buffer);
 
 				if(temp_buffer==NULL)
 					continue;
@@ -999,7 +1058,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 		/* a standard contactgroup macro */
 		/* use the saved contactgroup pointer */
 		if(arg1==NULL){
-			if((temp_contactgroup=macro_contactgroup_ptr)==NULL)
+			if((temp_contactgroup=mac->contactgroup_ptr)==NULL)
 				return ERROR;
 			}
 
@@ -1010,7 +1069,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 			}
 
 		/* get the contactgroup macro value */
-		result=grab_standard_contactgroup_macro(macro_type,temp_contactgroup,output);
+		result=grab_standard_contactgroup_macro_r(mac, macro_type,temp_contactgroup,output);
 		break;
 
 		/***********************/
@@ -1026,7 +1085,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 	case MACRO_NOTIFICATIONCOMMENT:
 
 		/* notification macros have already been pre-computed */
-		*output=macro_x[macro_type];
+		*output=mac->x[macro_type];
 		*free_macro=FALSE;
 		break;
 
@@ -1042,7 +1101,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 	case MACRO_NEXTVALIDTIME:
 
 		/* calculate macros */
-		result=grab_datetime_macro(macro_type,arg1,arg2,output);
+		result=grab_datetime_macro_r(mac, macro_type,arg1,arg2,output);
 		break;
 
 		/*****************/
@@ -1065,7 +1124,7 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 	case MACRO_EVENTSTARTTIME:
 
 		/* no need to do any more work - these are already precomputed for us */
-		*output=macro_x[macro_type];
+		*output=global_macros.x[macro_type];
 		*free_macro=FALSE;
 		break;
 
@@ -1091,14 +1150,14 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 
 #ifdef NSCORE
 		/* generate summary macros if needed */
-		if(macro_x[MACRO_TOTALHOSTSUP]==NULL){
+		if(mac->x[MACRO_TOTALHOSTSUP]==NULL){
 
 			/* get host totals */
 			for(temp_host=host_list;temp_host!=NULL;temp_host=temp_host->next){
 
 				/* filter totals based on contact if necessary */
-				if(macro_contact_ptr!=NULL)
-					authorized=is_contact_for_host(temp_host,macro_contact_ptr);
+				if(mac->contact_ptr!=NULL)
+					authorized=is_contact_for_host(temp_host,mac->contact_ptr);
 
 				if(authorized==TRUE){
 					problem=TRUE;
@@ -1137,8 +1196,8 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 			for(temp_service=service_list;temp_service!=NULL;temp_service=temp_service->next){
 
 				/* filter totals based on contact if necessary */
-				if(macro_contact_ptr!=NULL)
-					authorized=is_contact_for_service(temp_service,macro_contact_ptr);
+				if(mac->contact_ptr!=NULL)
+					authorized=is_contact_for_service(temp_service,mac->contact_ptr);
 
 				if(authorized==TRUE){
 					problem=TRUE;
@@ -1195,27 +1254,27 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 
 			/* these macros are time-intensive to compute, and will likely be used together, so save them all for future use */
 			for(x=MACRO_TOTALHOSTSUP;x<=MACRO_TOTALSERVICEPROBLEMSUNHANDLED;x++)
-				my_free(macro_x[x]);
-			asprintf(&macro_x[MACRO_TOTALHOSTSUP],"%d",hosts_up);
-			asprintf(&macro_x[MACRO_TOTALHOSTSDOWN],"%d",hosts_down);
-			asprintf(&macro_x[MACRO_TOTALHOSTSUNREACHABLE],"%d",hosts_unreachable);
-			asprintf(&macro_x[MACRO_TOTALHOSTSDOWNUNHANDLED],"%d",hosts_down_unhandled);
-			asprintf(&macro_x[MACRO_TOTALHOSTSUNREACHABLEUNHANDLED],"%d",hosts_unreachable_unhandled);
-			asprintf(&macro_x[MACRO_TOTALHOSTPROBLEMS],"%d",host_problems);
-			asprintf(&macro_x[MACRO_TOTALHOSTPROBLEMSUNHANDLED],"%d",host_problems_unhandled);
-			asprintf(&macro_x[MACRO_TOTALSERVICESOK],"%d",services_ok);
-			asprintf(&macro_x[MACRO_TOTALSERVICESWARNING],"%d",services_warning);
-			asprintf(&macro_x[MACRO_TOTALSERVICESCRITICAL],"%d",services_critical);
-			asprintf(&macro_x[MACRO_TOTALSERVICESUNKNOWN],"%d",services_unknown);
-			asprintf(&macro_x[MACRO_TOTALSERVICESWARNINGUNHANDLED],"%d",services_warning_unhandled);
-			asprintf(&macro_x[MACRO_TOTALSERVICESCRITICALUNHANDLED],"%d",services_critical_unhandled);
-			asprintf(&macro_x[MACRO_TOTALSERVICESUNKNOWNUNHANDLED],"%d",services_unknown_unhandled);
-			asprintf(&macro_x[MACRO_TOTALSERVICEPROBLEMS],"%d",service_problems);
-			asprintf(&macro_x[MACRO_TOTALSERVICEPROBLEMSUNHANDLED],"%d",service_problems_unhandled);
+				my_free(mac->x[x]);
+			asprintf(&mac->x[MACRO_TOTALHOSTSUP],"%d",hosts_up);
+			asprintf(&mac->x[MACRO_TOTALHOSTSDOWN],"%d",hosts_down);
+			asprintf(&mac->x[MACRO_TOTALHOSTSUNREACHABLE],"%d",hosts_unreachable);
+			asprintf(&mac->x[MACRO_TOTALHOSTSDOWNUNHANDLED],"%d",hosts_down_unhandled);
+			asprintf(&mac->x[MACRO_TOTALHOSTSUNREACHABLEUNHANDLED],"%d",hosts_unreachable_unhandled);
+			asprintf(&mac->x[MACRO_TOTALHOSTPROBLEMS],"%d",host_problems);
+			asprintf(&mac->x[MACRO_TOTALHOSTPROBLEMSUNHANDLED],"%d",host_problems_unhandled);
+			asprintf(&mac->x[MACRO_TOTALSERVICESOK],"%d",services_ok);
+			asprintf(&mac->x[MACRO_TOTALSERVICESWARNING],"%d",services_warning);
+			asprintf(&mac->x[MACRO_TOTALSERVICESCRITICAL],"%d",services_critical);
+			asprintf(&mac->x[MACRO_TOTALSERVICESUNKNOWN],"%d",services_unknown);
+			asprintf(&mac->x[MACRO_TOTALSERVICESWARNINGUNHANDLED],"%d",services_warning_unhandled);
+			asprintf(&mac->x[MACRO_TOTALSERVICESCRITICALUNHANDLED],"%d",services_critical_unhandled);
+			asprintf(&mac->x[MACRO_TOTALSERVICESUNKNOWNUNHANDLED],"%d",services_unknown_unhandled);
+			asprintf(&mac->x[MACRO_TOTALSERVICEPROBLEMS],"%d",service_problems);
+			asprintf(&mac->x[MACRO_TOTALSERVICEPROBLEMSUNHANDLED],"%d",service_problems_unhandled);
 			}
 
 		/* return only the macro the user requested */
-		*output=macro_x[macro_type];
+		*output=mac->x[macro_type];
 
 		/* tell caller to NOT free memory when done */
 		*free_macro=FALSE;
@@ -1228,12 +1287,18 @@ int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int
 		}
 
 	return result;
-	}
+}
+
+int grab_macrox_value(int macro_type, char *arg1, char *arg2, char **output, int *free_macro){
+        return grab_macrox_value_r(&global_macros, macro_type, arg1, arg2, output, free_macro);
+}
 
 
 
-/* calculates the value of a custom macro */
-int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **output){
+/**
+ * calculates the value of a custom macro
+ */
+int grab_custom_macro_value_r(icinga_macros *mac, char *macro_name, char *arg1, char *arg2, char **output){
 	host *temp_host=NULL;
 	hostgroup *temp_hostgroup=NULL;
 	hostsmember *temp_hostsmember=NULL;
@@ -1263,11 +1328,11 @@ int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **out
 				}
 
 			/* else use saved host pointer */
-			else if((temp_host=macro_host_ptr)==NULL)
+			else if((temp_host=mac->host_ptr)==NULL)
 				return ERROR;
 
 			/* get the host macro value */
-			result=grab_custom_object_macro(macro_name+5,temp_host->custom_variables,output);
+			result=grab_custom_object_macro_r(mac, macro_name+5,temp_host->custom_variables,output);
 			}
 
 		/* a host macro with a hostgroup name and delimiter */
@@ -1289,7 +1354,7 @@ int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **out
 #endif
 
 				/* get the macro value for this host */
-				grab_custom_macro_value(macro_name,temp_host->name,NULL,&temp_buffer);
+				grab_custom_macro_value_r(mac, macro_name,temp_host->name,NULL,&temp_buffer);
 
 				if(temp_buffer==NULL)
 					continue;
@@ -1314,23 +1379,23 @@ int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **out
 		/* use saved service pointer */
 		if(arg1==NULL && arg2==NULL){
 
-			if((temp_service=macro_service_ptr)==NULL)
+			if((temp_service=mac->service_ptr)==NULL)
 				return ERROR;
 
 			/* get the service macro value */
-			result=grab_custom_object_macro(macro_name+8,temp_service->custom_variables,output);
+			result=grab_custom_object_macro_r(mac, macro_name+8,temp_service->custom_variables,output);
 			}
 
 		/* else and ondemand macro... */
 		else{
 
 			/* if first arg is blank, it means use the current host name */
-			if(macro_host_ptr==NULL)
+			if(mac->host_ptr==NULL)
 				return ERROR;
-			if((temp_service=find_service((macro_host_ptr)?macro_host_ptr->name:NULL,arg2))){
+			if((temp_service=find_service((mac->host_ptr)?mac->host_ptr->name:NULL,arg2))){
 
 				/* get the service macro value */
-				result=grab_custom_object_macro(macro_name+8,temp_service->custom_variables,output);
+				result=grab_custom_object_macro_r(mac, macro_name+8,temp_service->custom_variables,output);
 				}
 
 			/* else we have a service macro with a servicegroup name and a delimiter... */
@@ -1353,7 +1418,7 @@ int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **out
 #endif
 
 					/* get the macro value for this service */
-					grab_custom_macro_value(macro_name,temp_service->host_name,temp_service->description,&temp_buffer);
+					grab_custom_macro_value_r(mac, macro_name,temp_service->host_name,temp_service->description,&temp_buffer);
 
 					if(temp_buffer==NULL)
 						continue;
@@ -1386,11 +1451,11 @@ int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **out
 				}
 
 			/* else use saved contact pointer */
-			else if((temp_contact=macro_contact_ptr)==NULL)
+			else if((temp_contact=mac->contact_ptr)==NULL)
 				return ERROR;
 
 			/* get the contact macro value */
-			result=grab_custom_object_macro(macro_name+8,temp_contact->custom_variables,output);
+			result=grab_custom_object_macro_r(mac, macro_name+8,temp_contact->custom_variables,output);
 			}
 
 		/* a contact macro with a contactgroup name and delimiter */
@@ -1413,7 +1478,7 @@ int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **out
 #endif
 
 				/* get the macro value for this contact */
-				grab_custom_macro_value(macro_name,temp_contact->name,NULL,&temp_buffer);
+				grab_custom_macro_value_r(mac, macro_name,temp_contact->name,NULL,&temp_buffer);
 
 				if(temp_buffer==NULL)
 					continue;
@@ -1436,12 +1501,17 @@ int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **out
 		return ERROR;
 
 	return result;
-	}
+}
+
+int grab_custom_macro_value(char *macro_name, char *arg1, char *arg2, char **output){
+	return grab_custom_macro_value_r(&global_macros, macro_name, arg1, arg2, output);
+}
 
 
-
-/* calculates a date/time macro */
-int grab_datetime_macro(int macro_type, char *arg1, char *arg2, char **output){
+/**
+ * calculates a date/time macro
+ */
+int grab_datetime_macro_r(icinga_macros *mac, int macro_type, char *arg1, char *arg2, char **output){
 	time_t current_time=0L;
 	timeperiod *temp_timeperiod=NULL;
 	time_t test_time=0L;
@@ -1530,12 +1600,17 @@ int grab_datetime_macro(int macro_type, char *arg1, char *arg2, char **output){
 		}
 
 	return OK;
-        }
+}
+
+int grab_datetime_macro(int macro_type, char *arg1, char *arg2, char **output){
+	return grab_datetime_macro_r(&global_macros, macro_type, arg1, arg2, output);
+}
 
 
-
-/* calculates a host macro */
-int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int *free_macro){
+/**
+ * calculates a host macro
+ */
+int grab_standard_host_macro_r(icinga_macros *mac, int macro_type, host *temp_host, char **output, int *free_macro){
 	char *temp_buffer=NULL;
 #ifdef NSCORE
 	hostgroup *temp_hostgroup=NULL;
@@ -1578,6 +1653,9 @@ int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int
 		break;
 	case MACRO_HOSTADDRESS:
 		*output=(char *)strdup(temp_host->address);
+		break;
+	case MACRO_HOSTADDRESS6:
+		*output=(char *)strdup(temp_host->address6);
 		break;
 #ifdef NSCORE
 	case MACRO_HOSTSTATE:
@@ -1733,7 +1811,7 @@ int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int
 	case MACRO_TOTALHOSTSERVICESCRITICAL:
 
 		/* generate host service summary macros (if they haven't already been computed) */
-		if(macro_x[MACRO_TOTALHOSTSERVICES]==NULL){
+		if(mac->x[MACRO_TOTALHOSTSERVICES]==NULL){
 
 			for(temp_servicesmember=temp_host->services;temp_servicesmember!=NULL;temp_servicesmember=temp_servicesmember->next){
 				if((temp_service=temp_servicesmember->service_ptr)==NULL)
@@ -1760,20 +1838,20 @@ int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int
 				}
 
 			/* these macros are time-intensive to compute, and will likely be used together, so save them all for future use */
-			my_free(macro_x[MACRO_TOTALHOSTSERVICES]);
-			asprintf(&macro_x[MACRO_TOTALHOSTSERVICES],"%d",total_host_services);
-			my_free(macro_x[MACRO_TOTALHOSTSERVICESOK]);
-			asprintf(&macro_x[MACRO_TOTALHOSTSERVICESOK],"%d",total_host_services_ok);
-			my_free(macro_x[MACRO_TOTALHOSTSERVICESWARNING]);
-			asprintf(&macro_x[MACRO_TOTALHOSTSERVICESWARNING],"%d",total_host_services_warning);
-			my_free(macro_x[MACRO_TOTALHOSTSERVICESUNKNOWN]);
-			asprintf(&macro_x[MACRO_TOTALHOSTSERVICESUNKNOWN],"%d",total_host_services_unknown);
-			my_free(macro_x[MACRO_TOTALHOSTSERVICESCRITICAL]);
-			asprintf(&macro_x[MACRO_TOTALHOSTSERVICESCRITICAL],"%d",total_host_services_critical);
+			my_free(mac->x[MACRO_TOTALHOSTSERVICES]);
+			asprintf(&mac->x[MACRO_TOTALHOSTSERVICES],"%d",total_host_services);
+			my_free(mac->x[MACRO_TOTALHOSTSERVICESOK]);
+			asprintf(&mac->x[MACRO_TOTALHOSTSERVICESOK],"%d",total_host_services_ok);
+			my_free(mac->x[MACRO_TOTALHOSTSERVICESWARNING]);
+			asprintf(&mac->x[MACRO_TOTALHOSTSERVICESWARNING],"%d",total_host_services_warning);
+			my_free(mac->x[MACRO_TOTALHOSTSERVICESUNKNOWN]);
+			asprintf(&mac->x[MACRO_TOTALHOSTSERVICESUNKNOWN],"%d",total_host_services_unknown);
+			my_free(mac->x[MACRO_TOTALHOSTSERVICESCRITICAL]);
+			asprintf(&mac->x[MACRO_TOTALHOSTSERVICESCRITICAL],"%d",total_host_services_critical);
 			}
 
 		/* return only the macro the user requested */
-		*output=macro_x[macro_type];
+		*output=mac->x[macro_type];
 
 		/* tell caller to NOT free memory when done */
 		*free_macro=FALSE;
@@ -1788,7 +1866,7 @@ int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int
 	case MACRO_HOSTACKCOMMENT:
 		/* no need to do any more work - these are already precomputed elsewhere */
 		/* NOTE: these macros won't work as on-demand macros */
-		*output=macro_x[macro_type];
+		*output=mac->x[macro_type];
 		*free_macro=FALSE;
 		break;
 
@@ -1802,12 +1880,12 @@ int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int
 	switch(macro_type){
 	case MACRO_HOSTACTIONURL:
 	case MACRO_HOSTNOTESURL:
-		process_macros(*output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
+		process_macros_r(mac, *output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
 	case MACRO_HOSTNOTES:
-		process_macros(*output,&temp_buffer,0);
+		process_macros_r(mac, *output,&temp_buffer,0);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
@@ -1816,14 +1894,21 @@ int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int
 		}
 
 	return OK;
-	}
+}
+
+int grab_standard_host_macro(int macro_type, host *temp_host, char **output, int *free_macro){
+	return grab_standard_host_macro_r(&global_macros, macro_type, temp_host, output, free_macro);
+}
 
 
-
-/* computes a hostgroup macro */
-int grab_standard_hostgroup_macro(int macro_type, hostgroup *temp_hostgroup, char **output){
+/**
+ * computes a hostgroup macro
+ */
+int grab_standard_hostgroup_macro_r(icinga_macros *mac, int macro_type, hostgroup *temp_hostgroup, char **output){
 	hostsmember *temp_hostsmember=NULL;
 	char *temp_buffer=NULL;
+	unsigned int temp_len=0;
+	unsigned int init_len=0;
 
 	if(temp_hostgroup==NULL || output==NULL)
 		return ERROR;
@@ -1838,15 +1923,33 @@ int grab_standard_hostgroup_macro(int macro_type, hostgroup *temp_hostgroup, cha
 			*output=(char *)strdup(temp_hostgroup->alias);
 		break;
 	case MACRO_HOSTGROUPMEMBERS:
-		/* get the group members */
+		/* make the calculations for total string length */
 		for(temp_hostsmember=temp_hostgroup->members;temp_hostsmember!=NULL;temp_hostsmember=temp_hostsmember->next){
 			if(temp_hostsmember->host_name==NULL)
 				continue;
-			if(*output==NULL)
-				*output=(char *)strdup(temp_hostsmember->host_name);
-			else if((*output=(char *)realloc(*output,strlen(*output)+strlen(temp_hostsmember->host_name)+2))){
-				strcat(*output,",");
-				strcat(*output,temp_hostsmember->host_name);
+			if (temp_len==0){
+				temp_len+=strlen(temp_hostsmember->host_name)+1;
+			} else {
+				temp_len+=strlen(temp_hostsmember->host_name)+2;
+				}
+			}
+		/* allocate or reallocate the memory buffer */
+		if (*output==NULL) {
+			*output=(char *)malloc(temp_len);
+		} else {
+			init_len = strlen(*output);
+			temp_len += init_len;
+			*output=(char *)realloc(*output,temp_len);
+		}
+		/* now fill in the string with the member names */
+		for(temp_hostsmember=temp_hostgroup->members;temp_hostsmember!=NULL;temp_hostsmember=temp_hostsmember->next){
+			if(temp_hostsmember->host_name==NULL)
+				continue;
+			temp_buffer = *output + init_len;
+			if (init_len == 0) { /* If our buffer didn't contain anything, we just need to write "%s,%s" */
+				init_len += sprintf(temp_buffer, "%s", temp_hostsmember->host_name);
+			} else {
+				init_len += sprintf(temp_buffer, ",%s", temp_hostsmember->host_name);
 				}
 			}
 		break;
@@ -1872,12 +1975,12 @@ int grab_standard_hostgroup_macro(int macro_type, hostgroup *temp_hostgroup, cha
 	switch(macro_type){
 	case MACRO_HOSTGROUPACTIONURL:
 	case MACRO_HOSTGROUPNOTESURL:
-		process_macros(*output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
+		process_macros_r(mac, *output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
 	case MACRO_HOSTGROUPNOTES:
-		process_macros(*output,&temp_buffer,0);
+		process_macros_r(mac, *output,&temp_buffer,0);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
@@ -1886,12 +1989,17 @@ int grab_standard_hostgroup_macro(int macro_type, hostgroup *temp_hostgroup, cha
 		}
 
 	return OK;
-	}
+}
+
+int grab_standard_hostgroup_macro(int macro_type, hostgroup *temp_hostgroup, char **output){
+	return grab_standard_hostgroup_macro_r(&global_macros, macro_type, temp_hostgroup, output);
+}
 
 
-
-/* computes a service macro */
-int grab_standard_service_macro(int macro_type, service *temp_service, char **output, int *free_macro){
+/**
+ * computes a service macro
+ */
+int grab_standard_service_macro_r(icinga_macros *mac, int macro_type, service *temp_service, char **output, int *free_macro){
 	char *temp_buffer=NULL;
 #ifdef NSCORE
 	servicegroup *temp_servicegroup=NULL;
@@ -2093,7 +2201,7 @@ int grab_standard_service_macro(int macro_type, service *temp_service, char **ou
 	case MACRO_SERVICEACKCOMMENT:
 		/* no need to do any more work - these are already precomputed elsewhere */
 		/* NOTE: these macros won't work as on-demand macros */
-		*output=macro_x[macro_type];
+		*output=mac->x[macro_type];
 		*free_macro=FALSE;
 		break;
 
@@ -2107,12 +2215,12 @@ int grab_standard_service_macro(int macro_type, service *temp_service, char **ou
 	switch(macro_type){
 	case MACRO_SERVICEACTIONURL:
 	case MACRO_SERVICENOTESURL:
-		process_macros(*output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
+		process_macros_r(mac, *output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
 	case MACRO_SERVICENOTES:
-		process_macros(*output,&temp_buffer,0);
+		process_macros_r(mac, *output,&temp_buffer,0);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
@@ -2121,14 +2229,21 @@ int grab_standard_service_macro(int macro_type, service *temp_service, char **ou
 		}
 
 	return OK;
-	}
+}
+
+int grab_standard_service_macro(int macro_type, service *temp_service, char **output, int *free_macro){
+	return grab_standard_service_macro_r(&global_macros, macro_type, temp_service, output, free_macro);
+}
 
 
-
-/* computes a servicegroup macro */
-int grab_standard_servicegroup_macro(int macro_type, servicegroup *temp_servicegroup, char **output){
+/**
+ * computes a servicegroup macro
+ */
+int grab_standard_servicegroup_macro_r(icinga_macros *mac, int macro_type, servicegroup *temp_servicegroup, char **output){
 	servicesmember *temp_servicesmember=NULL;
 	char *temp_buffer=NULL;
+	unsigned int temp_len=0;
+	unsigned int init_len=0;
 
 	if(temp_servicegroup==NULL || output==NULL)
 		return ERROR;
@@ -2143,20 +2258,34 @@ int grab_standard_servicegroup_macro(int macro_type, servicegroup *temp_serviceg
 			*output=(char *)strdup(temp_servicegroup->alias);
 		break;
 	case MACRO_SERVICEGROUPMEMBERS:
-		/* get the group members */
+		/* make the calculations for total string length */
 		for(temp_servicesmember=temp_servicegroup->members;temp_servicesmember!=NULL;temp_servicesmember=temp_servicesmember->next){
 			if(temp_servicesmember->host_name==NULL || temp_servicesmember->service_description==NULL)
 				continue;
-			if(*output==NULL){
-				if((*output=(char *)malloc(strlen(temp_servicesmember->host_name)+strlen(temp_servicesmember->service_description)+2))){
-					sprintf(*output,"%s,%s",temp_servicesmember->host_name,temp_servicesmember->service_description);
-					}
+			if (temp_len == 0) {
+				temp_len+=strlen(temp_servicesmember->host_name)+strlen(temp_servicesmember->service_description)+2;
+			} else {
+				temp_len+=strlen(temp_servicesmember->host_name)+strlen(temp_servicesmember->service_description)+3;
 				}
-			else if((*output=(char *)realloc(*output,strlen(*output)+strlen(temp_servicesmember->host_name)+strlen(temp_servicesmember->service_description)+3))){
-				strcat(*output,",");
-				strcat(*output,temp_servicesmember->host_name);
-				strcat(*output,",");
-				strcat(*output,temp_servicesmember->service_description);
+			}
+		/* allocate or reallocate the memory buffer */
+		if (*output==NULL) {
+			*output=(char *)malloc(temp_len);
+			}
+		else {
+			init_len = strlen(*output);
+			temp_len += init_len;
+			*output=(char *)realloc(*output,temp_len);
+			}
+		/* now fill in the string with the group members */
+		for(temp_servicesmember=temp_servicegroup->members;temp_servicesmember!=NULL;temp_servicesmember=temp_servicesmember->next){
+			if(temp_servicesmember->host_name==NULL || temp_servicesmember->service_description==NULL)
+				continue;
+			temp_buffer = *output + init_len;
+			if (init_len == 0) { /* If our buffer didn't contain anything, we just need to write "%s,%s" */
+				init_len += sprintf(temp_buffer, "%s,%s",temp_servicesmember->host_name,temp_servicesmember->service_description);
+			} else { /* Now we need to write ",%s,%s" */
+				init_len += sprintf(temp_buffer, ",%s,%s",temp_servicesmember->host_name,temp_servicesmember->service_description);
 				}
 			}
 		break;
@@ -2182,12 +2311,12 @@ int grab_standard_servicegroup_macro(int macro_type, servicegroup *temp_serviceg
 	switch(macro_type){
 	case MACRO_SERVICEGROUPACTIONURL:
 	case MACRO_SERVICEGROUPNOTESURL:
-		process_macros(*output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
+		process_macros_r(mac, *output,&temp_buffer,URL_ENCODE_MACRO_CHARS);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
 	case MACRO_SERVICEGROUPNOTES:
-		process_macros(*output,&temp_buffer,0);
+		process_macros_r(mac, *output,&temp_buffer,0);
 		my_free(*output);
 		*output=temp_buffer;
 		break;
@@ -2196,12 +2325,17 @@ int grab_standard_servicegroup_macro(int macro_type, servicegroup *temp_serviceg
 		}
 
 	return OK;
-	}
+}
+
+int grab_standard_servicegroup_macro(int macro_type, servicegroup *temp_servicegroup, char **output){
+	return grab_standard_servicegroup_macro_r(&global_macros, macro_type, temp_servicegroup, output);
+}
 
 
-
-/* computes a contact macro */
-int grab_standard_contact_macro(int macro_type, contact *temp_contact, char **output){
+/**
+ * computes a contact macro
+ */
+int grab_standard_contact_macro_r(icinga_macros *mac, int macro_type, contact *temp_contact, char **output){
 #ifdef NSCORE
 	contactgroup *temp_contactgroup=NULL;
 	objectlist *temp_objectlist=NULL;
@@ -2253,12 +2387,17 @@ int grab_standard_contact_macro(int macro_type, contact *temp_contact, char **ou
 		}
 
 	return OK;
-	}
+}
+
+int grab_standard_contact_macro(int macro_type, contact *temp_contact, char **output){
+	return grab_standard_contact_macro_r(&global_macros, macro_type, temp_contact, output);
+}
 
 
-
-/* computes a contact address macro */
-int grab_contact_address_macro(int macro_num, contact *temp_contact, char **output){
+/**
+ * computes a contact address macro
+ */
+int grab_contact_address_macro_r(icinga_macros *mac, int macro_num, contact *temp_contact, char **output){
 
 	if(macro_num<0 || macro_num>=MAX_CONTACT_ADDRESSES)
 		return ERROR;
@@ -2271,12 +2410,17 @@ int grab_contact_address_macro(int macro_num, contact *temp_contact, char **outp
 		*output=(char *)strdup(temp_contact->address[macro_num]);
 
 	return OK;
-	}
+}
+
+int grab_contact_address_macro(int macro_num, contact *temp_contact, char **output){
+	return grab_contact_address_macro_r(&global_macros, macro_num, temp_contact, output);
+}
 
 
-
-/* computes a contactgroup macro */
-int grab_standard_contactgroup_macro(int macro_type, contactgroup *temp_contactgroup, char **output){
+/**
+ * computes a contactgroup macro
+ */
+int grab_standard_contactgroup_macro_r(icinga_macros *mac, int macro_type, contactgroup *temp_contactgroup, char **output){
 	contactsmember *temp_contactsmember=NULL;
 
 	if(temp_contactgroup==NULL || output==NULL)
@@ -2310,12 +2454,18 @@ int grab_standard_contactgroup_macro(int macro_type, contactgroup *temp_contactg
 		}
 
 	return OK;
-	}
+}
+
+int grab_standard_contactgroup_macro(int macro_type, contactgroup *temp_contactgroup, char **output){
+	return grab_standard_contactgroup_macro_r(&global_macros, macro_type, temp_contactgroup, output);
+}
 
 
 
-/* computes a custom object macro */
-int grab_custom_object_macro(char *macro_name, customvariablesmember *vars, char **output){
+/**
+ * computes a custom object macro
+ */
+int grab_custom_object_macro_r(icinga_macros *mac, char *macro_name, customvariablesmember *vars, char **output){
 	customvariablesmember *temp_customvariablesmember=NULL;
 	int result=ERROR;
 
@@ -2337,15 +2487,20 @@ int grab_custom_object_macro(char *macro_name, customvariablesmember *vars, char
 	        }
 
 	return result;
-	}
+}
 
+int grab_custom_object_macro(char *macro_name, customvariablesmember *vars, char **output){
+	return grab_custom_object_macro_r(&global_macros, macro_name, vars, output);
+}
 
 
 /******************************************************************/
 /********************* MACRO STRING FUNCTIONS *********************/
 /******************************************************************/
 
-/* cleans illegal characters in macros before output */
+/**
+ * cleans illegal characters in macros before output
+ */
 char *clean_macro_chars(char *macro,int options){
 	register int x=0;
 	register int y=0;
@@ -2397,11 +2552,13 @@ char *clean_macro_chars(char *macro,int options){
 #endif
 
 	return macro;
-        }
+}
 
 
 
-/* encodes a string in proper URL format */
+/**
+ * encodes a string in proper URL format
+ */
 char *get_url_encoded_string(char *input){
 	register int x=0;
 	register int y=0;
@@ -2445,7 +2602,7 @@ char *get_url_encoded_string(char *input){
 	encoded_url_string[y]='\x0';
 
 	return encoded_url_string;
-        }
+}
 
 
 
@@ -2453,43 +2610,31 @@ char *get_url_encoded_string(char *input){
 /***************** MACRO INITIALIZATION FUNCTIONS *****************/
 /******************************************************************/
 
-/* initializes macros */
+/**
+ * initializes global macros
+ */
 int init_macros(void){
-	register int x=0;
 
-	/* macro names */
 	init_macrox_names();
 
-	/* contact address macros */
-	for(x=0;x<MAX_CONTACT_ADDRESSES;x++)
-		macro_contactaddress[x]=NULL;
+	/*
+	 * non-volatile macros are free()'d when they're set.
+	 * We must do this in order to not lose the constant
+	 * ones when we get SIGHUP or a RESTART_PROGRAM event
+	 * from the command fifo. Otherwise a memset() would
+	 * have been better.
+	 */
+	clear_volatile_macros_r(&global_macros);
 
-	/* on-demand macro */
-	macro_ondemand=NULL;
-
-	/* ARGx macros */
-	for(x=0;x<MAX_COMMAND_ARGUMENTS;x++)
-		macro_argv[x]=NULL;
-
-	/* custom object variable macros */
-	macro_custom_host_vars=NULL;
-	macro_custom_service_vars=NULL;
-	macro_custom_contact_vars=NULL;
-
-	/* macro object pointers */
-	macro_host_ptr=NULL;
-	macro_hostgroup_ptr=NULL;
-	macro_service_ptr=NULL;
-	macro_servicegroup_ptr=NULL;
-	macro_contact_ptr=NULL;
-	macro_contactgroup_ptr=NULL;
+	/* backwards compatibility hack */
+	macro_x = global_macros.x;
 
 	return OK;
-	}
+}
 
 
 
-/*
+/**
  * initializes the names of macros, using this nifty little macro
  * which ensures we never add any typos to the list
  * ##name appends as astring, #name makes sure that param is trated as string
@@ -2506,6 +2651,7 @@ int init_macrox_names(void){
 	add_macrox_name(HOSTNAME);
 	add_macrox_name(HOSTALIAS);
 	add_macrox_name(HOSTADDRESS);
+	add_macrox_name(HOSTADDRESS6);
 	add_macrox_name(SERVICEDESC);
 	add_macrox_name(SERVICESTATE);
 	add_macrox_name(SERVICESTATEID);
@@ -2658,14 +2804,16 @@ int init_macrox_names(void){
 	add_macrox_name(LASTSERVICESTATEID);
 
 	return OK;
-        }
+}
 
 
 /******************************************************************/
 /********************* MACRO CLEANUP FUNCTIONS ********************/
 /******************************************************************/
 
-/* free memory associated with the macrox names */
+/**
+ * free memory associated with the macrox names
+ */
 int free_macrox_names(void){
 	register int x=0;
 
@@ -2674,25 +2822,58 @@ int free_macrox_names(void){
 		my_free(macro_x_names[x]);
 
 	return OK;
-        }
+}
 
 
 
-/* clear argv macros - used in commands */
-int clear_argv_macros(void){
+/**
+ * clear argv macros - used in commands
+ */
+int clear_argv_macros_r(icinga_macros *mac){
 	register int x=0;
 
 	/* command argument macros */
 	for(x=0;x<MAX_COMMAND_ARGUMENTS;x++)
-		my_free(macro_argv[x]);
+		my_free(mac->argv[x]);
 
 	return OK;
-        }
+}
+
+int clear_argv_macros(void){
+        return clear_argv_macros_r(&global_macros);
+}
 
 
+/**
+ * copies non-volatile macros from global macro_x to **dest, which
+ * must be large enough to hold at least MACRO_X_COUNT entries.
+ * We use a shortlived macro to save up on typing
+ */
+#define cp_macro(name) dest[MACRO_##name] = global_macros.x[MACRO_##name]
+void copy_constant_macros(char **dest){
+	cp_macro(ADMINEMAIL);
+	cp_macro(ADMINPAGER);
+	cp_macro(MAINCONFIGFILE);
+	cp_macro(STATUSDATAFILE);
+	cp_macro(RETENTIONDATAFILE);
+	cp_macro(OBJECTCACHEFILE);
+	cp_macro(TEMPFILE);
+	cp_macro(LOGFILE);
+	cp_macro(RESOURCEFILE);
+	cp_macro(COMMANDFILE);
+	cp_macro(HOSTPERFDATAFILE);
+	cp_macro(SERVICEPERFDATAFILE);
+	cp_macro(PROCESSSTARTTIME);
+	cp_macro(TEMPPATH);
+	cp_macro(EVENTSTARTTIME);
+}
+#undef cp_macro
 
-/* clear all macros that are not "constant" (i.e. they change throughout the course of monitoring) */
-int clear_volatile_macros(void){
+/**
+ * clear all macros that are not "constant" (i.e. they change throughout the course of monitoring)
+ * the thread-safe version
+ */
+int clear_volatile_macros_r(icinga_macros *mac){
 	customvariablesmember *this_customvariablesmember=NULL;
 	customvariablesmember *next_customvariablesmember=NULL;
 	register int x=0;
@@ -2718,63 +2899,69 @@ int clear_volatile_macros(void){
 			/* these don't change during the course of monitoring, so no need to free them */
 			break;
 		default:
-			my_free(macro_x[x]);
+			my_free(mac->x[x]);
 			break;
 		        }
 	        }
 
 	/* contact address macros */
 	for(x=0;x<MAX_CONTACT_ADDRESSES;x++)
-		my_free(macro_contactaddress[x]);
+		my_free(mac->contactaddress[x]);
 
 	/* clear macro pointers */
-	macro_host_ptr=NULL;
-	macro_hostgroup_ptr=NULL;
-	macro_service_ptr=NULL;
-	macro_servicegroup_ptr=NULL;
-	macro_contact_ptr=NULL;
-	macro_contactgroup_ptr=NULL;
+	mac->host_ptr=NULL;
+	mac->hostgroup_ptr=NULL;
+	mac->service_ptr=NULL;
+	mac->servicegroup_ptr=NULL;
+	mac->contact_ptr=NULL;
+	mac->contactgroup_ptr=NULL;
 
 	/* clear on-demand macro */
-	my_free(macro_ondemand);
+	my_free(mac->ondemand);
 
 	/* clear ARGx macros */
-	clear_argv_macros();
+	clear_argv_macros_r(mac);
 
 	/* clear custom host variables */
-	for(this_customvariablesmember=macro_custom_host_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
+	for(this_customvariablesmember=mac->custom_host_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
 		next_customvariablesmember=this_customvariablesmember->next;
 		my_free(this_customvariablesmember->variable_name);
 		my_free(this_customvariablesmember->variable_value);
 		my_free(this_customvariablesmember);
 	        }
-	macro_custom_host_vars=NULL;
+	mac->custom_host_vars=NULL;
 
 	/* clear custom service variables */
-	for(this_customvariablesmember=macro_custom_service_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
+	for(this_customvariablesmember=mac->custom_service_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
 		next_customvariablesmember=this_customvariablesmember->next;
 		my_free(this_customvariablesmember->variable_name);
 		my_free(this_customvariablesmember->variable_value);
 		my_free(this_customvariablesmember);
 	        }
-	macro_custom_service_vars=NULL;
+	mac->custom_service_vars=NULL;
 
 	/* clear custom contact variables */
-	for(this_customvariablesmember=macro_custom_contact_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
+	for(this_customvariablesmember=mac->custom_contact_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
 		next_customvariablesmember=this_customvariablesmember->next;
 		my_free(this_customvariablesmember->variable_name);
 		my_free(this_customvariablesmember->variable_value);
 		my_free(this_customvariablesmember);
 	        }
-	macro_custom_contact_vars=NULL;
+	mac->custom_contact_vars=NULL;
 
 	return OK;
-        }
+}
+
+int clear_volatile_macros(void){
+	return clear_volatile_macros_r(&global_macros);
+}
 
 
-
-/* clear service macros */
-int clear_service_macros(void){
+/**
+ * clear service macros
+ * the thread-safe version
+ */
+int clear_service_macros_r(icinga_macros *mac){
 	register int x;
 	customvariablesmember *this_customvariablesmember=NULL;
 	customvariablesmember *next_customvariablesmember=NULL;
@@ -2817,7 +3004,7 @@ int clear_service_macros(void){
 		case MACRO_SERVICEPROBLEMID:
 		case MACRO_LASTSERVICEPROBLEMID:
 
-			my_free(macro_x[x]);
+			my_free(mac->x[x]);
 			break;
 		default:
 			break;
@@ -2825,23 +3012,30 @@ int clear_service_macros(void){
 		}
 
 	/* clear custom service variables */
-	for(this_customvariablesmember=macro_custom_service_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
+	for(this_customvariablesmember=mac->custom_service_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
 		next_customvariablesmember=this_customvariablesmember->next;
 		my_free(this_customvariablesmember->variable_name);
 		my_free(this_customvariablesmember->variable_value);
 		my_free(this_customvariablesmember);
 	        }
-	macro_custom_service_vars=NULL;
+	mac->custom_service_vars=NULL;
 
 	/* clear pointers */
-	macro_service_ptr=NULL;
+	mac->service_ptr=NULL;
 
 	return OK;
-	}
+}
+
+int clear_service_macros(void){
+        return clear_service_macros_r(&global_macros);
+}
 
 
-/* clear host macros */
-int clear_host_macros(void){
+/**
+ * clear host macros
+ * the thread-safe version
+ */
+int clear_host_macros_r(icinga_macros *mac){
 	register int x;
 	customvariablesmember *this_customvariablesmember=NULL;
 	customvariablesmember *next_customvariablesmember=NULL;
@@ -2852,6 +3046,7 @@ int clear_host_macros(void){
 		case MACRO_HOSTDISPLAYNAME:
 		case MACRO_HOSTALIAS:
 		case MACRO_HOSTADDRESS:
+		case MACRO_HOSTADDRESS6:
 		case MACRO_HOSTSTATE:
 		case MACRO_HOSTSTATEID:
 		case MACRO_HOSTCHECKTYPE:
@@ -2889,7 +3084,7 @@ int clear_host_macros(void){
 		case MACRO_HOSTPROBLEMID:
 		case MACRO_LASTHOSTPROBLEMID:
 
-			my_free(macro_x[x]);
+			my_free(mac->x[x]);
 			break;
 		default:
 			break;
@@ -2897,23 +3092,30 @@ int clear_host_macros(void){
 		}
 
 	/* clear custom host variables */
-	for(this_customvariablesmember=macro_custom_host_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
+	for(this_customvariablesmember=mac->custom_host_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
 		next_customvariablesmember=this_customvariablesmember->next;
 		my_free(this_customvariablesmember->variable_name);
 		my_free(this_customvariablesmember->variable_value);
 		my_free(this_customvariablesmember);
 	        }
-	macro_custom_host_vars=NULL;
+	mac->custom_host_vars=NULL;
 
 	/* clear pointers */
-	macro_host_ptr=NULL;
+	mac->host_ptr=NULL;
 
 	return OK;
-	}
+}
+
+int clear_host_macros(void){
+        return clear_host_macros_r(&global_macros);
+}
 
 
-/* clear hostgroup macros */
-int clear_hostgroup_macros(void){
+/**
+ * clear hostgroup macros
+ * the thread-safe version
+ */
+int clear_hostgroup_macros_r(icinga_macros *mac){
 	register int x;
 
 	for(x=0;x<MACRO_X_COUNT;x++){
@@ -2924,7 +3126,7 @@ int clear_hostgroup_macros(void){
 		case MACRO_HOSTGROUPACTIONURL:
 		case MACRO_HOSTGROUPNOTESURL:
 		case MACRO_HOSTGROUPNOTES:
-			my_free(macro_x[x]);
+			my_free(mac->x[x]);
 			break;
 		default:
 			break;
@@ -2932,14 +3134,21 @@ int clear_hostgroup_macros(void){
 		}
 
 	/* clear pointers */
-	macro_hostgroup_ptr=NULL;
+	mac->hostgroup_ptr=NULL;
 
 	return OK;
-	}
+}
+
+int clear_hostgroup_macros(void){
+        return clear_hostgroup_macros_r(&global_macros);
+}
 
 
-/* clear servicegroup macros */
-int clear_servicegroup_macros(void){
+/**
+ * clear servicegroup macros
+ * the thread-safe version
+ */
+int clear_servicegroup_macros_r(icinga_macros *mac){
 	register int x;
 
 	for(x=0;x<MACRO_X_COUNT;x++){
@@ -2950,7 +3159,7 @@ int clear_servicegroup_macros(void){
 		case MACRO_SERVICEGROUPACTIONURL:
 		case MACRO_SERVICEGROUPNOTESURL:
 		case MACRO_SERVICEGROUPNOTES:
-			my_free(macro_x[x]);
+			my_free(mac->x[x]);
 			break;
 		default:
 			break;
@@ -2958,14 +3167,21 @@ int clear_servicegroup_macros(void){
 		}
 
 	/* clear pointers */
-	macro_servicegroup_ptr=NULL;
+	mac->servicegroup_ptr=NULL;
 
 	return OK;
-	}
+}
+
+int clear_servicegroup_macros(void){
+        return clear_servicegroup_macros_r(&global_macros);
+}
 
 
-/* clear contact macros */
-int clear_contact_macros(void){
+/**
+ * clear contact macros
+ * the thread-safe version
+ */
+int clear_contact_macros_r(icinga_macros *mac){
 	register int x;
 	customvariablesmember *this_customvariablesmember=NULL;
 	customvariablesmember *next_customvariablesmember=NULL;
@@ -2977,7 +3193,7 @@ int clear_contact_macros(void){
 		case MACRO_CONTACTEMAIL:
 		case MACRO_CONTACTPAGER:
 		case MACRO_CONTACTGROUPNAMES:
-			my_free(macro_x[x]);
+			my_free(mac->x[x]);
 			break;
 		default:
 			break;
@@ -2986,27 +3202,33 @@ int clear_contact_macros(void){
 
 	/* clear contact addresses */
 	for(x=0;x<MAX_CONTACT_ADDRESSES;x++)
-		my_free(macro_contactaddress[x]);
+		my_free(mac->contactaddress[x]);
 
 	/* clear custom contact variables */
-	for(this_customvariablesmember=macro_custom_contact_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
+	for(this_customvariablesmember=mac->custom_contact_vars;this_customvariablesmember!=NULL;this_customvariablesmember=next_customvariablesmember){
 		next_customvariablesmember=this_customvariablesmember->next;
 		my_free(this_customvariablesmember->variable_name);
 		my_free(this_customvariablesmember->variable_value);
 		my_free(this_customvariablesmember);
 	        }
-	macro_custom_contact_vars=NULL;
+	mac->custom_contact_vars=NULL;
 
 	/* clear pointers */
-	macro_contact_ptr=NULL;
+	mac->contact_ptr=NULL;
 
 	return OK;
-	}
+}
+
+int clear_contact_macros(void){
+        return clear_contact_macros_r(&global_macros);
+}
 
 
-
-/* clear contactgroup macros */
-int clear_contactgroup_macros(void){
+/**
+ * clear contactgroup macros
+ * the thread-safe version
+ */
+int clear_contactgroup_macros_r(icinga_macros *mac){
 	register int x;
 
 	for(x=0;x<MACRO_X_COUNT;x++){
@@ -3014,7 +3236,7 @@ int clear_contactgroup_macros(void){
 		case MACRO_CONTACTGROUPNAME:
 		case MACRO_CONTACTGROUPALIAS:
 		case MACRO_CONTACTGROUPMEMBERS:
-			my_free(macro_x[x]);
+			my_free(mac->x[x]);
 			break;
 		default:
 			break;
@@ -3022,23 +3244,33 @@ int clear_contactgroup_macros(void){
 		}
 
 	/* clear pointers */
-	macro_contactgroup_ptr=NULL;
+	mac->contactgroup_ptr=NULL;
 
 	return OK;
-	}
+}
+
+int clear_contactgroup_macros(void){
+        return clear_contactgroup_macros_r(&global_macros);
+}
 
 
 
-/* clear summary macros */
-int clear_summary_macros(void){
+/**
+ * clear summary macros
+ * the thread-safe version
+ */
+int clear_summary_macros_r(icinga_macros *mac){
 	register int x;
 
 	for(x=MACRO_TOTALHOSTSUP;x<=MACRO_TOTALSERVICEPROBLEMSUNHANDLED;x++)
-		my_free(macro_x[x]);
+		my_free(mac->x[x]);
 
 	return OK;
-	}
+}
 
+int clear_summary_macros(void){
+        return clear_summary_macros_r(&global_macros);
+}
 
 
 /******************************************************************/
@@ -3047,25 +3279,32 @@ int clear_summary_macros(void){
 
 #ifdef NSCORE
 
-/* sets or unsets all macro environment variables */
-int set_all_macro_environment_vars(int set){
+/**
+ * sets or unsets all macro environment variables
+ */
+int set_all_macro_environment_vars_r(icinga_macros *mac, int set){
 
 
 	if(enable_environment_macros==FALSE)
 		return ERROR;
 
-	set_macrox_environment_vars(set);
-	set_argv_macro_environment_vars(set);
-	set_custom_macro_environment_vars(set);
-	set_contact_address_environment_vars(set);
+	set_macrox_environment_vars_r(mac, set);
+	set_argv_macro_environment_vars_r(mac, set);
+	set_custom_macro_environment_vars_r(mac, set);
+	set_contact_address_environment_vars_r(mac, set);
 
 	return OK;
-        }
+}
+
+int set_all_macro_environment_vars(int set){
+	return set_all_macro_environment_vars_r(&global_macros, set);
+}
 
 
-
-/* sets or unsets macrox environment variables */
-int set_macrox_environment_vars(int set){
+/**
+ * sets or unsets macrox environment variables
+ */
+int set_macrox_environment_vars_r(icinga_macros *mac, int set){
 	register int x=0;
 	int free_macro=FALSE;
 	int generate_macro=TRUE;
@@ -3085,38 +3324,47 @@ int set_macrox_environment_vars(int set){
 			if((x>=MACRO_TOTALHOSTSUP && x<=MACRO_TOTALSERVICEPROBLEMSUNHANDLED) && use_large_installation_tweaks==TRUE)
 				generate_macro=FALSE;
 
-			if(macro_x[x]==NULL && generate_macro==TRUE)
-				grab_macrox_value(x,NULL,NULL,&macro_x[x],&free_macro);
+			if(mac->x[x]==NULL && generate_macro==TRUE)
+				grab_macrox_value_r(mac,x,NULL,NULL,&mac->x[x],&free_macro);
 			}
 
 		/* set the value */
-		set_macro_environment_var(macro_x_names[x],macro_x[x],set);
+		set_macro_environment_var(macro_x_names[x],mac->x[x],set);
 		}
 
 	return OK;
-        }
+}
+
+int set_macrox_environment_vars(int set){
+	return set_macrox_environment_vars_r(&global_macros, set);
+}
 
 
-
-/* sets or unsets argv macro environment variables */
-int set_argv_macro_environment_vars(int set){
+/**
+ * sets or unsets argv macro environment variables
+ */
+int set_argv_macro_environment_vars_r(icinga_macros *mac, int set){
 	char *macro_name=NULL;
 	register int x=0;
 
 	/* set each of the argv macro environment variables */
 	for(x=0;x<MAX_COMMAND_ARGUMENTS;x++){
 		asprintf(&macro_name,"ARG%d",x+1);
-		set_macro_environment_var(macro_name,macro_argv[x],set);
+		set_macro_environment_var(macro_name,mac->argv[x],set);
 		my_free(macro_name);
 	        }
 
 	return OK;
-        }
+}
 
+int set_argv_macro_environment_vars(int set){
+	return set_argv_macro_environment_vars_r(&global_macros, set);
+}
 
-
-/* sets or unsets custom host/service/contact macro environment variables */
-int set_custom_macro_environment_vars(int set){
+/**
+ * sets or unsets custom host/service/contact macro environment variables
+ */
+int set_custom_macro_environment_vars_r(icinga_macros *mac, int set){
 	customvariablesmember *temp_customvariablesmember=NULL;
 	host *temp_host=NULL;
 	service *temp_service=NULL;
@@ -3125,70 +3373,80 @@ int set_custom_macro_environment_vars(int set){
 
 	/***** CUSTOM HOST VARIABLES *****/
 	/* generate variables and save them for later */
-	if((temp_host=macro_host_ptr) && set==TRUE){
+	if((temp_host=mac->host_ptr) && set==TRUE){
 		for(temp_customvariablesmember=temp_host->custom_variables;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next){
 			asprintf(&customvarname,"_HOST%s",temp_customvariablesmember->variable_name);
-			add_custom_variable_to_object(&macro_custom_host_vars,customvarname,temp_customvariablesmember->variable_value);
+			add_custom_variable_to_object(&mac->custom_host_vars,customvarname,temp_customvariablesmember->variable_value);
 			my_free(customvarname);
 			}
 		}
 	/* set variables */
-	for(temp_customvariablesmember=macro_custom_host_vars;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next){
+	for(temp_customvariablesmember=mac->custom_host_vars;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next){
 		set_macro_environment_var(temp_customvariablesmember->variable_name,clean_macro_chars(temp_customvariablesmember->variable_value,STRIP_ILLEGAL_MACRO_CHARS|ESCAPE_MACRO_CHARS),set);
 		}
 
 	/***** CUSTOM SERVICE VARIABLES *****/
 	/* generate variables and save them for later */
-	if((temp_service=macro_service_ptr) && set==TRUE){
+	if((temp_service=mac->service_ptr) && set==TRUE){
 		for(temp_customvariablesmember=temp_service->custom_variables;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next){
 			asprintf(&customvarname,"_SERVICE%s",temp_customvariablesmember->variable_name);
-			add_custom_variable_to_object(&macro_custom_service_vars,customvarname,temp_customvariablesmember->variable_value);
+			add_custom_variable_to_object(&mac->custom_service_vars,customvarname,temp_customvariablesmember->variable_value);
 			my_free(customvarname);
 			}
 		}
 	/* set variables */
-	for(temp_customvariablesmember=macro_custom_service_vars;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next)
+	for(temp_customvariablesmember=mac->custom_service_vars;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next)
 		set_macro_environment_var(temp_customvariablesmember->variable_name,clean_macro_chars(temp_customvariablesmember->variable_value,STRIP_ILLEGAL_MACRO_CHARS|ESCAPE_MACRO_CHARS),set);
 
 	/***** CUSTOM CONTACT VARIABLES *****/
 	/* generate variables and save them for later */
-	if((temp_contact=macro_contact_ptr) && set==TRUE){
+	if((temp_contact=mac->contact_ptr) && set==TRUE){
 		for(temp_customvariablesmember=temp_contact->custom_variables;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next){
 			asprintf(&customvarname,"_CONTACT%s",temp_customvariablesmember->variable_name);
-			add_custom_variable_to_object(&macro_custom_contact_vars,customvarname,temp_customvariablesmember->variable_value);
+			add_custom_variable_to_object(&mac->custom_contact_vars,customvarname,temp_customvariablesmember->variable_value);
 			my_free(customvarname);
 			}
 		}
 	/* set variables */
-	for(temp_customvariablesmember=macro_custom_contact_vars;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next)
+	for(temp_customvariablesmember=mac->custom_contact_vars;temp_customvariablesmember!=NULL;temp_customvariablesmember=temp_customvariablesmember->next)
 		set_macro_environment_var(temp_customvariablesmember->variable_name,clean_macro_chars(temp_customvariablesmember->variable_value,STRIP_ILLEGAL_MACRO_CHARS|ESCAPE_MACRO_CHARS),set);
 
 	return OK;
-        }
+}
+
+int set_custom_macro_environment_vars(int set){
+	return set_custom_macro_environment_vars_r(&global_macros, set);
+}
 
 
-
-/* sets or unsets contact address environment variables */
-int set_contact_address_environment_vars(int set){
+/**
+ * sets or unsets contact address environment variables
+ */
+int set_contact_address_environment_vars_r(icinga_macros *mac, int set){
 	char *varname=NULL;
 	register int x;
 
 	/* these only get set during notifications */
-	if(macro_contact_ptr==NULL)
+	if(mac->contact_ptr==NULL)
 		return OK;
 
 	for(x=0;x<MAX_CONTACT_ADDRESSES;x++){
 		asprintf(&varname,"CONTACTADDRESS%d",x);
-		set_macro_environment_var(varname,macro_contact_ptr->address[x],set);
+		set_macro_environment_var(varname,mac->contact_ptr->address[x],set);
 		my_free(varname);
 		}
 
 	return OK;
-        }
+}
+
+int set_contact_address_environment_vars(int set){
+	return set_contact_address_environment_vars_r(&global_macros, set);
+}
 
 
-
-/* sets or unsets a macro environment variable */
+/**
+ * sets or unsets a macro environment variable
+ */
 int set_macro_environment_var(char *name, char *value, int set){
 	char *env_macro_name=NULL;
 
@@ -3206,7 +3464,7 @@ int set_macro_environment_var(char *name, char *value, int set){
 	my_free(env_macro_name);
 
 	return OK;
-        }
+}
 
 #endif
 

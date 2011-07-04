@@ -54,7 +54,8 @@ interface IcingaApiConstantsInterface {
 	const TARGET_HOSTGROUP_SUMMARY = 'hostgroup_summary';
 	const TARGET_SERVICEGROUP_SUMMARY = 'servicegroup_summary';
 	const TARGET_COMMAND = 'command';	// livestatus only
-	const TARGET_DOWNTIME = 'downtime';	// livestatus only
+	const TARGET_DOWNTIME = 'downtime';
+	const TARGET_DOWNTIMEHISTORY = 'downtimehistory';
 	const TARGET_COMMENT = 'comment';
 	const TARGET_STATUS = 'status';		// livestatus only
 	const TARGET_HOST_SERVICE = 'host_service';
@@ -116,6 +117,7 @@ interface IcingaApiConstantsInterface {
 	const COMMAND_DURATION = 'duration';
 	const COMMAND_DATA = 'data';
 	const COMMAND_NOTIFICATION_OPTIONS = 'notification_options';
+	const COMMAND_DOWNTIME_ID = 'downtime_id';
 
 }
 

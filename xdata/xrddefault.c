@@ -3,7 +3,8 @@
  * XRDDEFAULT.C - Default external state retention routines for Icinga
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -48,8 +49,6 @@ extern scheduled_downtime *scheduled_downtime_list;
 
 extern char           *global_host_event_handler;
 extern char           *global_service_event_handler;
-
-extern char           *macro_x[MACRO_X_COUNT];
 
 extern int            enable_notifications;
 extern int            execute_service_checks;
@@ -104,7 +103,9 @@ int xrddefault_read_retention_file_information(char*, int);
 int xrddefault_grab_config_info(char *main_config_file){
 	char *input=NULL;
 	mmapfile *thefile=NULL;
-							      
+	icinga_macros *mac;
+
+	mac = get_global_macros();
 
 	/* open the main config file for reading */
 	if((thefile=mmap_fopen(main_config_file))==NULL){
@@ -154,12 +155,12 @@ int xrddefault_grab_config_info(char *main_config_file){
 		return ERROR;
 
 	/* save the retention file macro */
-	my_free(macro_x[MACRO_RETENTIONDATAFILE]);
-	if((macro_x[MACRO_RETENTIONDATAFILE]=(char *)strdup(xrddefault_retention_file)))
-		strip(macro_x[MACRO_RETENTIONDATAFILE]);
+	my_free(mac->x[MACRO_RETENTIONDATAFILE]);
+	if((mac->x[MACRO_RETENTIONDATAFILE]=(char *)strdup(xrddefault_retention_file)))
+		strip(mac->x[MACRO_RETENTIONDATAFILE]);
 
 	return OK;
-        }
+}
 
 
 
@@ -350,7 +351,6 @@ int xrddefault_save_state_information(void){
 
 		fprintf(fp,"host {\n");
 		fprintf(fp,"host_name=%s\n",temp_host->name);
-		fprintf(fp,"alias=%s\n",temp_host->alias);
 		fprintf(fp,"display_name=%s\n",temp_host->display_name);
 		fprintf(fp,"modified_attributes=%lu\n",(temp_host->modified_attributes & ~host_attribute_mask));
 		fprintf(fp,"check_command=%s\n",(temp_host->host_check_command==NULL)?"":temp_host->host_check_command);
@@ -1232,10 +1232,6 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 							temp_host->last_state=atoi(val);
 						else if(!strcmp(var,"last_hard_state"))
 							temp_host->last_hard_state=atoi(val);
-						else if(!strcmp(var,"alias")){
-							my_free(temp_host->alias);
-							temp_host->alias=(char *)strdup(val);
-							}
 						else if(!strcmp(var,"display_name")){
 							my_free(temp_host->display_name);
 							temp_host->display_name=(char *)strdup(val);

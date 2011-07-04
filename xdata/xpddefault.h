@@ -3,7 +3,8 @@
  * XPDDEFAULT.H - Include file for default performance data routines
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -41,11 +42,11 @@ int xpddefault_grab_config_directives(char *);
 int xpddefault_update_service_performance_data(service *);
 int xpddefault_update_host_performance_data(host *);
 
-int xpddefault_run_service_performance_data_command(service *);
-int xpddefault_run_host_performance_data_command(host *);
+int xpddefault_run_service_performance_data_command(icinga_macros *mac, service *);
+int xpddefault_run_host_performance_data_command(icinga_macros *mac, host *);
 
-int xpddefault_update_service_performance_data_file(service *);
-int xpddefault_update_host_performance_data_file(host *);
+int xpddefault_update_service_performance_data_file(icinga_macros *mac, service *);
+int xpddefault_update_host_performance_data_file(icinga_macros *mac, host *);
 
 int xpddefault_preprocess_file_templates(char *);
 
