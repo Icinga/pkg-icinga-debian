@@ -4,22 +4,24 @@
 <!ENTITY name-nsca "NSCA">
 <!ENTITY name-nsclient "NSClient++">
 <!ENTITY name-nagios "Nagios">
-<!ENTITY name-nagioswiki "Nagios Wiki">
-<!ENTITY name-icingawiki "Icinga Wiki">
+<!ENTITY name-nagioswiki "Nagios-Wiki">
+<!ENTITY name-icingawiki "Icinga-Wiki">
 <!ENTITY name-icinga "Icinga">
-<!ENTITY name-icingaweb "Icinga Webinterface">
-<!ENTITY name-web "Icinga Web">
+<!ENTITY name-icingaweb "Icinga-Webinterface">
+<!ENTITY name-web "Icinga-Web">
 <!ENTITY name-ui "Icinga Classic UI">
-<!ENTITY name-core "Icinga Core">
-<!ENTITY name-docs "Icinga Docs">
-<!ENTITY name-api "Icinga API">
-<!ENTITY name-wapi "Icinga Web API">
-<!ENTITY name-rep "Icinga Reporting">
+<!ENTITY name-core "Icinga-Core">
+<!ENTITY name-docs "Icinga-Docs">
+<!ENTITY name-api "Icinga-API">
+<!ENTITY name-wapi "Icinga-Web-API">
+<!ENTITY name-rep "Icinga-Reporting">
 <!ENTITY name-stats "icingastats">
 <!ENTITY name-icingalists "Icinga mailing lists">
 <!ENTITY name-idoutils "IDOUtils">
 <!ENTITY name-ndoutils "NDOUtils">
 <!ENTITY name-nagvis "NagVis">
+<!ENTITY name-lilac "Lilac">
+<!ENTITY name-lconf "LConf">
 <!ENTITY name-nconf "NConf">
 <!ENTITY name-nagiosql "NagiosQL">
 <!ENTITY name-thruk "Thruk">
@@ -49,3 +51,4 @@
 <!ENTITY name-postgres "PostgreSQL"> 
 <!ENTITY name-oracle "Oracle"> 
 <!ENTITY name-pnp "PNP4Nagios">
+<!ENTITY name-opsview "Opsview">

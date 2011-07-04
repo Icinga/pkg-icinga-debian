@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -22,6 +22,8 @@
 
   <para>Spätere Distributionen von &name-freebsd; werden wahrscheinlich auch mit diesen Anweisungen funktionieren.</para>
 
+  <note><para>Inzwischen gibt es einen &name-freebsd;-Port von &name-icinga; (net-mgmt/icinga), so dass Sie den vielleicht installieren möchten ;-)</para></note>
+ 
   <para><emphasis role="bold">Was dabei herauskommt</emphasis></para>
 
   <para>Wenn Sie diesen Anweisungen folgen, werden Sie am Ende folgendes haben:</para>
@@ -105,7 +107,7 @@
 
   <para>Bitte aktualisieren Sie Ihre Ports bevor Sie beginnen.</para>
 
-  <programlisting> #&gt; cd /usr/ports/devel/libtool22/ &amp;&amp; make all install clean
+  <programlisting> #&gt; cd /usr/ports/devel/libtool/ &amp;&amp; make all install clean
  #&gt; cd /usr/ports/graphics/jpeg &amp;&amp; make all install clean
  #&gt; cd /usr/ports/graphics/png &amp;&amp; make all install clean
  #&gt; cd /usr/ports/graphics/gd &amp;&amp; make all install clean</programlisting>
@@ -175,7 +177,9 @@
 
   <para>Führen Sie das &name-icinga;-configure-Script aus. Durch die Nutzung des --help-Flags erhalten Sie Hilfe zu den Optionen.</para>
 
-  <programlisting> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils CPPFLAGS=-I/usr/local/include</programlisting>
+  <programlisting> #&gt; ./configure --with-command-group=icinga-cmd \
+    --enable-idoutils CPPFLAGS=-I/usr/local/include
+    --with-dbi-lib=/usr/local/lib --with-dbi-inc=/usr/local/include</programlisting>
 
   <important>
     <para>Das angehängte <emphasis>CPPFLAGS=-I/usr/local/include</emphasis> ist wichtig für die &name-idoutils; bzw. das
@@ -184,7 +188,9 @@
 
   <para><emphasis role="bold">Mit SSL-Verschlüsselung:</emphasis></para>
 
-  <programlisting> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils --enable-ssl CPPFLAGS=-I/usr/local/include</programlisting>
+  <programlisting> #&gt; ./configure --with-command-group=icinga-cmd \
+    --enable-idoutils --enable-ssl CPPFLAGS=-I/usr/local/include \
+    --with-dbi-lib=/usr/local/lib --with-dbi-inc=/usr/local/include</programlisting>
 
   <para>Kompilieren Sie den &name-icinga;-Source-Code. Es gibt auch eine extra Option für &name-idoutils; (<emphasis>make
   idoutils</emphasis>), wenn Sie nur dieses Modul erneut kompilieren möchten. Um mögliche Optionen zu sehen, rufen Sie lediglich "make"
@@ -226,7 +232,7 @@
  output_type=tcpsocket
  output=127.0.0.1</programlisting>
 
-  <para>(passen Sie die IP-Adresse an, wenn sich Ihre Datenbank nicht auf localhost befindet!) und in der ido2db.cfg mit</para>
+  <para>(passen Sie die IP-Adresse an, wenn sich Ihre Datenbank nicht auf localhost befindet!) und in der <filename>ido2db.cfg</filename> mit</para>
 
   <programlisting> use_ssl=1
  socket_type=tcp </programlisting>
@@ -236,10 +242,21 @@
     role="bold">anderenfalls werden Sie Daten verlieren!!!</emphasis></para>
   </note>
 
-  <para>Aktivieren Sie das idomod-Eventbroker-Modul. Editieren Sie &url-icinga-cfg; und suchen Sie nach "broker_module" und aktivieren Sie
-  diese Zeile bzw. fügen Sie die folgende Zeile hinzu (passen Sie die Namen an, falls nötig).</para>
+  <para><emphasis role="bold">Aktivieren Sie das idomod-Eventbroker-Modul</emphasis></para>
+  <para>Editieren Sie &url-icinga-cfg; und suchen Sie nach "broker_module" und aktivieren Sie diese Zeile bzw. fügen Sie die folgende 
+  Zeile hinzu (passen Sie die Namen an, falls nötig).</para>
 
   <programlisting> broker_module=&url-icinga-base;/bin/idomod.o config_file=&url-icinga-base;/etc/idomod.cfg</programlisting>
+
+  <note><para>Ab &name-icinga; 1.4 können Sie statt des broker_module-Eintrags die neue module-Definition in einer Ihrer
+  Objektkonfigurationsdateien benutzen:</para>
+    <screen> define module{
+        module_name    ido_mod
+        path           &url-icinga-base;/bin/idomod.o
+        module_type    neb
+        args           config_file=&url-icinga-base;/etc/idomod.cfg
+        }</screen>
+  </note>
 
   <para><emphasis role="bold">Konfigurieren von Datenbank und &name-idoutils;</emphasis></para>
 
@@ -256,9 +273,14 @@
 
  mysql&gt; CREATE DATABASE icinga;
 
- GRANT USAGE ON *.* TO 'icinga'@'localhost' IDENTIFIED BY 'icinga' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0;
+ GRANT USAGE ON *.* TO 'icinga'@'localhost'
+   IDENTIFIED BY 'icinga'
+   WITH MAX_QUERIES_PER_HOUR 0
+   MAX_CONNECTIONS_PER_HOUR 0
+   MAX_UPDATES_PER_HOUR 0;
 
- GRANT SELECT , INSERT , UPDATE , DELETE ON icinga.* TO 'icinga'@'localhost';
+ GRANT SELECT , INSERT , UPDATE , DELETE
+   ON icinga.* TO 'icinga'@'localhost';
 
  FLUSH PRIVILEGES ;
 
@@ -288,7 +310,7 @@
  #&gt; gmake install-cgis
  #&gt; gmake install-html</programlisting>
 
-  <para>Wenn Sie stattdessen das neue Icinga-Web installieren wollen, lesen Sie bitte <link linkend="icinga-web-scratch">Installation des
+  <para>Wenn Sie (zusätzlich) das neue Icinga-Web installieren wollen, lesen Sie bitte <link linkend="icinga-web-scratch">Installation des
   Web-Interface</link>.</para>
 
   <para>Installieren Sie die &name-icinga;-Web-Konfigurationsdatei im Apache-Includes-Verzeichnis.</para>

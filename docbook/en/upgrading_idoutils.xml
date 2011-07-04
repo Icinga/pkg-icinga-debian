@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -51,6 +51,69 @@
  $ sqlplus dbuser/dbpass
  SQL&gt; @oracle-upgrade-&lt;version&gt;.sql</programlisting></para>
 
+  <anchor xml:id="upgrading_idoutils_1.4" />
+
+  <para><emphasis role="bold">Upgrading &name-idoutils; to 1.4</emphasis></para>
+
+  <para><emphasis role="bold">Oracle</emphasis></para>
+
+  <itemizedlist>
+    <listitem>
+      <para>The minimum supported version is &name-oracle; 10g R2. Older versions may still work.</para>
+    </listitem>
+
+    <listitem>
+      <para>The optional separation of data, index and lob tablespaces is introduced. Modify <filename>oracle-upgrade-1.4.0.sql</filename>
+      and define your tablespaces. You can provide your existing tablespace names for all defines.</para>
+
+      <para>Actions:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>remove number limitations</para>
+        </listitem>
+
+        <listitem>
+          <para>drop most of existing NOT NULL constraints</para>
+        </listitem>
+
+        <listitem>
+          <para>label constraints</para>
+        </listitem>
+
+        <listitem>
+          <para>recreate index and LOBs in new tablespaces</para>
+        </listitem>
+
+        <listitem>
+          <para>set sequences NOCACHE</para>
+        </listitem>
+
+        <listitem>
+          <para>changes &name-oracle; functions to trap NO_DATA exceptions</para>
+        </listitem>
+      </itemizedlist>
+    </listitem>
+  </itemizedlist>
+
+  <caution>
+    <para>Upgrading &name-idoutils; for &name-oracle; to 1.4 requires some kind of "magic". Make sure to</para>
+
+    <orderedlist>
+      <listitem>
+        <para>copy the complete <filename>upgrade</filename> folder</para>
+      </listitem>
+
+      <listitem>
+        <para>edit <filename>oracle-upgrade-1.4.0.sql</filename> and set the tablespaces for DATA, LOB and IXT</para>
+      </listitem>
+
+      <listitem>
+        <para>run the upgrade script</para>
+      </listitem>
+    </orderedlist>
+  </caution>
+
   <anchor xml:id="upgrading_idoutils_1.3" />
 
   <para><emphasis role="bold">Upgrading &name-idoutils; to 1.3</emphasis></para>
@@ -62,6 +125,14 @@
   <para>Just apply the upgrading script for &name-idoutils; 1.3 in
   <literal>module/idoutils/db/&lt;rdbms&gt;/&lt;rdbm&gt;-upgrade-1.3.sql</literal> against your current schema (using incremental steps as
   usual, not leaving an upgrade version behind!).</para>
+
+  <para>After you finished the upgrade you should check the database version.</para>
+
+  <programlisting> SQL&gt; SELECT * FROM icinga_dbversion;</programlisting>
+
+  <note>
+    <para>The Oracle tablename is "dbversion" (instead of "icinga_dbversion").</para>
+  </note>
 
   <anchor xml:id="upgrading_idoutils_1.0.3" />
 
@@ -136,7 +207,7 @@
     <listitem>
       <para>Dump your existing database e.g.</para>
 
-      <programlisting># mysqldump -u root -p icinga &gt; icinga.sql</programlisting>
+      <programlisting>#&gt; mysqldump -u root -p icinga &gt; icinga.sql</programlisting>
     </listitem>
 
     <listitem>
@@ -210,12 +281,12 @@
   <para>will need your attention on the following procedure!</para>
 
   <para><emphasis role="bold">If you are upgrading from 1.0RC please be advised to use module/idoutils/db/mysql/mysql-upgrade-1.0.sql - if
-  you are using an older version, please apply the incremential steps to get to 1.0RC first!</emphasis></para>
+  you are using an older version, please apply the incremental steps to get to 1.0RC first!</emphasis></para>
 
   <para>Please backup your database and stop ido2db before applying this patch!</para>
 
-  <programlisting># /etc/init.d/ido2db stop
-   # mysql -u root -p icinga &lt; /path/to/icinga-src/module/idoutils/db/mysql/mysql-upgrade-1.0.sql</programlisting>
+  <programlisting> #&gt; /etc/init.d/ido2db stop
+ #&gt; mysql -u root -p icinga &lt; /path/to/icinga-src/module/idoutils/db/mysql/mysql-upgrade-1.0.sql</programlisting>
 
   <para>The patch will do the following through MySQL statements:</para>
 

@@ -28,6 +28,29 @@ class IcingaApiResultIdo
 	public function setSubstitutedColumns(array $sub = array()) {
 		$this->substitutedColumns = $sub;
 	}
+	private $__useMB = false; 
+	
+	public function toUTF8($resultSet) {
+	
+		$this->__useMB = function_exists('mb_convert_encoding');
+		
+		if(!(is_array($resultSet) || is_object($resultSet)) )
+			return $resultSet;
+		foreach($resultSet as $c=>$v) {
+			if($this->__useMB) { 
+				$enc = mb_detect_encoding($v);
+				if($enc == "UTF-8" || $enc == "ASCII")
+					continue;	
+			}
+			if(is_object($resultSet))
+				$resultSet->{$c} = $this->__useMB ? mb_convert_encoding($v,'UTF-8') : utf8_encode($v);
+			else
+				$resultSet[$c] = $v;	 
+		} 
+		
+		return $resultSet;
+	}
+
 	/**
 	 * Rename masked columns (i.e. columns that were originally longer than 31 chars)
 	 * to their original name
@@ -35,7 +58,7 @@ class IcingaApiResultIdo
 	 * @author Jannis Moßhammer <jannis.mosshammer@netways.de>
 	 */
 	public function rebuildColumnNames($resultSet) {
-
+		
 		if(is_array($resultSet)) {
 			$rebuildResultSet = array();
 			foreach($resultSet as $column=>$value) {
@@ -78,11 +101,12 @@ class IcingaApiResultIdo
 	 * @author	Christian Doebler <christian.doebler@netways.de>
 	 */
  	public function next () {
-
+	
  		switch ($this->resultType) {
  			case self::RESULT_OBJECT:
 				$this->resultRow = $this->searchObject->fetchObject();
 				$this->resultRow = $this->rebuildColumnNames($this->resultRow);
+				$this->resultRow = $this->toUTF8($this->resultRow);
 				if ($this->resultRow !== false) {
 					if ($this->offset === false) {
 						$this->offset = 0;
@@ -101,11 +125,13 @@ class IcingaApiResultIdo
  					
  					foreach($this->resultArray as &$result) {
  						$result = $this->rebuildColumnNames($result);
- 					}
+ 						$result = $this->toUTF8($result);
+					}
+
  					if ($this->resultType == self::RESULT_ARRAY  && $this->dbType == 'oci8') {
  						$this->resultArray = array_change_key_case($this->resultArray, CASE_LOWER);
  					}
- 					
+ 						
  				}
 
 				if ($this->offset === false) {
@@ -122,8 +148,11 @@ class IcingaApiResultIdo
 				} else {
 					$this->resultRow = false;
 				}
- 				break;
+ 				
+				break;
  		}
+		
+
  		if($this->resultRow)
 	 		foreach($this->resultRow as $val=>$entry) {
 	 		 	if(is_object($this->resultRow))

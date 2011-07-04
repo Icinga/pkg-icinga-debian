@@ -125,8 +125,7 @@ abstract class IcingaApiConnectionDatabase
 				}
 
 			} else if( $this->config['type'] == 'oci8') {
-				$this->databaseDsn = $this->config['type'].$this->config['host']."/".$this->config['database'];
-				
+				$this->databaseDsn = $this->config['type'].$this->config['database'];
 			} else {
 
 				if (array_key_exists('port', $this->config)) {

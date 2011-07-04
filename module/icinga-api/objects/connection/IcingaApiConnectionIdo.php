@@ -57,6 +57,12 @@ class IcingaApiConnectionIdo
 		$searchObject->loadInterfaceClass($this->icingaType, $this->config['type']);
 		$searchObject->setConnectionObject($this);
 		$searchObject->setTablePrefix($this->config['table_prefix']);
+		
+		if(isset($this->config['config_type']))
+			$searchObject->setConfigType($this->config['config_type']);	
+		else
+			$searchObject->setConfigType(1);
+		
 		if (array_key_exists('contact_source', $this->config)) {
 			$searchObject->setContactSource($this->config['contact_source']);
 		}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -18,8 +18,8 @@
   the module architecture, please check out the development wiki of Icinga Web: <link
   xlink:href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web">&name-icingawiki;</link></para>
 
-  <para>This installation guide describes the installation of &name-web; with &name-mysql; as used database. &name-web; also supports
-  &name-oracle; and &name-postgres; as used database backends.</para>
+  <para>This installation guide describes the installation of &name-web; with &name-mysql; as underlying database. &name-web; also supports
+  &name-oracle; and &name-postgres; as database backends.</para>
 
   <orderedlist>
     <listitem>
@@ -79,7 +79,7 @@
 
       <para>Then change to the directory:</para>
 
-      <programlisting> #&gt; cd icinga-web</programlisting>
+      <programlisting> #&gt; cd icinga-web-&ver-icingaweb;</programlisting>
 
       <para>&name-web; provides several configure options e.g.</para>
 
@@ -126,16 +126,16 @@
 
       <programlisting> #&gt; make install-apache-config</programlisting>
 
-      <para>If you don't need an alias, you can alternatively use the old behavior setting a symlink instead: <programlisting> #&gt; make install-javascript</programlisting></para>
+      <para>If you don't need an alias, you can alternatively use the old behaviour setting a symlink instead: <programlisting> #&gt; make install-javascript</programlisting></para>
 
       <para>Make reports after install:</para>
 
       <programlisting> #&gt; make install-done
 
- Installation if icinga-web succeeded.
+ Installation of icinga-web succeeded.
  Please check the new Apache2 configuration (etc/apache2/icinga-web.conf).</programlisting>
 
-      <para>Other usefull target: <programlisting> #&gt; make icinga-reset-password</programlisting> Reset password for any account on
+      <para>Other useful target: <programlisting> #&gt; make icinga-reset-password</programlisting> Reset password for any account on
       icinga-web.</para>
     </listitem>
 
@@ -374,9 +374,9 @@
 
       <programlisting> #&gt; rm -rf app/cache/config/*.php</programlisting>
 
-      <para>or</para>
+      <para>or /path/to/clearcache.sh</para>
 
-      <programlisting>/icinga-web/bin/clearcache.sh</programlisting>
+      <programlisting> #&gt; /usr/local/icinga-web/bin/clearcache.sh</programlisting>
     </listitem>
 
     <listitem>
@@ -387,9 +387,6 @@
       <itemizedlist>
         <listitem>
           <para>mod_rewrite enabled, maybe you have to create a link:</para>
-        </listitem>
-      </itemizedlist>
-
       <para><programlisting> #&gt; ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load</programlisting></para>
 
       <para>Using OpenSuSE or SLES you can use "a2enmod rewrite" to activate the module. If that doesn't work you have to edit the file
@@ -398,16 +395,13 @@
       <para>Using Debian or Ubuntu "a2enmod rewrite" activates the module as well.</para>
 
       <para>The httpd of RHEL / Fedora / CentOS already supports rewriting so you don't have to change anything in this regard.</para>
+        </listitem>
 
-      <itemizedlist>
         <listitem>
           <para>Any htaccess enabled alias settings</para>
-        </listitem>
-      </itemizedlist>
-
       <para>Edit your .htaccess in /usr/local/icinga-web/pub:</para>
 
-      <para>At line 14, change the RewriteBase direction to suit your needs:<programlisting> DirectoryIndex index.php
+      <para>At line 14, change the RewriteBase direction to suit to your needs:<programlisting> DirectoryIndex index.php
 
  Options -MultiViews -Indexes +FollowSymLinks
  Order allow,deny
@@ -451,8 +445,11 @@
  #       require valid-user
  #&lt;/IfModule&gt;</programlisting></para>
 
+        </listitem>
+      </itemizedlist>
+
       <para>Go to the webservers configuration directory. Look if the created config by <emphasis role="bold">make
-      install-apache-config</emphasis> suit to your configuration. Or create new aliases (maybe in /etc/apache2/conf.d/icinga-web.conf)
+      install-apache-config</emphasis> suits to your configuration. Or create new aliases (maybe in /etc/apache2/conf.d/icinga-web.conf)
       :</para>
 
       <para><programlisting>#&gt; cat /etc/apache2/icinga-web.conf
@@ -482,9 +479,9 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para><programlisting>#&gt; rm /usr/local/icinga-web/app/cache/config/*.php</programlisting></para>
 
-      <para>or</para>
+      <para>or /path/to/clearcache.sh</para>
 
-      <programlisting>#&gt; /icinga-web/bin/clearcache.sh</programlisting>
+      <programlisting>#&gt; /usr/local/icinga-web/bin/clearcache.sh</programlisting>
 
       <para>Restart your Webserver:</para>
 
@@ -532,9 +529,9 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para>* Delete the config cache in app/cache/config/*.php</para>
 
-      <para>use</para>
+      <para>use /path/to/clearcache.sh</para>
 
-      <programlisting>#&gt; /icinga-web/bin/clearcache.sh</programlisting>
+      <programlisting>#&gt; /usr/local/icinga-web/bin/clearcache.sh</programlisting>
 
       <para>Icinga Web shows a blank page?</para>
 
@@ -607,7 +604,7 @@ Alias /icinga-web /usr/local/icinga-web/pub
       <para>* Empty Icinga Web? =&gt; If mod_rewrite is enabled and 'index.php' appears in the request url the portal does not work. Try to
       remove the index.php from your url and everything should work</para>
 
-      <para>* Login possible but Icinga Web keeps loading data....</para>
+      <para>* Login possible but Icinga Web keeps loading data...</para>
 
       <para>* Request failed, Ressource /icinga-web/appkit/ext/application State could not be loaded - is the url correct? =&gt; mod_rewrite
       enabled ?</para>

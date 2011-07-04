@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter [
+<!DOCTYPE section [
 <!ENTITY % all.entities SYSTEM "all-entities.ent">
 %all.entities;
 ]>
@@ -8,7 +8,7 @@
          xmlns:html="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
   <title>&name-icinga;-Schnellstart auf &name-linux;</title>
 
-  <para><emphasis role="bold"><anchor xml:id="introduction_icinga" />Einführung</emphasis></para>
+  <para><emphasis role="bold"><anchor xml:id="introduction_quickstart_icinga" />Einführung</emphasis></para>
 
   <para>Diese Schnellstartanleitung ist dazu gedacht, Ihnen einfache Anweisungen zu liefern, wie Sie &name-icinga; innerhalb von 20 Minuten
   aus dem Quellcode installieren und Ihren lokalen Rechner damit überwachen.</para>
@@ -84,7 +84,7 @@
 
   <programlisting> #&gt; yum install httpd gcc glibc glibc-common gd gd-devel
  #&gt; yum install libjpeg libjpeg-devel libpng libpng-devel
- #&gt; yum install net-snmp net-snmp-devel</programlisting>
+ #&gt; yum install net-snmp net-snmp-devel net-snmp-utils</programlisting>
 
   <para><emphasis>&name-debian; / &name-ubuntu;</emphasis></para>
 
@@ -93,13 +93,17 @@
  #&gt; apt-get install snmp libsnmp5-dev</programlisting>
 
   <note>
-    <para>Die Zahlen &lt;62/12&gt; können je nach Distribution abweichen</para>
+    <para>Die Zahlen &lt;62/12&gt; können je nach Distribution abweichen.</para>
+  </note>
+
+  <note>
+    <para>Ab Ubuntu 10.10 heißt das Paket libpng12-0, der Name des dev-Pakets ändert sich nicht.</para>
   </note>
 
   <para><emphasis>&name-opensuse; / &name-sles;</emphasis></para>
 
   <para>Bitte nutzen Sie YaST für die Installation der Pakete gd, gd-devel, libjpeg, libjpeg-devel, libpng, libpng-devel und -optional-
-  net-snmp, net-snmp-devel und perl-net-snmp.</para>
+  net-snmp, net-snmp-devel und perl-Net-SNMP.</para>
 
   <note>
     <para>Abhängig von der Softwareauswahl bei der Installation des Betriebssystems benötigen Sie evtl. weitere Pakete (z.B. apache2, gcc).
@@ -126,7 +130,8 @@
 
   <programlisting> #&gt; /usr/sbin/groupadd icinga-cmd
  #&gt; /usr/sbin/usermod -a -G icinga-cmd icinga
- #&gt; /usr/sbin/usermod -a -G icinga-cmd www-data (oder www, wwwrun, apache je nach Distribution)</programlisting>
+ #&gt; /usr/sbin/usermod -a -G icinga-cmd www-data</programlisting>
+  <para>(oder www, wwwrun, apache je nach Distribution)</para>
 
   <note>
     <para>Bei einigen usermod-Versionen (z.B. bei OpenSuSE 11 bzw. SLES 11) fehlt die Option -a. In diesen Fällen kann sie entfallen.</para>
@@ -195,7 +200,7 @@
  #&gt; make install-cgis
  #&gt; make install-html</programlisting>
 
-  <para>Wenn Sie stattdessen das neue Icinga Web installieren wollen, lesen Sie bitte <link linkend="icinga-web-scratch">Installation des
+  <para>Wenn Sie (zusätzlich) das neue Icinga Web installieren wollen, lesen Sie bitte <link linkend="icinga-web-scratch">Installation des
   Web-Interface</link>.</para>
 
   <para>Installieren Sie die &name-icinga;-Web-Konfigurationsdatei im &name-apache; conf.d-Verzeichnis.</para>
@@ -240,7 +245,9 @@
 
   <para>Kompilieren und installieren Sie die Plugins.</para>
 
-  <programlisting> #&gt; ./configure --prefix=/usr/local/icinga --with-cgiurl=/icinga/cgi-bin --with-htmurl=/icinga --with-nagios-user=icinga --with-nagios-group=icinga
+  <programlisting> #&gt; ./configure --prefix=/usr/local/icinga \
+    --with-cgiurl=/icinga/cgi-bin --with-htmurl=/icinga \
+    --with-nagios-user=icinga --with-nagios-group=icinga
  #&gt; make
  #&gt; make install</programlisting>
 
