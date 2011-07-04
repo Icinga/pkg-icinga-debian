@@ -2,7 +2,26 @@
 Icinga 1.4.x Change Log
 #######################
 
-1.4.1 - ??/06/2011
+1.4.2 - 29/06/2011
+
+ENHANCEMENTS
+* classic ui: add a check for status data freshness into cgis #1667
+
+FIXES
+* core: fix freshness_threshold problem in host checks by using check_interval in HARD or OK state, else retry_interval (like service checks) #1331
+
+* classic ui: re-fix xss vulnerability and string escaping for command expansion #1605 #1624
+* classic ui: remove sidebar.html inclusion in index.html causing troubles on reload #1632
+* classic ui: fixed: User can execute host/servicegroup commands even if not authorized for (Sven Nierlein) #1679
+* classic ui: fixed: plugin_output_short didn't get checked properly and caused segfault in status.cgi #1673
+
+* idoutils: do not update start_time of already started downtimes #1658
+* idoutils: fix started downtime update for table scheduleddowntime in oracle #1658
+
+* install: fix make install-idoutils overwrites sample - adding idoutils.cfg-sample instead #1625
+
+
+1.4.1 - 08/06/2011
 
 ENHANCEMENTS
 
