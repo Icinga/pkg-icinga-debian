@@ -321,7 +321,8 @@ class IcingaApiSearchIdo
 					break;
 
 				case 'GROUPBY':
-							
+					if($this->searchType == IcingaApi::SEARCH_TYPE_COUNT)
+						break;
 					if (!$loopCounter) {
 						list($variableValuesTemplate, $variableValues) =
 							$this->ifSettings->createQueryGroup($this->searchGroup, $this->resultColumnsNoAliases);
@@ -449,7 +450,7 @@ class IcingaApiSearchIdo
 	public function searchValid() {
 		if($this->searchType == IcingaApi::SEARCH_TYPE_COUNT) {
 			$order = $this->searchOrderColumns;
-			$groupby = $this->searchGroup;
+			$this->searchGroup = array();
 
 			if(!empty($order) && empty($groupby)) {
 				$this->searchOrder = array();
