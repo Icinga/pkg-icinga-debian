@@ -1,0 +1,86 @@
+#!/bin/bash
+
+set -e
+
+# some shorthands for sanity
+en="/etc/icinga"
+enc="/etc/icinga/objects/"
+usn="/usr/share/icinga"
+
+. /usr/share/debconf/confmodule
+. $usn/debian/httpd.webapps-common
+
+if [ -n "$ICINGADEBUG" ]; then
+  echo "now debugging $0 $@"
+  set -x
+fi
+
+# location of the default apache configuration for nagios.
+apacheconf=$en/apache2.conf
+# location of the default htpasswd authentication file.
+htpw=$en/htpasswd.users
+
+setperm() {
+    local user="$1"
+    local group="$2"
+    local mode="$3"
+    local file="$4"
+    shift 4
+    # only do something when no setting exists
+    if ! dpkg-statoverride --list "$file" >/dev/null 2>&1; then
+      chown "$user":"$group" "$file"
+      chmod "$mode" "$file"
+    fi
+}
+
+case "$1" in
+  configure)
+    if ! getent passwd nagios > /dev/null ; then
+      echo 'Adding system-user for nagios' 1>&2
+      adduser --system --group --home /var/lib/nagios \
+              --disabled-login --force-badname nagios > /dev/null
+    fi
+
+	# get the list of selected servers
+	db_get icinga/httpd
+	servers=$(echo $RET | sed -e 's/,/ /g')
+	db_get icinga/adminpassword
+	admpass="$RET"
+
+	ucf --debconf-ok /usr/share/doc/icinga-cgi/examples/apache2.conf $apacheconf
+
+	# configure the web servers, if it is desired
+	if [ "$servers" ]; then
+		if wc_httpd_apache_include $apacheconf icinga $servers; then
+			# reload the selected servers if they are running 
+			running_servers="$(wc_httpd_running $servers)"
+			if [ "$running_servers" ]; then
+				wc_httpd_invoke "reload" $running_servers
+			fi
+		fi	
+	fi
+
+
+	# we reset the password every run, so if it exists we're running
+	# after being specifically given a password and can unconditionally set it.
+	# XXX there's no way of setting the pw w/out giving it on the cmdline? wtf?
+	if [ -n "$admpass" ]; then
+		touch "$htpw"
+		htpasswd -b "$htpw" icingaadmin "$admpass"
+	fi
+
+	# everything went well, so now let's reset the password
+	db_set icinga/adminpassword ""
+	db_set icinga/adminpassword-repeat ""
+	# ... done with debconf here
+	db_stop
+    ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+  *)
+    echo "postinst called with unknown argument \$1'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#

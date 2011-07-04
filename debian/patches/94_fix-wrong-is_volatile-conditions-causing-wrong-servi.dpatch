@@ -1,0 +1,59 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 94_fix-wrong-is_volatile-conditions-causing-wrong-servi.dpatch by Michael Friedrich <michael.friedrich@univie.ac.at>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: fix wrong is_volatile conditions causing wrong service alerts in the logs
+
+@DPATCH@
+
+
+diff --git a/Changelog b/Changelog
+index 59f6066..ebdc6db 100644
+--- a/Changelog
++++ b/Changelog
+@@ -10,6 +10,7 @@ FIXES
+ * core: fix temp_path overwritten by check_result_path in base/config.c
+ * core: modify execv to execvp, accepting 4096 cmd args, for both host and service checks with adapted error handling
+ * core: execvp searches in PATH too like popen, and returns if error, outputting the errno string
++* core: fix wrong is_volatile conditions causing wrong service alerts in the logs
+ 
+ * classic ui: fix image urls ins stylesheets
+ 
+diff --git a/base/checks.c b/base/checks.c
+index 8f0bdbf..190a895 100644
+--- a/base/checks.c
++++ b/base/checks.c
+@@ -1647,7 +1647,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
+ 			        }
+ 
+ 			/* else log the problem (again) if this service is flagged as being volatile */
+-			else if(temp_service->is_volatile==FALSE){
++			else if(temp_service->is_volatile!=FALSE){
+ 				log_service_event(temp_service);
+ 				state_was_logged=TRUE;
+ 			        }
+@@ -1673,7 +1673,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
+ 			service_notification(temp_service,NOTIFICATION_NORMAL,NULL,NULL,NOTIFICATION_OPTION_NONE);
+ 
+ 			/* run the service event handler if we changed state from the last hard state or if this service is flagged as being volatile */
+-			if(hard_state_change==TRUE || temp_service->is_volatile==FALSE)
++			if(hard_state_change==TRUE || temp_service->is_volatile!=FALSE)
+ 				handle_service_event(temp_service);
+ 
+ 			/* save the last hard state */
+diff --git a/cgi/config.c b/cgi/config.c
+index 09adff6..0226d16 100644
+--- a/cgi/config.c
++++ b/cgi/config.c
+@@ -1249,7 +1249,7 @@ void display_services(void){
+ 
+ 		printf("<TD CLASS='%s'>%s</TD>\n",bg_class,(temp_service->parallelize==TRUE)?"Yes":"No");
+ 
+-		printf("<TD CLASS='%s'>%s</TD>\n",bg_class,(temp_service->is_volatile==FALSE)?"Yes":"No");
++		printf("<TD CLASS='%s'>%s</TD>\n",bg_class,(temp_service->is_volatile!=FALSE)?"Yes":"No");
+ 
+ 		printf("<TD CLASS='%s'>%s</TD>\n",bg_class,(temp_service->obsess_over_service==TRUE)?"Yes":"No");
+ 
+-- 
+1.7.1
+

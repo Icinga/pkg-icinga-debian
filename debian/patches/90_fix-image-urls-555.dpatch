@@ -1,0 +1,275 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 90_fix-image-urls-555.dpatch by Christoph Maser <cmr@financial.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: fix image urls in css #555
+
+@DPATCH@
+
+
+diff --git a/html/stylesheets/avail.css b/html/stylesheets/avail.css
+index ba20bbd..95d2f09 100644
+--- a/html/stylesheets/avail.css
++++ b/html/stylesheets/avail.css
+@@ -17,8 +17,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
+ 
+ .reportRange { text-align: center; font-weight: bold; }
+ .reportDuration { text-align: center; }
+diff --git a/html/stylesheets/checksanity.css b/html/stylesheets/checksanity.css
+index d03ba69..b87e8b4 100644
+--- a/html/stylesheets/checksanity.css
++++ b/html/stylesheets/checksanity.css
+@@ -18,8 +18,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px;  padding-left: 10px;  background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
++td.linkBox a { margin-left: 5px;  padding-left: 10px;  background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
+ 
+ .Title { text-align: center; font-weight: bold; font-size: 10pt; }
+ .SectionTitle { text-align: center; font-weight: bold; }
+diff --git a/html/stylesheets/extinfo.css b/html/stylesheets/extinfo.css
+index a5cffa0..ba8c239 100644
+--- a/html/stylesheets/extinfo.css
++++ b/html/stylesheets/extinfo.css
+@@ -17,8 +17,8 @@ td { font-size: 8pt; border: 0; }
+ a.homepageURL:Hover { color: #ff3300; }
+ 
+ table.linkBox { margin-top: 20px; border: 0; }
+-td.linkBox a { margin-left: 5px;  padding-left: 10px;  background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
++td.linkBox a { margin-left: 5px;  padding-left: 10px;  background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
+ 
+ div.dataTitle { text-align: center; font-weight: bold; font-size: 10pt; margin-bottom: 15px; }
+ div.data { text-align: center; font-size: 10pt; }
+@@ -111,4 +111,4 @@ th.queue { text-align: left; font-size: 10pt; background-color: #707677; color:
+ .queueOdd { background-color: #ededed; }
+ .queueEven { background-color: #e9e9e9; }
+ .queueENABLED { text-align: center; color: #fff; background-color: #00cc33; }
+-.queueDISABLED { text-align: center; color: #fff; background-color: #ff3300; }
+\ No newline at end of file
++.queueDISABLED { text-align: center; color: #fff; background-color: #ff3300; }
+diff --git a/html/stylesheets/histogram.css b/html/stylesheets/histogram.css
+index da4deb0..7e34b64 100644
+--- a/html/stylesheets/histogram.css
++++ b/html/stylesheets/histogram.css
+@@ -20,8 +20,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
+ 
+ .dataTitle { text-align: center; font-weight: bold; font-size: 10pt; }
+ 
+diff --git a/html/stylesheets/history.css b/html/stylesheets/history.css
+index 8e23d39..5f34984 100644
+--- a/html/stylesheets/history.css
++++ b/html/stylesheets/history.css
+@@ -19,8 +19,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
+ 
+ .dataTitle { text-align: center; font-weight: bold; font-size: 10pt; }
+ 
+@@ -28,4 +28,4 @@ td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35
+ .navBoxItem { color: #707677 }
+ .navBoxFile { color: #707677; font-weight: bold; text-align: center; }
+ 
+-.dateTimeBreak { font-size: 10pt; font-weight: bold; background-color: #ededed; color: #707677; }
+\ No newline at end of file
++.dateTimeBreak { font-size: 10pt; font-weight: bold; background-color: #ededed; color: #707677; }
+diff --git a/html/stylesheets/interface/common.css b/html/stylesheets/interface/common.css
+index 40c9314..a5fc559 100644
+--- a/html/stylesheets/interface/common.css
++++ b/html/stylesheets/interface/common.css
+@@ -70,14 +70,14 @@ ul {
+         width: 100%;
+         height: 26px;
+         line-height: 26px;
+-        background: #ededed url(../../images/interface/bar.gif) top left repeat-x;
++        background: #ededed url(../images/interface/bar.gif) top left repeat-x;
+ }
+ 
+ #banner {
+ 	width: 100%;
+ 	height: 55px;
+ 	line-height: 55px;
+-	background: #ededed url(../../images/interface/Icinga_Header_Webinterface_Pixel.jpg) top left repeat-x;
++	background: #ededed url(../images/interface/Icinga_Header_Webinterface_Pixel.jpg) top left repeat-x;
+ }
+ 
+ #navigation p {
+diff --git a/html/stylesheets/interface/menu.css b/html/stylesheets/interface/menu.css
+index de391ef..178dafa 100644
+--- a/html/stylesheets/interface/menu.css
++++ b/html/stylesheets/interface/menu.css
+@@ -7,7 +7,7 @@ body {
+ 	font-family: Verdana, Arial, Helvetica, sans-serif;
+ 	font-size: 0.7em;
+ 	color: #000;
+-	background: #ededed url(../../images/interface/menu_body.gif) top left repeat-y;
++	background: #ededed url(../images/interface/menu_body.gif) top left repeat-y;
+ }
+ 
+ img {
+@@ -27,7 +27,7 @@ ul {
+ 	padding: 0 5px;
+ 	height: 26px;
+ 	color: #ef9f1b;
+-	background: #ededed url(../../images/interface/bar.gif) top left repeat-x;
++	background: #ededed url(../images/interface/bar.gif) top left repeat-x;
+ 	border-bottom: 1px solid #fff;
+ 	line-height: 26px;
+ 	font-size: 1em;
+@@ -49,7 +49,7 @@ ul {
+ 
+ #menu ul li a {
+ 	padding-left: 12px;
+-	background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat;
++	background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat;
+ }
+ 
+ #menu ul li a:link, #menu ul li a:active, #menu ul li a:visited {
+@@ -58,7 +58,7 @@ ul {
+ }
+ 
+ #menu ul li a:hover {
+-	background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat;
++	background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat;
+ 	color: #000;
+ }
+ 
+@@ -72,7 +72,7 @@ ul {
+ 
+ #menu a.flag {
+ 	padding-left: 12px;
+-	background: url(../../images/interface/menu_blank.gif) 0 0.35em no-repeat;
++	background: url(../images/interface/menu_blank.gif) 0 0.35em no-repeat;
+ }
+ 
+ #menu div.flag {
+diff --git a/html/stylesheets/ministatus.css b/html/stylesheets/ministatus.css
+index a2a232d..bfc1922 100644
+--- a/html/stylesheets/ministatus.css
++++ b/html/stylesheets/ministatus.css
+@@ -18,8 +18,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat;  }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat;  }
+ 
+ .filter { border: 0; }
+ .filterTitle { font-size: 10pt; font-weight: bold; }
+@@ -92,4 +92,4 @@ a.hostTotals:hover { color: #000; }
+ .miniStatusDOWN { background-color: #ff3300; text-align: center; }
+ .miniStatusUNREACHABLE { background-color: #bf44b2; text-align: center; }
+ .miniStatusUP a, .miniStatusDOWN a, .miniStatusUNREACHABLE a { color: #000; }
+-.miniStatusUP a:hover, .miniStatusDOWN a:hover, .miniStatusUNREACHABLE a:hover { color: #fff; }
+\ No newline at end of file
++.miniStatusUP a:hover, .miniStatusDOWN a:hover, .miniStatusUNREACHABLE a:hover { color: #fff; }
+diff --git a/html/stylesheets/notifications.css b/html/stylesheets/notifications.css
+index 5c47590..70aefb1 100644
+--- a/html/stylesheets/notifications.css
++++ b/html/stylesheets/notifications.css
+@@ -17,8 +17,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
+ 
+ .dataTitle { text-align: center; font-weight: bold; font-size: 10pt; }
+ 
+diff --git a/html/stylesheets/status.css b/html/stylesheets/status.css
+index 44566b8..0a0345e 100644
+--- a/html/stylesheets/status.css
++++ b/html/stylesheets/status.css
+@@ -18,8 +18,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
+ 
+ .filter { border: 0; }
+ .filterTitle { font-size: 10pt; font-weight: bold; }
+diff --git a/html/stylesheets/statusmap.css b/html/stylesheets/statusmap.css
+index a553734..cec0061 100644
+--- a/html/stylesheets/statusmap.css
++++ b/html/stylesheets/statusmap.css
+@@ -17,8 +17,8 @@ a.homepageURL:Hover { font-family: arial,serif; color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
+ 
+ .optBox { font-size: 10pt; font-weight: bold; }
+ 
+diff --git a/html/stylesheets/summary.css b/html/stylesheets/summary.css
+index 1a4dc21..64bce8f 100644
+--- a/html/stylesheets/summary.css
++++ b/html/stylesheets/summary.css
+@@ -18,8 +18,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
+ 
+ .reportRange { text-align: center; font-weight: bold; }
+ .reportDuration { text-align: center; }
+@@ -60,4 +60,4 @@ tr.dataOdd td.serviceOK, tr.dataOdd td.serviceWARNING, tr.dataOdd td.serviceUNKN
+ .reportSelectTip { font-style: italic; }
+ 
+ .reportSelectTitle { text-align: center; font-weight: bold; font-size: 10pt; }
+-.reportSelectSubTitle { text-align: right; }
+\ No newline at end of file
++.reportSelectSubTitle { text-align: right; }
+diff --git a/html/stylesheets/trends.css b/html/stylesheets/trends.css
+index 6e2b93d..e3bd5c5 100644
+--- a/html/stylesheets/trends.css
++++ b/html/stylesheets/trends.css
+@@ -18,8 +18,8 @@ a.homepageURL:Hover { color: #ff3300; }
+ 
+ .linkBox { border: 0; }
+ table.linkBox { margin-top: 20px; }
+-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
+-td.linkBox a:hover { background: url(../../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
++td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
++td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
+ 
+ .helpfulHints { text-align: center; }
+ 
+-- 
+1.7.1
+

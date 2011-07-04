@@ -1,0 +1,92 @@
+# Italian (it) translation of debconf templates for icinga
+# COPYRIGHT (C) 2010 THE ICINGA'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the icinga package.
+# Luca Monducci <luca.mo@tiscali.it>, 2008-2010.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: icinga 1.0.1-3 italian debconf\n"
+"Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
+"POT-Creation-Date: 2010-05-06 08:46+0200\n"
+"PO-Revision-Date: 2010-05-08 14:12+0200\n"
+"Last-Translator: Luca Monducci <luca.mo@tiscali.it>\n"
+"Language-Team: Italian <debian-l10n-italian@lists.debian.org>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid "Apache servers to configure for icinga:"
+msgstr "Server Apache da configurare per icinga:"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid "Please select which Apache servers should be configured for icinga."
+msgstr "Selezionare quali server Apache devono essere configurati per icinga."
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid ""
+"If you would prefer to perform configuration manually, leave all servers "
+"unselected."
+msgstr ""
+"Per effettuare una configurazione manuale, lasciare tutti i server non "
+"selezionati."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid "Icinga web administration password:"
+msgstr "Password per l'amministrazione di Icinga da web:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid ""
+"Please provide the password to be created with the \"icingaadmin\" user."
+msgstr "Inserire la password da associare all'utente \"icingaadmin\"."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid ""
+"This is the username and password to use when connecting to the Icinga "
+"server after completing the configuration. If you do not provide a password, "
+"you will have to configure access to Icinga manually later on."
+msgstr ""
+"Questi sono il nome utente e la password per connettersi al server Icinga al "
+"termine della configurazione. Se non si specifica una password, in seguito "
+"si dovrà configurare l'accesso a Icinga manualmente."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid "Re-enter password to verify:"
+msgstr "Reinserire la password:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid ""
+"Please enter the same user password again to verify you have typed it "
+"correctly."
+msgstr ""
+"Specificare nuovamente la stessa password per verificare che sia stata "
+"inserita correttamente."
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "Password input error"
+msgstr "Password errata"
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "The two passwords you entered were not the same. Please try again."
+msgstr "Le due password sono diverse. Riprovare."

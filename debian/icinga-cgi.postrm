@@ -1,0 +1,20 @@
+#!/bin/sh -e
+
+# some shorthands for sanity
+en="/etc/icinga"
+enc="/etc/icinga/objects"
+usn="/usr/share/icinga"
+
+case "$1" in
+  remove)
+  	;;
+  purge)
+	rm -f /etc/icinga/htpasswd.users
+	rm -f /etc/icinga/apache2.conf
+	if which ucf >/dev/null 2>&1; then
+		ucf --purge /etc/icinga/apache2.conf
+	fi
+    ;;
+esac
+
+#DEBHELPER#

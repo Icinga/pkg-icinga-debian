@@ -1,0 +1,32 @@
+:man source:   Nagios/Icinga
+:man version:  {revnumber}
+:man manual:   ido2db
+
+ido2db(8)
+==========
+
+NAME
+----
+ido2db - store icinga events and configs in database
+
+SYNOPSIS
+--------
+*ido2db* -c <config_file> [-i] [-f] 
+
+DESCRIPTION
+-----------
+Stores Icinga event and configuration data to a database for later retrieval
+and processing.  Clients that are capable of sending data to the IDO2DB daemon
+include the LOG2NDO utility and IDOMOD event broker module.
+
+OPTIONS
+-------
+*-i*::
+  Run under INETD/XINETD.
+
+*-f*::
+  Don't daemonize, run in foreground.
+
+AUTHOR
+------
+This manpage was written by Alexander Wirt <formorer@debian.org> for the Debian Distribution.

@@ -1,0 +1,39 @@
+# These templates have been reviewed by the debian-l10n-english
+# team
+#
+# If modifications/additions/rewording are needed, please ask
+# debian-l10n-english@lists.debian.org for advice.
+#
+# Even minor modifications require translation updates and such
+# changes should be coordinated with translators and reviewers.
+
+Template: icinga/httpd
+Type: multiselect
+Choices: apache2
+Default: apache2
+_Description: Apache servers to configure for icinga:
+ Please select which Apache servers should be configured for icinga.
+ .
+ If you would prefer to perform configuration manually, leave all
+ servers unselected.
+
+Template: icinga/adminpassword
+Type: password
+_Description: Icinga web administration password:
+ Please provide the password to be created with the "icingaadmin" user.
+ .
+ This is the username and password to use when connecting to the Icinga
+ server after completing the configuration. If you do not provide
+ a password, you will have to configure access to Icinga manually
+ later on.
+
+Template: icinga/adminpassword-repeat
+Type: password
+_Description: Re-enter password to verify:
+ Please enter the same user password again to verify you have typed it
+ correctly.
+
+Template: icinga/adminpassword-mismatch
+Type: error
+_Description: Password input error
+ The two passwords you entered were not the same. Please try again.
