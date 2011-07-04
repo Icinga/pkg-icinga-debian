@@ -2,7 +2,7 @@
  *
  * UTILS.H - IDO utilities header file
  * Copyright (c) 2005-2008 Ethan Galstad
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  ************************************************************************/
 
@@ -10,8 +10,7 @@
 #define _IDO_UTILS_H
 
 /* my_free has been freed from bondage as a function */
-#define my_free(ptr) { if(ptr) { free(ptr); ptr = NULL; } }
-
+#define my_free(ptr) do { if(ptr) { free(ptr); ptr = NULL; } } while(0)
 
 typedef struct ido_dbuf_struct{
 	char *buf;

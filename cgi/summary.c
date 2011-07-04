@@ -3,7 +3,7 @@
  * SUMMARY.C -  Icinga Alert Summary CGI
  *
  * Copyright (c) 2002-2008 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -164,10 +164,6 @@ int alert_types=AE_HOST_ALERT+AE_SERVICE_ALERT;
 int host_states=AE_HOST_UP+AE_HOST_DOWN+AE_HOST_UNREACHABLE;
 int service_states=AE_SERVICE_OK+AE_SERVICE_WARNING+AE_SERVICE_UNKNOWN+AE_SERVICE_CRITICAL;
 
-int show_all_hostgroups=TRUE;
-int show_all_servicegroups=TRUE;
-int show_all_hosts=TRUE;
-
 char *target_hostgroup_name="";
 char *target_servicegroup_name="";
 char *target_host_name="";
@@ -189,6 +185,17 @@ extern char *csv_delimiter;
 extern char *csv_data_enclosure;
 
 int display_type=REPORT_RECENT_ALERTS;
+int show_all_hosts=TRUE;
+int show_all_hostgroups=TRUE;
+int show_all_servicegroups=TRUE;
+
+char *host_name=NULL;
+char *host_filter=NULL;
+char *hostgroup_name=NULL;
+char *servicegroup_name=NULL;
+char *service_desc=NULL;
+char *service_filter=NULL;
+
 int standard_report=SREPORT_NONE;
 int generate_report=FALSE;
 
@@ -215,7 +222,7 @@ int main(int argc, char **argv){
 	result=read_cgi_config_file(get_cgi_config_location());
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		cgi_config_file_error(get_cgi_config_location());
+		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
 		document_footer(CGI_ID);
 		return ERROR;
 	        }
@@ -224,7 +231,7 @@ int main(int argc, char **argv){
 	result=read_main_config_file(main_config_file);
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		main_config_file_error(main_config_file);
+		print_error(main_config_file, ERROR_CGI_MAIN_CFG);
 		document_footer(CGI_ID);
 		return ERROR;
 	        }
@@ -233,7 +240,7 @@ int main(int argc, char **argv){
 	result=read_all_object_configuration_data(main_config_file,READ_ALL_OBJECT_DATA);
 	if(result==ERROR){
 		document_header(CGI_ID,FALSE);
-		object_data_error();
+		print_error(NULL, ERROR_CGI_OBJECT_DATA);
 		document_footer(CGI_ID);
 		return ERROR;
                 }

@@ -15,12 +15,12 @@ abstract class IcingaApiSearchFilter implements IcingaApiSearchFilterInterface {
 	/**
 	 * Direct construction is not allowed, as this should be managed by the search creating the filter
 	 * Use the IcingaApiSearch::createSearchFilter function to create filters
-	 *
+	 * Shouldn't be called directly, use getInstance
 	 * @return IcingaApiSearchFilter
 	 *
 	 * @author Jannis Moßhammer <jannis.mosshammer@netways.de>
 	 */
-	private function __construct() {}
+	public function __construct() {}
 
 	/**
 	 * The field on which this filter acts

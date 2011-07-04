@@ -18,6 +18,9 @@
   the module architecture, please check out the development wiki of Icinga Web: <link
   xlink:href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web">&name-icingawiki;</link></para>
 
+  <para>This installation guide describes the installation of &name-web; with &name-mysql; as used database. &name-web; also supports
+  &name-oracle; and &name-postgres; as used database backends.</para>
+
   <orderedlist>
     <listitem>
       <para><emphasis role="bold">Prerequisites</emphasis></para>
@@ -111,7 +114,7 @@
       <para>to see all configure options.</para>
 
       <note>
-        <para>Using no options the installer expects the icinga-API to be found at /usr/local/share/icinga-api.</para>
+        <para>Using no options the installer expects the icinga-API to be found at /usr/local/icinga/share/icinga-api.</para>
       </note>
 
       <para>Per default the &name-icingaweb; will be installed to /usr/local/icinga-web using:</para>
@@ -230,6 +233,11 @@
       those to your needs.</para>
 
       <programlisting> #&gt; vi app/config/databases.xml</programlisting>
+
+      <note>
+        <para>Optional: Your specific Icinga database settings can be set in app/config/.site.xml and will be used in the first place. This
+        won't get overwritten during upgrade process.</para>
+      </note>
 
       <para><programlisting>    &lt;databases default="icinga_web"&gt;
                         &lt;database name="icinga_web" class="AgaviDoctrineDatabase"&gt;
@@ -365,6 +373,10 @@
       </note>
 
       <programlisting> #&gt; rm -rf app/cache/config/*.php</programlisting>
+
+      <para>or</para>
+
+      <programlisting>/icinga-web/bin/clearcache.sh</programlisting>
     </listitem>
 
     <listitem>
@@ -380,8 +392,12 @@
 
       <para><programlisting> #&gt; ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load</programlisting></para>
 
-      <para>Using OpenSuSE you can use "a2enmod rewrite" to activate the module. If that doesn't work you have to edit the file
+      <para>Using OpenSuSE or SLES you can use "a2enmod rewrite" to activate the module. If that doesn't work you have to edit the file
       "/etc/sysconfig/apache2". The module "rewrite" has to be appended to the line "APACHE_MODULES=...".</para>
+
+      <para>Using Debian or Ubuntu "a2enmod rewrite" activates the module as well.</para>
+
+      <para>The httpd of RHEL / Fedora / CentOS already supports rewriting so you don't have to change anything in this regard.</para>
 
       <itemizedlist>
         <listitem>
@@ -436,7 +452,7 @@
  #&lt;/IfModule&gt;</programlisting></para>
 
       <para>Go to the webservers configuration directory. Look if the created config by <emphasis role="bold">make
-      install-apache-config</emphasis> suite to your configuration. Or create new aliases (maybe in /etc/apache2/conf.d/icinga-web.conf)
+      install-apache-config</emphasis> suit to your configuration. Or create new aliases (maybe in /etc/apache2/conf.d/icinga-web.conf)
       :</para>
 
       <para><programlisting>#&gt; cat /etc/apache2/icinga-web.conf
@@ -466,6 +482,10 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para><programlisting>#&gt; rm /usr/local/icinga-web/app/cache/config/*.php</programlisting></para>
 
+      <para>or</para>
+
+      <programlisting>#&gt; /icinga-web/bin/clearcache.sh</programlisting>
+
       <para>Restart your Webserver:</para>
 
       <para><programlisting>#&gt; service apache2 restart</programlisting></para>
@@ -491,12 +511,12 @@ Alias /icinga-web /usr/local/icinga-web/pub
     </listitem>
 
     <listitem>
-      <para><emphasis role="bold">Test &amp; Errors ?</emphasis></para>
+      <para><anchor xml:id="icinga-web-scratch-errors" /> <emphasis role="bold">Test &amp; Errors ?</emphasis></para>
 
       <para>The following collection shows some useful information how to resolve errors - and what you should provide when reporting an
       error to the mailing lists or http://www.icinga-portal.org</para>
 
-      <para>* Always provide the version - actual tar.gz or GIT?</para>
+      <para>* Always provide the version - current tar.gz or GIT?</para>
 
       <para>* Add your browser and the version</para>
 
@@ -512,9 +532,15 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para>* Delete the config cache in app/cache/config/*.php</para>
 
+      <para>use</para>
+
+      <programlisting>#&gt; /icinga-web/bin/clearcache.sh</programlisting>
+
       <para>Icinga Web shows a blank page?</para>
 
-      <para>* Apache Error Logs =&gt; mod_rewrite enabled, php dependencies ok? 'make testdeps'</para>
+      <para>* Apache Error Logs =&gt; mod_rewrite enabled, php dependencies ok? 'make testdeps'. Using Debian you may find something like
+      the following: ".htaccess: Invalid command 'RewriteEngine', perhaps misspelled or defined by a module not included in the server
+      configuration"</para>
 
       <para>* .htaccess/vhost config =&gt; paths not correct?</para>
 
@@ -537,13 +563,19 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para>* Sockets correctly defined? =&gt; unix-socket or tcp-socket, the last one with or without SSL</para>
 
-      <para><emphasis role="bold">Testing the Web: </emphasis></para>
+      <para><emphasis role="bold">Testing the Web:</emphasis></para>
 
-      <para><programlisting> #&gt; cd etc/tests/
- #&gt; php icingaWebTesting.php</programlisting></para>
+      <para><programlisting> $&gt; cd etc/tests/
+ $&gt; php icingaWebTesting.php</programlisting></para>
 
       <note>
-        <para>Remember - changing the php settings in php.ini requires an apache reload/restart!</para>
+        <para>If you are using your root account for testing then make sure in advance that the specified web user has a valid shell.
+        Otherwise some tests might fail. Depending on the version used you might experience wrong permissions on
+        /usr/local/icinga-web/app/data/log resulting in Icinga-Web showing "loading" coming to no end!</para>
+      </note>
+
+      <note>
+        <para>Remember - changing the php settings in php.ini requires an Apache reload/restart!</para>
       </note>
 
       <para>* PHP Fatal error: Allowed memory size of ... bytes exhausted (tried to allocate ... bytes) =&gt; Check your php.ini (both
@@ -557,10 +589,10 @@ Alias /icinga-web /usr/local/icinga-web/pub
       <para>* Could not connect to API. The API Connector returned the following message: getConnection failed: Database connection failed:
       SQLSTATE[28000] [1045] Access denied for user 'icinga'@'localhost' (using password: YES))</para>
 
-      <para>=&gt; check your IDOUtils DB credentials in ido2db.cfg and add those to Icinga Web configuration as preferred DB credentials for IDO (see above).
-      With 1.0.3 you can set those values directly during configure</para>
+      <para>=&gt; check your IDOUtils DB credentials in ido2db.cfg and add those to Icinga Web configuration as preferred DB credentials for
+      IDO (see above). With 1.0.3 you can set those values directly during configure</para>
 
-      <para>* touch: cannot touch `/usr/local/icinga-web/.../cache/testfile.txt': Permission denied =&gt; Your configuration in the xml
+      <para>* touch: cannot touch '/usr/local/icinga-web/.../cache/testfile.txt': Permission denied =&gt; Your configuration in the xml
       files will be pre-cached by the framework. It therefore needs special permissions on the caching directories. By running
       icingaWebTesting.php in etc/tests you will be asked to automatically fix this.</para>
 
@@ -574,6 +606,11 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para>* Empty Icinga Web? =&gt; If mod_rewrite is enabled and 'index.php' appears in the request url the portal does not work. Try to
       remove the index.php from your url and everything should work</para>
+
+      <para>* Login possible but Icinga Web keeps loading data....</para>
+
+      <para>* Request failed, Ressource /icinga-web/appkit/ext/application State could not be loaded - is the url correct? =&gt; mod_rewrite
+      enabled ?</para>
 
       <para>* Counts in the Status Cronk do not match your configuration? =&gt; Check with the Backend, e.g. IDOUtils DB, selecting the
       counts for the status tables.</para>
@@ -590,5 +627,11 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
   <indexterm zone="icinga-web-scratch">
     <primary>Installation of the Webinterface</primary>
+  </indexterm>
+
+  <indexterm zone="icinga-web-scratch">
+    <primary>Webinterface</primary>
+
+    <secondary>Errors in the</secondary>
   </indexterm>
 </section>

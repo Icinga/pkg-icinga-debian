@@ -3,7 +3,7 @@
  * CGIAUTH.H - Authorization utilities header file
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -44,11 +44,16 @@ typedef struct authdata_struct{
 	int authorized_for_configuration_information;
 	int authorized_for_read_only;
 	int authenticated;
+	int number_of_authentication_rules;
+	char **authentication_rules;
         }authdata;
 
 
 
 int get_authentication_information(authdata *);       /* gets current authentication information */
+
+int parse_authorization_config_file(char *,authdata *); 	/* parsing authorization configuration file */
+int set_authz_permissions(char *,authdata *); 		/* set default authz permissions */
 
 int is_authorized_for_host(host *,authdata *);
 int is_authorized_for_service(service *,authdata *);

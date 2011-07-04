@@ -6,12 +6,7 @@
 <section version="5.0" xml:id="icinga-web-intro" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:svg="http://www.w3.org/2000/svg" xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
-  <title>Einführung in &name-web;</title>
-
-  <para><emphasis role="bold"><anchor xml:id="icinga-web_intro" />Überblick</emphasis></para>
-
-  <para>Diese Einführung wird Sie auf eine kurze Tour einladen, um diverse Aspekte von &name-web; zu skizzieren. Es besteht kein Anspruch
-  auf Vollständigkeit, da dieses Dokument stetig erweitert wird.</para>
+  <title>Einführung in &name-web; (&lt;= 1.2.x)</title>
 
   <para>Wenn Sie den Schnellstart-Anleitungen (<link linkend="quickstart-idoutils">&name-idoutils;</link> und <link
   linkend="icinga-web-scratch">&name-web;</link>) gefolgt sind, sollten Sie nun http://&lt;icinga server&gt;/icinga-web aufrufen können und
@@ -494,6 +489,6 @@
   <indexterm zone="icinga-web-intro">
     <primary>&name-web;</primary>
 
-    <secondary>Überblick</secondary>
+    <secondary>Überblick (&lt;=1.2.x)</secondary>
   </indexterm>
 </section>

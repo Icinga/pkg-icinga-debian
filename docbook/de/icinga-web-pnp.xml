@@ -48,10 +48,10 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</programlisting></para>
 
   <orderedlist>
     <listitem>
-      <para>Erstellen einer neuen Grid Ansicht:</para>
+      <para>Erstellen einer neuen Host- Grid- Ansicht:</para>
 
       <para>Bitte erstellen Sie eine Kopie von icinga-host-template.xml in app/modules/Cronks/data/xml/grid unter Ihrem icinga-web
-      Installationspfad: <programlisting>#&gt; cp /usr/share/icinga-web/app/modules/Cronks/data/xml/grid/icinga-host-template.xml /usr/share/icinga-web/app/modules/Cronks/data/xml/grid/icinga-my-host-template.xml</programlisting>
+      Installationspfad: <programlisting>#&gt; cp /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-host-template.xml /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-my-host-template.xml</programlisting>
       In der neuen Datei legen wir eine zusätzliche Feld- (field) Definition an: <programlisting>&lt;field name="pnp4nagios_host_link"&gt;
             &lt;!-- datasource maps a data field from api call --&gt;
             &lt;datasource&gt;
@@ -111,15 +111,15 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</programlisting></para>
     <listitem>
       <para>Anlegen einer neuen Grid-Ansicht im "Data" Cronk-Container</para>
 
-      <para>Editieren von cronks.xml im Unterverzeichnis app/modules/Cronks/config/ unter &name-web; und hinzufügen von: <programlisting>&lt;ae:parameter name="gridMyServiceView"&gt;
+      <para>Editieren von cronks.xml im Unterverzeichnis app/modules/Cronks/config/ unter &name-web; und hinzufügen von: <programlisting>&lt;ae:parameter name="gridMyHostView"&gt;
     &lt;ae:parameter name="module"&gt;Cronks&lt;/ae:parameter&gt;
     &lt;ae:parameter name="action"&gt;System.ViewProc&lt;/ae:parameter&gt;
     &lt;ae:parameter name="hide"&gt;false&lt;/ae:parameter&gt;
-    &lt;ae:parameter name="description"&gt;Viewing service status in a grid including perfdata link&lt;/ae:parameter&gt;
-    &lt;ae:parameter name="name"&gt;MyServiceStatus&lt;/ae:parameter&gt;
+    &lt;ae:parameter name="description"&gt;Viewing host status in a grid including perfdata link&lt;/ae:parameter&gt;
+    &lt;ae:parameter name="name"&gt;MyHostStatus&lt;/ae:parameter&gt;
     &lt;ae:parameter name="categories"&gt;data&lt;/ae:parameter&gt;
     &lt;ae:parameter name="ae:parameter"&gt;
-        &lt;ae:parameter name="template"&gt;icinga-my-service-template&lt;/ae:parameter&gt;
+        &lt;ae:parameter name="template"&gt;icinga-my-host-template&lt;/ae:parameter&gt;
     &lt;/ae:parameter&gt;
 &lt;/ae:parameter&gt;</programlisting></para>
     </listitem>
@@ -129,12 +129,12 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</programlisting></para>
 
   <orderedlist>
     <listitem>
-      <para>Erstellen einer neuen Grid- Ansicht</para>
+      <para>Erstellen einer neuen Service- Grid- Ansicht</para>
 
       <para>Kopieren Sie das Standardtemplate "icinga-service-template.xml" von app/modules/Cronks/data/xml/grid in Ihren &name-web;-
       Installationspfad:</para>
 
-      <programlisting>#&gt; cp /usr/share/icinga-web/app/modules/Cronks/data/xml/grid/icinga-my-service-template.xml /usr/share/icinga-web/app/modules/Cronks/data/xml/grid/icinga-my-service-template.xml</programlisting>
+      <programlisting>#&gt; cp /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-service-template.xml /usr/local/icinga-web/app/modules/Cronks/data/xml/grid/icinga-my-service-template.xml</programlisting>
 
       <para>In der neuen Datei legen wir eine zusätzliche Feld- (field) Definition an::</para>
 
@@ -165,7 +165,7 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</programlisting></para>
                                                         &lt;parameter name="image"&gt;images/icons/application_view_gallery.png&lt;/parameter&gt;
                                                         &lt;parameter name="css"&gt;x-icinga-grid-link&lt;/parameter&gt;
                                                         &lt;parameter name="attr"&gt;
-                                                                &lt;parameter name="qtip"&gt;Show host perfdata for this service&lt;/parameter&gt;
+                                                                &lt;parameter name="qtip"&gt;Show perfdata for this service&lt;/parameter&gt;
                                                         &lt;/parameter&gt;
                                 &lt;/parameter&gt;
                         &lt;/parameter&gt;
@@ -215,8 +215,8 @@ $conf['nagios_base'] = "/icinga/cgi-bin";</programlisting></para>
     <listitem>
       <para>Verwenden der neuen Grid-Ansicht als Standard- Serviceansicht</para>
 
-      <para>Bitte sichern Sie zuerst Ihre orginale Ansicht: <programlisting>&gt;# cp data/xml/grid/icinga-service-template.xml data/xml/grid/icinga-service-template.bak</programlisting>
-      dann <programlisting>&gt;# cp data/xml/grid/icinga-my-service-template.xml data/xml/grid/icinga-service-template.xml</programlisting>
+      <para>Bitte sichern Sie zuerst Ihre orginale Ansicht: <programlisting>#&gt; cp data/xml/grid/icinga-service-template.xml data/xml/grid/icinga-service-template.bak</programlisting>
+      dann <programlisting>#&gt; cp data/xml/grid/icinga-my-service-template.xml data/xml/grid/icinga-service-template.xml</programlisting>
       Leeren Sie den Cache wie unten beschrieben. Die Performancegraphen sind nun in Ihren "serviceStatus"- Cronk integriert!</para>
     </listitem>
   </orderedlist>

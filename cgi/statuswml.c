@@ -3,7 +3,7 @@
  * STATUSWML.C -  Icinga Status CGI for WAP-enabled devices
  *
  * Copyright (c) 2001-2008 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -69,6 +69,16 @@ int validate_arguments(void);
 int is_valid_hostip(char *hostip);
 
 int display_type=DISPLAY_INDEX;
+int show_all_hosts=TRUE;
+int show_all_hostgroups=TRUE;
+int show_all_servicegroups=TRUE;
+
+char *host_name=NULL;
+char *host_filter=NULL;
+char *hostgroup_name=NULL;
+char *servicegroup_name=NULL;
+char *service_desc=NULL;
+char *service_filter=NULL;
 int hostgroup_style=DISPLAY_HOSTGROUP_SUMMARY;
 int host_style=DISPLAY_HOST_SUMMARY;
 
@@ -84,13 +94,9 @@ void display_quick_stats(void);
 void display_process(void);
 void display_problems(void);
 
-char *host_name="";
-char *hostgroup_name="";
-char *service_desc="";
 char *ping_address="";
 char *traceroute_address="";
 
-int show_all_hostgroups=TRUE;
 extern int daemon_check;
 
 
@@ -914,7 +920,9 @@ void display_host(void){
 	printf("<b>Host Commands</b><br/>\n");
 
 	printf("<b><anchor title='Ping Host'>Ping Host<go href='%s' method='post'><postfield name='ping' value='%s'/></go></anchor></b>\n",STATUSWML_CGI,temp_host->address);
+	printf("<b><anchor title='Ping6 Host'>Ping6 Host<go href='%s' method='post'><postfield name='ping6' value='%s'/></go></anchor></b>\n",STATUSWML_CGI,temp_host->address6);
 	printf("<b><anchor title='Traceroute'>Traceroute<go href='%s' method='post'><postfield name='traceroute' value='%s'/></go></anchor></b>\n",STATUSWML_CGI,temp_host->address);
+	printf("<b><anchor title='Traceroute6'>Traceroute6<go href='%s' method='post'><postfield name='traceroute6' value='%s'/></go></anchor></b>\n",STATUSWML_CGI,temp_host->address6);
 
 	if(temp_hoststatus->status!=HOST_UP && temp_hoststatus->status!=HOST_PENDING)
 		printf("<b><anchor title='Acknowledge Problem'>Acknowledge Problem<go href='#card3'/></anchor></b>\n");

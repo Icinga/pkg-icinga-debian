@@ -20,13 +20,19 @@ class IcingaApiCommandCollection
 		
 	// TODO: add missing commands
 	private $commandFields = array (
+	
+		/*
+		 * Downtimes
+		 */
+		'DEL_HOST_DOWNTIME'						=> array(self::COMMAND_DOWNTIME_ID),
+		'DEL_SVC_DOWNTIME'						=> array(self::COMMAND_DOWNTIME_ID),
+	
 		/*
 		 * SERVICE COMMANDS
 		 */
-		// Put this in a downtime view
-		// 'DEL_SVC_DOWNTIME'						=> array(self::COMMAND_HOST, self::COMMAND_SERVICE, self::COMMAND_ID),
 		'SET_SVC_NOTIFICATION_NUMBER'			=> array(self::COMMAND_HOST, self::COMMAND_SERVICE, self::COMMAND_DATA),
 		'SCHEDULE_SVC_CHECK'					=> array(self::COMMAND_HOST, self::COMMAND_SERVICE, self::COMMAND_CHECKTIME),
+		'SCHEDULE_FORCED_SVC_CHECK'				=> array(self::COMMAND_HOST, self::COMMAND_SERVICE, self::COMMAND_CHECKTIME),
 		'ACKNOWLEDGE_SVC_PROBLEM'				=> array(self::COMMAND_HOST, self::COMMAND_SERVICE, self::COMMAND_STICKY, self::COMMAND_NOTIFY, self::COMMAND_PERSISTENT, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),
 		'SCHEDULE_SVC_DOWNTIME'					=> array(self::COMMAND_HOST, self::COMMAND_SERVICE, self::COMMAND_STARTTIME, self::COMMAND_ENDTIME, self::COMMAND_FIXED, self::COMMAND_DATA, self::COMMAND_DURATION, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),
 		'PROCESS_SERVICE_CHECK_RESULT'			=> array(self::COMMAND_HOST, self::COMMAND_SERVICE, self::COMMAND_RETURN_CODE, self::COMMAND_OUTPUT, self::COMMAND_PERFDATA),
@@ -52,9 +58,8 @@ class IcingaApiCommandCollection
 		/*
 		 * HOST COMMANDS
 		 */
-		// This have to be in a downtime view
-		// 'DEL_HOST_DOWNTIME'						=> array(self::COMMAND_HOST, self::COMMAND_ID),
 		'SCHEDULE_HOST_CHECK'					=> array(self::COMMAND_HOST, self::COMMAND_CHECKTIME),
+		'SCHEDULE_FORCED_HOST_CHECK'			=> array(self::COMMAND_HOST, self::COMMAND_CHECKTIME),
 		'SCHEDULE_HOST_DOWNTIME'				=> array(self::COMMAND_HOST, self::COMMAND_STARTTIME, self::COMMAND_ENDTIME, self::COMMAND_FIXED, self::COMMAND_DATA, self::COMMAND_DURATION, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),	
 		'SCHEDULE_HOST_SVC_DOWNTIME'			=> array(self::COMMAND_HOST, self::COMMAND_STARTTIME, self::COMMAND_ENDTIME, self::COMMAND_FIXED, self::COMMAND_DATA, self::COMMAND_DURATION, self::COMMAND_AUTHOR, self::COMMAND_COMMENT),
 		'PROCESS_HOST_CHECK_RESULT'				=> array(self::COMMAND_HOST, self::COMMAND_RETURN_CODE, self::COMMAND_OUTPUT, self::COMMAND_PERFDATA),
@@ -177,7 +182,7 @@ class IcingaApiCommandCollection
 			'required'	=> false
 		),
 		self::COMMAND_DURATION => array(
-			'type'	=> 'text',
+			'type'	=> 'duration',
 			'required'	=> false
 		),
 		self::COMMAND_DATA => array(
@@ -188,7 +193,11 @@ class IcingaApiCommandCollection
 		self::COMMAND_NOTIFICATION_OPTIONS => array (
 			'type'	=> 'notification_options',
 			'required' => true
-		)
+		),
+		self::COMMAND_DOWNTIME_ID => array(
+			'type'	=> 'ro',
+			'required'	=> true
+		),
 	);
 
 	private $commands = array (

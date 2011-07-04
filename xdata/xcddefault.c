@@ -3,7 +3,8 @@
  * XCDDEFAULT.C - Default external comment data routines for Icinga
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -48,7 +49,6 @@
 #ifdef NSCORE
 extern unsigned long next_comment_id;
 extern comment *comment_list;
-extern char *macro_x[MACRO_X_COUNT];
 #endif
 
 

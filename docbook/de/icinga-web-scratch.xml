@@ -6,16 +6,19 @@
 <section version="5.0" xml:id="icinga-web-scratch" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:svg="http://www.w3.org/2000/svg" xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
-  <title>Installation des neuen &name-web; Frontend</title>
+  <title>Installation des &name-web; Frontend</title>
 
   <para><emphasis role="bold">Einleitung</emphasis></para>
 
   <para>Das neue &name-web; wird aktuell sehr stark weiterentwickelt, sodass sich diese Dokumentation unter Umständen noch ändern kann/wird.
   Falls Sie eine detaillierte Installationsanleitung benötigen, konsultieren Sie bitte doc/INSTALL aus dem Source-Paket. Mehr Informationen
   über die gesamte Architektur können Sie auf unserer Webseite nachlesen: <link
-  xlink:href="http://www.icinga.org/architecture/">&url-icinga;architecture/</link> Falls Sie mehr über das &name-web; development und die
+  xlink:href="http://www.icinga.org/architecture/">&url-icinga;architecture/</link> Falls Sie mehr über das &name-web; Development und die
   Modularchitektur wissen wollen, verfolgen Sie bitte stetig aktualisierte Einträge im Development-Wiki von &name-web;: <link
   xlink:href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web">&name-icingawiki;</link></para>
+
+  <para>Diese Installationsanleitung beschreibt die Installation von &name-web; mit &name-mysql; als verwendeter Datenbank, weitere
+  unterstütze Datenbanken sind &name-oracle; und &name-postgres;..</para>
 
   <orderedlist>
     <listitem>
@@ -49,7 +52,7 @@
       <para><emphasis role="bold">OpenSuSE</emphasis></para>
 
       <para>Benutzen Sie yast, um die Pakete "php5", "php5-pear", "php5-xmlrpc", "php5-xsl", "php5-&lt;rdbm&gt;", "php5-soap",
-      "php5-gettext", "php5-pdo", "php5-ldap", "php5-gd" und "php5-mysql" zu installieren. Die CLI ist im php5-Paket enthalten.</para>
+      "php5-gettext", "php5-pdo", "php5-ldap", "php5-gd" und "apache2-mod_php5" zu installieren. Die CLI ist im php5-Paket enthalten.</para>
 
       <note>
         <para>Zumindest bei SLES10 SP2 fehlt die Funktion hash_hmac.</para>
@@ -108,7 +111,7 @@
       <programlisting> #&gt; ./configure --help</programlisting>
 
       <note>
-        <para>Falls Sie keine Optionen angeben, erwartet der Installer die &name-api; in /usr/local/share/icinga-api.</para>
+        <para>Falls Sie keine Optionen angeben, erwartet der Installer die &name-api; in /usr/local/icinga/share/icinga-api.</para>
       </note>
 
       <para>Ohne weitere Optionen wird das &name-icingaweb; mit:</para>
@@ -225,9 +228,14 @@ Please check the new Apache2 configuration (etc/apache2/icinga-web.conf).</progr
       <para><emphasis role="bold">Icinga-Web Konfiguration</emphasis></para>
 
       <para>Im Normalfall können Sie die Datenbankeinstellungen während configure vornehmen. Sollten Sie diese allerdings anpassen wollen
-      oder nachsehen wollen im Fehlerfall, öffnen sie folgende Datei mit einem Editor Ihrer Wahl.</para>
+      oder nachsehen wollen im Fehlerfall, öffnen Sie folgende Datei mit einem Editor Ihrer Wahl.</para>
 
       <programlisting> #&gt; vi app/config/databases.xml</programlisting>
+
+      <note>
+        <para>Optional: Ihre spezifischen &name-icinga; Datenbankeinstellungen können Sie vornehmen in app / config /database.site.xml.
+        Diese Informationen bleiben während eines Update-Prozesses erhalten.</para>
+      </note>
 
       <programlisting> &lt;databases default="icinga_web"&gt;
 
@@ -277,11 +285,11 @@ Please check the new Apache2 configuration (etc/apache2/icinga-web.conf).</progr
 
       <para><emphasis role="bold">Konfiguration von &name-api; Parametern</emphasis></para>
 
-      <para>Diese Einstellungen werden direkt in Icinga Web vorgenommen das diese Informationen dann entsprechend aufbereitet an die Icinga
+      <para>Diese Einstellungen werden direkt in Icinga Web vorgenommen, das diese Informationen dann entsprechend aufbereitet an die Icinga
       API weitergibt. Öffnen Sie app/modules/Web/config/icinga-io.xml um die IcingaApi factories zu sehen: IcingaData und IcingaCommand.
       <programlisting> #&gt; vi app/modules/Web/config/icinga-io.xml</programlisting> <note>
           <para>Optional: Ihre spezifischen &name-icinga; Verbindungseinstellungen, wie die API-Anmeldeinformationen, können Sie vornehmen
-          in app / modules / Web / config / icinga-io.site.xml. Diese Informationen bleiben während eines Update- Prozesses erhalten.</para>
+          in app / modules / Web / config / icinga-io.site.xml. Diese Informationen bleiben während eines Update-Prozesses erhalten.</para>
         </note></para>
 
       <para>In IcingaData werden die Parameter für die &name-api; festgelegt, um beispielsweise die &name-icinga; &name-idoutils; Datenbank
@@ -310,7 +318,7 @@ Please check the new Apache2 configuration (etc/apache2/icinga-web.conf).</progr
 
                                 &lt;/setting/&gt;</programlisting></para>
 
-      <para>In IcingaCommand können Sie einstellen, wie Befehle an die Icinga Core command pipe gesendet werden - lokal or remote via SSH.
+      <para>In IcingaCommand können Sie einstellen, wie Befehle an die Icinga Core command pipe gesendet werden - lokal oder remote via SSH.
       Abhängig davon, ob die jeweilige Option 'enabled' ist, wird diese verwendet/nicht verwendet. Standardmäßig wird die lokale Pipe
       verwendet.</para>
 
@@ -374,6 +382,10 @@ Please check the new Apache2 configuration (etc/apache2/icinga-web.conf).</progr
       </note>
 
       <programlisting> #&gt; rm -rf app/cache/config/*.php</programlisting>
+
+      <para>oder</para>
+
+      <programlisting>/icinga-web/bin/clearcache.sh</programlisting>
     </listitem>
 
     <listitem>
@@ -389,8 +401,14 @@ Please check the new Apache2 configuration (etc/apache2/icinga-web.conf).</progr
 
       <para><programlisting> #&gt; ln -s /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/rewrite.load</programlisting></para>
 
-      <para>Bei OpenSuSE können Sie das Modul mit "a2enmod rewrite" aktivieren. Falls das nicht funktioniert, gibt es in der Datei
+      <para>Bei OpenSuSE und SLES können Sie das Modul mit "a2enmod rewrite" aktivieren. Falls das nicht funktioniert, gibt es in der Datei
       /etc/sysconfig/apache2 die Zeile "APACHE_MODULES=...", der das Modul "rewrite" hinzugefügt werden muss.</para>
+
+      <para>Bei Debian und Ubuntu können Sie das Modul ebenfalls mit "a2enmod rewrite" aktivieren.</para>
+
+      <para>Bei RHEL/Fedora/CentOS ist die Unterstützung bereits im httpd enthalten.</para>
+
+      <para></para>
 
       <para>Editieren Sie die .htaccess unter /usr/local/icinga-web/pub und ändern Sie die RewriteBase (ab Zeile 14): <programlisting> DirectoryIndex index.php
 
@@ -462,6 +480,10 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para><programlisting> #&gt; rm /usr/local/icinga-web/app/cache/config/*.php</programlisting></para>
 
+      <para>oder</para>
+
+      <programlisting>#&gt; /icinga-web/bin/clearcache.sh</programlisting>
+
       <para>und starten Sie den Webserver neu:</para>
 
       <para><programlisting> #&gt; service apache2 restart</programlisting></para>
@@ -489,7 +511,7 @@ Alias /icinga-web /usr/local/icinga-web/pub
     </listitem>
 
     <listitem>
-      <para><emphasis role="bold">Test &amp;Fehler?</emphasis></para>
+      <para><anchor xml:id="icinga-web-scratch-errors" /> <emphasis role="bold">Test &amp; Fehler?</emphasis></para>
 
       <para>Diese Sammlung beinhaltet einige nützliche Informationen, wie Sie Fehler finden und lösen können. Ebenso wird darauf
       hingewiesen, welche Informationen Sie im Fehlerfall angeben sollen, wenn Sie eine Frage auf den Mailinglisten oder auf <link
@@ -511,9 +533,18 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para>* Löschen Sie den Konfigurationscache in app/cache/config/*.php</para>
 
+      <programlisting>/icinga-web/bin/clearcache.sh</programlisting>
+
       <para>Icinga Web zeigt eine leere Seite?</para>
 
-      <para>* Apache Errors Logs =&gt; mod_rewrite enabled, PHP-Abhängigkeiten ok? 'make testdeps'</para>
+      <para>* Apache Errors Logs =&gt; mod_rewrite enabled, PHP-Abhängigkeiten ok? 'make testdeps'. Bei Debian gibt es u.a. die folgende
+      Fehlermeldung: ".htaccess: Invalid command 'RewriteEngine', perhaps misspelled or defined by a module not included in the server
+      configuration"</para>
+
+      <para>Icinga Web - Login erfolgt- aber die Seite lädt und lädt...</para>
+
+      <para>* Request failed, Ressource /icinga-web/appkit/ext/application State could not be loaded - is the url correct? =&gt; mod_rewrite
+      enabled ?</para>
 
       <para>* .htaccess/VHost-Konfiguration =&gt; Pfade nicht korrekt? Icinga-Web zeigt keine Daten?</para>
 
@@ -538,9 +569,15 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para><emphasis role="bold">Testing the Web: </emphasis></para>
 
-      <para><programlisting> #&gt; cd etc/tests/
- #&gt; php icingaWebTesting.php</programlisting></para>
+      <para><programlisting> $&gt; cd etc/tests/
+ $&gt; php icingaWebTesting.php</programlisting></para>
 
+      <note>
+        <para>Falls Sie Ihren root- Benutzer zum Testen benutzen, dann stellen Sie vorher sicher, dass für den angegebenen Web-Benutzer eine
+        gültige Shell eingetragen ist. Anderenfalls werden verschiedene Tests fehlschlagen. Abhängig von der verwendeten Icinga-Web-Version
+        kann es sein, dass die Berechtigungen für die Dateien in /usr/local/icinga-web/app/data/log falsch gesetzt sind, so dass Icinga-Web
+        mit der Meldung "Loading" stehenbleibt.</para>
+      </note>
       <note>
         <para>Nicht vergessen - Ändern von PHP-Einstellungen in der php.ini erfordert einen Apache reload/restart!</para>
       </note>
@@ -556,8 +593,9 @@ Alias /icinga-web /usr/local/icinga-web/pub
       <para>* Keine Verbindung zur API. The API Connector returned the following message: getConnection failed: Database connection failed:
       SQLSTATE[28000] [1045] Access denied for user 'icinga'@'localhost' (using password: YES))</para>
 
-      <para>=&gt; Überprüfen Sie Ihre IDOUtils DB-Referenzen in der ido2db.cfg und fügen Sie diese in Ihre &name-web;- Konfiguration als bevorzugte DB- Referenzen für Ihre IDO hinzu (siehe Konfiguration der &name-api;).
-      Ab &name-web;1.0.3 können die Werte direkt während des configure gesetzt werden.</para>
+      <para>=&gt; Überprüfen Sie Ihre IDOUtils DB-Referenzen in der ido2db.cfg und fügen Sie diese in Ihre &name-web;- Konfiguration als
+      bevorzugte DB- Referenzen für Ihre IDO hinzu (siehe Konfiguration der &name-api;). Ab &name-web;1.0.3 können die Werte direkt während
+      des configure gesetzt werden.</para>
 
       <para>* touch: cannot touch `/usr/local/icinga-web/.../cache/testfile.txt': Permission denied</para>
 
@@ -578,6 +616,7 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
       <para>* Die Ergebnisse in den Status Cronks passen nicht zu Ihrer Konfiguration? =&gt; Überprüfen Sie in Ihrem Backend, d.h. IDOUtils
       DB, welche Werte für die Status-Tabellen selektiert werden.</para>
+
       <para>* Keine Daten in den Cronks ? =&gt; Überprüfen Sie ob alle Berechtigungen korrekt gesetzt sind, insbesondere von log/</para>
 
       <para>Sofern Sie Fragen oder Updates haben, zögern Sie bitte nicht, uns diese mitzuteilen! :-)</para>

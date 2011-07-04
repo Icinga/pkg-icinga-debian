@@ -3,7 +3,8 @@
  * NEBMODS.C - Event Broker Module Functions
  *
  * Copyright (c) 2002-2008 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2010 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -161,22 +162,19 @@ int neb_load_all_modules(void){
 	return OK;
         }
 
-
+#ifndef PATH_MAX
+# define PATH_MAX 4096
+#endif
 /* load a particular module */
 int neb_load_module(nebmodule *mod){
 	int (*initfunc)(int,char *,void *);
 	int *module_version_ptr=NULL;
-	char *output_file=NULL;
 	int result=OK;
-        int dest_fd=-1;
-        int source_fd=-1;
-        char buffer[MAX_INPUT_BUFFER]={0};
-        int bytes_read=0;
 
 
 	if(mod==NULL || mod->filename==NULL)
 		return ERROR;
-	
+
 	/* don't reopen the module */
 	if(mod->is_currently_loaded==TRUE)
 		return OK;
@@ -185,7 +183,7 @@ int neb_load_module(nebmodule *mod){
 	if(mod->should_be_loaded==FALSE)
 		return ERROR;
 
-	/********** 
+	/**********
 	   Using dlopen() is great, but a real danger as-is.  The problem with loaded modules is that if you overwrite the original file (e.g. using 'mv'),
 	   you do not alter the inode of the original file.  Since the original file/module is memory-mapped in some fashion, Icinga will segfault the next
 	   time an event broker call is directed to one of the module's callback functions.  This is extremely problematic when it comes to upgrading NEB
@@ -194,34 +192,22 @@ int neb_load_module(nebmodule *mod){
 	   the original file/inode for callbacks.  This is not an ideal solution.   A better one is to delete the module file once it is loaded by dlopen().
 	   This prevents other processed from unintentially overwriting the original file, which would cause Icinga to crash.  However, if we delete the file
 	   before anyone else can muck with it, things should be good.  'lsof' shows that a deleted file is still referenced by the kernel and callback
-	   functions continue to work once the module has been loaded.  Long story, but this took quite a while to figure out, as there isn't much 
+	   functions continue to work once the module has been loaded.  Long story, but this took quite a while to figure out, as there isn't much
 	   of anything I could find on the subject other than some sketchy info on similar problems on HP-UX.  Hopefully this will save future coders some time.
-	   So... the trick is to (1) copy the module to a temp file, (2) dlopen() the temp file, and (3) immediately delete the temp file. 
+	   So... the trick is to (1) copy the module to a temp file, (2) dlopen() the temp file, and (3) immediately delete the temp file.
 	************/
 
-	/* open a temp file for copying the module */
-	asprintf(&output_file,"%s/nebmodXXXXXX",temp_path);
-        if((dest_fd=mkstemp(output_file))==-1){
-                logit(NSLOG_RUNTIME_ERROR,FALSE,"Error: Could not safely copy module '%s'.  The module will not be loaded: %s\n",mod->filename,strerror(errno));
-		return ERROR;
-		}
-        /* open module file for reading and copy it */
-        if((source_fd=open(mod->filename,O_RDONLY,0644))>0){
-                while((bytes_read=read(source_fd,buffer,sizeof(buffer)))>0)
-                        write(dest_fd,buffer,bytes_read);
-                close(source_fd);
-                close(dest_fd);
-                }
-        else{
-                logit(NSLOG_RUNTIME_ERROR,FALSE,"Error: Could not safely copy module '%s'.  The module will not be loaded: %s\n",mod->filename,strerror(errno));
-                return ERROR;
-                }
+        /* 2010-01-05 MF: Patch taken from OMD into Icinga Core
+	   OMD: Do not make a copy of the module, but directly load it. This prevents problems with a tmpfs which
+           is mounted as user. OMD users surely have no problems with modules overwritten by 'cp in runtime. Anyway,
+           the usual way to install files is 'install', which removes and recreates the file (just as tar, rpm and
+           many other installation-tools do). */
 
 	/* load the module (use the temp copy we just made) */
 #ifdef USE_LTDL
-	mod->module_handle=lt_dlopen(output_file);
+	mod->module_handle=lt_dlopen(mod->filename);
 #else
-	mod->module_handle=(void *)dlopen(output_file,RTLD_NOW|RTLD_GLOBAL);
+	mod->module_handle=(void *)dlopen(mod->filename,RTLD_NOW|RTLD_GLOBAL);
 #endif
 	if(mod->module_handle==NULL){
 
@@ -234,30 +220,16 @@ int neb_load_module(nebmodule *mod){
 		return ERROR;
 	        }
 
-	/* mark the module as being loaded */
-	mod->is_currently_loaded=TRUE;
-
-	/* delete the temp copy of the module we just created and loaded */
-	/* this will prevent other processes from overwriting the file (using the same inode), which would cause Icinga to crash */
-	/* the kernel will keep the deleted file in memory until we unload it */
-	/* NOTE: This *should* be portable to most Unices, but I've only tested it on Linux */
-	if(unlink(output_file)==-1){
-		logit(NSLOG_RUNTIME_ERROR,FALSE,"Error: Could not delete temporary file '%s' used for module '%s'.  The module will be unloaded: %s\n",output_file,mod->filename,strerror(errno));
-		neb_unload_module(mod,NEBMODULE_FORCE_UNLOAD,NEBMODULE_ERROR_API_VERSION);
-
-		my_free(output_file);
-		return ERROR;
-		}
-
-	my_free(output_file);
-
 	/* find module API version */
 #ifdef USE_LTDL
 	module_version_ptr=(int *)lt_dlsym(mod->module_handle,"__neb_api_version");
 #else
 	module_version_ptr=(int *)dlsym(mod->module_handle,"__neb_api_version");
 #endif
-	
+
+	/* mark the module as being loaded */
+	mod->is_currently_loaded=TRUE;
+
 	/* check the module API version */
 	if(module_version_ptr==NULL || ((*module_version_ptr)!=CURRENT_NEB_API_VERSION)){
 
@@ -581,12 +553,13 @@ int neb_make_callbacks(int callback_type, void *data){
 	log_debug_info(DEBUGL_EVENTBROKER,1,"Making callbacks (type %d)...\n",callback_type);
 
 	/* make the callbacks... */
-	for(temp_callback=neb_callback_list[callback_type];temp_callback!=NULL;temp_callback=next_callback){
+	for(temp_callback=neb_callback_list[callback_type];temp_callback;temp_callback=next_callback){
 		/* Save temp_callback->next because if the callback function de-registers itself temp_callback's */
 		/* pointer isn't guaranteed to be usable anymore (neb_deregister_callback will free() it) */
 		next_callback=temp_callback->next;
 		callbackfunc=temp_callback->callback_func;
 		cbresult=callbackfunc(callback_type,data);
+		temp_callback = next_callback;
 
 		total_callbacks++;
 		log_debug_info(DEBUGL_EVENTBROKER,2,"Callback #%d (type %d) return code = %d\n",total_callbacks,callback_type,cbresult);
