@@ -60,6 +60,7 @@ extern int  daemon_check;
 
 extern int enforce_comments_on_actions;
 extern int date_format;
+extern int use_logging;
 
 extern scheduled_downtime *scheduled_downtime_list;
 extern comment *comment_list;
@@ -2809,8 +2810,9 @@ int commit_command(int cmd){
 }
 
 int write_command_to_file(char *cmd){
-	char buffer[MAX_INPUT_BUFFER];
-	char ip_address[16];
+	char *buffer;
+	char *ip_address;
+	int dummy;
 	char *p;
 	FILE *fp;
 	struct stat statbuf;
@@ -2845,23 +2847,31 @@ int write_command_to_file(char *cmd){
 		return ERROR;
 	}
 
-	// get remote address
-	sprintf(ip_address,"%s",getenv("REMOTE_ADDR"));
+	if(use_logging==TRUE) {
+		// find closing bracket in cmd line
+		p = strchr(cmd, ']');
+		// if found get everything after closing bracket
+		if (p!=NULL)
+			p+=2;
+		else	// get complete command line
+			p=&cmd[0];
 
-	/* write command to cgi log */
-	sprintf(buffer, "EXTERNAL COMMAND: %s;%s;", current_authdata.username,(ip_address!=NULL)?ip_address:"unknown remote address");
-	p = index(cmd, ']');
-	if (p!=NULL)
-		p+=2;
-	else
-		p=&cmd[0];
-	strncat(buffer, p, sizeof(buffer)-strlen(buffer)-1);
-	write_to_cgi_log(buffer);
+		/* get remote address */
+		ip_address=strdup(getenv("REMOTE_ADDR"));
 
-	/* log comments if forced */
-	if(enforce_comments_on_actions==TRUE) {
-		sprintf(buffer, "FORCED COMMENT: %s;%s;%s;%s", current_authdata.username,(ip_address!=NULL)?ip_address:"unknown remote address",comment_author,comment_data);
+		/* construct log entry */
+		dummy=asprintf(&buffer, "EXTERNAL COMMAND: %s;%s;%s", current_authdata.username,(ip_address!=NULL)?ip_address:"unknown remote address",p);
+
+		/* write command to cgi log */
 		write_to_cgi_log(buffer);
+
+		/* log comments if forced */
+		if(enforce_comments_on_actions==TRUE) {
+			my_free(buffer);
+			dummy=asprintf(&buffer, "FORCED COMMENT: %s;%s;%s;%s", current_authdata.username,(ip_address!=NULL)?ip_address:"unknown remote address",comment_author,comment_data);
+			write_to_cgi_log(buffer);
+		}
+		my_free(buffer);
 	}
 
 	/* write the command to file */
