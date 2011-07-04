@@ -1,6 +1,7 @@
 etc/init.d
 etc/icinga
 etc/icinga/objects
+etc/icinga/modules
 usr/share/icinga/plugins/eventhandlers
 var/lib/icinga/rw
 var/lib/icinga/spool
