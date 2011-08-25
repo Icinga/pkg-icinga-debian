@@ -5,6 +5,8 @@ LDFLAGS=@LDFLAGS@ @LIBS@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 LOGDIR=@localstatedir@
+PHPAPILOGDIR=@PHPAPILOGDIR@
+PHPAPIEXTCMDDIR=@PHPAPIEXTCMDDIR@
 CFGDIR=@sysconfdir@
 BINDIR=@bindir@
 CGIDIR=@sbindir@
@@ -27,6 +29,8 @@ distclean: clean
 	rm -f Makefile subst
 	rm -f config.log config.status
 	rm -f contrib/ido2dbparser/Ido2dbParser.php
+	rm -f objects/debug/debugTargets/icingaApiFileDebugger.php
+	rm -f objects/command/IcingaApiCommandSendSsh.php
 
 devclean: distclean
 
@@ -39,7 +43,7 @@ install:
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/conversion
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/debug
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/debug/debugTargets
-	$(INSTALL) -m 775 $(INSTALL_OPTS_WEB) -d $(DESTDIR)$(HTMLDIR)/icinga-api/log
+	$(INSTALL) -m 775 $(INSTALL_OPTS_WEB) -d $(DESTDIR)$(PHPAPILOGDIR)
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/tests
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests/apiSearchDefinitions
@@ -66,7 +70,7 @@ install:
 	for file in objects/debug/debugTargets/*.php; \
 	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/debug/debugTargets; done
 	for file in log/*; \
-	do $(INSTALL) -m 664 $(INSTALL_OPTS_WEB) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/log; done
+	do $(INSTALL) -m 664 $(INSTALL_OPTS_WEB) $$file $(DESTDIR)$(PHPAPILOGDIR); done
 	for file in tests/*.php; \
 	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/tests; done
 	for file in tests/idoTests/*.php; \

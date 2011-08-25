@@ -78,6 +78,23 @@ AC_SUBST(web_group)
 INSTALL_OPTS_WEB="-o $web_user -g $web_group"
 AC_SUBST(INSTALL_OPTS_WEB)
 
+dnl Location of phpapi logging path
+PHPAPILOGDIR=no
+AC_ARG_WITH(phpapi-log-dir,AC_HELP_STRING([--with-phpapi-log-dir=<path>],[sets path to php api logging directory]),PHPAPILOGDIR=$withval,PHPAPILOGDIR=no)
+if test x$PHPAPILOGDIR = xno; then
+        PHPAPILOGDIR="/usr/local/icinga-api/log"
+fi
+AC_SUBST(PHPAPILOGDIR)
+
+
+dnl Location of phpapi icinga.cmd path
+PHPAPIEXTCMDDIR=no
+AC_ARG_WITH(phpapi-ext-cmd-dir,AC_HELP_STRING([--with-phpapi-ext-cmd-dir=<path>],[sets path to php api ext cmd directory]),PHPAPIEXTCMDDIR=$withval,PHPAPIEXTCMDDIR=no)
+if test x$PHPAPIEXTCMDDIR = xno; then
+        PHPAPIEXTCMDDIR="/usr/local/icinga/rw"
+fi
+AC_SUBST(PHPAPIEXTCMDDIR)
+
 
 
 CFLAGS=""
@@ -88,4 +105,5 @@ AC_CONFIG_FILES(Makefile subst)
 AC_OUTPUT
 
 perl subst contrib/ido2dbparser/Ido2dbParser.php
-
+perl subst objects/debug/debugTargets/icingaApiFileDebugger.php
+perl subst objects/command/IcingaApiCommandSendSsh.php

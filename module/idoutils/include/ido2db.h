@@ -13,10 +13,10 @@
 #include "utils.h"
 
 #define IDO2DB_NAME "IDO2DB"
-#define IDO2DB_DATE "06-29-2011"
-#define IDO2DB_VERSION "1.4.2"
+#define IDO2DB_DATE "08-24-2011"
+#define IDO2DB_VERSION "1.5.0"
 
-#define IDO2DB_SCHEMA_VERSION "1.4.0"
+#define IDO2DB_SCHEMA_VERSION "1.5.0"
 
 /*************** RDBMS headers *************/
 
@@ -78,6 +78,7 @@ typedef struct ido2db_dbobject_struct{
 	char *name1;
 	char *name2;
 	int object_type;
+	/* ToDo Change object_id to unsigned long long */
 	unsigned long object_id;
 	struct ido2db_dbobject_struct *nexthash;
         }ido2db_dbobject;
@@ -163,11 +164,8 @@ typedef struct ido2db_dbconninfo_struct{
 	OCI_Statement* oci_statement_statehistory;
 	OCI_Statement* oci_statement_instances;
 	OCI_Statement* oci_statement_conninfo;
-	/* well oh well */
+	/* retrieve object ids by name */
 	OCI_Statement* oci_statement_objects_select_name1_name2;
-	OCI_Statement* oci_statement_objects_select_name1_null_name2;
-	OCI_Statement* oci_statement_objects_select_name1_name2_null;
-	OCI_Statement* oci_statement_objects_select_name1_null_name2_null;
 	OCI_Statement* oci_statement_objects_select_cached;
 	/* update */
 	OCI_Statement* oci_statement_objects_update_inactive;
@@ -183,6 +181,7 @@ typedef struct ido2db_dbconninfo_struct{
 	/* select */
 	OCI_Statement* oci_statement_logentries_select;
 	OCI_Statement* oci_statement_instances_select;
+	OCI_Statement* oci_statement_sequence_select;
 
 	/* delete */
 	OCI_Statement* oci_statement_timedeventqueue_delete;
@@ -241,6 +240,7 @@ typedef struct ido2db_input_data_info_struct{
 	char *connect_type;
 	int current_input_section;
 	int current_input_data;
+	/* ToDo change *_processed  to unsigned long long */
 	unsigned long bytes_processed;
 	unsigned long lines_processed;
 	unsigned long entries_processed;
@@ -377,7 +377,9 @@ typedef struct ido2db_input_data_info_struct{
 
 #define DEFAULT_OCI_ERRORS_TO_SYSLOG 		1
 
-
+/************* oracle trace level defaults ************/
+#define DEFAULT_ORACLE_TRACE_LEVEL		4
+#define ORACLE_TRACE_LEVEL_OFF 			0
 /************* n worker threads ****************/
 
 #define IDO2DB_CLEANER_THREADS			1
@@ -426,6 +428,7 @@ int ido2db_add_input_data_item(ido2db_idi *,int,char *);
 int ido2db_add_input_data_mbuf(ido2db_idi *,int,int,char *);
 
 /* conversion */
+/* ToDo : Add convert_to_unsigned_long_long needed for *_processed fields */
 int ido2db_convert_standard_data_elements(ido2db_idi *,int *,int *,int *,struct timeval *);
 int ido2db_convert_string_to_int(char *,int *);
 int ido2db_convert_string_to_float(char *,float *);
