@@ -7,15 +7,18 @@
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga~/sample-config/icinga.cfg.in icinga/sample-config/icinga.cfg.in
 --- icinga~/sample-config/icinga.cfg.in	2011-08-25 08:47:25.000000000 +0200
-+++ icinga/sample-config/icinga.cfg.in	2011-08-25 11:29:19.000000000 +0200
-@@ -17,6 +17,14 @@
++++ icinga/sample-config/icinga.cfg.in	2011-08-25 13:42:10.000000000 +0200
+@@ -16,7 +16,17 @@
+ 
  log_file=@LOGDIR@/icinga.log
  
- 
++# Commands definitions
++cfg_file=/etc/icinga/commands.cfg
++
 +# Debian also defaults to using the check commands defined by the debian
 +# nagios-plugins package
 +cfg_dir=/etc/nagios-plugins/config
-+
+ 
 +# Debian uses by default a configuration directory where icinga-common,
 +# other packages and the local admin can dump or link configuration
 +# files into.
@@ -23,7 +26,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  # OBJECT CONFIGURATION FILE(S)
  # These are the object configuration files in which you define hosts,
-@@ -25,13 +33,11 @@
+@@ -25,13 +35,11 @@
  # if you wish (as shown below), or keep them all in a single config file.
  
  # You can specify individual object config files as shown below:
@@ -41,7 +44,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  # Definitions for monitoring a Windows machine
  #cfg_file=@sysconfdir@/objects/windows.cfg
-@@ -64,7 +70,7 @@
+@@ -64,7 +72,7 @@
  # directly) in order to prevent inconsistencies that can occur
  # when the config files are modified after Icinga starts.
  
@@ -50,7 +53,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -80,7 +86,7 @@
+@@ -80,7 +88,7 @@
  # Read the documentation section on optimizing Icinga to find our more
  # about how this feature works.
  
@@ -59,7 +62,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -142,7 +148,7 @@
+@@ -142,7 +150,7 @@
  # you will have to enable this.
  # Values: 0 = disable commands, 1 = enable commands
  
@@ -68,7 +71,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -171,6 +177,8 @@
+@@ -171,6 +179,8 @@
  # is running as (usually 'nobody').  Permissions should be set at the 
  # directory level instead of on the file, as the file is deleted every
  # time its contents are processed.
@@ -77,7 +80,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  command_file=@EXTCMDFILEDIR@/icinga.cmd
  
-@@ -203,7 +211,7 @@
+@@ -203,7 +213,7 @@
  # is created, used, and deleted throughout the time that Icinga is
  # running.
  
@@ -86,7 +89,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -251,7 +259,8 @@
+@@ -251,7 +261,8 @@
  #broker_module=/somewhere/module2.o arg1 arg2=3 debug=0
  
  # Uncomment this to enable idomod.o
@@ -96,7 +99,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1208,7 +1217,7 @@
+@@ -1208,7 +1219,7 @@
  #	strict-iso8601	(YYYY-MM-DDTHH:MM:SS)
  #
  
@@ -105,7 +108,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1336,8 +1345,8 @@
+@@ -1336,8 +1347,8 @@
  # using the $ADMINEMAIL$ and $ADMINPAGER$ macros in your notification
  # commands.
  
