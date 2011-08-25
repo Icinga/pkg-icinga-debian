@@ -1,3 +1,2 @@
 usr/sbin/icinga
 usr/sbin/icingastats
-usr/sbin/p1.pl usr/lib/icinga/
