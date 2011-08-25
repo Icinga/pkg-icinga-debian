@@ -130,10 +130,11 @@ extern "C" {
 /**************************** JAVASCRIPT NAMES ******************************/
 
 #define CHECKBOX_FUNCTIONS_JS   "checkbox_functions.js"
-#define JQUERY_MAIN_JS		"jquery-1.4.2.min.js"
+#define JQUERY_MAIN_JS		"jquery-1.6.2.min.js"
 #define JQUERY_DD_JS		"jquery.dd.js"
 #define SKINNYTIP_JS		"skinnytip.js"
-
+#define HIGHLIGHT_TABLE_JS	"htable.js"
+#define HIGHLIGHT_TABLE_JS_CODE	" onMouseOver=\"javascript:trackTableHighlight(event, '#BBC3BB');\" onMouseOut=\"javascript:highlightTableRow(0);\""
 
 /********************************* ICONS ************************************/
 
@@ -249,6 +250,15 @@ extern "C" {
 #define TAC_HEADER_EXECUTION_ICON	"hourglass-exclamation.png"
 #define TAC_HEADER_LATENCY_ICON		"hourglass-arrow.png"
 
+/* icons taken from http://findicons.com */
+#define EXPORT_CSV_ICON			"export_csv.png"
+#define EXPORT_CSV_ICON_ALT		"Export to CSV"
+#define EXPORT_JSON_ICON		"export_json.png"
+#define EXPORT_JSON_ICON_ALT		"Export to JSON"
+#define EXPORT_XML_ICON			"export_xml.png"
+#define EXPORT_XML_ICON_ALT		"Export to XML"
+#define EXPORT_LINK_ICON		"export_link.png"
+#define EXPORT_LINK_ICON_ALT		"Link to this page"
 
 /************************** PLUGIN RETURN VALUES ****************************/
 
@@ -284,6 +294,7 @@ extern "C" {
 #define IMAGE_CONTENT		2
 #define CSV_CONTENT		3
 #define JSON_CONTENT		4
+#define XML_CONTENT		5
 
 
 /************************ CSV OUTPUT CHARACTERS ****************************/
@@ -343,7 +354,7 @@ extern "C" {
 #define SORT_STATEDURATION		6
 #define SORT_NEXTCHECKTIME		7
 #define SORT_HOSTSTATUS			8
-
+#define SORT_HOSTURGENCY                9
 
 /****************** HOST AND SERVICE FILTER PROPERTIES  *******************/
 
@@ -367,6 +378,8 @@ extern "C" {
 #define HOST_ACTIVE_CHECK		131072
 #define HOST_HARD_STATE			262144
 #define HOST_SOFT_STATE			524288
+#define HOST_STATE_HANDLED		1048576
+#define HOST_NOT_ALL_CHECKS_DISABLED	2097152	
 
 
 #define SERVICE_SCHEDULED_DOWNTIME	1
@@ -389,6 +402,8 @@ extern "C" {
 #define SERVICE_ACTIVE_CHECK		131072
 #define SERVICE_HARD_STATE		262144
 #define SERVICE_SOFT_STATE		524288
+#define SERVICE_STATE_HANDLED		1048576
+#define SERVICE_NOT_ALL_CHECKS_DISABLED	2097152
 
 
 /****************************** SSI TYPES  ********************************/
@@ -487,40 +502,21 @@ extern "C" {
 
 /************************** TAC TITLES ****************************/
 
-#define TAC_TITLE_HOST_PENDING_ACTIVE			"Active Hosts PENDING"
-#define TAC_TITLE_HOST_PENDING_PASSIVE			"Passive Hosts PENDING"
-#define TAC_TITLE_HOST_PENDING_ALL			"All PENDING Hosts"
-#define TAC_TITLE_HOST_UP_ALL				"Hosts UP"
-#define TAC_TITLE_HOST_DOWN_UNACK_ACTIVE		"Active unacknowledged Hosts DOWN"
-#define TAC_TITLE_HOST_DOWN_UNACK_PASSIVE		"Passive unacknowledged Hosts DOWN"
-#define TAC_TITLE_HOST_DOWN_ACK				"Acknowledged Hosts DOWN"
-#define TAC_TITLE_HOST_DOWN_ALL				"All Hosts DOWN"
-#define TAC_TITLE_HOST_UNREACHABLE_UNACK_ACTIVE		"Active unacknowledged Hosts UNREACHABLE"
-#define TAC_TITLE_HOST_UNREACHABLE_UNACK_PASSIVE	"Passive unacknowledged Hosts UNREACHABLE"
-#define TAC_TITLE_HOST_UNREACHABLE_ACK			"Acknowledged Hosts UNREACHABLE"
-#define TAC_TITLE_HOST_UNREACHABLE_ALL			"All Hosts UNREACHABLE"
+#define TAC_TITLE_HOST_NOT_DISABLED			"Hosts Not Disabled"
+#define TAC_TITLE_HOST_DISABLED				"Hosts Disabled"
+#define TAC_TITLE_HOST_UNACK_HOSTS			"Unacknowledged Hosts"
+#define TAC_TITLE_HOST_ACK_HOSTS			"Acknowledged Hosts"
+#define TAC_TITLE_HOST_NON_URGENT			"Handled Hosts"
 #define TAC_TITLE_HOST_PROBLEM_ALL			"All Problem Hosts"
-#define TAC_TITLE_HOST_TOTAL_ALL			"Hosts TOTAL"
+#define TAC_TITLE_HOST_ALL				"All Hosts"
 
-#define TAC_TITLE_SVC_PENDING_ACTIVE			"Active Services PENDING"
-#define TAC_TITLE_SVC_PENDING_PASSIVE			"Passive Services PENDING"
-#define TAC_TITLE_SVC_PENDING_ALL			"All PENDING Services"
-#define TAC_TITLE_SVC_OK_ALL				"Services OK"
-#define TAC_TITLE_SVC_WARNING_UNACK_ACTIVE		"Active unacknowledged Services WARNING"
-#define TAC_TITLE_SVC_WARNING_UNACK_PASSIVE		"Passive unacknowledged Services WARNING"
-#define TAC_TITLE_SVC_WARNING_ACK			"Acknowledged Services WARNING"
-#define TAC_TITLE_SVC_WARNING_ALL			"All Services WARNING"
-#define TAC_TITLE_SVC_CRITICAL_UNACK_ACTIVE		"Active unacknowledged Services CRITICAL"
-#define TAC_TITLE_SVC_CRITICAL_UNACK_PASSIVE		"Passive unacknowledged Services CRITICAL"
-#define TAC_TITLE_SVC_CRITICAL_ACK			"Acknowledged Services CRITICAL"
-#define TAC_TITLE_SVC_CRITICAL_ALL			"All Services CRITICAL"
-#define TAC_TITLE_SVC_UNKNOWN_UNACK_ACTIVE		"Active unacknowledged Services UNKNOWN"
-#define TAC_TITLE_SVC_UNKNOWN_UNACK_PASSIVE		"Passive  unacknowledged Services UNKNOWN"
-#define TAC_TITLE_SVC_UNKNOWN_ACK			"Acknowledged Services UNKNOWN"
-#define TAC_TITLE_SVC_UNKNOWN_ALL			"All Services UNKNOWN"
+#define TAC_TITLE_SVC_NOT_DISABLED			"Services Not Disabled"
+#define TAC_TITLE_SVC_DISABLED				"Services Disabled"
+#define TAC_TITLE_SVC_UNACK_SERVICES			"Unacknowledged Services"
+#define TAC_TITLE_SVC_ACK_SERVICES			"Acknowledged Services"
+#define TAC_TITLE_SVC_NON_URGENT			"Handled Services"
 #define TAC_TITLE_SVC_PROBLEM_ALL			"All Problem Services"
-#define TAC_TITLE_SVC_NON_HOST_PROBLEM_ALL		"All Services exluding Problem Hosts"
-#define TAC_TITLE_SVC_TOTAL_ALL				"Services TOTAL"
+#define TAC_TITLE_SVC_ALL				"All Services"
 
 
 /************************** HTTP CHARSET ****************************/
@@ -529,13 +525,14 @@ extern "C" {
 
 /************************** JSON OUTPUT VERSION ************************/
 
-#define JSON_OUTPUT_VERSION "1.4.0"
+#define JSON_OUTPUT_VERSION "1.5.0"
 
 
 /************************** BUFFER  ***************************************/
 
 #define MAX_MESSAGE_BUFFER              4096
 
+#define MAX_CGI_INPUT_PAIRS		1000		/**< max number of cgi vars excepted */
 
 /************************** DISPLAY STYLE  ********************************/
 
@@ -652,7 +649,7 @@ int check_daemon_running(void);
 
 void print_generic_error_message(char *, char *, int);
 
-char *get_export_csv_link(char *);				/* function to make export csv link XSS save #1275 */
+void print_export_link(int, char *, char *);			/* print csv, json, xml and html export link */
 
 int write_to_cgi_log(char *);
 int rotate_cgi_log_file(void);

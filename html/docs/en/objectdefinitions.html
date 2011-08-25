@@ -4,7 +4,7 @@
 <title>Object Definitions</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.4 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.5 Documentation">
 <link rel="up" href="ch03.html" title="Chapter 3. Configuring Icinga">
 <link rel="prev" href="configobject.html" title="Object Configuration Overview">
 <link rel="next" href="customobjectvars.html" title="Custom Object Variables">
@@ -58,6 +58,15 @@
     </li>
 </ol></div>
 
+  <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>Please try to avoid special characters in the object definitions. Currently (Icinga &lt;= 1.5.0) there is a bug which
+    prevents forcing reschedules from the classic ui resulting in the error message that you are not authorized.</p></td></tr>
+</table></div>
+ 
   <p><a name="objectdefinitions-retention_notes"></a><span class="bold"><strong>Retention Notes</strong></span></p>
 
   <p>It is important to point out that several directives in host, service, and contact definitions may not be picked up by Icinga
@@ -116,13 +125,13 @@
 
   <p><a class="link" href="objectdefinitions.html#objectdefinitions-module">Module definitions</a></p>
 
-  <a class="indexterm" name="id3003657"></a>
+  <a class="indexterm" name="id2662088"></a>
 
-  <a class="indexterm" name="id3003695"></a>
+  <a class="indexterm" name="id2662124"></a>
 
   <div class="section" title="Host definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3003708"></a>Host definition</h3></div></div></div>
+<a name="id2662138"></a>Host definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-host"></a> <span class="bold"><strong>Host definition</strong></span></p>
@@ -800,14 +809,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3006357"></a>
+    <a class="indexterm" name="id2664770"></a>
 
-    <a class="indexterm" name="id3006366"></a>
+    <a class="indexterm" name="id2663129"></a>
   </div>
 
   <div class="section" title="Hostgroup Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3003710"></a>Hostgroup Definition</h3></div></div></div>
+<a name="id2662140"></a>Hostgroup Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-hostgroup"></a><span class="bold"><strong>Host Group Definition</strong></span></p>
@@ -943,14 +952,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3006895"></a>
+    <a class="indexterm" name="id2665330"></a>
 
-    <a class="indexterm" name="id3006903"></a>
+    <a class="indexterm" name="id2665338"></a>
   </div>
 
   <div class="section" title="Service Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3006380"></a>Service Definition</h3></div></div></div>
+<a name="id2664815"></a>Service Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-service"></a><span class="bold"><strong>Service Definition</strong></span></p>
@@ -1491,14 +1500,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3009266"></a>
+    <a class="indexterm" name="id2667687"></a>
 
-    <a class="indexterm" name="id3007797"></a>
+    <a class="indexterm" name="id2666236"></a>
   </div>
 
   <div class="section" title="Servicegroup Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3006920"></a>Servicegroup Definition</h3></div></div></div>
+<a name="id2665355"></a>Servicegroup Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-servicegroup"></a><span class="bold"><strong>Service Group Definition</strong></span></p>
@@ -1640,14 +1649,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3009827"></a>
+    <a class="indexterm" name="id2668177"></a>
 
-    <a class="indexterm" name="id3009835"></a>
+    <a class="indexterm" name="id2668267"></a>
   </div>
 
   <div class="section" title="Contact Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3009289"></a>Contact Definition</h3></div></div></div>
+<a name="id2667722"></a>Contact Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-contact"></a><span class="bold"><strong>Contact Definition</strong></span></p>
@@ -1911,14 +1920,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3011019"></a>
+    <a class="indexterm" name="id2669453"></a>
 
-    <a class="indexterm" name="id3011037"></a>
+    <a class="indexterm" name="id2669470"></a>
   </div>
 
   <div class="section" title="Contactgroup Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3009851"></a>Contactgroup Definition</h3></div></div></div>
+<a name="id2668284"></a>Contactgroup Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-contactgroup"></a><span class="bold"><strong>Contact Group Definition</strong></span></p>
@@ -2019,14 +2028,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3011378"></a>
+    <a class="indexterm" name="id2669860"></a>
 
-    <a class="indexterm" name="id3011431"></a>
+    <a class="indexterm" name="id2669867"></a>
   </div>
 
   <div class="section" title="Timeperiod Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3011050"></a>Timeperiod Definition</h3></div></div></div>
+<a name="id2669483"></a>Timeperiod Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-timeperiod"></a><span class="bold"><strong>Time Period Definition</strong></span></p>
@@ -2187,14 +2196,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3011896"></a>
+    <a class="indexterm" name="id2670277"></a>
 
-    <a class="indexterm" name="id3011904"></a>
+    <a class="indexterm" name="id2670336"></a>
   </div>
 
   <div class="section" title="Command Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3011446"></a>Command Definition</h3></div></div></div>
+<a name="id2669882"></a>Command Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-command"></a><span class="bold"><strong>Command Definition</strong></span></p>
@@ -2294,14 +2303,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3012294"></a>
+    <a class="indexterm" name="id2670725"></a>
 
-    <a class="indexterm" name="id3012311"></a>
+    <a class="indexterm" name="id2670742"></a>
   </div>
 
   <div class="section" title="Servicedependency Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3011917"></a>Servicedependency Definition</h3></div></div></div>
+<a name="id2670351"></a>Servicedependency Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-servicedependency"></a><span class="bold"><strong>Service Dependency Definition</strong></span></p>
@@ -2486,14 +2495,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3012384"></a>
+    <a class="indexterm" name="id2671596"></a>
 
-    <a class="indexterm" name="id3013169"></a>
+    <a class="indexterm" name="id2671604"></a>
   </div>
 
   <div class="section" title="Serviceescalation Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3012327"></a>Serviceescalation Definition</h3></div></div></div>
+<a name="id2670756"></a>Serviceescalation Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-serviceescalation"></a><span class="bold"><strong>Service Escalation Definition</strong></span></p>
@@ -2770,14 +2779,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3014328"></a>
+    <a class="indexterm" name="id2672763"></a>
 
-    <a class="indexterm" name="id3014336"></a>
+    <a class="indexterm" name="id2672768"></a>
   </div>
 
   <div class="section" title="Hostdependency Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3013183"></a>Hostdependency Definition</h3></div></div></div>
+<a name="id2671619"></a>Hostdependency Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-hostdependency"></a><span class="bold"><strong>Host Dependency Definition</strong></span></p>
@@ -2937,14 +2946,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3015034"></a>
+    <a class="indexterm" name="id2673470"></a>
 
-    <a class="indexterm" name="id3015032"></a>
+    <a class="indexterm" name="id2673487"></a>
   </div>
 
   <div class="section" title="Hostescalation Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3014350"></a>Hostescalation Definition</h3></div></div></div>
+<a name="id2672782"></a>Hostescalation Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-hostescalation"></a><span class="bold"><strong>Host Escalation Definition</strong></span></p>
@@ -3168,14 +3177,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3015940"></a>
+    <a class="indexterm" name="id2674353"></a>
 
-    <a class="indexterm" name="id3015946"></a>
+    <a class="indexterm" name="id2674381"></a>
   </div>
 
   <div class="section" title="Hostextinfo Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3015065"></a>Hostextinfo Definition</h3></div></div></div>
+<a name="id2673502"></a>Hostextinfo Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-hostextinfo"></a><span class="bold"><strong>Extended Host Information Definition</strong></span></p>
@@ -3413,14 +3422,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3016742"></a>
+    <a class="indexterm" name="id2675133"></a>
 
-    <a class="indexterm" name="id3016778"></a>
+    <a class="indexterm" name="id2675215"></a>
   </div>
 
   <div class="section" title="Serviceextinfo Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3015961"></a>Serviceextinfo Definition</h3></div></div></div>
+<a name="id2674397"></a>Serviceextinfo Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-serviceextinfo"></a><span class="bold"><strong>Extended Service Information
@@ -3579,14 +3588,14 @@
 </table>
     </div>
 
-    <a class="indexterm" name="id3017384"></a>
+    <a class="indexterm" name="id2675814"></a>
 
-    <a class="indexterm" name="id3017394"></a>
+    <a class="indexterm" name="id2675832"></a>
   </div>
 
   <div class="section" title="Module Definition">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id3016791"></a>Module Definition</h3></div></div></div>
+<a name="id2675226"></a>Module Definition</h3></div></div></div>
     
 
     <p><a name="objectdefinitions-module"></a><span class="bold"><strong>Module Definition</strong></span></p>
@@ -3716,7 +3725,7 @@
     </td></tr>
 </table></div>
 
-    <a class="indexterm" name="id3017782"></a>
+    <a class="indexterm" name="id2676220"></a>
   </div>
 
 </div>
