@@ -41,6 +41,7 @@ CONFIGURE	= CFLAGS='$(CFLAGS)' ./configure --prefix=/usr \
 				--host=$(DEB_HOST_GNU_TYPE) \
 				--with-htmurl=/icinga \
 				--with-cgiurl=/cgi-bin/icinga \
+				--with-p1-file-dir=/usr/lib/icinga/p1.pl \
 				--enable-idoutils
 
 clean: clean-patched unpatch
