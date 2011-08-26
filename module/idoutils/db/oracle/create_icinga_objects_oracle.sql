@@ -8,13 +8,13 @@
 --
 -- initial version: 2008-02-20 David Schmidt
 --                  2011-01-17 Michael Friedrich <michael.friedrich(at)univie.ac.at>
--- current version: 2011-05-03 Thomas Dressler
+-- current version: 2011-06-10 Thomas Dressler
 -- -- --------------------------------------------------------
 */
 -- -----------------------------------------
 -- set sqlplus parameter
 -- -----------------------------------------
-define ICINGA_VERSION=1.4.0
+define ICINGA_VERSION=1.5.0
 
 set sqlprompt "&&_USER@&&_CONNECT_IDENTIFIER SQL>"
 /* drop all objects  if called seperately*/
@@ -147,6 +147,86 @@ END;
 /
 
 
+-- --------------------------------------------------------
+-- set trace event procedure
+-- --------------------------------------------------------
+CREATE or replace procedure set_trace_event(trace_level integer) 
+/*
+requires explicit alter session privilege
+0 - pseudo level TRACE OFF
+1 – standard SQL trace no, no wait events, or bind variables.
+4 – Bind variables only
+8 – Wait events only
+12 – Bind Variables and Wait Events
+*/
+  IS
+    mysid integer;
+    text varchar2(200);
+    output varchar(200);
+    mypid integer;
+    myfile varchar2(255);
+    no_table EXCEPTION;
+    no_rights EXCEPTION;
+    invalid_name exception;
+    invalid_level Exception;
+  
+  PRAGMA EXCEPTION_INIT(no_table, -942);
+  PRAGMA EXCEPTION_INIT(invalid_name, -904);
+  PRAGMA EXCEPTION_INIT(no_rights, -1031);
+  BEGIN
+    mysid:=0;
+    mypid:=0;
+    /* get own sid */
+    select sys_context('USERENV','SID') into mysid from dual;
+    /*check trace level*/
+    if trace_level not in (0,1,4,8,12) then
+      raise invalid_level;
+    end if;
+    if trace_level=0 then
+      text:='ALTER SESSION SET EVENTS ''10046 TRACE NAME CONTEXT OFF''';
+      output:='Session trace event set off for SID '||to_char(mysid);
+    else
+      text:='ALTER SESSION SET EVENTS ''10046 TRACE NAME CONTEXT FOREVER, LEVEL '||to_char( trace_level)||' ''';
+      output:='Session trace event set to level '||to_char(trace_level)|| ' for SID '||to_char(mysid);
+    end if;
+    --dbms_output.put_line('Execute:'||text);
+    execute immediate text;   
+    dbms_output.put_line(output);
+    /* optional */
+    
+    if trace_level>0 then
+        text:='select p.spid  from v$process p,v$session s where s.paddr=p.addr and s.sid='||to_char(mysid);
+        --dbms_output.put_line('Execute:'||text);
+        EXECUTE IMMEDIATE text  into mypid;
+        output:='Tracefile:<user_dump_dest>/<inst>_ora_'||to_char(mypid)||'.trc';
+        text:='select p.tracefile from v$process p,v$session s where s.paddr=p.addr and s.sid='||to_char(mysid) ;
+        --dbms_output.put_line('Execute:'||text);
+        begin
+          EXECUTE IMMEDIATE text into myfile;
+          output:='Tracefile:'||myfile;
+        exception
+        when invalid_name then
+          null;
+          dbms_output.put_line('Tracefile field not available, guess name' );
+        when others then
+           dbms_output.put_line(sqlerrm);
+        end;
+        dbms_output.put_line(output);
+    end if;
+    exception
+    /* surpress errors*/
+    when no_rights then
+      /* ora 1031 indicates no alter session priviledge */
+      dbms_output.put_line('Error: No "Alter session" right');
+    when invalid_level then
+      dbms_output.put_line('Error:Only levels 0,1,4,8,12 are valid');
+    when no_table then
+        /* Ora 942 indicatin no access to v$view */
+        dbms_output.put_line('Warning:No access to v$session and/or v$process');
+    when others then
+        dbms_output.put_line('Warning:Cannot get ProcessID:'||sqlerrm);      
+END set_trace_event;
+/
 
 -- --------------------------------------------------------
 -- database table creation: icinga
@@ -285,8 +365,6 @@ CREATE TABLE configfilevariables (
 
 alter table configfilevariables add constraint configfilevar_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
-alter table configfilevariables add constraint configfilevar_uq  UNIQUE (instance_id,configfile_id,varname)
-	using index tablespace &&IDXTBS;
 
 -- --------------------------------------------------------
 
@@ -370,8 +448,6 @@ CREATE TABLE contactgroup_members (
 )tablespace &&DATATBS;
 
 alter table contactgroup_members add constraint contactgroup_members_pk PRIMARY KEY  (id)
-	using index tablespace &&IDXTBS;
-alter table contactgroup_members add CONSTRAINT contactgroup_members_uq UNIQUE (contactgroup_id,contact_object_id)
 	using index tablespace &&IDXTBS;
 
 -- --------------------------------------------------------
@@ -625,8 +701,11 @@ CREATE TABLE eventhandlers (
   early_timeout integer default 0 ,
   execution_time number default 0 ,
   return_code integer default 0 ,
-  output varchar2(2048)
-)tablespace &&DATATBS;
+  output varchar2(2048),
+  long_output clob
+)
+lob (long_output) store as eventhandlers_out_lob(tablespace &&LOBTBS)
+tablespace &&DATATBS;
 
 alter table eventhandlers add constraint eventhandlers_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
@@ -694,8 +773,6 @@ CREATE TABLE host_contactgroups (
 
 alter table host_contactgroups add constraint host_contactgroups_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
-alter table host_contactgroups add CONSTRAINT host_contactgroups_uq UNIQUE (host_id,contactgroup_object_id)
-	using index tablespace &&IDXTBS;
 
 -- --------------------------------------------------------
 
@@ -730,8 +807,6 @@ CREATE TABLE host_parenthosts (
 
 alter table host_parenthosts add constraint host_parenthosts_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
-alter table host_parenthosts add CONSTRAINT host_parenthosts_uq UNIQUE (host_id,parent_host_object_id)
-	using index tablespace &&IDXTBS;
 
 
 -- --------------------------------------------------------
@@ -764,8 +839,9 @@ CREATE TABLE hostchecks (
   return_code integer default 0 ,
   output varchar2(2048),
   long_output clob,
-  perfdata varchar2(2048))
+  perfdata clob)
   lob (long_output) store as hostchecks_out_lob(tablespace &&LOBTBS)
+  lob (perfdata) store as hostchecks_perf_lob(tablespace &&LOBTBS)
   tablespace &&DATATBS;
 
 alter table hostchecks add constraint hostchecks PRIMARY KEY  (id)
@@ -876,8 +952,6 @@ CREATE TABLE hostgroup_members (
 
 alter table hostgroup_members add constraint hostgroup_members_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
-alter table hostgroup_members add CONSTRAINT hostgroup_members_uq UNIQUE (hostgroup_id,host_object_id)
-	using index tablespace &&IDXTBS;
 
 
 -- --------------------------------------------------------
@@ -987,7 +1061,7 @@ CREATE TABLE hoststatus (
   status_update_time date default TO_DATE('1970-01-01 00:00:00','YYYY-MM-DD HH24:MI:SS') ,
   output varchar2(2048),
   long_output clob,
-  perfdata varchar2(2048),
+  perfdata clob,
   current_state integer default 0 ,
   has_been_checked integer default 0 ,
   should_be_scheduled integer default 0 ,
@@ -1030,6 +1104,7 @@ CREATE TABLE hoststatus (
   check_timeperiod_object_id integer default 0 
 )
 lob (long_output) store as hoststatus_out_lob(tablespace &&LOBTBS)
+lob (perfdata) store as hoststatus_perf_lob(tablespace &&LOBTBS)
 tablespace &&DATATBS;
 
 alter table hoststatus add constraint hoststatus_pk PRIMARY KEY  (id)
@@ -1068,10 +1143,12 @@ CREATE TABLE logentries (
   entry_time date default TO_DATE('1970-01-01 00:00:00','YYYY-MM-DD HH24:MI:SS') ,
   entry_time_usec integer default 0 ,
   logentry_type integer default 0 ,
-  logentry_data varchar2(2048),
+  logentry_data clob,
   realtime_data integer default 0 ,
   inferred_data_extracted integer default 0 
-)tablespace &&DATATBS;
+)
+lob (logentry_data) store as logentries_data_lob(tablespace &&LOBTBS)
+tablespace &&DATATBS;
 
 alter table logentries add constraint logentries_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
@@ -1209,8 +1286,6 @@ CREATE TABLE runtimevariables (
 
 alter table runtimevariables add constraint runtimevariables_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
-alter table runtimevariables add CONSTRAINT runtimevariables_uq UNIQUE (instance_id,varname)
-	using index tablespace &&IDXTBS;
 
 
 -- --------------------------------------------------------
@@ -1258,8 +1333,6 @@ CREATE TABLE service_contactgroups (
 )tablespace &&DATATBS;
 
 alter table service_contactgroups add constraint service_contactgroups_pk PRIMARY KEY  (id)
-	using index tablespace &&IDXTBS;
-alter table service_contactgroups add CONSTRAINT service_contactgroups_uq UNIQUE (service_id,contactgroup_object_id)
 	using index tablespace &&IDXTBS;
 
 
@@ -1310,9 +1383,10 @@ CREATE TABLE servicechecks (
   return_code integer default 0 ,
   output varchar2(2048),
   long_output clob,
-  perfdata varchar2(2048)
+  perfdata clob
 )
 lob (long_output) store as servicechecks_out_lob(tablespace &&LOBTBS)
+lob (perfdata) store as servicechecks_perf_lob(tablespace &&LOBTBS)
 tablespace &&DATATBS;
 
 alter table servicechecks add constraint servicechecks_pk PRIMARY KEY  (id)
@@ -1424,8 +1498,6 @@ CREATE TABLE servicegroup_members (
 )tablespace &&DATATBS;
 alter table servicegroup_members add constraint servicegroup_members_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
-alter table servicegroup_members add CONSTRAINT servicegroup_members_uq UNIQUE (servicegroup_id,service_object_id)
-	using index tablespace &&IDXTBS;
 
 
 -- --------------------------------------------------------
@@ -1526,7 +1598,7 @@ CREATE TABLE servicestatus (
   status_update_time date default TO_DATE('1970-01-01 00:00:00','YYYY-MM-DD HH24:MI:SS') ,
   output varchar2(2048),
   long_output clob,
-  perfdata varchar2(2048),
+  perfdata clob,
   current_state integer default 0 ,
   has_been_checked integer default 0 ,
   should_be_scheduled integer default 0 ,
@@ -1570,6 +1642,7 @@ CREATE TABLE servicestatus (
   check_timeperiod_object_id integer default 0 
 )
 lob (long_output) store as servicestatus_out_lob(tablespace &&LOBTBS)
+lob (perfdata) store as servicestatus_perf_lob(tablespace &&LOBTBS)
 tablespace &&DATATBS;
 
 alter table servicestatus add constraint servicestatus_pk PRIMARY KEY  (id)
@@ -1699,8 +1772,6 @@ CREATE TABLE timeperiod_timeranges (
   end_sec integer default 0 
 )tablespace &&DATATBS;
 alter table timeperiod_timeranges add constraint timeperiod_timeranges_pk PRIMARY KEY  (id)
-	using index tablespace &&IDXTBS;
-alter table timeperiod_timeranges add CONSTRAINT timeperiod_timeranges_uq UNIQUE (timeperiod_id,day,start_sec,end_sec)
 	using index tablespace &&IDXTBS;
 
 

@@ -1,39 +1,132 @@
 #######################
-Icinga 1.4.x Change Log
+Icinga 1.5.x Change Log
 #######################
 
-1.4.2 - 29/06/2011
+Thanks to all contributers, testers and developers. Please read AUTHORS and THANKS for a detailed list :-)
+
+1.5.0 - 24/08/2011
 
 ENHANCEMENTS
-* classic ui: add a check for status data freshness into cgis #1667
+* core: do not update host/service status during scheduler initialization on startup (idoutils already know that) #1741
+
+* classic ui: Added option to suppress coloring of hosts/services in maintenance #992
+* classic ui: Added option to show partial hostgroups #1013
+* classic ui: changing drop down menu in status.cgi to jquery-dd #1644
+* classic ui: default downtime duration is configurable in cgi.cfg #1642
+* classic ui: Added ability to combine host and service in one CGI parameter (Aaron Brady) #1633
+* classic ui: Changed tac.cgi to distinct between active, passive and disabled properly #1120
+* classic ui: Add log entries to json output of avail.cgi #1659
+* classic ui: add host urgency sort order in status.cgi (Jochen Bern) #1452
+* classic ui: add author to comment tooltips in status.cgi #1691
+* classic ui: reduce the header part of status.cgi #1507
+	** &nostatusheader used in frameset menu, info table is smaller
+* classic ui: authorization for * in cgi.cfg via contactgroups (Stephen Gran) #1752
+	** authorized_contactgroup_for_all_hosts, authorized_contactgroup_for_all_services, authorized_contactgroup_for_system_information,
+	** authorized_contactgroup_for_configuration_information, authorized_contactgroup_for_all_host_commands,
+	** authorized_contactgroup_for_all_service_commands, authorized_contactgroup_for_system_commands, authorized_contactgroup_for_read_only
+* classic ui: add xml output to avail.cgi for direct source of jasper reports #1712
+* classic ui: add combined view of all unhandled hosts and services including the multiple command dropdowns for each (initial idea by Thruk) #1328
+* classic ui: add "link to this page" to all cgis #1783
+* classic ui: add export icons instead of "export to..." text on cgis supporting it (csv, json, xml, link) #1789
+* classic ui: add highlight_table_rows to status.cgi, can be disabled via cfg option #1777
+
+* idoutils: add update-version-schema for updating the idoutils db schema versions automagically, independant of update-version #1616
+* idoutils: dump multiline mbufs as bulk inserts #1110
+	** configfile/runtime variables, host contacts/parents, service contacts, timeranges, host/service/contactgroup memebers
+	** oracle uses bulk arrays binded on prepared insert statements
+* idoutils: remove host and service checks from default data_processing_options as they are not used by icinga-web #1757
+* idoutils: Add logging of bind variable value for oracle #1314
+* idoutils: oracle change perfdata columns to clob #1749
+* idoutils: oracle: change logentry_data type to clob #1750
+
+* install: add --with-p1-file-dir allowing custom location (default is now $libdir instead of $bindir) #1569
+	** only when embedded perl is enabled
+	** affects (new_)mini_epn and icinga.cfg
+* install: add configure option to set log dir and cgi log dir and phpapi log dir #1715
+	** e.g. --with-phpapi-log-dir=/var/log/icinga/api --with-log-dir=/var/log/icinga --with-cgi-log-dir=/var/log/icinga/gui
+	** apache user permissions
+* install: after daemon stop in init script, retry and then issue a kill -9 on the daemon #1747
+
+* config: add easy-to-use config examples and scripts for notifications #1697
+	** advanced notify-by-email
+	** notify-by-jabber, notify-by-twitter examples
+* config: add check_dummy command definitions as example to commands.cfg #1719
+* config: tune icinga.cfg for performance, enable_environment_macros=0, enable_embedded_perl=0 by default #1635
+
+* style: add new ident tools #1617
 
 FIXES
-* core: fix freshness_threshold problem in host checks by using check_interval in HARD or OK state, else retry_interval (like service checks) #1331
-
-* classic ui: re-fix xss vulnerability and string escaping for command expansion #1605 #1624
-* classic ui: remove sidebar.html inclusion in index.html causing troubles on reload #1632
-* classic ui: fixed: User can execute host/servicegroup commands even if not authorized for (Sven Nierlein) #1679
-* classic ui: fixed: plugin_output_short didn't get checked properly and caused segfault in status.cgi #1673
-
-* idoutils: do not update start_time of already started downtimes #1658
-* idoutils: fix started downtime update for table scheduleddowntime in oracle #1658
-
-* install: fix make install-idoutils overwrites sample - adding idoutils.cfg-sample instead #1625
-
-
-1.4.1 - 08/06/2011
-
-ENHANCEMENTS
-
-FIXES
+* core: remove duplicated unlinks for check result files with multiple results (Ton Voon) #1615
 * core: fix retain status file over an init script reload #1579
+* core: fix freshness_threshold problem in host checks by using check_interval in HARD or OK state, else retry_interval (like service checks) (Andreas Ericsson) #1331
+* core: make command_check_interval=-1 equal to 5s instead of 60s, targetting as often as possible (Andreas Ericsson) #1651
+* core: fix problem where acknowledgements were getting reset when a hard state change occurred (Ton Voon) #1618
+* core: avoid using global macros when sending notifications (Andreas Ericsson) #1653
+* core: avoid sending notifications to the wrong contact (Andreas Ericsson) #1654
+* core: try to avoid a single check being reaped multiple times (Andreas Ericsson) #1652
+* core: Fix typo in configure.in preventing compilation on FreeBSD (thanks sag47) #1732
+* core: plug memory leak with display_name on start/reload #1841
+* core: fix content of macro $NOTIFICATIONRECIPIENTS$ grows and grows #1695
 
 * classic ui: fix cross site scripting vulnerability in config.cgi on config expander arguments #1605
 * classic ui: better handling of writing to cgi.log in cmd.cgi #1161
-* classic ui: fixing tac.cgi header problems with counting and adding pending and descritptions #1505 #1506 #1508
+* classic ui: fixing tac.cgi header problems with counting and adding pending and descriptions #1505 #1506 #1508
 * classic ui: corrected behaviour of pending states in tac header #1508
+* classic ui: fix counting for services in tac header is wrong #1508
+* classic ui: remove sidebar.html inclusion in index.html causing troubles on reload #1632
+* classic ui: fixed: User can execute host/servicegroup commands even if not authorized for (Sven Nierlein) #1679
+* classic ui: fixed: plugin_output_short didn't get checked properly and caused segfault in status.cgi #1673
+* classic ui: fixed: submitting non existent host/service on avail.cgi causes segfault #1700
+* classic ui: fixed: Alert History State filter for HARD/SOFT state not working (Lennart Betz) #1722
+* classic ui: fixed: jquery 1.5.2 triggers memory leak in IE #1740
+* classic ui: fixed: ssi files don't get included if icinga path contains uppercase letters #1716
+
+* idoutils: do not update start_time of already started downtimes #1658
+* idoutils: fix started downtime update for table scheduleddowntime in oracle #1658
+* idoutils: remove leftover socket file in init-script startup, e.g. from a system crash #1745
+* idoutils: simplify ido2db_get_object_id oracle function #1655
+* idoutils: fix oracle long_output column in eventhandlers missed #1748
+* idoutils: fix oracle ocilib 3.9.2+ fixes causing wrong 4byte->8Byte casts #1751
+* idoutils: fix ORA-00600 while executing merge #1362
 
 * install: fix event handlers cmd file location in contrib #1501
+* install: icinga.spec should not provide nagios version #1562
+* install: don't include git meta data in upstream tarballs #1562
+* install: fix make install-idoutils overwrites sample - adding idoutils.cfg-sample instead #1625
+* install: fix icinga.cmd and log dir replacement in icinga-api aubmodule #1573 #1715
+* install: fix DEBUG_LOG_PATH in p1.pl, will now be using configurable log-dir #1715
+* install: do not overwrite config in make fullinstall #1754
+* install: fix configure should tell if ocilib or libdbi if idoutils enabled in summary #1780
+
+* config: deprecate log_external_commands_user #1619
+
+CHANGES
+https://wiki.icinga.org/display/Dev/Changes
+
+* location of p1.pl is now default in %{_libdir}/icinga instead of %{_bindir}/icinga: configure flag for pkg --with-p1-file-dir=
+* new notification examples: contrib/notifications/* sample-config/template-object/notifications.cfg
+* eventhandlers got their proper icinga.cmd location through configure
+* p1.pl.in will be created from configure into p1.pl
+* module/idoutils/config/idoutils.cfg-sample is now installed instead of idoutils.cfg
+* add log dir options for core, cgi and phpapi log
+	** --with-log-dir=%{logdir} --with-cgi-log-dir=%{logdir}/gui --with-phpapi-log-dir=%{logdir}/api
+	** p1.pl DEBUG_LOG_PATH is replaced
+	** icinga.cfg logdir, archive, debug_file uses &nbsp;(LOGDIR) ac macro
+	** cgi.cfg cgi logfir, archive uses &nbsp;(CGILOGDIR) ac macro
+	** phpapi log and icinga.cmd target are overwritten by core configure in their places
+	** ownership of cgi and api log dirs is apache user and group
+* cgi.cfg config changes
+	** cgi_log_file=@CGILOGDIR@/icinga-cgi.log cgi_log_archive_path=@CGILOGDIR@
+	** show_partial_hostgroups=0 default_downtime_duration=7200 suppress_maintenance_downtime=0
+        ** authorized_contactgroup_for_all_hosts, authorized_contactgroup_for_all_services, authorized_contactgroup_for_system_information,
+        ** authorized_contactgroup_for_configuration_information, authorized_contactgroup_for_all_host_commands,
+        ** authorized_contactgroup_for_all_service_commands, authorized_contactgroup_for_system_commands, authorized_contactgroup_for_read_only
+	** highlight_table_rows
+* icinga.cfg config changes
+	** log_archive_path=@LOGDIR@/archives p1_file=@P1FILELOC@/p1.pl debug_file=@LOGDIR@/icinga.debug
+	** enable_embedded_perl=0 enable_environment_macros=0
+* idomod.cfg config changes
+	** data_processing_options=67108669
 
 
 1.4.0 - 11/05/2011
@@ -80,6 +173,8 @@ ENHANCEMENTS
 FIXES
 * core: fix flexible downtime on service hard state change doesn't get triggered/activated #1128
 * core: fix timeperiods daylight saving time problem (Luca Di Stefano) #1370
+* core: do not update host/service status during scheduler initialization on startup #1741
+* core: do not dump retained host state states to neb modules, re-enable via dump_retained_host_service_states_to_neb #1742
 
 * classic ui: Fixing tooltip's in status.cgi, not showing messages with carriage return #1244
 * classic ui: fixed csv export link to make it XSS save (IE) #1275

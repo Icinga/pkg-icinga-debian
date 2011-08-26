@@ -28,6 +28,8 @@ while ($f = shift @ARGV) {
 		s|\@datadir\@|@datarootdir@|g;
 		s|\@sbindir\@|@sbindir@|g;
 		s|\@bindir\@|@bindir@|g;
+		s|\@PHPAPILOGDIR\@|@PHPAPILOGDIR@|g;
+		s|\@PHPAPIEXTCMDDIR\@|@PHPAPIEXTCMDDIR@|g;
 		s|\$\{exec_prefix\}|@exec_prefix@|g; # must be next to last
 		s|\$\{prefix\}|@prefix@|g; # must be last
 		print OUT $_;
