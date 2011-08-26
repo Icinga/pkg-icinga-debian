@@ -7,7 +7,7 @@
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/sample-config/icinga.cfg.in pkg-icinga/sample-config/icinga.cfg.in
 --- pkg-icinga~/sample-config/icinga.cfg.in	2011-08-25 19:28:09.000000000 +0200
-+++ pkg-icinga/sample-config/icinga.cfg.in	2011-08-26 21:23:26.043107636 +0200
++++ pkg-icinga/sample-config/icinga.cfg.in	2011-08-26 21:39:54.039132934 +0200
 @@ -14,9 +14,19 @@
  # for historical purposes.  This should be the first option specified
  # in the config file!!!
@@ -129,6 +129,15 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
 -p1_file=@P1FILELOC@/p1.pl
 +p1_file=/usr/lib/icinga/p1.pl
+ 
+ 
+ 
+@@ -1252,7 +1263,7 @@
+ # Only enable this setting when you really know what you are doing!
+ # Values: 0 = disable interpreter, 1 = enable interpreter
+ 
+-enable_embedded_perl=0
++enable_embedded_perl=1
  
  
  
