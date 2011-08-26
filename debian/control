@@ -26,12 +26,12 @@ Description: host and network monitoring system - support files
  .
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port;
-  * plugin interface to allow for user-developed service checks;
+    TCP port
+  * plugin interface to allow for user-developed service checks
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .
@@ -48,12 +48,12 @@ Description: host and network monitoring system - CGI scripts
  .
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port;
-  * plugin interface to allow for user-developed service checks;
+    TCP port
+  * plugin interface to allow for user-developed service checks
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .
@@ -70,12 +70,12 @@ Description: host and network monitoring system - icinga-dataobjects support
  .
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port;
-  * plugin interface to allow for user-developed service checks;
+    TCP port
+  * plugin interface to allow for user-developed service checks
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .
@@ -86,7 +86,7 @@ Package: icinga
 Architecture: any
 Depends: icinga-core (= ${binary:Version}), icinga-cgi (= ${binary:Version}), ${misc:Depends}
 Suggests: nagios-nrpe-plugin
-Description: monitoring and host and network monitoring system - metapackage
+Description: host and network monitoring system - metapackage
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
  understand and modify to fit any need.
@@ -94,11 +94,11 @@ Description: monitoring and host and network monitoring system - metapackage
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
     TCP port;
-  * plugin interface to allow for user-developed service checks;
+  * plugin interface to allow for user-developed service checks
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .
@@ -117,12 +117,12 @@ Description: host and network monitoring system - core files
  .
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port;
+    TCP port
   * plugin interface to allow for user-developed service checks;
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .
@@ -139,12 +139,12 @@ Description: host and network monitoring system - documentation
  .
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port;
+    TCP port
   * plugin interface to allow for user-developed service checks;
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .
@@ -161,12 +161,12 @@ Description: host and network monitoring system - PHP API
  .
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port;
+    TCP port
   * plugin interface to allow for user-developed service checks;
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .
@@ -185,12 +185,12 @@ Description: host and network monitoring system - debug files
  .
  Features include:
   * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port;
+    TCP port
   * plugin interface to allow for user-developed service checks;
   * contact notifications when problems occur and get resolved (via
     email, pager, or user-defined method)
   * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events);
+    be run during service or host events)
   * web output: current status, notifications, problem history, log
     file, etc.
  .

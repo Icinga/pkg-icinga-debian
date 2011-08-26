@@ -1,3 +1,13 @@
+icinga (1.5.0-1) unstable; urgency=low
+
+  * [06735ad] Imported Upstream version 1.5.0 (Closes: #639271)
+  * [63670cd] Update 51_commands.cfg-debianize.dpatch
+  * [c721a5e] Refresh 52_icinga.cfg-debianize.dpatch
+  * [13699c0] Remove 60_fix_p1.pl_patch_mini_epn (now handled in configure)
+  * [818764e] Improve description (Closes: #628204)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 26 Aug 2011 08:20:15 +0200
+
 icinga (1.4.2-1~artax1) artax; urgency=low
 
   * Uploading to artax, remaining changes:
@@ -10,6 +20,9 @@ icinga (1.4.2-1~artax1) artax; urgency=low
 icinga (1.4.2-1) unstable; urgency=low
 
   * New upstream version 1.4.2
+    - Fix xss bugs (Closes: #629131)
+      These issues are liste at mitre as:
+      CVE-2011-2179 and CVE-2011-1523
 
  -- Alexander Wirt <formorer@debian.org>  Thu, 30 Jun 2011 10:03:39 +0200
 
