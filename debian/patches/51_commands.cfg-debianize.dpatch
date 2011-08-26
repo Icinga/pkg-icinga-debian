@@ -5,9 +5,9 @@
 ## DP: debianize command.cfg 
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-1.0.2~pre20100626~/sample-config/template-object/commands.cfg.in icinga-1.0.2~pre20100626/sample-config/template-object/commands.cfg.in
---- icinga-1.0.2~pre20100626~/sample-config/template-object/commands.cfg.in	2010-06-25 13:12:03.000000000 +0200
-+++ icinga-1.0.2~pre20100626/sample-config/template-object/commands.cfg.in	2010-06-26 11:02:03.026527280 +0200
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga~/sample-config/template-object/commands.cfg.in icinga/sample-config/template-object/commands.cfg.in
+--- icinga~/sample-config/template-object/commands.cfg.in	2011-08-25 08:47:20.000000000 +0200
++++ icinga/sample-config/template-object/commands.cfg.in	2011-08-25 09:55:15.000000000 +0200
 @@ -1,24 +1,19 @@
  ###############################################################################
  # COMMANDS.CFG - SAMPLE COMMAND DEFINITIONS FOR ICINGA
@@ -33,11 +33,10 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  ################################################################################
  
  
-@@ -34,191 +29,8 @@
- 	command_line	/usr/bin/printf "%b" "***** Icinga *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$" | @MAIL_PROG@ -s "** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **" $CONTACTEMAIL$
+@@ -35,197 +30,8 @@
  	}
  
--
+ 
 -
 -
 -
@@ -210,6 +209,13 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 -	command_name	check_nt
 -	command_line	$USER1$/check_nt -H $HOSTADDRESS$ -p 12489 -v $ARG1$ $ARG2$
 -	}
+-
+-
+-# 'check_dummy' command definition
+-define command{
+-        command_name    check_dummy
+-        command_line    $USER1$/check_dummy $ARG1$
+-        }
 -
 -
 -

@@ -2,6 +2,5 @@
 51_commands.cfg-debianize.dpatch
 52_icinga.cfg-debianize.dpatch
 55_idoutils-debianize
-60_fix_p1.pl_patch_mini_epn.dpatch
 70_fix_eventhandler_paths.dpatch
 96_add_mootols_more.dpatch
