@@ -1,3 +1,12 @@
+icinga (1.5.0-1~artax1) artax; urgency=low
+
+  * Uploading to artax, remaining changes:
+    - Updating maintainer and uploaders fields.
+    - Updating vcs fields.
+    - Adding bugs field.
+
+ -- Daniel Baumann <daniel.baumann@progress-linux.org>  Fri, 26 Aug 2011 10:35:21 +0200
+
 icinga (1.5.0-1) unstable; urgency=low
 
   * [06735ad] Imported Upstream version 1.5.0 (Closes: #639271)
