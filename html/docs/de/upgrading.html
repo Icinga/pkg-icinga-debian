@@ -4,7 +4,7 @@
 <title>Icinga aktualisieren</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.4 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.5 Dokumentation">
 <link rel="up" href="ch02.html" title="Kapitel 2. Los geht's">
 <link rel="prev" href="howtos.html" title="Links zu weiteren Howtos">
 <link rel="next" href="upgrading_idoutils.html" title="IDOUtils-Datenbank aktualisieren">
@@ -149,12 +149,12 @@
 
   <p>Holen Sie sich das Quellcode-Archiv der letzten Icinga-Version (besuchen Sie <a class="link" href="http://www.icinga.org//" target="_top">http://www.icinga.org/</a> für den Verweis auf die letzte Version).</p>
 
-  <pre class="screen"> #&gt; wget http://osdn.dl.sourceforge.net/sourceforge/icinga/icinga-<span class="emphasis"><em>1.4</em></span>.tar.gz</pre>
+  <pre class="screen"> #&gt; wget http://osdn.dl.sourceforge.net/sourceforge/icinga/icinga-<span class="emphasis"><em>1.5</em></span>.tar.gz</pre>
 
   <p>Entpacken Sie das Quellcode-Archiv.</p>
 
-  <pre class="screen"> #&gt; tar xzf icinga-<span class="emphasis"><em>1.4</em></span>.tar.gz
- #&gt; cd icinga-<span class="emphasis"><em>1.4</em></span> </pre>
+  <pre class="screen"> #&gt; tar xzf icinga-<span class="emphasis"><em>1.5</em></span>.tar.gz
+ #&gt; cd icinga-<span class="emphasis"><em>1.5</em></span> </pre>
 
   <p>Starten Sie das Icinga-configure-Script mit den Optionen, die Sie beim <code class="code">./configure</code> von Nagios benutzt
   haben. Den Aufruf finden Sie in der Datei <code class="filename">config.log</code>. Beispiel:</p>
@@ -172,6 +172,16 @@
  #&gt; make install
  #&gt; make install-cgis
  #&gt; make install-init</pre>
+  <p>oder einfach</p>
+<pre class="screen"> #&gt; make fullinstall</pre>
+  <div class="important" title="Wichtig" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Wichtig]" src="../images/important.png"></td>
+<th align="left">Wichtig</th>
+</tr>
+<tr><td align="left" valign="top"><p>Erst ab Icinga 1.5.0 ist <code class="literal">make install-config</code> NICHT mehr in <code class="literal">make fullinstall </code>
+  enthalten, um ein versehentliches Überschreiben der Konfigurationsdateien zu verhindern.</p></td></tr>
+</table></div>
 
   <p>Kopieren Sie Ihre Konfigurationsdateien nach <code class="filename">/usr/local/icinga/etc</code> bzw.
   <code class="filename">/usr/local/icinga/etc/object</code>. Vor dem Start von Icinga müssen Sie noch ein paar Dinge anpassen:</p>
@@ -232,9 +242,9 @@
 
   <p><a name="upgrading-nagios2x"></a> <span class="bold"><strong>Upgrade von Nagios 2.x</strong></span></p>
 
-  <p>Es sollte nicht allzu schwierig sein, von Nagios 2.x auf Icinga 1.4 zu aktualisieren. Die Aktualisierung ist
+  <p>Es sollte nicht allzu schwierig sein, von Nagios 2.x auf Icinga 1.5 zu aktualisieren. Die Aktualisierung ist
   im Wesentlichen die gleiche wie die von bestehenden Nagios 3.x-Versionen. Allerdings müssen Sie Ihre Konfigurationsdateien ein
-  wenig ändern, damit sie mit Icinga 1.4 funktionieren:</p>
+  wenig ändern, damit sie mit Icinga 1.5 funktionieren:</p>
 
   <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
@@ -273,7 +283,7 @@
     </li>
 </ul></div>
 
-  <p>Stellen Sie außerdem sicher, dass Sie den "<a class="link" href="whatsnew.html" title="Was gibt es Neues in Icinga 1.4">Was gibt's Neues</a>"-Abschnitt in der Dokumentation lesen.
+  <p>Stellen Sie außerdem sicher, dass Sie den "<a class="link" href="whatsnew.html" title="What's New in Icinga 1.5">Was gibt's Neues</a>"-Abschnitt in der Dokumentation lesen.
   Er beschreibt all die Änderungen am Icinga-Code.</p>
 
   <p><a name="upgrading-rpm"></a> <span class="bold"><strong>Aktualisierung einer RPM-Installation</strong></span></p>
@@ -340,17 +350,17 @@
   Stellen Sie sicher, dass Sie all Ihre kritischen Nagios-Dateien gesichert haben, bevor Sie das Original-RPM- oder APT-Paket
   entfernen, so dass Sie darauf zurückgreifen können, wenn Sie auf Probleme stoßen.</p>
 
-  <a class="indexterm" name="id4035961"></a>
+  <a class="indexterm" name="id3276672"></a>
 
-  <a class="indexterm" name="id4035970"></a>
+  <a class="indexterm" name="id3276681"></a>
 
-  <a class="indexterm" name="id4035985"></a>
+  <a class="indexterm" name="id3276695"></a>
 
-  <a class="indexterm" name="id4035999"></a>
+  <a class="indexterm" name="id3276709"></a>
 
-  <a class="indexterm" name="id4036010"></a>
+  <a class="indexterm" name="id3276722"></a>
 
-  <a class="indexterm" name="id4036025"></a>
+  <a class="indexterm" name="id3276736"></a>
 </div>
 <div class="navfooter">
 <hr>

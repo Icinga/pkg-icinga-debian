@@ -1544,8 +1544,8 @@
     that have been read from the external command file by a worker thread, but have not yet been processed by the main thread of the
     &name-icinga; deamon. Each slot can hold one external command, so this option essentially determines how many commands can be buffered.
     For installations where you process a large number of passive checks (e.g. <link linkend="distributed">distributed setups</link>), you
-    may need to increase this number. You should consider using MRTG to graph &name-icinga;'s usage of external command buffers. You can
-    read more on how to configure graphing <link linkend="mrtggraphs">here</link>.</para>
+    may need to increase this number. You should consider using &name-pnp; to graph &name-icinga;'s usage of external command buffers. You can
+    read more on how to configure graphing <link linkend="perfgraphs">here</link>.</para>
   </note>
 
   <para><anchor xml:id="configmain-Update-Checks" /><emphasis role="bold">Update Checks</emphasis></para>
@@ -2430,6 +2430,8 @@
   <para>This option allows you to enable the logging of the current user of external commands. The syntax will be CMD;username;cmdargs
   instead of CMD;cmdargs written to the logs, if the external application sends that correctly. Since this will break compatibility with
   existing log parsers, it is intentionally disabled by default.</para>
+  <note><para>This option is deprecated starting with &name-icinga; 1.4 because you can use the directive
+  <link linkend="configcgi-use_logging">use_logging</link> to enable logging of CGI commands.</para></note>
 
   <itemizedlist>
     <listitem>
@@ -3635,13 +3637,16 @@
 
   <itemizedlist>
     <listitem>
-      <para>0 = Don't make macros available as environment variables</para>
+      <para>0 = Don't make macros available as environment variables (default)</para>
     </listitem>
 
     <listitem>
-      <para>1 = Make macros available as environment variables (default)</para>
+      <para>1 = Make macros available as environment variables</para>
     </listitem>
   </itemizedlist>
+
+  <note><para>The default has changed starting with &name-icinga; 1.5. Prior to this version the directive has been enabled, now it is
+  <emphasis>disabled</emphasis>.</para></note>
 
   <para><anchor xml:id="configmain-enable_flap_detection" /> <emphasis role="bold">Flap Detection Option</emphasis></para>
 
@@ -3682,7 +3687,7 @@
     retention is active (and the <link linkend="configmain-use_retained_program_state">use_retained_program_state</link> is enabled), you'll
     have to use the appropriate <link linkend="extcommands">external command</link> or change it via the web interface.</para>
   </note>
-
+ 
   <itemizedlist>
     <listitem>
       <para>0 = Don't enable flap detection (default)</para>
@@ -4960,6 +4965,9 @@
   <para>This setting determines whether or not the embedded Perl interpreter is enabled on a program-wide basis. &name-icinga; must be
   compiled with support for embedded Perl for this option to have an effect. More information on the embedded Perl interpreter can be found
   <link linkend="embeddedperl">here</link>.</para>
+
+  <note><para>The default has changed starting with &name-icinga; 1.5. Prior to this version the directive has been enabled, now it is
+  <emphasis>disabled</emphasis>.</para></note>
 
   <para><anchor xml:id="configmain-use_embedded_perl_implicitly" /> <emphasis role="bold">Embedded Perl Implicit Use
   Option</emphasis></para>

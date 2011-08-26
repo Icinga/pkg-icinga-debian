@@ -63,8 +63,8 @@ class IcingaApiSearchIdoOci8
 			${if_table:hgm:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.id}
 			${if_table:hg,hgm:inner join ${TABLE_PREFIX}hostgroups hg on hg.id = hgm.hostgroup_id}
 			${if_table:ohg,hg,hgm:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.id}
-			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.id}
+			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
+			${if_table:cvsc,oc,cgm,cg,hcg,h:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
 				oh.objecttype_id = 1 and h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
@@ -94,9 +94,9 @@ class IcingaApiSearchIdoOci8
 			${if_table:hgm,oh,s:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.id}
 			${if_table:hg,hgm,oh,s:inner join ${TABLE_PREFIX}hostgroups hg on hg.id = hgm.hostgroup_id}
 			${if_table:ohg,hg,hgm,oh,s:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh,s:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.id}
-			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.id}
-			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.id}
+			${if_table:cvsh,oh,s:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
+			${if_table:cvss:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
+			${if_table:cvsc,oc,cgm,cg,scg,s:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.obect_id}
 			where
 				os.objecttype_id = 2 and s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
@@ -139,7 +139,7 @@ class IcingaApiSearchIdoOci8
 			${if_table:cg:inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = ocg.id}
 			${if_table:cgm,cg:inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.id}
 			${if_table:oc,cgm,cg:inner join ${TABLE_PREFIX}objects oc on oc.id = cgm.contact_object_id and oc.objecttype_id = 10}
-			${if_table:cvsc,oc,cgm,cg:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.id}
+			${if_table:cvsc,oc,cgm,cg:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where
 				ocg.objecttype_id = 11
 			${FILTER_AND}
@@ -220,8 +220,8 @@ class IcingaApiSearchIdoOci8
 			${if_table:hgm,oh:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.id}
 			${if_table:hg,hgm,oh:inner join ${TABLE_PREFIX}hostgroups hg on hg.id = hgm.hostgroup_id}
 			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.id}
-			${if_table:cvsc,oc,cgm,cg,hcg,h,oh: inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.id}
+			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
+			${if_table:cvsc,oc,cgm,cg,hcg,h,oh: inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
 			where h.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
@@ -235,22 +235,24 @@ class IcingaApiSearchIdoOci8
 				${TABLE_PREFIX}servicestatus ss
 			inner join ${TABLE_PREFIX}objects os on os.id = ss.service_object_id
 			inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id
-			inner join ${TABLE_PREFIX}instances i on i.id = s.instance_id
-			left join ${TABLE_PREFIX}hosts h on s.host_object_id = h.id
-			${if_table:scg,s,os: inner join ${TABLE_PREFIX}service_contactgroups scg on scg.service_id = s.id}
-			${if_table:cg,scg,s,os: inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
-			${if_table:cgm,cg,scg,s,os: inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.id}
-			${if_table:oc,cgm,cg,scg,s,os: inner join ${TABLE_PREFIX}objects oc on oc.id = cgm.contact_object_id}
-			${if_table:ocg,scg,s,os: inner join ${TABLE_PREFIX}objects ocg on ocg.id = scg.contactgroup_object_id}
-			${if_table:hs,s,os,: inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = s.host_object_id}
-			${if_table:oh,s,os: inner join ${TABLE_PREFIX}objects oh on oh.id = s.host_object_id}
+			${if_table:i,s,os:inner join ${TABLE_PREFIX}instances i on i.instance_id = s.instance_id}
+			${if_table:scg,s,os:-- inner join ${TABLE_PREFIX}service_contactgroups scg on scg.service_id = s.service_id}
+			${if_table:cg,scg,s,os:-- inner join ${TABLE_PREFIX}contactgroups cg on cg.contactgroup_object_id = scg.contactgroup_object_id}
+			${if_table:cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}contactgroup_members cgm on cgm.contactgroup_id = cg.contactgroup_id}
+			${if_table:oc,cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}objects oc on oc.id = cgm.contact_object_id}
+			${if_table:ocg,scg,s,os:-- inner join ${TABLE_PREFIX}objects ocg on ocg.id = scg.contactgroup_object_id}
+			${if_table:hs,s,os,:-- inner join ${TABLE_PREFIX}hoststatus hs on hs.host_object_id = s.host_object_id}
+			${if_table:oh,s,os:inner join ${TABLE_PREFIX}objects oh on oh.id = s.host_object_id}
 			${if_table:hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.id}
 			${if_table:hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroups hg on hg.id = hgm.hostgroup_id}
 			${if_table:ohg,hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.id}
-			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.id}
-			${if_table:cvsc,oc,cgm,cg,scg,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.id}
-			left join ${TABLE_PREFIX}objects osg on osg.id = h.host_object_id and osg.is_active = 1
+			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
+			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
+			${if_table:cvsc,oc,cgm,cg,scg,s,os:-- inner join ${TABLE_PREFIX}customvariablestatus cvsc on oc.id = cvsc.object_id}
+
+			${if_table:sgm,os:left join ${TABLE_PREFIX}servicegroup_members sgm on sgm.service_object_id = os.id}
+			${if_table:sg,sgm,os:left join ${TABLE_PREFIX}servicegroups sg on sg.id = sgm.servicegroup_id}
+			${if_table:osg,sg,sgm,os:left join ${TABLE_PREFIX}objects osg on osg.id = sg.servicegroup_object_id}
 			where s.config_type=${CONFIG_TYPE}
 			${FILTER_AND}
 			group by
@@ -273,7 +275,7 @@ class IcingaApiSearchIdoOci8
 			${if_table:hgm,oh:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.id}
 			${if_table:hg,hgm,oh:inner join ${TABLE_PREFIX}hostgroups hg on hg.id = hgm.hostgroup_id}
 			${if_table:ohg,hg,hgm,oh:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.id}
+			${if_table:cvsh,oh:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
 			left join ${TABLE_PREFIX}objects osg on osg.id = h.host_object_id and osg.is_active = 1
 			
 			${FILTER}
@@ -285,7 +287,7 @@ class IcingaApiSearchIdoOci8
 				${FIELDS}
 			from 
 				${TABLE_PREFIX}statehistory sh
-			inner join ${TABLE_PREFIX}objects os on os.id = sh.id and os.objecttype_id = 2
+			inner join ${TABLE_PREFIX}objects os on os.id = sh.object_id and os.objecttype_id = 2
 			inner join ${TABLE_PREFIX}services s on s.service_object_id = os.id
 			${if_table:i,s:inner join ${TABLE_PREFIX}instances i on i.id = s.instance_id}
 			${if_table:oh,s,os:inner join ${TABLE_PREFIX}objects oh on oh.id = s.host_object_id}
@@ -297,9 +299,9 @@ class IcingaApiSearchIdoOci8
 			${if_table:hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroup_members hgm on hgm.host_object_id = oh.id}
 			${if_table:hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}hostgroups hg on hg.id = hgm.hostgroup_id}
 			${if_table:ohg,hg,hgm,oh,s,os:inner join ${TABLE_PREFIX}objects ohg on ohg.id = hg.hostgroup_object_id}
-			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.id}
-			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.id}
-			left join ${TABLE_PREFIX}objects osg on os.id = s.service_object_id and osg.is_active = 1
+			${if_table:cvsh,oh,s,os:inner join ${TABLE_PREFIX}customvariablestatus cvsh on oh.id = cvsh.object_id}
+			${if_table:cvss,os:inner join ${TABLE_PREFIX}customvariablestatus cvss on os.id = cvss.object_id}
+			left join ${TABLE_PREFIX}objects osg on osg.id = s.service_object_id and osg.is_active = 1
 
 			${FILTER}
 			${GROUPBY}
@@ -518,7 +520,7 @@ class IcingaApiSearchIdoOci8
 
 		// Customvariable data
 		'CUSTOMVARIABLE_ID' => array('cv', 'id'),
-		'CUSTOMVARIABLE_OBJECT_ID' => array('cv', 'id'),
+		'CUSTOMVARIABLE_OBJECT_ID' => array('cv', 'object_id'),
 		'CUSTOMVARIABLE_INSTANCE_ID' => array('cv', 'instance_id'),
 		'CUSTOMVARIABLE_NAME' => array('cv', 'varname'),
 		'CUSTOMVARIABLE_VALUE' => array('cv', 'varvalue'),
@@ -591,7 +593,7 @@ class IcingaApiSearchIdoOci8
 		'HOST_CHILD_NAME' => array('oh', 'name1'),
 		'HOST_CUSTOMVARIABLE_NAME' => array('cvsh', 'varname'),
 		'HOST_CUSTOMVARIABLE_VALUE' => array('cvsh', 'varvalue'),
-		'HOST_IS_PENDING' => array('hs','has_been_checked','(%s-hs.should_be_scheduled)*-1>0'),
+		'HOST_IS_PENDING' => array('hs','has_been_checked','DECODE((%s-hs.should_be_scheduled), -1, 1, 0)'),
 
 		// Service data
 		'SERVICE_ID' => array('s', 'id'),
@@ -647,7 +649,7 @@ class IcingaApiSearchIdoOci8
 		'SERVICE_CUSTOMVARIABLE_NAME' => array('cvss', 'varname'),
 		'SERVICE_CUSTOMVARIABLE_VALUE' => array('cvss', 'varvalue'),
 		'SERVICE_STATE_COUNT' => array('count(ss', 'current_state)'),
-		'SERVICE_IS_PENDING' => array('ss','has_been_checked','(%s-ss.should_be_scheduled)*-1>0'),
+		'SERVICE_IS_PENDING' => array('ss','has_been_checked','DECODE((%s-ss.should_be_scheduled), -1, 1, 0)'),
 
 		// Config vars
 		'CONFIG_VAR_ID' => array('cfv', 'id'),
