@@ -7,7 +7,7 @@
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/sample-config/icinga.cfg.in pkg-icinga/sample-config/icinga.cfg.in
 --- pkg-icinga~/sample-config/icinga.cfg.in	2011-08-25 19:28:09.000000000 +0200
-+++ pkg-icinga/sample-config/icinga.cfg.in	2011-08-26 21:39:54.039132934 +0200
++++ pkg-icinga/sample-config/icinga.cfg.in	2011-08-26 21:45:13.399141107 +0200
 @@ -14,9 +14,19 @@
  # for historical purposes.  This should be the first option specified
  # in the config file!!!
@@ -17,11 +17,11 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
 +# Commands definitions
 +cfg_file=/etc/icinga/commands.cfg
- 
++
 +# Debian also defaults to using the check commands defined by the debian
 +# nagios-plugins package
 +cfg_dir=/etc/nagios-plugins/config
-+
+ 
 +# Debian uses by default a configuration directory where icinga-common,
 +# other packages and the local admin can dump or link configuration
 +# files into.
@@ -149,6 +149,15 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 -admin_pager=page@icinga_user@@localhost
 +admin_email=root@localhost
 +admin_pager=pageroot@localhost
+ 
+ 
+ 
+@@ -1378,7 +1389,7 @@
+ # Values: 1 - Enable environment variable macros
+ #         0 - Disable environment variable macros (default)
+ 
+-enable_environment_macros=0
++enable_environment_macros=1
  
  
  
