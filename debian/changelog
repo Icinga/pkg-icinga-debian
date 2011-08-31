@@ -1,3 +1,13 @@
+icinga (1.5.0-2) unstable; urgency=low
+
+  Brown paper bag release. My refresh of icinga.cgi failed...
+
+  * [dbd8173] Fix paths for moste important files
+  * [dab43df] Re-nable embedded perl
+  * [85aa90a] Re-enable environment macros
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 26 Aug 2011 21:50:17 +0200
+
 icinga (1.5.0-1~artax1) artax; urgency=low
 
   * Uploading to artax, remaining changes:
