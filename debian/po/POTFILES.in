@@ -1,1 +1,2 @@
 [type: gettext/rfc822deb] icinga-cgi.templates
+[type: gettext/rfc822deb] icinga-common.templates

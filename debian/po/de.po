@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: icinga 1.0.1-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
+"POT-Creation-Date: 2011-09-13 14:40+0200\n"
 "PO-Revision-Date: 2010-05-20 00:04-0400\n"
 "Last-Translator: Matthias Julius <mdeb@julius-net.net>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -93,3 +93,25 @@ msgid "The two passwords you entered were not the same. Please try again."
 msgstr ""
 "Die beiden Passwörter, die Sie eingegeben haben, sind nicht gleich. Bitte "
 "versuchen Sie es noch einmal."
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid "Icinga check external commands:"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid ""
+"Icinga is not configured to look for external commands in the default "
+"configuration as a security feature. Enabling external commands will give "
+"the web server write access to the nagios command pipe and is required if "
+"you want to be able to use the CGI command interface."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid "If unsure, choose no."
+msgstr ""
