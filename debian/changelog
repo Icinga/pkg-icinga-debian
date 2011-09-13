@@ -1,3 +1,9 @@
+icinga (1.5.1-1) unstable; urgency=low
+
+  * [932cd5e] Imported Upstream version 1.5.1
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 11 Sep 2011 11:16:37 +0200
+
 icinga (1.5.0-3) unstable; urgency=low
 
   * [37c76c6] Fix p1 location
