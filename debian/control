@@ -6,8 +6,10 @@ Uploaders: Daniel Baumann <daniel.baumann@progress-linux.org>
 XSBC-Original-Maintainer: Debian Nagios Maintainer Group <pkg-nagios-devel@lists.alioth.debian.org>
 XSBC-Original-Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
 Standards-Version: 3.9.2
-Vcs-Browser: http://git.debian.org/?p=pkg-nagios/icinga.git
-Vcs-Git: git://git.debian.org/pkg-nagios/icinga.git
+Vcs-Browser: http://vcs.progress-linux.org/?p=packages/icinga.git
+Vcs-Git: git://vcs.progress-linux.org/packages/icinga.git
+XSBC-Original-Vcs-Browser: http://git.debian.org/?p=pkg-nagios/icinga.git
+XSBC-Original-Vcs-Git: git://git.debian.org/pkg-nagios/icinga.git
 Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
  libpng12-dev, libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1), iputils-ping,
  autotools-dev, dpkg-dev (>= 1.13.19), libdbi0-dev
