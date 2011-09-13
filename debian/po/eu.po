@@ -93,3 +93,25 @@ msgstr "Errorea pasahitzean"
 #: ../icinga-cgi.templates:5001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr "Idatzitako bi pasahitzak ez dira berdinak. Saiatu berriro."
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid "Icinga check external commands:"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid ""
+"Icinga is not configured to look for external commands in the default "
+"configuration as a security feature. Enabling external commands will give "
+"the web server write access to the nagios command pipe and is required if "
+"you want to be able to use the CGI command interface."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid "If unsure, choose no."
+msgstr ""

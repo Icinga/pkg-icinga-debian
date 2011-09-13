@@ -9,6 +9,8 @@ usn="/usr/share/icinga"
 
 . /usr/share/debconf/confmodule
 
+conffile="/etc/icinga/icinga.cfg"
+
 if [ -n "$ICINGADEBUG" ]; then
   echo "now debugging $0 $@"
   set -x
@@ -47,7 +49,72 @@ case "$1" in
         setperm nagios www-data 02750 /var/cache/icinga
         setperm nagios www-data 0700 /var/lib/icinga/rw
 
+	db_get icinga/check_external_commands
+	check_external_commands="$RET" # boolean
+
 	db_stop
+
+	# translate debconf boolean into icinga option
+	# (this is better than using a select in debconf with Choices-C,
+	# otherwise all translators would need to translate 'yes' and 'no').
+
+	case $check_external_commands in
+		true)
+			check_external_commands=1
+			;;
+
+		false)
+			check_external_commands=0
+			;;
+	esac
+
+	cp -a -f "$conffile" "$conffile".tmp
+
+	# If the admin deleted or commented some variables but then set
+	# them via debconf, (re-)add them to the config file.
+
+	test -z "$check_external_commands" || \
+	grep -Eq '^ *check_external_commands=' "$conffile" || \
+	echo "check_external_commands=" >> "$conffile"
+
+	sed -e "s|^ *check_external_commands=.*|check_external_commands=$check_external_commands|" \
+	< "$conffile" > "$conffile.tmp"
+
+	mv -f "$conffile".tmp "$conffile"
+
+	# Stop a not already stopped icinga instance,
+	# debhelper will start it again automatically at the bottom
+	status="$(/etc/init.d/icinga status >/dev/null 2>&1; echo $?)"
+
+	if [ "$status" -ne 3 ]; then
+		if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
+			invoke-rc.d icinga stop || true
+		else
+			/etc/init.d/icinga stop || true
+		fi
+	fi
+
+	case $check_external_commands in
+		1)
+			if ! dpkg-statoverride --list /var/lib/icinga/rw >/dev/null 2>&1; then
+				dpkg-statoverride --quiet --update --add nagios www-data 2710 /var/lib/icinga/rw
+			fi
+
+			if ! dpkg-statoverride --list /var/lib/icinga >/dev/null 2>&1; then
+				dpkg-statoverride --quiet --update --add nagios nagios 751 /var/lib/icinga
+			fi
+			;;
+
+		0)
+			if dpkg-statoverride --list /var/lib/icinga/rw >/dev/null 2>&1; then
+				dpkg-statoverride --quiet --remove /var/lib/icinga/rw
+			fi
+
+			if dpkg-statoverride --list /var/lib/icinga >/dev/null 2>&1; then
+				dpkg-statoverride --quiet --remove /var/lib/icinga
+			fi
+			;;
+	esac
     ;;
   abort-upgrade|abort-remove|abort-deconfigure)
     ;;
