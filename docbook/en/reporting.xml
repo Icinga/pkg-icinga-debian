@@ -103,14 +103,14 @@
   <para>Unpack the downloaded file and copy it to your &name-jasper; directory.</para>
 
   <programlisting> #&gt; tar xzvf icinga-reports-xxx.tar.gz
- #&gt; cp icinga-reports/ReportPackage/icinga_report_package.zip /opt/jasperserver/scripts/
+ #&gt; cp icinga-reports-&lt;-version&gt;/jasperreports/package/icinga-reports.zip /opt/jasperserver/scripts/
  #&gt; cd /opt/jasperserver/scripts/</programlisting>
 
-  <para>Importing the whole reporting package requires just one command: <programlisting> #&gt; ./js-import.sh --input-zip icinga_report_package.zip</programlisting></para>
+  <para>Importing the whole reporting package requires just one command: <programlisting> #&gt; ./js-import.sh --input-zip icinga-reports.zip</programlisting></para>
 
-  <para>If you want to update an existing repository please use the following command: <programlisting> #&gt; ./js-import.sh --input-zip icinga_report_package.zip --update</programlisting></para>
+  <para>If you want to update an existing repository please use the following command: <programlisting> #&gt; ./js-import.sh --input-zip icinga-reports.zip --update</programlisting></para>
 
-  <para>You can export the whole &name-icinga; part of the repository with the following command: <programlisting> #&gt; ./js-export.sh --uris /Icinga --output-zip icinga_report_package.zip</programlisting></para>
+  <para>You can export the whole &name-icinga; part of the repository with the following command: <programlisting> #&gt; ./js-export.sh --uris /Icinga --output-zip icinga-reports.zip</programlisting></para>
 
   <note>
     <para>If the import scripts fails, please check your jasperserver.xml for the current user and password. You can change the default user
@@ -291,7 +291,7 @@
     document resource where it could be</para>
   </note>
 
-  <programlisting> &lt;ae:parameter name="icingaJasperReportingMain"&gt;
+  <programlisting> &lt;cronk name="icingaReportingDefault"&gt;
     &lt;ae:parameter name="module"&gt;Reporting&lt;/ae:parameter&gt;
     &lt;ae:parameter name="action"&gt;Cronk.Main&lt;/ae:parameter&gt;
     &lt;ae:parameter name="hide"&gt;false&lt;/ae:parameter&gt;
@@ -305,7 +305,7 @@
        &lt;ae:parameter name="enable_repository"&gt;1&lt;/ae:parameter&gt;
        &lt;ae:parameter name="enable_scheduling"&gt;1&lt;/ae:parameter&gt;
     &lt;/ae:parameter&gt;
- &lt;/ae:parameter&gt;</programlisting>
+ &lt;/cronk&gt;</programlisting>
 
   <para>Have you noticed the configuration string? This is the string you configured in the <filename>module.xml</filename> shown in the
   topic before.</para>
