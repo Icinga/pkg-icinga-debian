@@ -153,7 +153,6 @@ install-stamp: build-stamp fix-configs-stamp
 	rm ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/*.in
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/redundancy-scenario1/*
 	# we use the versions in debian
-	rm ${b}/tmp/usr/share/icinga/htdocs/js/mootools.js
 	dh_link		     -i
 	dh_lintian
 	dh_installdocs       -i
