@@ -1,3 +1,10 @@
+icinga (1.6.0~beta-1) UNRELEASED; urgency=low
+
+  * [0c69c1a] Fix permissions and remove *.in in contrib files (Closes: #648735)
+  * [14d7134] Imported Upstream version 1.6.0~beta
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 26 Nov 2011 09:14:50 +0100
+
 icinga (1.5.1-1) unstable; urgency=low
 
   * [932cd5e] Imported Upstream version 1.5.1
