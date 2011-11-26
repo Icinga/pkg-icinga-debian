@@ -3,4 +3,3 @@
 52_icinga.cfg-debianize.dpatch
 55_idoutils-debianize
 70_fix_eventhandler_paths.dpatch
-96_add_mootols_more.dpatch
