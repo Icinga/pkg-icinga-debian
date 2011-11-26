@@ -105,6 +105,8 @@ extern service  *service_list;
 
 sched_info scheduling_info;
 
+pthread_mutex_t icinga_eventloop_lock = PTHREAD_MUTEX_INITIALIZER;
+
 
 
 /******************************************************************/
@@ -704,6 +706,10 @@ void display_event_data(timed_event* event, int priority) {
 		printf("\t\t(expire downtime)\n");
 		break;
 
+	case EVENT_EXPIRE_ACKNOWLEDGEMENT:
+		printf("\t\t(expire acknowledgement)\n");
+		break;
+
 	case EVENT_RESCHEDULE_CHECKS:
 		printf("\t\t(reschedule checks)\n");
 		break;
@@ -1089,6 +1095,8 @@ int event_execution_loop(void) {
 
 	time(&last_time);
 
+	pthread_mutex_lock(&icinga_eventloop_lock);
+
 	/* initialize fake "sleep" event */
 	sleep_event.event_type = EVENT_SLEEP;
 	sleep_event.run_time = last_time;
@@ -1357,12 +1365,16 @@ int event_execution_loop(void) {
 			broker_timed_event(NEBTYPE_TIMEDEVENT_SLEEP, NEBFLAG_NONE, NEBATTR_NONE, &sleep_event, NULL);
 #endif
 
+			pthread_mutex_unlock(&icinga_eventloop_lock);
+
 			/* wait a while so we don't hog the CPU... */
 #ifdef USE_NANOSLEEP
 			nanosleep(&delay, NULL);
 #else
 			sleep((unsigned int)delay.tv_sec);
 #endif
+
+			pthread_mutex_lock(&icinga_eventloop_lock);
 		}
 
 		/* update status information occassionally - NagVis watches the NDOUtils DB to see if Icinga is alive */
@@ -1380,6 +1392,8 @@ int event_execution_loop(void) {
 	}
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "event_execution_loop() end\n");
+
+	pthread_mutex_unlock(&icinga_eventloop_lock);
 
 	return OK;
 }
@@ -1548,6 +1562,23 @@ int handle_timed_event(timed_event *event) {
 
 		/* check for expired scheduled downtime entries */
 		check_for_expired_downtime();
+		break;
+
+	case EVENT_EXPIRE_ACKNOWLEDGEMENT:
+
+		log_debug_info(DEBUGL_EVENTS, 0, "** Expire Acknowledgement Event\n");
+
+		/* Delete expired acknowledgements */
+		if (event->event_options == SERVICE_ACKNOWLEDGEMENT) {
+			temp_service = (service *)event->event_data;
+			remove_service_acknowledgement(temp_service);
+		} else if (event->event_options == HOST_ACKNOWLEDGEMENT) {
+			temp_host = (host *)event->event_data;
+			remove_host_acknowledgement(temp_host);
+		} else {
+			log_debug_info(DEBUGL_EVENTS, 0, "** Unknown Expire Acknowledgement event: %d\n", event->event_options);
+		}
+
 		break;
 
 	case EVENT_RESCHEDULE_CHECKS:

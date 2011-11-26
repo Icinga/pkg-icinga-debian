@@ -392,6 +392,8 @@
 
     <xi:include href="db_components.xml" />
 
+    <xi:include href="configido.xml" />
+
     <xi:include href="db_example-configs.xml" />
 
     <xi:include href="db_model.xml" />

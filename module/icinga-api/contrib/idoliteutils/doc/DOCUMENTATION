@@ -1,6 +1,0 @@
-build:
-make
-make install
-
-icinga.cfg:
-broker_module=/usr/local/icinga/bin/idolitemod.o

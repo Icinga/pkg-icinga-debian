@@ -4,7 +4,7 @@
 <title>Icinga-Schnellstart mit IDOUtils</title>
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.5 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.6 Dokumentation">
 <link rel="up" href="ch02.html" title="Kapitel 2. Los geht's">
 <link rel="prev" href="quickstart-icinga-freebsd.html" title="Icinga-Schnellstart auf FreeBSD">
 <link rel="next" href="quickstart-idoutils-freebsd.html" title="Icinga-Schnellstart mit IDOUtils auf FreeBSD">
@@ -36,8 +36,23 @@
 <td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
 <th align="left">Anmerkung</th>
 </tr>
-<tr><td align="left" valign="top"><p>Inzwischen gibt es Icinga-Pakete für die meisten Linux-Distributionen. Solange Sie kein Feature benötigen, das  
-  lediglich im aktuellen Source-Zweig enthalten ist, sollten Sie die Installation eines dieser Pakete erwägen.</p></td></tr>
+<tr><td align="left" valign="top">
+<p>Anstatt Icinga von Grund auf zu installieren möchten Sie vielleicht ein Paket benutzen, das es möglicherweise für Ihr
+    Betriebssystem gibt. Bitte werfen Sie einen Blick auf die
+    <a class="link" href="https://www.icinga.org/download/packages" target="_top">Tabelle der Pakete</a>.
+    </p>
+    <p>Falls Sie aus den Sourcen installieren möchten, dann benutzen Sie bitte die offiziellen Release-Tarballs.</p>
+  </td></tr>
+</table></div>
+  <div class="important" title="Wichtig" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Wichtig]" src="../images/important.png"></td>
+<th align="left">Wichtig</th>
+</tr>
+<tr><td align="left" valign="top">
+<p>Bitte benutzen Sie keine GIT-Snapshots, solange Sie kein Problem haben, das in der aktuellen Entwicklerversion ggf.
+    gelöst ist.</p>
+  </td></tr>
 </table></div>
 
   <p>Diese Schnellstartanleitung ist dazu gedacht, Ihnen einfache Anweisungen zu liefern, wie Sie Icinga innerhalb von 30 Minuten
@@ -96,6 +111,15 @@
     </li>
 <li class="listitem">
       <p>libdbi/libdbi-Treiber, eine Datenbank wie z.B. MySQL oder PostgreSQL</p>
+      <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top"><p>PostgreSQL: Aufgrund von Änderungen an Insert-Statements funktioniert PostgreSQL 8.1 nicht länger (und ist auch bereits
+        <a class="link" href="http://wiki.postgresql.org/wiki/PostgreSQL_Release_Support_Policy" target="_top">"End-of-life"</a> seit November 2010), also
+        benutzen Sie bitte 8.2 oder besser noch 8.4. String escaping mit PostgreSQL 9.x befindet sich noch in einem experimentellen Stadium.      </p></td></tr>
+</table></div>
     </li>
 </ul></div>
 
@@ -181,22 +205,82 @@
   und (mindestens) mit den gleichen Rechten definiert sind und dass die korrekten Einstellungen in <code class="filename">icinga_defines.sql</code>
   vorhanden sind.</p>
 
+  <p><a name="quickstart-idoutils_timezone-support"></a><span class="bold"><strong>Zeitzonenunterstützung</strong></span></p>
+  <p>Ab Icinga 1.6 werden alle Zeit-/Datumsinformationen als lokale Zeitstempel in der Datenbank gespeichert. Vorher gab es für
+  jedes Datenbanksystem unterschiedliche Vorgehensweisen beim Speichern und Abrufen der Daten, was schwierig für Frontend-Applikationen war.
+  Deshalb wurden die Datentypen geändert: für MySQL von DATETIME in TIMESTAMP und für Oracle von DATE in LOCAL TIMESTAMP (0).
+  PostgreSQL benutzt bereits TIMESTAMP, es wurde aber in TIMESTAMP WITH TIME ZONE geändert. IDO2DB wird die Sitzungszeitzone auf UTC
+  setzen und alle Unix-Timestamps (die per Definition UTC sind) als UTC-basierte Werte speichern. Bitte stellen Sie sicher, dass Ihr System
+  Unix-Timestamps als UTC-basierte Werte ausgibt (wie "date -u '+%s'").</p>
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top"><p>Stellen Sie sicher, dass Ihre Datenbanksitzung in der gleichen Zeitzone läuft, in der die existierenden
+  Zeit-/Datumsinformationen gespeichert wurden (überprüfen Sie Ihre lokale Zeitzone, z.B. Oracle: "select sessiontimezone from
+  dual;"), wenn Sie das Upgrade-Script laufen lassen.
+  Zusätzlich für Ihre Bequemlichkeit sollten Sie in Oracle das Format der Sitzungszeitstempel auf den Wert zu setzen, den Sie
+  wünschen, z.B. "alter session set nls_timestamp_format='YYYY-MM-DD HH24:MI:SS'; oder etwas ähnliches. 
+  Nun können Sie Einträge von verschiedenen Icinga-Installationen in unterschiedlichen Zeitzonen ansehen, die in der gleichen
+  Datenbank gespeichert wurden, und unabhängig davon, von woher Sie darauf zugreifen, werden sie in Ihrer lokalen Zeitzone angezeigt.
+  </p></td></tr>
+</table></div>
+
   <p><span class="bold"><strong>Installation der Pakete</strong></span></p>
 
-  <p>Sie können diese Pakete mit Hilfe der folgenden Befehle installieren (als root oder mit sudo):</p>
+  <p>Sie können diese Pakete mit Hilfe der folgenden Befehle installieren (als root oder mit sudo).</p>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+<p>Unglücklicherweise ändern sich manchmal die Paketnamen zwischen verschiedenen Ausgaben der gleichen Distribution, so dass Sie
+  die Suchoption Ihres Paket-Managers nutzen sollten, falls Sie die Fehlermeldung bekommen, dass eins der Pakete nicht gefunden wurde.
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+        <code class="literal">yum search &lt;package name&gt;</code> (<span class="emphasis"><em>Fedora/RHEL/CentOS</em></span>)
+      </li>
+<li class="listitem">
+        <code class="literal">apt-cache search &lt;package name&gt;</code> (<span class="emphasis"><em>Debian/Ubuntu</em></span>)
+      </li>
+<li class="listitem">
+        <code class="literal">zypper search &lt;package name&gt;</code> (<span class="emphasis"><em>openSuSE/SLES</em></span>)
+      </li>
+</ul></div>
+<p>
+  </p>
+</td></tr>
+</table></div>
 
   <p><span class="bold"><strong>Fedora / RedHat / CentOS:</strong></span></p>
 
   <pre class="programlisting"> #&gt; yum install httpd gcc glibc glibc-common gd gd-devel
  #&gt; yum install libjpeg libjpeg-devel libpng libpng-devel</pre>
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top"><p>ggf. sind libjpeg-turbo bzw. libjpeg-turbo-devel zu installieren</p></td></tr>
+</table></div>
 
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
   <p><span class="bold"><strong>MySQL:</strong></span></p>
 
   <pre class="programlisting"> #&gt; yum install mysql mysql-server libdbi libdbi-devel libdbi-drivers libdbi-dbd-mysql</pre>
 
+  </li>
+<li class="listitem">
   <p><span class="bold"><strong>PostgreSQL:</strong></span></p>
 
   <pre class="programlisting"> #&gt; yum install postgresql postgresql-server libdbi libdbi-devel libdbi-drivers libdbi-dbd-pgsql</pre>
+  </li>
+</ul></div>
 
   <p><span class="bold"><strong>Debian / Ubuntu:</strong></span></p>
 
@@ -223,18 +307,26 @@
   </td></tr>
 </table></div>
 
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
   <p><span class="bold"><strong>MySQL:</strong></span></p>
 
   <pre class="programlisting"> #&gt; apt-get install mysql-server mysql-client libdbi0 libdbi0-dev libdbd-mysql</pre>
-
+  </li>
+<li class="listitem">
   <p><span class="bold"><strong>PostgreSQL:</strong></span></p>
 
-  <pre class="programlisting"> #&gt; apt-get install postgresql libdbi0 libdbi0-dev libdbd-pgsql</pre>
+  <pre class="programlisting"> #&gt; apt-get install postgresql libdbi1 libdbi-dev libdbd-pgsql libpg-dev</pre>
+  </li>
+</ul></div>
 
   <p><span class="bold"><strong>openSuSE:</strong></span></p>
 
   <p>Bitte nutzen Sie YaST für die Installation der Pakete gd, gd-devel, libjpeg, libjpeg-devel, libpng, libpng-devel und -optional-
   net-snmp, net-snmp-devel und perl-Net-SNMP.</p>
+  <p>Die Nutzung von zypper sollte ebenfalls funktionieren:</p>
+  <pre class="programlisting"> #&gt; zypper install gd gd-devel libjpeg libjpeg-devel libpng libpng-devel
+ #&gt; zypper install net-snmp net-snmp-devel perl-Net-SNMP</pre>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -246,17 +338,26 @@
   </td></tr>
 </table></div>
 
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
   <p><span class="bold"><strong>MySQL:</strong></span></p>
 
   <p>Benutzen Sie yast zur Installation der Pakete für das RDBMS, das Sie verwenden möchten, also "mysql", "mysql-devel" sowie die
-  libdbi-Pakete "libdbi", "libdbi-devel", "libdbi-drivers" und "libdbi-dbd-mysql".</p>
+  libdbi-Pakete "libdbi", "libdbi-devel", "libdbi-drivers" und "libdbi-dbd-mysql" oder alternativ <code class="filename">zypper</code></p>
+  <pre class="programlisting"> #&gt; zypper install mysql mysql-devel libdbi libdbi-devel libdbi-drivers libdbi-dbd-mysql</pre>
 
   <p>Bei OpenSuSE 11 (SLES 11) lautet der Name des Packages statt "mysql-devel" nun "libmysqlclient-devel".</p>
-
+  </li>
+<li class="listitem">
   <p><span class="bold"><strong>PostgreSQL:</strong></span></p>
 
   <p>Benutzen Sie yast zur Installation der Pakete für das RDBMS, das Sie verwenden möchten, also "postgresql", "postgresql-devel" und
-  "postgresql-server" sowie die libdbi-Pakete "libdbi", "libdbi-devel" und "libdbi-drivers".</p>
+  "postgresql-server" sowie die libdbi-Pakete "libdbi", "libdbi-devel" und "libdbi-drivers" oder alternativ <code class="filename">zypper&gt;</code>.
+  </p>
+  <pre class="programlisting"> #&gt; zypper install postgresql postgresql-devel postgresql-server
+ #&gt; zypper install libdbi libdbi-devel libdbi-drivers libdbi-dbd-mysql</pre>
+  </li>
+</ul></div>
 
   <p>Bei alten OpenSuSE- (SLES) Version einschließlich Version 10 ist es ziemlich wahrscheinlich, dass es keine libdbi-Packages gibt, so
   dass Sie die Sourcen herunterladen und kompilieren müssen. Ersetzen Sie dabei &lt;rdbm&gt; durch Ihr RDBM wie mysql oder pgsql. Bitte
@@ -365,8 +466,8 @@
   <p>Entpacken Sie das Icinga-Archiv</p>
 
   <pre class="programlisting"> #&gt; cd /usr/src/ 
- #&gt; tar xvzf icinga-1.5.tar.gz 
- #&gt; cd icinga-1.5</pre>
+ #&gt; tar xvzf icinga-1.6.tar.gz 
+ #&gt; cd icinga-1.6</pre>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -395,6 +496,15 @@
   </td></tr>
 </table></div>
 
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top"><p>Auch mit <span class="bold"><strong>PostgreSQL</strong></span> sollten Sie nicht den Parameter <code class="literal">--enable-pgsq</code>
+  verwenden, denn dieser wird noch nicht unterstützt.</p></td></tr>
+</table></div>
+ 
   <p><span class="bold"><strong>Mit <span class="bold"><strong>SSL</strong></span>-Verschlüsselung:</strong></span></p>
 
   <pre class="programlisting"> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils --enable-ssl</pre>
@@ -467,11 +577,16 @@
   </td></tr>
 </table></div>
 
-  <p>Die Icinga-API wird beim Aufruf von "make install" installiert, wenn Sie nur die Icinga-API (nach)installieren möchten, nutzen Sie:
-  </p>
-<pre class="programlisting"> #&gt; make install-api</pre>
-<p>Die Icinga-API ist Voraussetzung für das Icinga Web-Interface (nicht für die
-  klassische Ansicht!).</p>
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Die Icinga-API diente als eine in PHP geschriebene Datenbank-Abstraktionsschicht. Seit Icinga ist sie durch eine
+    interne Datenbank-Abstraktionsschicht ersetzt worden, so dass Icinga-API nicht mehr installiert werden muss.</p>
+  </td></tr>
+</table></div>
 
   <p>Bitte starten Sie Icinga noch nicht - es gibt noch ein paar Dinge zu tun...</p>
 
@@ -514,21 +629,16 @@
   </td></tr>
 </table></div>
 
-  <p><span class="bold"><strong>Aktivieren Sie das idomod-Eventbroker-Modul</strong></span></p>
+  <p><span class="bold"><strong>Aktivieren des idomod-Eventbroker-Moduls</strong></span></p>
 
-  <p>Editieren Sie <code class="filename">/usr/local/icinga/etc/icinga.cfg</code>, suchen Sie nach "broker_module" und aktivieren Sie diese Zeile bzw. fügen Sie
-  die folgende Zeile hinzu (passen Sie die Namen an, falls nötig).</p>
-
-  <pre class="programlisting"> broker_module=/usr/local/icinga/bin/idomod.o config_file=/usr/local/icinga/etc/idomod.cfg</pre>
-
-  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+  <div class="important" title="Wichtig" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important">
 <tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
-<th align="left">Anmerkung</th>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Wichtig]" src="../images/important.png"></td>
+<th align="left">Wichtig</th>
 </tr>
 <tr><td align="left" valign="top">
-    <p>Ab Icinga 1.4 können Sie statt des broker_module-Eintrags die neue module-Definition in einer Ihrer
-    Objektkonfigurationsdateien benutzen:</p>
+    <p>Unter normalen Umständen gibt es im <code class="filename">modules</code>-Unterverzeichnis bereits die folgende module-Definition, so dass
+    Sie keine Änderungen an der Hauptkonfigurationsdatei vornehmen müssen.</p>
 
     <pre class="screen"> define module{
         module_name    ido_mod
@@ -536,6 +646,7 @@
         module_type    neb
         args           config_file=/usr/local/icinga/etc/idomod.cfg
         }</pre>
+    Das bedeutet auch, dass ein entsprechender broker_module-Eintrag nicht aktiviert werden darf!
   </td></tr>
 </table></div>
 
@@ -552,6 +663,8 @@
   </td></tr>
 </table></div>
 
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
   <p><span class="bold"><strong>MySQL:</strong></span></p>
 
   <p><span class="emphasis"><em>Anlegen von Datenbank, Benutzer und Berechtigungen</em></span></p>
@@ -577,12 +690,20 @@
    MAX_CONNECTIONS_PER_HOUR 0
    MAX_UPDATES_PER_HOUR 0;
    
- GRANT SELECT , INSERT , UPDATE , DELETE
+ GRANT SELECT , INSERT , UPDATE , DELETE, DROP, CREATE VIEW
    ON icinga.* TO 'icinga'@'localhost';
  
  FLUSH PRIVILEGES ;
 
  quit</pre>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top"><p>Ab Icinga 1.6 benötigt der icinga-User zusätzlich die Rechte DROP und CREATE VIEW.</p></td></tr>
+</table></div>
 
   <pre class="programlisting"> #&gt; cd /path/to/icinga-src/module/idoutils/db/mysql
  #&gt; mysql -u root -p icinga &lt; mysql.sql</pre>
@@ -593,7 +714,8 @@
  db_port=3306
  db_user=icinga
  db_pass=icinga</pre>
-
+  </li>
+<li class="listitem">
   <p><span class="bold"><strong>PostgreSQL:</strong></span></p>
 
   <p><span class="emphasis"><em>Anlegen von Datenbank und Benutzer</em></span></p>
@@ -641,7 +763,8 @@
  db_port=5432
  db_user=icinga
  db_pass=icinga</pre>
-
+  </li>
+<li class="listitem">
   <p><span class="bold"><strong>Oracle:</strong></span></p>
 
   <p>Erstellen Sie ein Datenbank-Schema und eine username/password-Kombination (lesen Sie dazu die Oracle-Dokumentation unter
@@ -660,6 +783,8 @@
   db_port=1521
   db_user=icinga
   db_pass=icinga</pre>
+  </li>
+</ul></div>
 
   <p><span class="bold"><strong>Installieren und konfigurieren des klassischen Web-Interface</strong></span></p>
 
@@ -671,7 +796,7 @@
  #&gt; make install-cgis
  #&gt; make install-html</pre>
 
-  <p>Wenn Sie (zusätzlich) das neue Icinga Web installieren wollen, lesen Sie bitte <a class="link" href="icinga-web-scratch.html" title="Installation des Icinga-Web Frontend">Installation des
+  <p>Wenn Sie (zusätzlich) das neue Icinga-Web installieren wollen, lesen Sie bitte <a class="link" href="icinga-web-scratch.html" title="Installation des Icinga-Web Frontend">Installation des
   Web-Interface</a>.</p>
 
   <p>Installieren Sie die Icinga-Web-Konfigurationsdatei im Apache conf.d-Verzeichnis.</p>
@@ -893,7 +1018,9 @@
   Zweifel mehr als nur Ihre lokale Maschine überwachen wollen, so dass Sie u.a. das folgende <a class="link" href="ch02.html" title="Kapitel 2. Los geht's">Kapitel </a> lesen
   sollten...</p>
 
-  <a class="indexterm" name="id1392068"></a>
+  <a class="indexterm" name="id1608601"></a>
+
+  <a class="indexterm" name="id1608600"></a>
 </div>
 <div class="navfooter">
 <hr>

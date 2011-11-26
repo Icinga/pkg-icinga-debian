@@ -27,8 +27,8 @@
 #define PROGRAM_NAME "Icinga"
 #define PROGRAM_NAME_UC "ICINGA"
 #define PROGRAM_NAME_LC "icinga"
-#define PROGRAM_VERSION "1.5.1"
-#define PROGRAM_MODIFICATION_DATE "09-09-2011"
+#define PROGRAM_VERSION "1.6.0-beta"
+#define PROGRAM_MODIFICATION_DATE "11-25-2011"
 
 /*#define DEBUG_CHECK_IPC 1 */
 /*#define DEBUG_CHECK_IPC2 1*/
@@ -310,6 +310,11 @@
 #define CMD_DEL_DOWNTIME_BY_HOST_NAME                   171
 #define CMD_DEL_DOWNTIME_BY_HOSTGROUP_NAME              172
 #define CMD_DEL_DOWNTIME_BY_START_TIME_COMMENT          173
+
+/* Added for expiring Acknowlwdgements */
+
+#define CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE		174
+#define CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE		175
 
 /* custom command introduced in Nagios 3.x */
 #define CMD_CUSTOM_COMMAND                              999
