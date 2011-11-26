@@ -12,12 +12,6 @@
 #include "../../../include/config.h"
 #include "utils.h"
 
-#define IDO2DB_NAME "IDO2DB"
-#define IDO2DB_DATE "09-09-2011"
-#define IDO2DB_VERSION "1.5.1"
-
-#define IDO2DB_SCHEMA_VERSION "1.5.0"
-
 /*************** RDBMS headers *************/
 
 /* oracle */
@@ -194,6 +188,13 @@ typedef struct ido2db_dbconninfo_struct{
 	/* dbversion */
 	OCI_Statement* oci_statement_dbversion_select;
 
+        /* SLA */
+	OCI_Statement* oci_statement_sla_services_select;
+	OCI_Statement* oci_statement_sla_downtime_select;
+	OCI_Statement* oci_statement_sla_history_select;
+	OCI_Statement* oci_statement_sla_history_merge;
+	OCI_Statement* oci_statement_sla_history_delete;
+
 #endif /* Oracle ocilib specific */
 	unsigned long instance_id;
 	unsigned long conninfo_id;
@@ -215,6 +216,9 @@ typedef struct ido2db_dbconninfo_struct{
 	unsigned long max_externalcommands_age;
 	unsigned long max_logentries_age;
 	unsigned long max_acknowledgements_age;
+	unsigned long max_notifications_age;
+	unsigned long max_contactnotifications_age;
+	unsigned long max_contactnotificationmethods_age;
 	unsigned long trim_db_interval;
 	unsigned long housekeeping_thread_startup_delay;
 	unsigned long clean_realtime_tables_on_core_startup;
@@ -436,9 +440,6 @@ int ido2db_convert_string_to_double(char *,double *);
 int ido2db_convert_string_to_long(char *,long *);
 int ido2db_convert_string_to_unsignedlong(char *,unsigned long *);
 int ido2db_convert_string_to_timeval(char *,struct timeval *);
-
-/* logging */
-int ido2db_log_debug_info(int , int , const char *, ...);
 
 /* threads */
 void *ido2db_thread_cleanup(void *);

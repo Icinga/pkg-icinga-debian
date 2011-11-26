@@ -16,6 +16,8 @@
 #include "../include/db.h"
 #include "../include/dbhandlers.h"
 #include "../include/dbqueries.h"
+#include "../include/sla.h"
+#include "../include/logging.h"
 
 /* Icinga header files */
 #include "../../../include/icinga.h"
@@ -27,6 +29,8 @@ extern int errno;
 extern char *ido2db_db_tablenames[IDO2DB_MAX_DBTABLES];
 
 extern ido2db_dbconfig ido2db_db_settings; /* for tables cleanup settings */
+
+extern int enable_sla;
 
 int dummy;	/* reduce compiler warnings */
 
@@ -3161,10 +3165,14 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 
 #endif /* Oracle ocilib specific */
 
+		if (enable_sla)
+			sla_process_downtime_history(idi, object_id, start_time, end_time);
 	}
 
 	/* save a record of scheduled downtime that starts */
 	if (type == NEBTYPE_DOWNTIME_START) {
+		if (enable_sla)
+			sla_process_downtime(idi, object_id, tstamp.tv_sec, type);
 
 		/* save entry to db */
 #ifdef USE_LIBDBI /* everything else will be libdbi */
@@ -3249,6 +3257,8 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 
 	/* save a record of scheduled downtime that ends */
 	if (type == NEBTYPE_DOWNTIME_STOP) {
+		if (enable_sla)
+			sla_process_downtime(idi, object_id, tstamp.tv_sec, type);
 
 		/* save entry to db */
 #ifdef USE_LIBDBI /* everything else will be libdbi */
@@ -3947,6 +3957,9 @@ int ido2db_handle_hoststatusdata(ido2db_idi *idi) {
 	result = ido2db_get_object_id_with_insert(idi, IDO2DB_OBJECTTYPE_HOST, idi->buffered_input[IDO_DATA_HOST], NULL, &object_id);
 	result = ido2db_get_object_id_with_insert(idi, IDO2DB_OBJECTTYPE_TIMEPERIOD, idi->buffered_input[IDO_DATA_HOSTCHECKPERIOD], NULL, &check_timeperiod_object_id);
 
+	if (enable_sla)
+		sla_process_acknowledgement(idi, object_id, tstamp.tv_sec, problem_has_been_acknowledged);
+
 	/* save entry to db */
 	data[0] = (void *) &idi->dbinfo.instance_id;
 	data[1] = (void *) &object_id;
@@ -4164,6 +4177,9 @@ int ido2db_handle_servicestatusdata(ido2db_idi *idi) {
 	         IDO2DB_OBJECTTYPE_TIMEPERIOD,
 	         idi->buffered_input[IDO_DATA_SERVICECHECKPERIOD], NULL,
 	         &check_timeperiod_object_id);
+
+	if (enable_sla)
+		sla_process_acknowledgement(idi, object_id, tstamp.tv_sec, problem_has_been_acknowledged);
 
 	/* save entry to db */
 	data[0] = (void *) &idi->dbinfo.instance_id;
@@ -4552,7 +4568,8 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 	int notify_contacts = 0;
 	unsigned long object_id = 0L;
 	int result = IDO_OK;
-	char *ts[1];
+	unsigned long end_time;
+	char *ts[2];
 	char *es[2];
 	int x = 0;
 #ifdef USE_LIBDBI
@@ -4561,7 +4578,7 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 #endif
 
 #ifdef USE_ORACLE
-	void *data[11];
+	void *data[12];
 #endif
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_acknowledgementdata() start\n");
@@ -4579,11 +4596,13 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 	result = ido2db_convert_string_to_int(idi->buffered_input[IDO_DATA_STICKY], &is_sticky);
 	result = ido2db_convert_string_to_int(idi->buffered_input[IDO_DATA_PERSISTENT], &persistent_comment);
 	result = ido2db_convert_string_to_int(idi->buffered_input[IDO_DATA_NOTIFYCONTACTS], &notify_contacts);
+	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_END_TIME], &end_time);
 
 	es[0] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_AUTHORNAME]);
 	es[1] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_COMMENT]);
 
 	ts[0] = ido2db_db_timet_to_sql(idi, tstamp.tv_sec);
+	ts[1] = ido2db_db_timet_to_sql(idi, end_time);
 
 	/* get the object id */
 	if (acknowledgement_type == SERVICE_ACKNOWLEDGEMENT)
@@ -4596,7 +4615,7 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	/* the data part of the INSERT statement */
-	if (asprintf(&buf1, "(instance_id, entry_time, entry_time_usec, acknowledgement_type, object_id, state, author_name, comment_data, is_sticky, persistent_comment, notify_contacts) VALUES (%lu, %s, %lu, %d, %lu, %d, '%s', '%s', %d, %d, %d)"
+	if (asprintf(&buf1, "(instance_id, entry_time, entry_time_usec, acknowledgement_type, object_id, state, author_name, comment_data, is_sticky, persistent_comment, notify_contacts, end_time) VALUES (%lu, %s, %lu, %d, %lu, %d, '%s', '%s', %d, %d, %d, %s)"
 	             , idi->dbinfo.instance_id
 	             , ts[0]
 	             , tstamp.tv_usec
@@ -4608,6 +4627,7 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 	             , is_sticky
 	             , persistent_comment
 	             , notify_contacts
+	             , ts[1]
 	            ) == -1)
 		buf1 = NULL;
 
@@ -4646,6 +4666,7 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 	data[8] = (void *) &is_sticky;
 	data[9] = (void *) &persistent_comment;
 	data[10] = (void *) &notify_contacts;
+	data[11] = (void *) &end_time;
 
 	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_acknowledgements, MT(":X1"), (uint *) data[0])) {
 		return IDO_ERROR;
@@ -4690,6 +4711,9 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 		return IDO_ERROR;
 	}
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_acknowledgements, MT(":X11"), (int *) data[10])) {
+		return IDO_ERROR;
+	}
+	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_acknowledgements, MT(":X12"), (uint *) data[11])) { /* unixtimestamp instead of time2sql */
 		return IDO_ERROR;
 	}
 
@@ -4776,6 +4800,10 @@ int ido2db_handle_statechangedata(ido2db_idi *idi) {
 	else
 		result = ido2db_get_object_id_with_insert(idi, IDO2DB_OBJECTTYPE_HOST,
 		         idi->buffered_input[IDO_DATA_HOST], NULL, &object_id);
+
+	if (enable_sla)
+		sla_process_statechange(idi, object_id, tstamp.tv_sec,
+		    tstamp.tv_sec, &state, &state_type, NULL);
 
 	/* save entry to db */
 #ifdef USE_LIBDBI /* everything else will be libdbi */

@@ -2,9 +2,6 @@
  *
  * ICINGA.C - Core Program Code For Icinga
  *
- * Program: Icinga
- * Version: 1.5.1
- * License: GPL
  * Copyright (c) 1999-2009 Ethan Galstad (http://www.nagios.org)
  * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
  * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
@@ -142,6 +139,7 @@ int             additional_freshness_latency = DEFAULT_ADDITIONAL_FRESHNESS_LATE
 time_t          last_command_check = 0L;
 time_t          last_command_status_update = 0L;
 time_t          last_log_rotation = 0L;
+time_t          last_program_stop = 0L;
 
 int             use_aggressive_host_checking = DEFAULT_AGGRESSIVE_HOST_CHECKING;
 unsigned long   cached_host_check_horizon = DEFAULT_CACHED_HOST_CHECK_HORIZON;
@@ -240,6 +238,8 @@ int             embedded_perl_initialized = FALSE;
 
 int             stalking_event_handlers_for_hosts = DEFAULT_STALKING_EVENT_HANDLERS_FOR_HOSTS;
 int             stalking_event_handlers_for_services = DEFAULT_STALKING_EVENT_HANDLERS_FOR_SERVICES;
+int             stalking_notifications_for_hosts = DEFAULT_STALKING_NOTIFICATIONS_FOR_HOSTS;
+int             stalking_notifications_for_services = DEFAULT_STALKING_NOTIFICATIONS_FOR_SERVICES;
 
 int             date_format = DATE_FORMAT_US;
 char            *use_timezone = NULL;
@@ -872,6 +872,11 @@ int main(int argc, char **argv, char **env) {
 			event_start = time(NULL);
 			my_free(mac->x[MACRO_EVENTSTARTTIME]);
 			dummy = asprintf(&mac->x[MACRO_EVENTSTARTTIME], "%lu", (unsigned long)event_start);
+
+			/* print event loop start */
+			dummy = asprintf(&buffer, "Event loop started...\n");
+			write_to_all_logs(buffer, NSLOG_PROCESS_INFO);
+			my_free(buffer);
 
 			/***** start monitoring all services *****/
 			/* (doesn't return until a restart or shutdown signal is encountered) */
