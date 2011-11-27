@@ -121,7 +121,6 @@ install-stamp: build-stamp fix-configs-stamp
 	dh_installdirs -a -i  
 	make install-unstripped DESTDIR=$b/tmp INSTALL_OPTS="" COMMAND_OPTS=""
 	make install-idoutils DESTDIR=$b/icinga-idoutils INSTALL_OPTS="" COMMAND_OPTS=""
-	make install-api DESTDIR=$b/icinga-phpapi INSTALL_OPTS="" COMMAND_OPTS=""
 	#We have to rename the sample files 
 	#mv $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample $b/icinga-idoutils/etc/icinga/ido2db.cfg
 	mv $b/icinga-idoutils/etc/icinga/idomod.cfg-sample $b/icinga-idoutils/etc/icinga/idomod.cfg
