@@ -34,7 +34,7 @@ Description: host and network monitoring system - support files
 
 Package: icinga-cgi
 Architecture: any
-Depends: icinga-common (= ${source:Version}), coreutils (>= 4.5.3), ucf (>= 0.28), apache2-utils, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, adduser, libjs-scriptaculous, libjs-prototype
+Depends: icinga-common (= ${source:Version}), coreutils (>= 4.5.3), ucf (>= 0.28), apache2-utils, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, adduser, libjs-jquery
 Recommends: apache2 | httpd, nagios-images (>> 0.1)
 Description: host and network monitoring system - CGI scripts
  Icinga is a modular monitoring framework for hosts, services, and

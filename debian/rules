@@ -149,6 +149,7 @@ install-stamp: build-stamp fix-configs-stamp
 	chown root:www-data ${b}/icinga-common/var/lib/icinga/rw
 	chmod 700 ${b}/icinga-common/var/lib/icinga/rw
 	dh_install           -i
+	rm ${b}/tmp/usr/share/icinga/htdocs/js/jquery-1.6.2.min.js
 	rm ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/*.in
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/redundancy-scenario1/*
 	# we use the versions in debian

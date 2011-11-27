@@ -1,7 +1,1 @@
-usr/share/javascript/mootools/mootools.js usr/share/icinga/htdocs/js/mootools.js
-usr/share/javascript/mootools/mootools-more.js usr/share/icinga/htdocs/js/mootools-more.js
-usr/share/javascript/prototype/prototype.js usr/share/icinga/htdocs/js/prototype.js
-usr/share/javascript/scriptaculous/scriptaculous.js usr/share/icinga/htdocs/js/scriptaculous.js
-usr/share/javascript/scriptaculous/builder.js usr/share/icinga/htdocs/js/builder.js
-usr/share/javascript/scriptaculous/slider.js usr/share/icinga/htdocs/js/slider.js
-usr/share/javascript/scriptaculous/dragdrop.js usr/share/icinga/htdocs/js/dragdrop.js
+usr/share/javascript/jquery/jquery.min.js usr/share/icinga/htdocs/js/jquery-1.6.2.min.js
