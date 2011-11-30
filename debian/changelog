@@ -7,6 +7,10 @@ icinga (1.6.0-1) unstable; urgency=low
   * [0ac1d13] phpapi is now deprecated - removed
   * [1edf848] Cleanup javascript
   * [ec0f684] Imported Upstream version 1.6.0
+    - removes git metadata in upstream tarball
+      (Closes: #613787)
+  * [b48970b] Add slovak po translation.
+    Thanks to Slavko for the translation (Closes: #641985)
 
  -- Alexander Wirt <formorer@debian.org>  Wed, 30 Nov 2011 15:52:07 +0100
 
