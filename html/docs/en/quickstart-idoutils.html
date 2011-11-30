@@ -635,7 +635,8 @@
 </tr>
 <tr><td align="left" valign="top">
       <p>If you just installed a new database system then you have to start the database server before you can create a database. In case
-      of MySQL you might use <code class="code">/etc/init.d/mysqld start</code>.</p>
+      of MySQL you might use <code class="code">/etc/init.d/mysqld start</code> (or <code class="code">/etc/init.d/mysql</code>, depending on your distribution).
+      </p>
     </td></tr>
 </table></div>
 
@@ -733,8 +734,8 @@
   <p><span class="bold"><strong>Oracle:</strong></span></p>
 
   <p>Create a database schema and username/password (refer to the Oracle documentation at http://www.oracle.com or consult your DBA).
-  Import the database scheme with sqlplus (or your preferred method). Copy <code class="filename">module/idoutils/db/oracle/oracle.sql</code> to
-  $ORACLE_HOME</p>
+  Import the database scheme with sqlplus (or your preferred method). Copy <code class="filename">module/idoutils/db/oracle/*</code> to
+  $ORACLE_HOME and edit <code class="filename">icinga_defines.sql</code> to match tablespace and user credential information.</p>
 
   <pre class="programlisting"> #&gt; su - oracle
  $&gt; sqlplus dbuser/dbpass
@@ -920,9 +921,9 @@
   no doubt want to monitor more than just your local machine, so check out the chapter on <a class="link" href="ch02.html" title="Chapter 2. Getting Started">"Getting Started"</a>
   about "Monitoring ..."</p>
 
-  <a class="indexterm" name="id5683265"></a>
+  <a class="indexterm" name="idp600416"></a>
 
-  <a class="indexterm" name="id5683286"></a>
+  <a class="indexterm" name="idp601904"></a>
 </div>
 <div class="navfooter">
 <hr>

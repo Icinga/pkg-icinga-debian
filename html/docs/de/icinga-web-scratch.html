@@ -54,7 +54,7 @@
 <li class="listitem">
               <p><span class="bold"><strong>Ubuntu / Debian</strong></span></p>
 
-              <pre class="programlisting"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-pdo php5-ldap php5-gd php5-mysql</pre>
+              <pre class="programlisting"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-pdo php5-ldap php5-soap php5-gd php5-mysql</pre>
 
               <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -73,7 +73,7 @@
               <p>Stellen Sie sicher, dass Sie ein Repository bzw. Pakete für PHP 5.2.3 und PCRE 7.6 haben - RHEL/CentOS &lt;= 5.x
               enthalten bisher lediglich PHP 5.1.6 und PCRE 6.6.</p>
 
-              <pre class="programlisting"> #&gt; yum install php php-cli php-pear php-xmlrpc php-xsl php-pdo php-ldap php-gd php-mysql</pre>
+              <pre class="programlisting"> #&gt; yum install php php-cli php-pear php-xmlrpc php-xsl php-pdo php-ldap php-soap php-gd php-mysql</pre>
 
               <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -244,7 +244,8 @@
       <pre class="programlisting"> #&gt; ./configure
  #&gt; make install</pre>
 
-      <p>unter <code class="filename">/usr/local/icinga-web</code> installiert.</p>
+      <p>unter <code class="filename">/usr/local/icinga-web</code> installiert. Das kann eine Weile dauern, also bitte nicht ungeduldig werden ;-)
+      </p>
 
       <p>Installation der neuen Apache-Konfiguration</p>
 
@@ -632,11 +633,11 @@
       Konfigurationsverzeichnis des Webservers (hier in der <code class="filename">icinga-web.conf</code>):</p>
 
       <pre class="programlisting">#&gt; vi /etc/apache2/conf.d/icinga-web.conf
-#&gt;
-#&gt; icinga-web apache configuration
-#&gt; - Enable all options .htaccess
-#&gt; - Add extjs library to alias
-#&gt;
+#
+# icinga-web apache configuration
+# - Enable all options .htaccess
+# - Add extjs library to alias
+#
 
 Alias /icinga-web/js/ext3 /usr/local/icinga-web/lib/ext3
 Alias /icinga-web /usr/local/icinga-web/pub
@@ -775,6 +776,13 @@ Alias /icinga-web /usr/local/icinga-web/pub
       /usr/local/icinga-web/app/cache/config/config_handlers.xml_development__xxxx.php" generated from configuration file
       /usr/local/icinga-web/app/config/config_handlers.xml". Please make sure you have set correct write permissions for directory
       /usr/local/icinga-web/app/cache.... =&gt; Setzen von safe_mode = off in /etc/php5/apache/php.ini.</p>
+      <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top"><p>Das kann auch ein Hinweis auf ein aktiviertes SELinux sein.</p></td></tr>
+</table></div>
 
       <p>* [PHP Error] strtotime(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone
       setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you
@@ -820,9 +828,9 @@ Alias /icinga-web /usr/local/icinga-web/pub
     </li>
 </ol></div>
 
-  <a class="indexterm" name="id1698335"></a>
+  <a class="indexterm" name="idp11333776"></a>
 
-  <a class="indexterm" name="id1698329"></a>
+  <a class="indexterm" name="idp11369472"></a>
 </div>
 <div class="navfooter">
 <hr>

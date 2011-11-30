@@ -1,0 +1,98 @@
+CC=@CC@
+CFLAGS=@CFLAGS@ @DEFS@
+LDFLAGS=@LDFLAGS@ @LIBS@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+LOGDIR=@localstatedir@
+PHPAPILOGDIR=@PHPAPILOGDIR@
+PHPAPIEXTCMDDIR=@PHPAPIEXTCMDDIR@
+CFGDIR=@sysconfdir@
+BINDIR=@bindir@
+CGIDIR=@sbindir@
+HTMLDIR=@datarootdir@
+INSTALL=@INSTALL@
+INSTALL_OPTS=@INSTALL_OPTS@
+COMMAND_OPTS=@COMMAND_OPTS@
+INSTALL_OPTS_WEB=@INSTALL_OPTS_WEB@
+WEB_USER=@web_user@
+WEB_GROUP=@web_group@
+
+none:
+	@echo "Please supply a command line argument (i.e. 'make install')."
+
+all api:
+
+clean:
+
+distclean: clean
+	rm -f Makefile subst
+	rm -f config.log config.status
+	rm -f contrib/ido2dbparser/Ido2dbParser.php
+	rm -f objects/debug/debugTargets/icingaApiFileDebugger.php
+	rm -f objects/command/IcingaApiCommandSendSsh.php
+
+devclean: distclean
+
+install:
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/command
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/connection
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/conversion
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/debug
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/debug/debugTargets
+	$(INSTALL) -m 775 $(INSTALL_OPTS_WEB) -d $(DESTDIR)$(PHPAPILOGDIR)
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/tests
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests/apiSearchDefinitions
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests/testDatabases
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/result
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/search
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/search/data_interfaces
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/search/filter
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/ociPDO 
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/objects/ociPDO/PDO 
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(HTMLDIR)/icinga-api/contrib/ido2dbparser
+	for file in *.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api; done
+	for file in objects/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects; done
+	for file in objects/command/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/command; done
+	for file in objects/connection/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/connection; done
+	for file in objects/conversion/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/conversion; done
+	for file in objects/debug/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/debug; done
+	for file in objects/debug/debugTargets/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/debug/debugTargets; done
+	for file in log/*; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS_WEB) $$file $(DESTDIR)$(PHPAPILOGDIR); done
+	for file in tests/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/tests; done
+	for file in tests/idoTests/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests; done
+	for file in tests/idoTests/apiSearchDefinitions/*.ini; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests/apiSearchDefinitions; done
+	for file in tests/idoTests/testDatabases/*.sql; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/tests/idoTests/testDatabases; done
+	for file in objects/result/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/result; done
+	for file in objects/search/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/search; done
+	for file in objects/search/data_interfaces/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/search/data_interfaces; done
+	for file in objects/search/filter/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/search/filter; done
+	for file in objects/ociPDO/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/ociPDO; done
+	for file in objects/ociPDO/PDO/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/objects/ociPDO/PDO; done 
+	for file in contrib/ido2dbparser/*.php; \
+	do $(INSTALL) -m 664 $(INSTALL_OPTS) $$file $(DESTDIR)$(HTMLDIR)/icinga-api/contrib/ido2dbparser; done
+
+
+

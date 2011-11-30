@@ -1,0 +1,3726 @@
+PHPUnit 3.4.14 by Sebastian Bergmann.
+
+.
+* Testing database connection..
+* Testing reference database connection...
+* Testing Service \w long_output (Target : service).
+* Testing Host History, order with non result field (Target : host_status_history).
+* Testing Host History (Target : host_status_history).
+* Testing Host (Target : host)Array
+(
+    [0] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 403
+            [HOST_NAME] => c1-db1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:22:45
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-db1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [1] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 405
+            [HOST_NAME] => c1-db2
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-db2 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [2] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 406
+            [HOST_NAME] => c1-fw
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-fw is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [3] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 408
+            [HOST_NAME] => c1-http
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-http is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [4] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 409
+            [HOST_NAME] => c1-mail1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-mail1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [5] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 410
+            [HOST_NAME] => c1-mail2
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-mail2 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [6] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 411
+            [HOST_NAME] => c1-nagios
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-nagios is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [7] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 407
+            [HOST_NAME] => c1-router
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-router is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [8] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 404
+            [HOST_NAME] => c1-switch
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-switch is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [9] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [HOST_NAME] => c1-tt1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-tt1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [10] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [HOST_NAME] => c2-app-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-app-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [11] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 416
+            [HOST_NAME] => c2-dbserver-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-dbserver-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [12] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 417
+            [HOST_NAME] => c2-file-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-file-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [13] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 418
+            [HOST_NAME] => c2-fw-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-fw-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [14] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 419
+            [HOST_NAME] => c2-mail-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-mail-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [15] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 420
+            [HOST_NAME] => c2-printserver-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-printserver-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [16] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 421
+            [HOST_NAME] => c2-proxy
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-proxy is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [17] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 422
+            [HOST_NAME] => c2-router-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-router-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [18] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 415
+            [HOST_NAME] => c2-switch-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-switch-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [19] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 423
+            [HOST_NAME] => gmx-pop
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:23:45
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 8.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [20] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 424
+            [HOST_NAME] => gmx-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-08 15:18:15
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [21] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 425
+            [HOST_NAME] => gmx-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 12.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [22] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 426
+            [HOST_NAME] => google-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-12 14:24:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [23] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 427
+            [HOST_NAME] => google-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 16.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [24] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [HOST_NAME] => monitor
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 0.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [25] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 428
+            [HOST_NAME] => web_de-pop
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 8.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [26] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 429
+            [HOST_NAME] => web_de-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-12 14:25:15
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [27] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 430
+            [HOST_NAME] => web_de-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 12.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [28] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 431
+            [HOST_NAME] => yahoo-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-12 14:24:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+    [29] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 432
+            [HOST_NAME] => yahoo-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 16.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 0
+        )
+
+)
+Array
+(
+    [0] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 403
+            [HOST_NAME] => c1-db1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:22:45
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-db1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [1] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 405
+            [HOST_NAME] => c1-db2
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-db2 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [2] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 406
+            [HOST_NAME] => c1-fw
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-fw is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [3] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 408
+            [HOST_NAME] => c1-http
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-http is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [4] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 409
+            [HOST_NAME] => c1-mail1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-mail1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [5] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 410
+            [HOST_NAME] => c1-mail2
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-mail2 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [6] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 411
+            [HOST_NAME] => c1-nagios
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-nagios is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [7] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 407
+            [HOST_NAME] => c1-router
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-router is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [8] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 404
+            [HOST_NAME] => c1-switch
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-switch is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [9] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [HOST_NAME] => c1-tt1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f1-tt1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [10] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [HOST_NAME] => c2-app-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-app-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [11] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 416
+            [HOST_NAME] => c2-dbserver-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-dbserver-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [12] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 417
+            [HOST_NAME] => c2-file-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-file-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [13] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 418
+            [HOST_NAME] => c2-fw-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-fw-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [14] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 419
+            [HOST_NAME] => c2-mail-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-mail-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [15] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 420
+            [HOST_NAME] => c2-printserver-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-printserver-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [16] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 421
+            [HOST_NAME] => c2-proxy
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-proxy is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [17] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 422
+            [HOST_NAME] => c2-router-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-router-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [18] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 415
+            [HOST_NAME] => c2-switch-1
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => check_alive.phpsh: OK (f2-switch-1 is on)
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [19] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 423
+            [HOST_NAME] => gmx-pop
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:23:45
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 8.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [20] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 424
+            [HOST_NAME] => gmx-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-08 15:18:15
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [21] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 425
+            [HOST_NAME] => gmx-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 12.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [22] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 426
+            [HOST_NAME] => google-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-12 14:24:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [23] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 427
+            [HOST_NAME] => google-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 16.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [24] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [HOST_NAME] => monitor
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 0.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [25] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 428
+            [HOST_NAME] => web_de-pop
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 8.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [26] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 429
+            [HOST_NAME] => web_de-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-12 14:25:15
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [27] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 430
+            [HOST_NAME] => web_de-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 12.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [28] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 431
+            [HOST_NAME] => yahoo-smtp
+            [HOST_CURRENT_STATE] => 1
+            [HOST_LAST_CHECK] => 2010-07-12 14:24:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING CRITICAL - Packet loss = 100%
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+    [29] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 432
+            [HOST_NAME] => yahoo-www
+            [HOST_CURRENT_STATE] => 0
+            [HOST_LAST_CHECK] => 2010-07-12 14:21:25
+            [HOST_CURRENT_CHECK_ATTEMPT] => 1
+            [HOST_OUTPUT] => PING OK - Packet loss = 0%, RTA = 16.00 ms
+            [HOST_MAX_CHECK_ATTEMPTS] => 10
+            [HOST_IS_PENDING] => 
+        )
+
+)
+F
+* Testing Hostgroup (Target : hostgroup_summary).
+* Testing Log (Target : log).
+* Testing Notification (Target : notifications).
+* Testing Service History (Target : service_status_history)-->Empty result (skipping) I
+* Testing Service (Target : service)Array
+(
+    [0] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 403
+            [SERVICE_OBJECT_ID] => 115
+            [HOST_NAME] => c1-db1
+            [SERVICE_NAME] => MySQL
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MySQL: OK, SQLquery OK - Query took 18.182 sec
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [1] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 403
+            [SERVICE_OBJECT_ID] => 116
+            [HOST_NAME] => c1-db1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 28.694: RTA = 0.055
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [2] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 404
+            [SERVICE_OBJECT_ID] => 128
+            [HOST_NAME] => c1-switch
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.639: RTA = 0.046
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [3] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 405
+            [SERVICE_OBJECT_ID] => 117
+            [HOST_NAME] => c1-db2
+            [SERVICE_NAME] => MySQL
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-22 17:23:48
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => test:
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [4] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 405
+            [SERVICE_OBJECT_ID] => 118
+            [HOST_NAME] => c1-db2
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.677: RTA = 0.047
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [5] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 406
+            [SERVICE_OBJECT_ID] => 119
+            [HOST_NAME] => c1-fw
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 28.736: RTA = 0.046
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [6] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 407
+            [SERVICE_OBJECT_ID] => 127
+            [HOST_NAME] => c1-router
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.836: RTA = 0.037
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [7] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 408
+            [SERVICE_OBJECT_ID] => 120
+            [HOST_NAME] => c1-http
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:03:45
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP: OK, HTTP OK HTTP/1.0 200 OK - 3270 bytes in 0.022 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [8] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 408
+            [SERVICE_OBJECT_ID] => 121
+            [HOST_NAME] => c1-http
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 20.180: RTA = 0.053
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [9] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 409
+            [SERVICE_OBJECT_ID] => 122
+            [HOST_NAME] => c1-mail1
+            [SERVICE_NAME] => MailQ
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:03:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MailQ: OK, mailq reports 7.062 mails in the queue
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [10] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 409
+            [SERVICE_OBJECT_ID] => 123
+            [HOST_NAME] => c1-mail1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 1.589: RTA = 0.032
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [11] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 410
+            [SERVICE_OBJECT_ID] => 124
+            [HOST_NAME] => c1-mail2
+            [SERVICE_NAME] => MailQ
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:03:53
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MailQ: OK, mailq reports 8.022 mails in the queue
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [12] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 410
+            [SERVICE_OBJECT_ID] => 125
+            [HOST_NAME] => c1-mail2
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.918: RTA = 0.057
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [13] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 411
+            [SERVICE_OBJECT_ID] => 126
+            [HOST_NAME] => c1-nagios
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 1.322: RTA = 0.026
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [14] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 150
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Current Load
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:07:47
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => OK - load average: 0.28, 0.43, 0.27
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [15] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 151
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Current Users
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:24:54
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => USERS OK - 1 users currently logged in
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [16] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 152
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:07:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING OK - Packet loss = 0%, RTA = 0.00 ms
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [17] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 153
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Root Partition
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:28
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => DISK OK - free space: / 3567 MB (37% inode=93%):
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [18] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 154
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Total Processes
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:08:02
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PROCS OK: 40 processes with STATE = RSZDT
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [19] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [SERVICE_OBJECT_ID] => 129
+            [HOST_NAME] => c1-tt1
+            [SERVICE_NAME] => Humidity
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => Humidity: OK, OK (h=13.736 %)
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [20] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [SERVICE_OBJECT_ID] => 130
+            [HOST_NAME] => c1-tt1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 0.608
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [21] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [SERVICE_OBJECT_ID] => 131
+            [HOST_NAME] => c1-tt1
+            [SERVICE_NAME] => Temperature
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => Temperature: OK, OK (t=21.417 C)
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [22] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [SERVICE_OBJECT_ID] => 132
+            [HOST_NAME] => c2-app-1
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:04:22
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP: OK, HTTP OK HTTP/1.0 200 OK - 0 bytes in 0 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [23] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [SERVICE_OBJECT_ID] => 133
+            [HOST_NAME] => c2-app-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 141: RTA = 44
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [24] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [SERVICE_OBJECT_ID] => 134
+            [HOST_NAME] => c2-app-1
+            [SERVICE_NAME] => WinDisk
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-01 12:28:17
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => WinDisk: OK, Windisk: - total: 500 Gb - used: 80% - free 12%)
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [25] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 415
+            [SERVICE_OBJECT_ID] => 144
+            [HOST_NAME] => c2-switch-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-02-19 18:12:02
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 11
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [26] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 416
+            [SERVICE_OBJECT_ID] => 135
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_NAME] => MySQL
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:04:30
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MySQL: OK, SQLquery OK - Query took 17.725 sec
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [27] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 416
+            [SERVICE_OBJECT_ID] => 136
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 29.459: RTA = 0.487
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [28] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 417
+            [SERVICE_OBJECT_ID] => 137
+            [HOST_NAME] => c2-file-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 0
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [29] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 418
+            [SERVICE_OBJECT_ID] => 138
+            [HOST_NAME] => c2-fw-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-04-14 04:00:27
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 16.891: RTA = 0.056
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [30] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 419
+            [SERVICE_OBJECT_ID] => 139
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_NAME] => MailQ
+            [SERVICE_CURRENT_STATE] => 1
+            [SERVICE_LAST_CHECK] => 2010-06-28 16:39:25
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => Error occured:error=1:0:0
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [31] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 419
+            [SERVICE_OBJECT_ID] => 140
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 5.327: RTA = 2.664
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [32] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 420
+            [SERVICE_OBJECT_ID] => 141
+            [HOST_NAME] => c2-printserver-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-22 11:53:00
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 1
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [33] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 421
+            [SERVICE_OBJECT_ID] => 142
+            [HOST_NAME] => c2-proxy
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 11.986: RTA = 0.031
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [34] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 422
+            [SERVICE_OBJECT_ID] => 143
+            [HOST_NAME] => c2-router-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 16.385: RTA = 0.053
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [35] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 423
+            [SERVICE_OBJECT_ID] => 145
+            [HOST_NAME] => gmx-pop
+            [SERVICE_NAME] => POP3
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:04:59
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => POP OK - 0,016 second response time on port 110 [+OK GMX POP3 StreamProxy ready]
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [36] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 424
+            [SERVICE_OBJECT_ID] => 146
+            [HOST_NAME] => gmx-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-24 11:26:02
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => rr:
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [37] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 425
+            [SERVICE_OBJECT_ID] => 147
+            [HOST_NAME] => gmx-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:06
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,064 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [38] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 426
+            [SERVICE_OBJECT_ID] => 148
+            [HOST_NAME] => google-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:47
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => CRITICAL - Socket timeout after 10 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [39] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 427
+            [SERVICE_OBJECT_ID] => 149
+            [HOST_NAME] => google-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:14
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,060 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [40] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 428
+            [SERVICE_OBJECT_ID] => 155
+            [HOST_NAME] => web_de-pop
+            [SERVICE_NAME] => POP3
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 4
+            [SERVICE_OUTPUT] => Verbindungsaufbau abgelehnt
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [41] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 429
+            [SERVICE_OBJECT_ID] => 156
+            [HOST_NAME] => web_de-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:36
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 4
+            [SERVICE_OUTPUT] => CRITICAL - Socket timeout after 10 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [42] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 430
+            [SERVICE_OBJECT_ID] => 157
+            [HOST_NAME] => web_de-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:08:10
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,060 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [43] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 431
+            [SERVICE_OBJECT_ID] => 158
+            [HOST_NAME] => yahoo-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:43
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 4
+            [SERVICE_OUTPUT] => CRITICAL - Socket timeout after 10 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+    [44] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 432
+            [SERVICE_OBJECT_ID] => 159
+            [HOST_NAME] => yahoo-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:08:17
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,064 seconds
+            [SERVICE_IS_PENDING] => 0
+        )
+
+)
+Array
+(
+    [0] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 403
+            [SERVICE_OBJECT_ID] => 115
+            [HOST_NAME] => c1-db1
+            [SERVICE_NAME] => MySQL
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MySQL: OK, SQLquery OK - Query took 18.182 sec
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [1] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 403
+            [SERVICE_OBJECT_ID] => 116
+            [HOST_NAME] => c1-db1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 28.694: RTA = 0.055
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [2] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 404
+            [SERVICE_OBJECT_ID] => 128
+            [HOST_NAME] => c1-switch
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.639: RTA = 0.046
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [3] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 405
+            [SERVICE_OBJECT_ID] => 117
+            [HOST_NAME] => c1-db2
+            [SERVICE_NAME] => MySQL
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-22 17:23:48
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => test:
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [4] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 405
+            [SERVICE_OBJECT_ID] => 118
+            [HOST_NAME] => c1-db2
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.677: RTA = 0.047
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [5] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 406
+            [SERVICE_OBJECT_ID] => 119
+            [HOST_NAME] => c1-fw
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 28.736: RTA = 0.046
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [6] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 407
+            [SERVICE_OBJECT_ID] => 127
+            [HOST_NAME] => c1-router
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.836: RTA = 0.037
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [7] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 408
+            [SERVICE_OBJECT_ID] => 120
+            [HOST_NAME] => c1-http
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:03:45
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP: OK, HTTP OK HTTP/1.0 200 OK - 3270 bytes in 0.022 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [8] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 408
+            [SERVICE_OBJECT_ID] => 121
+            [HOST_NAME] => c1-http
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 20.180: RTA = 0.053
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [9] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 409
+            [SERVICE_OBJECT_ID] => 122
+            [HOST_NAME] => c1-mail1
+            [SERVICE_NAME] => MailQ
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:03:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MailQ: OK, mailq reports 7.062 mails in the queue
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [10] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 409
+            [SERVICE_OBJECT_ID] => 123
+            [HOST_NAME] => c1-mail1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 1.589: RTA = 0.032
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [11] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 410
+            [SERVICE_OBJECT_ID] => 124
+            [HOST_NAME] => c1-mail2
+            [SERVICE_NAME] => MailQ
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:03:53
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MailQ: OK, mailq reports 8.022 mails in the queue
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [12] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 410
+            [SERVICE_OBJECT_ID] => 125
+            [HOST_NAME] => c1-mail2
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0.918: RTA = 0.057
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [13] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 411
+            [SERVICE_OBJECT_ID] => 126
+            [HOST_NAME] => c1-nagios
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 1.322: RTA = 0.026
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [14] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 150
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Current Load
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:07:47
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => OK - load average: 0.28, 0.43, 0.27
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [15] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 151
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Current Users
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:24:54
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => USERS OK - 1 users currently logged in
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [16] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 152
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:07:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING OK - Packet loss = 0%, RTA = 0.00 ms
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [17] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 153
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Root Partition
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:28
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => DISK OK - free space: / 3567 MB (37% inode=93%):
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [18] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 412
+            [SERVICE_OBJECT_ID] => 154
+            [HOST_NAME] => monitor
+            [SERVICE_NAME] => Total Processes
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:08:02
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PROCS OK: 40 processes with STATE = RSZDT
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [19] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [SERVICE_OBJECT_ID] => 129
+            [HOST_NAME] => c1-tt1
+            [SERVICE_NAME] => Humidity
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => Humidity: OK, OK (h=13.736 %)
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [20] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [SERVICE_OBJECT_ID] => 130
+            [HOST_NAME] => c1-tt1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 0.608
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [21] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 413
+            [SERVICE_OBJECT_ID] => 131
+            [HOST_NAME] => c1-tt1
+            [SERVICE_NAME] => Temperature
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => Temperature: OK, OK (t=21.417 C)
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [22] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [SERVICE_OBJECT_ID] => 132
+            [HOST_NAME] => c2-app-1
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:04:22
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP: OK, HTTP OK HTTP/1.0 200 OK - 0 bytes in 0 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [23] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [SERVICE_OBJECT_ID] => 133
+            [HOST_NAME] => c2-app-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 141: RTA = 44
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [24] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 414
+            [SERVICE_OBJECT_ID] => 134
+            [HOST_NAME] => c2-app-1
+            [SERVICE_NAME] => WinDisk
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-01 12:28:17
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => WinDisk: OK, Windisk: - total: 500 Gb - used: 80% - free 12%)
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [25] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 415
+            [SERVICE_OBJECT_ID] => 144
+            [HOST_NAME] => c2-switch-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-02-19 18:12:02
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 11
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [26] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 416
+            [SERVICE_OBJECT_ID] => 135
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_NAME] => MySQL
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:04:30
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => MySQL: OK, SQLquery OK - Query took 17.725 sec
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [27] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 416
+            [SERVICE_OBJECT_ID] => 136
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 29.459: RTA = 0.487
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [28] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 417
+            [SERVICE_OBJECT_ID] => 137
+            [HOST_NAME] => c2-file-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 0
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [29] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 418
+            [SERVICE_OBJECT_ID] => 138
+            [HOST_NAME] => c2-fw-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-04-14 04:00:27
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 16.891: RTA = 0.056
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [30] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 419
+            [SERVICE_OBJECT_ID] => 139
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_NAME] => MailQ
+            [SERVICE_CURRENT_STATE] => 1
+            [SERVICE_LAST_CHECK] => 2010-06-28 16:39:25
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => Error occured:error=1:0:0
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [31] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 419
+            [SERVICE_OBJECT_ID] => 140
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 5.327: RTA = 2.664
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [32] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 420
+            [SERVICE_OBJECT_ID] => 141
+            [HOST_NAME] => c2-printserver-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-22 11:53:00
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 0: RTA = 1
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [33] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 421
+            [SERVICE_OBJECT_ID] => 142
+            [HOST_NAME] => c2-proxy
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 11.986: RTA = 0.031
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [34] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 422
+            [SERVICE_OBJECT_ID] => 143
+            [HOST_NAME] => c2-router-1
+            [SERVICE_NAME] => PING
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:46
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => PING: OK, Packet loss = 16.385: RTA = 0.053
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [35] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 423
+            [SERVICE_OBJECT_ID] => 145
+            [HOST_NAME] => gmx-pop
+            [SERVICE_NAME] => POP3
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:04:59
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => POP OK - 0,016 second response time on port 110 [+OK GMX POP3 StreamProxy ready]
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [36] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 424
+            [SERVICE_OBJECT_ID] => 146
+            [HOST_NAME] => gmx-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-24 11:26:02
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => rr:
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [37] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 425
+            [SERVICE_OBJECT_ID] => 147
+            [HOST_NAME] => gmx-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:06
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,064 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [38] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 426
+            [SERVICE_OBJECT_ID] => 148
+            [HOST_NAME] => google-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:23:47
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => CRITICAL - Socket timeout after 10 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [39] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 427
+            [SERVICE_OBJECT_ID] => 149
+            [HOST_NAME] => google-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:14
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,060 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [40] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 428
+            [SERVICE_OBJECT_ID] => 155
+            [HOST_NAME] => web_de-pop
+            [SERVICE_NAME] => POP3
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 4
+            [SERVICE_OUTPUT] => Verbindungsaufbau abgelehnt
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [41] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 429
+            [SERVICE_OBJECT_ID] => 156
+            [HOST_NAME] => web_de-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:36
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 4
+            [SERVICE_OUTPUT] => CRITICAL - Socket timeout after 10 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [42] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 430
+            [SERVICE_OBJECT_ID] => 157
+            [HOST_NAME] => web_de-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:08:10
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,060 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [43] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 431
+            [SERVICE_OBJECT_ID] => 158
+            [HOST_NAME] => yahoo-smtp
+            [SERVICE_NAME] => SMTP
+            [SERVICE_CURRENT_STATE] => 2
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:05:43
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 4
+            [SERVICE_OUTPUT] => CRITICAL - Socket timeout after 10 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+    [44] => Array
+        (
+            [INSTANCE_NAME] => default
+            [HOST_OBJECT_ID] => 432
+            [SERVICE_OBJECT_ID] => 159
+            [HOST_NAME] => yahoo-www
+            [SERVICE_NAME] => HTTP
+            [SERVICE_CURRENT_STATE] => 0
+            [SERVICE_LAST_CHECK] => 2010-06-09 14:08:17
+            [SERVICE_MAX_CHECK_ATTEMPTS] => 4
+            [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+            [SERVICE_OUTPUT] => HTTP OK HTTP/1.1 200 OK - 8339 bytes in 0,064 seconds
+            [SERVICE_IS_PENDING] => 
+        )
+
+)
+F
+* Testing Servicegroup Summary (Target : servicegroup_summary).
+* Testing LOG Count (Target : log).
+* Testing Open Problems  (Target : host_service)Array
+(
+    [0] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-db1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [1] => Array
+        (
+            [SERVICE_NAME] => MySQL
+            [HOST_NAME] => c1-db1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [2] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-db1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [3] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-db2
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [4] => Array
+        (
+            [SERVICE_NAME] => MySQL
+            [HOST_NAME] => c1-db2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [5] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-db2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [6] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-fw
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [7] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-fw
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [8] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-http
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [9] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => c1-http
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [10] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-http
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [11] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-mail1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [12] => Array
+        (
+            [SERVICE_NAME] => MailQ
+            [HOST_NAME] => c1-mail1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [13] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-mail1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [14] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-mail2
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [15] => Array
+        (
+            [SERVICE_NAME] => MailQ
+            [HOST_NAME] => c1-mail2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [16] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-mail2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [17] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-nagios
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [18] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-nagios
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [19] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-router
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [20] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-router
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [21] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-switch
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [22] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-switch
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [23] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [24] => Array
+        (
+            [SERVICE_NAME] => Humidity
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [25] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [26] => Array
+        (
+            [SERVICE_NAME] => Temperature
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [27] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [28] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [29] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [30] => Array
+        (
+            [SERVICE_NAME] => WinDisk
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [31] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [32] => Array
+        (
+            [SERVICE_NAME] => MySQL
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [33] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [34] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-file-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [35] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-file-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [36] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-fw-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [37] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-fw-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [38] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [39] => Array
+        (
+            [SERVICE_NAME] => MailQ
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_CURRENT_STATE] => 1
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [40] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [41] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-printserver-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [42] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-printserver-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [43] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-proxy
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [44] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-proxy
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [45] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-router-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [46] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-router-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [47] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-switch-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [48] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-switch-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [49] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => gmx-pop
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [50] => Array
+        (
+            [SERVICE_NAME] => POP3
+            [HOST_NAME] => gmx-pop
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [51] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => gmx-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [52] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => gmx-smtp
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [53] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => gmx-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [54] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => gmx-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [55] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => google-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [56] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => google-smtp
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [57] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => google-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [58] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => google-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [59] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [60] => Array
+        (
+            [SERVICE_NAME] => Current Load
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [61] => Array
+        (
+            [SERVICE_NAME] => Current Users
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [62] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [63] => Array
+        (
+            [SERVICE_NAME] => Root Partition
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [64] => Array
+        (
+            [SERVICE_NAME] => Total Processes
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [65] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => web_de-pop
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [66] => Array
+        (
+            [SERVICE_NAME] => POP3
+            [HOST_NAME] => web_de-pop
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [67] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => web_de-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [68] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => web_de-smtp
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [69] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => web_de-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [70] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => web_de-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [71] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => yahoo-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [72] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => yahoo-smtp
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+    [73] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => yahoo-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 0
+        )
+
+    [74] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => yahoo-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 0
+            [HOST_IS_PENDING] => 0
+        )
+
+)
+Array
+(
+    [0] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-proxy
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [1] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [2] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-mail2
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [3] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-http
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [4] => Array
+        (
+            [SERVICE_NAME] => Temperature
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [5] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [6] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-proxy
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [7] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => gmx-pop
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [8] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-mail2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [9] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => c1-http
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [10] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-http
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [11] => Array
+        (
+            [SERVICE_NAME] => Current Users
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [12] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-router
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [13] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-db2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [14] => Array
+        (
+            [SERVICE_NAME] => MailQ
+            [HOST_NAME] => c1-mail2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [15] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [16] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-router
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [17] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-db2
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [18] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => google-smtp
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [19] => Array
+        (
+            [SERVICE_NAME] => MySQL
+            [HOST_NAME] => c1-db1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [20] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [21] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [22] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => web_de-smtp
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [23] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-db1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [24] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [25] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-db1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [26] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => yahoo-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [27] => Array
+        (
+            [SERVICE_NAME] => MySQL
+            [HOST_NAME] => c1-db2
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [28] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [29] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [30] => Array
+        (
+            [SERVICE_NAME] => MySQL
+            [HOST_NAME] => c2-dbserver-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [31] => Array
+        (
+            [SERVICE_NAME] => Current Load
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [32] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [33] => Array
+        (
+            [SERVICE_NAME] => WinDisk
+            [HOST_NAME] => c2-app-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [34] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => gmx-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [35] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-switch-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [36] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-mail1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [37] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => gmx-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [38] => Array
+        (
+            [SERVICE_NAME] => Total Processes
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [39] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-switch-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [40] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-mail1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [41] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => yahoo-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [42] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => web_de-pop
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [43] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => google-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [44] => Array
+        (
+            [SERVICE_NAME] => MailQ
+            [HOST_NAME] => c1-mail1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [45] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-router-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [46] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-file-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [47] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => yahoo-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [48] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-file-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [49] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-router-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [50] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-fw-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [51] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-switch
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [52] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => gmx-smtp
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [53] => Array
+        (
+            [SERVICE_NAME] => SMTP
+            [HOST_NAME] => yahoo-smtp
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [54] => Array
+        (
+            [SERVICE_NAME] => Humidity
+            [HOST_NAME] => c1-tt1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [55] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [56] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => gmx-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [57] => Array
+        (
+            [SERVICE_NAME] => POP3
+            [HOST_NAME] => gmx-pop
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [58] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-fw-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [59] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-switch
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [60] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [61] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => web_de-smtp
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 1
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [62] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-fw
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [63] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c2-printserver-1
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [64] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => c1-nagios
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [65] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => google-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [66] => Array
+        (
+            [SERVICE_NAME] => MailQ
+            [HOST_NAME] => c2-mail-1
+            [SERVICE_CURRENT_STATE] => 1
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [67] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => web_de-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [68] => Array
+        (
+            [SERVICE_NAME] => Root Partition
+            [HOST_NAME] => monitor
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [69] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-fw
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [70] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c2-printserver-1
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [71] => Array
+        (
+            [SERVICE_NAME] => PING
+            [HOST_NAME] => c1-nagios
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [72] => Array
+        (
+            [SERVICE_NAME] => HTTP
+            [HOST_NAME] => google-www
+            [SERVICE_CURRENT_STATE] => 0
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [73] => Array
+        (
+            [SERVICE_NAME] => POP3
+            [HOST_NAME] => web_de-pop
+            [SERVICE_CURRENT_STATE] => 2
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+    [74] => Array
+        (
+            [SERVICE_NAME] => 
+            [HOST_NAME] => web_de-www
+            [SERVICE_CURRENT_STATE] => 
+            [HOST_CURRENT_STATE] => 0
+            [SERVICE_IS_PENDING] => 
+            [HOST_IS_PENDING] => 
+        )
+
+)
+F
+* Testing Objectsearch: Host Name (Target : host).
+* Testing Objectsearch: Service name (Target : service).
+* Testing Objectsearch: Hostgroup name (Target : hostgroup).
+* Testing Objectsearch: Servicegroup name (Target : servicegroup).
+
+Time: 1 second, Memory: 9.25Mb
+
+There were 3 failures:
+
+1) idoTests_idoCreateSearchTest::testSearchTargets with data set "Host" (array('IcingaApi::TARGET_HOST', array('INSTANCE_NAME', 'HOST_OBJECT_ID', 'HOST_NAME', 'HOST_CURRENT_STATE', 'HOST_LAST_CHECK', 'HOST_CURRENT_CHECK_ATTEMPT', 'HOST_OUTPUT', 'HOST_MAX_CHECK_ATTEMPTS', 'HOST_IS_PENDING'), array('0', '75'), array(array('HOST_NAME', 'ASC'), array('HOST_LAST_CHECK', 'DESC')), 'Host', false, false, false, false))
+Different results, couldn't find entry Array
+(
+    [INSTANCE_NAME] => default
+    [HOST_OBJECT_ID] => 403
+    [HOST_NAME] => c1-db1
+    [HOST_CURRENT_STATE] => 0
+    [HOST_LAST_CHECK] => 2010-07-12 14:22:45
+    [HOST_CURRENT_CHECK_ATTEMPT] => 1
+    [HOST_OUTPUT] => check_alive.phpsh: OK (f1-db1 is on)
+    [HOST_MAX_CHECK_ATTEMPTS] => 10
+    [HOST_IS_PENDING] => 0
+)
+ in reference set
+
+/usr/local/icinga-api/tests/idoTests/idoCreateSearchTest.php:79
+
+2) idoTests_idoCreateSearchTest::testSearchTargets with data set "Service" (array('IcingaApi::TARGET_SERVICE', array('INSTANCE_NAME', 'HOST_OBJECT_ID', 'SERVICE_OBJECT_ID', 'HOST_NAME', 'SERVICE_NAME', 'SERVICE_CURRENT_STATE', 'SERVICE_LAST_CHECK', 'SERVICE_MAX_CHECK_ATTEMPTS', 'SERVICE_CURRENT_CHECK_ATTEMPT', 'SERVICE_OUTPUT', 'SERVICE_IS_PENDING'), array('0', '75'), array(array('HOST_OBJECT_ID', 'ASC'), array('SERVICE_OBJECT_ID', 'ASC')), 'Service', false, false, false, false))
+Different results, couldn't find entry Array
+(
+    [INSTANCE_NAME] => default
+    [HOST_OBJECT_ID] => 403
+    [SERVICE_OBJECT_ID] => 115
+    [HOST_NAME] => c1-db1
+    [SERVICE_NAME] => MySQL
+    [SERVICE_CURRENT_STATE] => 0
+    [SERVICE_LAST_CHECK] => 2010-07-12 14:21:55
+    [SERVICE_MAX_CHECK_ATTEMPTS] => 5
+    [SERVICE_CURRENT_CHECK_ATTEMPT] => 1
+    [SERVICE_OUTPUT] => MySQL: OK, SQLquery OK - Query took 18.182 sec
+    [SERVICE_IS_PENDING] => 0
+)
+ in reference set
+
+/usr/local/icinga-api/tests/idoTests/idoCreateSearchTest.php:79
+
+3) idoTests_idoCreateSearchTest::testSearchTargets with data set "Open Problems " (array('IcingaApi::TARGET_HOST_SERVICE', array('SERVICE_NAME', 'HOST_NAME', 'SERVICE_CURRENT_STATE', 'HOST_CURRENT_STATE', 'SERVICE_IS_PENDING', 'HOST_IS_PENDING'), 'Open Problems ', false, false, false, false, false, false))
+Different results, couldn't find entry Array
+(
+    [SERVICE_NAME] => 
+    [HOST_NAME] => c1-db1
+    [SERVICE_CURRENT_STATE] => 
+    [HOST_CURRENT_STATE] => 0
+    [SERVICE_IS_PENDING] => 
+    [HOST_IS_PENDING] => 0
+)
+ in reference set
+
+/usr/local/icinga-api/tests/idoTests/idoCreateSearchTest.php:79
+
+FAILURES!
+Tests: 20, Assertions: 0, Failures: 3, Incomplete: 1.
