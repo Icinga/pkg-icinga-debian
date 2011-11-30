@@ -1,9 +1,14 @@
-icinga (1.6.0~beta-1) UNRELEASED; urgency=low
+icinga (1.6.0-1) unstable; urgency=low
 
   * [0c69c1a] Fix permissions and remove *.in in contrib files (Closes: #648735)
-  * [14d7134] Imported Upstream version 1.6.0~beta
+  * [a34927a] Refresh 51_commands.cfg-debianize.dpatch
+  * [0808c54] Remove mootools
+  * [0c2f21d] Add changelog
+  * [0ac1d13] phpapi is now deprecated - removed
+  * [1edf848] Cleanup javascript
+  * [ec0f684] Imported Upstream version 1.6.0
 
- -- Alexander Wirt <formorer@debian.org>  Sat, 26 Nov 2011 09:14:50 +0100
+ -- Alexander Wirt <formorer@debian.org>  Wed, 30 Nov 2011 15:52:07 +0100
 
 icinga (1.5.1-1) unstable; urgency=low
 
