@@ -650,7 +650,11 @@
   </td></tr>
 </table></div>
 
-  <p><span class="bold"><strong>Konfigurieren von Datenbank und IDOUtils</strong></span></p>
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+  <p><span class="bold"><strong>MySQL:</strong></span></p>
+
+  <p><span class="emphasis"><em>Anlegen und konfigurieren von Datenbank, Benutzer und Berechtigungen</em></span></p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -659,24 +663,8 @@
 </tr>
 <tr><td align="left" valign="top">
     <p>Wenn Sie wie weiter oben beschrieben das Datenbanksystem neu installiert haben, dann müssen Sie den Datenbank-Server starten,
-    bevor Sie eine Datenbank anlegen können. Im Falle von MySQL erfolgt der Start z.B. mit <code class="code">/etc/init.d/mysql start</code>.</p>
-  </td></tr>
-</table></div>
-
-  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
-<li class="listitem">
-  <p><span class="bold"><strong>MySQL:</strong></span></p>
-
-  <p><span class="emphasis"><em>Anlegen von Datenbank, Benutzer und Berechtigungen</em></span></p>
-
-  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
-<th align="left">Anmerkung</th>
-</tr>
-<tr><td align="left" valign="top">
-    <p>Falls Sie gerade ein neues Datenbanksystem installiert haben, dann müssen Sie den Datenbank-Server-Prozess starten, bevor Sie eine
-    Datenbank anlegen können. Im Falle von MySQL benutzen Sie <code class="code">/etc/init.d/mysqld start</code>.</p>
+    bevor Sie eine Datenbank anlegen können. Im Falle von MySQL erfolgt der Start z.B. mit <code class="code">/etc/init.d/mysqld start</code> (oder
+    <code class="code">/etc/init.d/mysql</code>, abhängig von Ihrer Distribution).</p>
   </td></tr>
 </table></div>
 
@@ -769,7 +757,8 @@
 
   <p>Erstellen Sie ein Datenbank-Schema und eine username/password-Kombination (lesen Sie dazu die Oracle-Dokumentation unter
   http://www.oracle.com oder fragen Sie Ihren DBA). Importieren Sie das Datenbank-Schema mit sqlplus (oder Ihrer bevorzugten Methode). Kopieren Sie
-  module/idoutils/db/oracle/oracle.sql nach $ORACLE_HOME</p>
+  <code class="filename">module/idoutils/db/oracle/*</code> nach $ORACLE_HOME und ändern Sie in <code class="filename">icinga_defines.sql</code> die
+  Werte zu Tablespace-Namen und Benutzerdaten.</p>
 
   <pre class="programlisting"> #&gt; su - oracle
  $ sqlplus dbuser/dbpass
@@ -1018,9 +1007,9 @@
   Zweifel mehr als nur Ihre lokale Maschine überwachen wollen, so dass Sie u.a. das folgende <a class="link" href="ch02.html" title="Kapitel 2. Los geht's">Kapitel </a> lesen
   sollten...</p>
 
-  <a class="indexterm" name="id1608601"></a>
+  <a class="indexterm" name="idp621872"></a>
 
-  <a class="indexterm" name="id1608600"></a>
+  <a class="indexterm" name="idp623520"></a>
 </div>
 <div class="navfooter">
 <hr>

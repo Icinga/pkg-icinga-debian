@@ -54,7 +54,7 @@
 <li class="listitem">
               <p><span class="bold"><strong>Ubuntu / Debian</strong></span></p>
 
-              <pre class="programlisting"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-pdo php5-gd php5-ldap php5-mysql</pre>
+              <pre class="programlisting"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-pdo php5-soap php5-gd php5-ldap php5-mysql</pre>
 
               <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -70,7 +70,7 @@
 <li class="listitem">
               <p><span class="bold"><strong>Fedora / RHEL / CentOS</strong></span></p>
 
-              <pre class="programlisting"> #&gt; yum install php php-cli php-pear php-xmlrpc php-xsl php-pdo php-gd php-ldap php-mysql</pre>
+              <pre class="programlisting"> #&gt; yum install php php-cli php-pear php-xmlrpc php-xsl php-pdo php-soap php-gd php-ldap php-mysql</pre>
 
               <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -236,6 +236,7 @@
 
       <pre class="programlisting"> #&gt; ./configure
  #&gt; make install</pre>
+      <p>This may take a while so please be patient ;-).</p>
 
       <p>Install the new Apache configuration</p>
 
@@ -759,6 +760,13 @@ Alias /icinga-web /usr/local/icinga-web/pub
       /usr/local/icinga-web/app/cache/config/config_handlers.xml_development__xxxx.php" generated from configuration file
       /usr/local/icinga-web/app/config/config_handlers.xml". Please make sure you have set correct write permissions for directory
       /usr/local/icinga-web/app/cache.... = &gt; Check <code class="filename">/etc/php5/apache/php.ini</code>, set safe_mode = off.</p>
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>This may also be an SELinux issue.</p></td></tr>
+</table></div>
 
       <p>* [PHP Error] strtotime(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone
       setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you
@@ -806,11 +814,11 @@ Alias /icinga-web /usr/local/icinga-web/pub
     </li>
 </ol></div>
 
-  <a class="indexterm" name="id5775277"></a>
+  <a class="indexterm" name="idp11592896"></a>
 
-  <a class="indexterm" name="id5775538"></a>
+  <a class="indexterm" name="idp11624736"></a>
 
-  <a class="indexterm" name="id5775540"></a>
+  <a class="indexterm" name="idp11625984"></a>
 </div>
 <div class="navfooter">
 <hr>
