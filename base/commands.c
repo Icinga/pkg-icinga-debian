@@ -425,6 +425,8 @@ int process_external_command1(char *cmd) {
 
 	else if (!strcmp(command_id, "ACKNOWLEDGE_HOST_PROBLEM"))
 		command_type = CMD_ACKNOWLEDGE_HOST_PROBLEM;
+	else if (!strcmp(command_id, "ACKNOWLEDGE_HOST_PROBLEM_EXPIRE"))
+		command_type = CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE;
 	else if (!strcmp(command_id, "REMOVE_HOST_ACKNOWLEDGEMENT"))
 		command_type = CMD_REMOVE_HOST_ACKNOWLEDGEMENT;
 
@@ -600,6 +602,8 @@ int process_external_command1(char *cmd) {
 
 	else if (!strcmp(command_id, "ACKNOWLEDGE_SVC_PROBLEM"))
 		command_type = CMD_ACKNOWLEDGE_SVC_PROBLEM;
+	else if (!strcmp(command_id, "ACKNOWLEDGE_SVC_PROBLEM_EXPIRE"))
+		command_type = CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE;
 	else if (!strcmp(command_id, "REMOVE_SVC_ACKNOWLEDGEMENT"))
 		command_type = CMD_REMOVE_SVC_ACKNOWLEDGEMENT;
 
@@ -1095,7 +1099,9 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 		break;
 
 	case CMD_ACKNOWLEDGE_HOST_PROBLEM:
+	case CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE:
 	case CMD_ACKNOWLEDGE_SVC_PROBLEM:
+	case CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE:
 		cmd_acknowledge_problem(cmd, args);
 		break;
 
@@ -1223,8 +1229,10 @@ int process_host_command(int cmd, time_t entry_time, char *args) {
 		return ERROR;
 
 	/* find the host */
-	if ((temp_host = find_host(host_name)) == NULL)
+	if ((temp_host = find_host(host_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 		return ERROR;
+	}
 
 	switch (cmd) {
 
@@ -1358,8 +1366,10 @@ int process_hostgroup_command(int cmd, time_t entry_time, char *args) {
 		return ERROR;
 
 	/* find the hostgroup */
-	if ((temp_hostgroup = find_hostgroup(hostgroup_name)) == NULL)
+	if ((temp_hostgroup = find_hostgroup(hostgroup_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find hostgroup '%s' provided in external command!\n", hostgroup_name);
 		return ERROR;
+	}
 
 	/* loop through all hosts in the hostgroup */
 	for (temp_member = temp_hostgroup->members; temp_member != NULL; temp_member = temp_member->next) {
@@ -1459,8 +1469,10 @@ int process_service_command(int cmd, time_t entry_time, char *args) {
 		return ERROR;
 
 	/* find the service */
-	if ((temp_service = find_service(host_name, svc_description)) == NULL)
+	if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 		return ERROR;
+	}
 
 	switch (cmd) {
 
@@ -1554,8 +1566,10 @@ int process_servicegroup_command(int cmd, time_t entry_time, char *args) {
 		return ERROR;
 
 	/* find the servicegroup */
-	if ((temp_servicegroup = find_servicegroup(servicegroup_name)) == NULL)
+	if ((temp_servicegroup = find_servicegroup(servicegroup_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find servicegroup '%s' provided in external command!\n", servicegroup_name);
 		return ERROR;
+	}
 
 	switch (cmd) {
 
@@ -1677,8 +1691,10 @@ int process_contact_command(int cmd, time_t entry_time, char *args) {
 		return ERROR;
 
 	/* find the contact */
-	if ((temp_contact = find_contact(contact_name)) == NULL)
+	if ((temp_contact = find_contact(contact_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find contact '%s' provided in external command!\n", contact_name);
 		return ERROR;
+	}
 
 	switch (cmd) {
 
@@ -1718,8 +1734,10 @@ int process_contactgroup_command(int cmd, time_t entry_time, char *args) {
 		return ERROR;
 
 	/* find the contactgroup */
-	if ((temp_contactgroup = find_contactgroup(contactgroup_name)) == NULL)
+	if ((temp_contactgroup = find_contactgroup(contactgroup_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find contactgroup '%s' provided in external command!\n", contactgroup_name);
 		return ERROR;
+	}
 
 	switch (cmd) {
 
@@ -1796,13 +1814,17 @@ int cmd_add_comment(int cmd, time_t entry_time, char *args) {
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(host_name, svc_description)) == NULL)
+		if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 	}
 
 	/* else verify that the host is valid */
-	if ((temp_host = find_host(host_name)) == NULL)
+	if ((temp_host = find_host(host_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 		return ERROR;
+	}
 
 	/* get the persistent flag */
 	if ((temp_ptr = my_strtok(NULL, ";")) == NULL)
@@ -1870,13 +1892,17 @@ int cmd_delete_all_comments(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(host_name, svc_description)) == NULL)
+		if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 	}
 
 	/* else verify that the host is valid */
-	if ((temp_host = find_host(host_name)) == NULL)
+	if ((temp_host = find_host(host_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 		return ERROR;
+	}
 
 	/* delete comments */
 	delete_all_comments((cmd == CMD_DEL_ALL_HOST_COMMENTS) ? HOST_COMMENT : SERVICE_COMMENT, host_name, svc_description);
@@ -1907,15 +1933,19 @@ int cmd_delay_notification(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(host_name, svc_description)) == NULL)
+		if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 	}
 
 	/* else verify that the host is valid */
 	else {
 
-		if ((temp_host = find_host(host_name)) == NULL)
+		if ((temp_host = find_host(host_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 			return ERROR;
+		}
 	}
 
 	/* get the time that we should delay until... */
@@ -1951,8 +1981,10 @@ int cmd_schedule_check(int cmd, char *args) {
 	if (cmd == CMD_SCHEDULE_HOST_CHECK || cmd == CMD_SCHEDULE_FORCED_HOST_CHECK || cmd == CMD_SCHEDULE_HOST_SVC_CHECKS || cmd == CMD_SCHEDULE_FORCED_HOST_SVC_CHECKS) {
 
 		/* verify that the host is valid */
-		if ((temp_host = find_host(host_name)) == NULL)
+		if ((temp_host = find_host(host_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 			return ERROR;
+		}
 	} else {
 
 		/* get the service description */
@@ -1960,8 +1992,10 @@ int cmd_schedule_check(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(host_name, svc_description)) == NULL)
+		if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 	}
 
 	/* get the next check time */
@@ -2002,8 +2036,10 @@ int cmd_schedule_host_service_checks(int cmd, char *args, int force) {
 		return ERROR;
 
 	/* verify that the host is valid */
-	if ((temp_host = find_host(host_name)) == NULL)
+	if ((temp_host = find_host(host_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 		return ERROR;
+	}
 
 	/* get the next check time */
 	if ((temp_ptr = my_strtok(NULL, "\n")) == NULL)
@@ -2340,6 +2376,7 @@ int cmd_acknowledge_problem(int cmd, char *args) {
 	char *ack_author = NULL;
 	char *ack_data = NULL;
 	char *temp_ptr = NULL;
+	time_t end_time = 0L;
 	int type = ACKNOWLEDGEMENT_NORMAL;
 	int notify = TRUE;
 	int persistent = TRUE;
@@ -2349,19 +2386,23 @@ int cmd_acknowledge_problem(int cmd, char *args) {
 		return ERROR;
 
 	/* verify that the host is valid */
-	if ((temp_host = find_host(host_name)) == NULL)
+	if ((temp_host = find_host(host_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 		return ERROR;
+	}
 
 	/* this is a service acknowledgement */
-	if (cmd == CMD_ACKNOWLEDGE_SVC_PROBLEM) {
+	if (cmd == CMD_ACKNOWLEDGE_SVC_PROBLEM || cmd == CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE) {
 
 		/* get the service name */
 		if ((svc_description = my_strtok(NULL, ";")) == NULL)
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(temp_host->name, svc_description)) == NULL)
+		if ((temp_service = find_service(temp_host->name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 	}
 
 	/* get the type */
@@ -2379,6 +2420,14 @@ int cmd_acknowledge_problem(int cmd, char *args) {
 		return ERROR;
 	persistent = (atoi(temp_ptr) > 0) ? TRUE : FALSE;
 
+	/* this acknowledegment will expire */
+	if (cmd == CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE || cmd == CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE) {
+		/* get end_time option */
+		if ((temp_ptr = my_strtok(NULL, ";")) == NULL)
+			return ERROR;
+		end_time = (time_t)strtoul(temp_ptr, NULL, 10);
+	}
+
 	/* get the acknowledgement author */
 	if ((temp_ptr = my_strtok(NULL, ";")) == NULL)
 		return ERROR;
@@ -2392,12 +2441,12 @@ int cmd_acknowledge_problem(int cmd, char *args) {
 	ack_data = (char *)strdup(temp_ptr);
 
 	/* acknowledge the host problem */
-	if (cmd == CMD_ACKNOWLEDGE_HOST_PROBLEM)
-		acknowledge_host_problem(temp_host, ack_author, ack_data, type, notify, persistent);
+	if (cmd == CMD_ACKNOWLEDGE_HOST_PROBLEM || cmd == CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE)
+		acknowledge_host_problem(temp_host, ack_author, ack_data, type, notify, persistent, end_time);
 
 	/* acknowledge the service problem */
 	else
-		acknowledge_service_problem(temp_service, ack_author, ack_data, type, notify, persistent);
+		acknowledge_service_problem(temp_service, ack_author, ack_data, type, notify, persistent, end_time);
 
 	/* free memory */
 	my_free(ack_author);
@@ -2420,8 +2469,10 @@ int cmd_remove_acknowledgement(int cmd, char *args) {
 		return ERROR;
 
 	/* verify that the host is valid */
-	if ((temp_host = find_host(host_name)) == NULL)
+	if ((temp_host = find_host(host_name)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 		return ERROR;
+	}
 
 	/* we are removing a service acknowledgement */
 	if (cmd == CMD_REMOVE_SVC_ACKNOWLEDGEMENT) {
@@ -2431,8 +2482,10 @@ int cmd_remove_acknowledgement(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(temp_host->name, svc_description)) == NULL)
+		if ((temp_service = find_service(temp_host->name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 	}
 
 	/* acknowledge the host problem */
@@ -2479,8 +2532,10 @@ int cmd_schedule_downtime(int cmd, time_t entry_time, char *args) {
 			return ERROR;
 
 		/* verify that the hostgroup is valid */
-		if ((temp_hostgroup = find_hostgroup(hostgroup_name)) == NULL)
+		if ((temp_hostgroup = find_hostgroup(hostgroup_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find hostgroup '%s' provided in external command!\n", hostgroup_name);
 			return ERROR;
+		}
 	}
 
 	else if (cmd == CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME || cmd == CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME) {
@@ -2490,8 +2545,10 @@ int cmd_schedule_downtime(int cmd, time_t entry_time, char *args) {
 			return ERROR;
 
 		/* verify that the servicegroup is valid */
-		if ((temp_servicegroup = find_servicegroup(servicegroup_name)) == NULL)
+		if ((temp_servicegroup = find_servicegroup(servicegroup_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find servicegroup '%s' provided in external command!\n", servicegroup_name);
 			return ERROR;
+		}
 	}
 
 	else {
@@ -2501,8 +2558,10 @@ int cmd_schedule_downtime(int cmd, time_t entry_time, char *args) {
 			return ERROR;
 
 		/* verify that the host is valid */
-		if ((temp_host = find_host(host_name)) == NULL)
+		if ((temp_host = find_host(host_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 			return ERROR;
+		}
 
 		/* this is a service downtime */
 		if (cmd == CMD_SCHEDULE_SVC_DOWNTIME) {
@@ -2866,8 +2925,10 @@ int cmd_change_object_int_var(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(host_name, svc_description)) == NULL)
+		if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 
 		break;
 
@@ -2881,8 +2942,10 @@ int cmd_change_object_int_var(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the host is valid */
-		if ((temp_host = find_host(host_name)) == NULL)
+		if ((temp_host = find_host(host_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 			return ERROR;
+		}
 		break;
 
 	case CMD_CHANGE_CONTACT_MODATTR:
@@ -2894,8 +2957,10 @@ int cmd_change_object_int_var(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the contact is valid */
-		if ((temp_contact = find_contact(contact_name)) == NULL)
+		if ((temp_contact = find_contact(contact_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find contact '%s' provided in external command!\n", contact_name);
 			return ERROR;
+		}
 		break;
 
 	default:
@@ -3165,8 +3230,10 @@ int cmd_change_object_char_var(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the host is valid */
-		if ((temp_host = find_host(host_name)) == NULL)
+		if ((temp_host = find_host(host_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
 			return ERROR;
+		}
 
 		if ((charval = my_strtok(NULL, "\n")) == NULL)
 			return ERROR;
@@ -3187,8 +3254,10 @@ int cmd_change_object_char_var(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the service is valid */
-		if ((temp_service = find_service(host_name, svc_description)) == NULL)
+		if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
 			return ERROR;
+		}
 
 		if ((charval = my_strtok(NULL, "\n")) == NULL)
 			return ERROR;
@@ -3204,8 +3273,10 @@ int cmd_change_object_char_var(int cmd, char *args) {
 			return ERROR;
 
 		/* verify that the contact is valid */
-		if ((temp_contact = find_contact(contact_name)) == NULL)
+		if ((temp_contact = find_contact(contact_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find contact '%s' provided in external command!\n", contact_name);
 			return ERROR;
+		}
 
 		if ((charval = my_strtok(NULL, "\n")) == NULL)
 			return ERROR;
@@ -4070,16 +4141,18 @@ void schedule_and_propagate_downtime(host *temp_host, time_t entry_time, char *a
 
 
 /* acknowledges a host problem */
-void acknowledge_host_problem(host *hst, char *ack_author, char *ack_data, int type, int notify, int persistent) {
+void acknowledge_host_problem(host *hst, char *ack_author, char *ack_data, int type, int notify, int persistent, time_t end_time) {
 	time_t current_time = 0L;
 
 	/* cannot acknowledge a non-existent problem */
 	if (hst->current_state == HOST_UP)
 		return;
 
+	time(&current_time);
+
 #ifdef USE_EVENT_BROKER
 	/* send data to event broker */
-	broker_acknowledgement_data(NEBTYPE_ACKNOWLEDGEMENT_ADD, NEBFLAG_NONE, NEBATTR_NONE, HOST_ACKNOWLEDGEMENT, (void *)hst, ack_author, ack_data, type, notify, persistent, NULL);
+	broker_acknowledgement_data_expire(NEBTYPE_ACKNOWLEDGEMENT_ADD, NEBFLAG_NONE, NEBATTR_NONE, HOST_ACKNOWLEDGEMENT, (void *)hst, ack_author, ack_data, type, notify, persistent, end_time, NULL);
 #endif
 
 	/* send out an acknowledgement notification */
@@ -4092,28 +4165,37 @@ void acknowledge_host_problem(host *hst, char *ack_author, char *ack_data, int t
 	/* set the acknowledgement type */
 	hst->acknowledgement_type = (type == ACKNOWLEDGEMENT_STICKY) ? ACKNOWLEDGEMENT_STICKY : ACKNOWLEDGEMENT_NORMAL;
 
+	/* set the acknowledgement expire time type */
+	if (end_time > current_time)
+		schedule_new_event(EVENT_EXPIRE_ACKNOWLEDGEMENT, TRUE, (end_time + 1), FALSE, 0, NULL, FALSE, hst, NULL, HOST_ACKNOWLEDGEMENT);
+	else
+		end_time = (time_t)0;
+
+	hst->acknowledgement_end_time = end_time;
+
 	/* update the status log with the host info */
 	update_host_status(hst, FALSE);
 
 	/* add a comment for the acknowledgement */
-	time(&current_time);
-	add_new_host_comment(ACKNOWLEDGEMENT_COMMENT, hst->name, current_time, ack_author, ack_data, persistent, COMMENTSOURCE_INTERNAL, FALSE, (time_t)0, NULL);
+	add_new_host_comment(ACKNOWLEDGEMENT_COMMENT, hst->name, current_time, ack_author, ack_data, persistent, COMMENTSOURCE_INTERNAL, (end_time != 0) ? TRUE : FALSE, end_time, NULL);
 
 	return;
 }
 
 
 /* acknowledges a service problem */
-void acknowledge_service_problem(service *svc, char *ack_author, char *ack_data, int type, int notify, int persistent) {
+void acknowledge_service_problem(service *svc, char *ack_author, char *ack_data, int type, int notify, int persistent, time_t end_time) {
 	time_t current_time = 0L;
 
 	/* cannot acknowledge a non-existent problem */
 	if (svc->current_state == STATE_OK)
 		return;
 
+	time(&current_time);
+
 #ifdef USE_EVENT_BROKER
 	/* send data to event broker */
-	broker_acknowledgement_data(NEBTYPE_ACKNOWLEDGEMENT_ADD, NEBFLAG_NONE, NEBATTR_NONE, SERVICE_ACKNOWLEDGEMENT, (void *)svc, ack_author, ack_data, type, notify, persistent, NULL);
+	broker_acknowledgement_data_expire(NEBTYPE_ACKNOWLEDGEMENT_ADD, NEBFLAG_NONE, NEBATTR_NONE, SERVICE_ACKNOWLEDGEMENT, (void *)svc, ack_author, ack_data, type, notify, persistent, end_time, NULL);
 #endif
 
 	/* send out an acknowledgement notification */
@@ -4126,12 +4208,19 @@ void acknowledge_service_problem(service *svc, char *ack_author, char *ack_data,
 	/* set the acknowledgement type */
 	svc->acknowledgement_type = (type == ACKNOWLEDGEMENT_STICKY) ? ACKNOWLEDGEMENT_STICKY : ACKNOWLEDGEMENT_NORMAL;
 
+	/* set the acknowledgement expire time type */
+	if (end_time > current_time)
+		schedule_new_event(EVENT_EXPIRE_ACKNOWLEDGEMENT, TRUE, (end_time + 1), FALSE, 0, NULL, FALSE, svc, NULL, SERVICE_ACKNOWLEDGEMENT);
+	else
+		end_time = (time_t)0;
+
+	svc->acknowledgement_end_time = end_time;
+
 	/* update the status log with the service info */
 	update_service_status(svc, FALSE);
 
 	/* add a comment for the acknowledgement */
-	time(&current_time);
-	add_new_service_comment(ACKNOWLEDGEMENT_COMMENT, svc->host_name, svc->description, current_time, ack_author, ack_data, persistent, COMMENTSOURCE_INTERNAL, FALSE, (time_t)0, NULL);
+	add_new_service_comment(ACKNOWLEDGEMENT_COMMENT, svc->host_name, svc->description, current_time, ack_author, ack_data, persistent, COMMENTSOURCE_INTERNAL, (end_time != 0) ? TRUE : FALSE, end_time, NULL);
 
 	return;
 }
@@ -4142,6 +4231,7 @@ void remove_host_acknowledgement(host *hst) {
 
 	/* set the acknowledgement flag */
 	hst->problem_has_been_acknowledged = FALSE;
+	hst->acknowledgement_end_time = (time_t)0;
 
 	/* update the status log with the host info */
 	update_host_status(hst, FALSE);
@@ -4158,6 +4248,7 @@ void remove_service_acknowledgement(service *svc) {
 
 	/* set the acknowledgement flag */
 	svc->problem_has_been_acknowledged = FALSE;
+	svc->acknowledgement_end_time = (time_t)0;
 
 	/* update the status log with the service info */
 	update_service_status(svc, FALSE);

@@ -10,8 +10,13 @@
 
   <para><emphasis role="bold"><anchor xml:id="introduction_quickstart_icinga" />Introduction</emphasis></para>
 
-  <note><para>Meanwhile there are &name-icinga; packages for most Linux distributions. Unless you need a feature only available in the
-  current source tree you should consider installing one of these packages.</para></note>
+  <note><para>Instead of installing &name-icinga; from scratch you may want to use a package which might be available for your OS. Please
+    take a look at the <link xlink:href="https://www.icinga.org/download/packages">table of packages</link>.
+    </para>
+    <para>If you are planning to install from source then please use the official release tarball.</para>
+  </note>
+  <important><para>Please don't use git snapshots unless you have an issue which might be solved in the current developer version.</para>
+  </important>
  
   <para>This guide is intended to provide you with simple instructions on how to install &name-icinga; from source (code) and have it
   monitoring your local machine within 20 minutes.</para>
@@ -84,13 +89,29 @@
 
   <para><emphasis role="bold">Install packages</emphasis></para>
 
-  <para>You can install these packages by running the following commands (as root or sudo):</para>
+  <para>You can install these packages by running the following commands (as root or using <filename>sudo</filename>).</para>
+
+  <note><para>Unfortunately sometimes the names of packages change between different releases of the same distribution so if you get a
+  message that one of the packages cannot be found then please use the search option of your package manager to get the new name:
+    <itemizedlist>
+      <listitem>
+        <literal>yum search &lt;package name&gt;</literal> (<emphasis>&name-fedora;/&name-rhel;/&name-centos;</emphasis>)
+      </listitem>
+      <listitem>
+        <literal>apt-cache search &lt;package name&gt;</literal> (<emphasis>&name-debian;/&name-ubuntu;</emphasis>)
+      </listitem>
+      <listitem>
+        <literal>zypper search &lt;package name&gt;</literal> (<emphasis>&name-opensuse;/&name-sles;</emphasis>)
+      </listitem>
+    </itemizedlist>
+  </para></note>
 
   <para><emphasis>&name-fedora;/&name-rhel;/&name-centos;</emphasis></para>
 
   <programlisting> #&gt; yum install httpd gcc glibc glibc-common gd gd-devel
  #&gt; yum install libjpeg libjpeg-devel libpng libpng-devel
  #&gt; yum install net-snmp net-snmp-devel net-snmp-utils</programlisting>
+  <note><para>You may have to use libjpeg-turbo and libjpeg-turbo-devel instead</para></note>
 
   <para><emphasis>&name-debian;/&name-ubuntu;</emphasis></para>
 
@@ -106,6 +127,9 @@
 
   <para>Please use YaST to install at least the packages gd, gd-devel, libjpeg, libjpeg-devel, libpng, libpng-devel and, optionally,
   net-snmp, net-snmp-devel and perl-Net-SNMP.</para>
+  <para>Using zypper should work as well:</para>
+  <programlisting> #&gt; zypper install gd gd-devel libjpeg libjpeg-devel libpng libpng-devel
+ #&gt; zypper install net-snmp net-snmp-devel perl-Net-SNMP</programlisting> 
 
   <note>
     <para>Depending on the software selection during the installation of the OS you may need to install additional packages (i.e. apache2,

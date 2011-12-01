@@ -102,7 +102,7 @@ int nebmodule_init(int flags, char *args, void *handle) {
 	idomod_module_handle = handle;
 
 	/* log module info to the Icinga log file */
-	snprintf(temp_buffer, sizeof(temp_buffer) - 1, "idomod: %s %s (%s) Copyright (c) 2005-2008 Ethan Galstad (nagios@nagios.org), Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org))", IDOMOD_NAME, IDOMOD_VERSION, IDOMOD_DATE);
+	snprintf(temp_buffer, sizeof(temp_buffer) - 1, "idomod: %s %s (%s) %s", IDOMOD_NAME, IDO_VERSION, IDO_DATE, IDO_COPYRIGHT);
 	temp_buffer[sizeof(temp_buffer)-1] = '\x0';
 	idomod_write_to_logs(temp_buffer, NSLOG_INFO_MESSAGE);
 
@@ -574,7 +574,7 @@ int idomod_hello_sink(int reconnect, int problem_disconnect) {
 	         , IDO_API_AGENT
 	         , IDOMOD_NAME
 	         , IDO_API_AGENTVERSION
-	         , IDOMOD_VERSION
+	         , IDO_VERSION
 	         , IDO_API_STARTTIME
 	         , (unsigned long)time(NULL)
 	         , IDO_API_DISPOSITION
@@ -667,7 +667,6 @@ int idomod_rotate_sink_file(void *args) {
 
 	return IDO_OK;
 }
-
 
 /* writes data to sink */
 int idomod_write_to_sink(char *buf, int buffer_write, int flush_buffer) {
@@ -2965,7 +2964,7 @@ int idomod_broker_data(int event_type, void *data) {
 		es[3] = ido_escape_buffer(ackdata->comment_data);
 
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d\n\n"
+		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%ld\n%d\n\n"
 		         , IDO_API_ACKNOWLEDGEMENTDATA
 		         , IDO_DATA_TYPE
 		         , ackdata->type
@@ -2994,6 +2993,8 @@ int idomod_broker_data(int event_type, void *data) {
 		         , ackdata->persistent_comment
 		         , IDO_DATA_NOTIFYCONTACTS
 		         , ackdata->notify_contacts
+			 , IDO_DATA_END_TIME
+			 , ackdata->end_time
 		         , IDO_API_ENDDATA
 		        );
 
@@ -3013,7 +3014,7 @@ int idomod_broker_data(int event_type, void *data) {
 				return 0;
 			}
 			last_state = temp_host->last_state;
-			last_state = temp_host->last_hard_state;
+			last_hard_state = temp_host->last_hard_state;
 		} else {
 			if ((temp_service = (service *)schangedata->object_ptr) == NULL) {
 				ido_dbuf_free(&dbuf);

@@ -30,6 +30,9 @@ typedef struct ido2db_dbconfig_struct{
 	unsigned long max_externalcommands_age;
         unsigned long max_logentries_age;
         unsigned long max_acknowledgements_age;
+        unsigned long max_notifications_age;
+        unsigned long max_contactnotifications_age;
+        unsigned long max_contactnotificationmethods_age;
 	unsigned long trim_db_interval;
 	unsigned long housekeeping_thread_startup_delay;
         unsigned long clean_realtime_tables_on_core_startup;
@@ -110,8 +113,9 @@ typedef struct ido2db_dbconfig_struct{
 #define IDO2DB_DBTABLE_HOSTESCALATIONCONTACTGROUPS    66
 #define IDO2DB_DBTABLE_SERVICEESCALATIONCONTACTGROUPS 67
 #define IDO2DB_DBTABLE_DBVERSION                      68
+#define IDO2DB_DBTABLE_SLAHISTORY                     69
 
-#define IDO2DB_MAX_DBTABLES                           69
+#define IDO2DB_MAX_DBTABLES                           70
 
 
 /**************** Object types *****************/
@@ -130,6 +134,8 @@ typedef struct ido2db_dbconfig_struct{
 #define IDO2DB_OBJECTTYPE_COMMAND             12
 
 
+
+extern char *ido2db_db_tablenames[IDO2DB_MAX_DBTABLES];
 
 int ido2db_db_init(ido2db_idi *);
 int ido2db_db_deinit(ido2db_idi *);
@@ -167,7 +173,7 @@ int ido2db_oci_prepared_statement_bind_null_param(OCI_Statement *, char *);
 int ido2db_oci_bind_clob(OCI_Statement *st, char * bindname, char * text,OCI_Lob **);
 int ido2db_oci_set_trace_event(OCI_Connection *,unsigned int);
 int ido2db_oci_execute_out(OCI_Statement *,char *);
-int ido2db_oci_set_appinfo(OCI_Connection *, char *);
+int ido2db_oci_set_session_info(OCI_Connection *, char *);
 void ido2db_oci_print_binds(OCI_Statement *,int,char **);
 void ido2db_oci_statement_free(OCI_Statement *,char *);
 #endif /* Oracle ocilib specific */

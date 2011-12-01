@@ -74,12 +74,13 @@
 
     <revhistory>
       <revision>
-        <revnumber>1.5</revnumber>
+        <revnumber>1.6</revnumber>
 
-        <date>2011-08-24</date>
+        <date>2011-11-30</date>
 
-        <revremark>1.5 Icinga Documentation</revremark>
+        <revremark>1.6 Icinga Documentation</revremark>
       </revision>
+
       <revision>
         <revnumber>1.x</revnumber>
 
@@ -88,6 +89,13 @@
         <revremark>1.x Icinga Documentation</revremark>
       </revision>
 <!--
+      <revision>
+        <revnumber>1.5</revnumber>
+
+        <date>2011-08-24</date>
+
+        <revremark>1.5 Icinga Documentation</revremark>
+      </revision>
       <revision>
         <revnumber>1.4</revnumber>
 
@@ -360,7 +368,7 @@
 
     <xi:include href="int-mklivestatus.xml" />
 
-    <xi:include href="reporting.xml" />
+    <xi:include href="reporting_1.6.xml" />
 
   </chapter>
 
@@ -392,6 +400,8 @@
     <xi:include href="db_introduction.xml" />
 
     <xi:include href="db_components.xml" />
+
+    <xi:include href="configido.xml" />
 
     <xi:include href="db_example-configs.xml" />
 

@@ -10,8 +10,15 @@
 
   <para><emphasis role="bold"><anchor xml:id="introduction_idoutils_freebsd" />Einführung</emphasis></para>
 
-  <note><para>Inzwischen gibt es &name-icinga;-Pakete für die meisten Linux-Distributionen. Solange Sie kein Feature benötigen, das  
-  lediglich im aktuellen Source-Zweig enthalten ist, sollten Sie die Installation eines dieser Pakete erwägen.</para></note>
+  <note><para>Anstatt &name-icinga; von Grund auf zu installieren möchten Sie vielleicht ein Paket benutzen, das es möglicherweise für Ihr
+    Betriebssystem gibt. Bitte werfen Sie einen Blick auf die
+    <link xlink:href="https://www.icinga.org/download/packages">Tabelle der Pakete</link>.
+    </para>
+    <para>Falls Sie aus den Sourcen installieren möchten, dann benutzen Sie bitte die offiziellen Release-Tarballs.</para>
+  </note>
+  <important><para>Bitte benutzen Sie keine GIT-Snapshots, solange Sie kein Problem haben, das in der aktuellen Entwicklerversion ggf.
+    gelöst ist.</para>
+  </important>
 
   <para>Diese Schnellstartanleitung ist dazu gedacht, Ihnen einfache Anweisungen zu liefern, wie Sie &name-icinga; innerhalb von 30 Minuten
   aus dem Quellcode installieren und Ihren lokalen Rechner damit überwachen.</para>
@@ -76,6 +83,9 @@
 
     <listitem>
       <para>libdbi-Treiber, eine Datenbank wie z.B. &name-mysql; oder &name-postgres;</para>
+      <note><para>PostgreSQL: Aufgrund von Änderungen an Insert-Statements funktioniert PostgreSQL 8.1 nicht länger (und ist auch bereits
+        <link xlink:href="http://wiki.postgresql.org/wiki/PostgreSQL_Release_Support_Policy">"End-of-life"</link> seit November 2010), also
+        benutzen Sie bitte 8.2 oder besser noch 8.4. String escaping mit PostgreSQL 9.x befindet sich noch in einem experimentellen Stadium         (siehe auch <link xlink:href="https://dev.icinga.org/issues/1974">issue #1974</link>).</para></note>
     </listitem>
   </itemizedlist>
 
@@ -97,6 +107,22 @@
   <para><emphasis role="bold">Oracle-Datenbankunterstützung</emphasis></para>
 
   <para>Wenn Sie Oracle als RDBMS einsetzen möchten, dann ist das unter &name-freebsd; leider nicht so ohne weiteres möglich.</para>
+
+  <para><anchor xml:id="quickstart-idoutils_timezone-support" /><emphasis role="bold">Zeitzonenunterstützung</emphasis></para>
+  <para>Ab &name-icinga; 1.6 werden alle Zeit-/Datumsinformationen als lokale Zeitstempel in der Datenbank gespeichert. Vorher gab es für
+  jedes Datenbanksystem unterschiedliche Vorgehensweisen beim Speichern und Abrufen der Daten, was schwierig für Frontend-Applikationen war.
+  Deshalb wurden die Datentypen geändert: für &name-mysql; von DATETIME in TIMESTAMP und für &name-oracle; von DATE in LOCAL TIMESTAMP (0).
+  &name-postgres; benutzt bereits TIMESTAMP, es wurde aber in TIMESTAMP WITH TIME ZONE geändert. IDO2DB wird die Sitzungszeitzone auf UTC
+  setzen und alle Unix-Timestamps (die per Definition UTC sind) als UTC-basierte Werte speichern. Bitte stellen Sie sicher, dass Ihr System
+  Unix-Timestamps als UTC-basierte Werte ausgibt (wie "date -u '+%s'").</para>
+  <note><para>Stellen Sie sicher, dass Ihre Datenbanksitzung in der gleichen Zeitzone läuft, in der die existierenden
+  Zeit-/Datumsinformationen gespeichert wurden (überprüfen Sie Ihre lokale Zeitzone, z.B. &name-oracle;: "select sessiontimezone from
+  dual;"), wenn Sie das Upgrade-Script laufen lassen.
+  Zusätzlich für Ihre Bequemlichkeit sollten Sie in &name-oracle; das Format der Sitzungszeitstempel auf den Wert zu setzen, den Sie
+  wünschen, z.B. "alter session set nls_timestamp_format='YYYY-MM-DD HH24:MI:SS'; oder etwas ähnliches.
+  Nun können Sie Einträge von verschiedenen &name-icinga;-Installationen in unterschiedlichen Zeitzonen ansehen, die in der gleichen
+  Datenbank gespeichert wurden, und unabhängig davon, von woher Sie darauf zugreifen, werden sie in Ihrer lokalen Zeitzone angezeigt.
+  </para></note>
 
   <para><emphasis role="bold">Installation der Pakete</emphasis></para>
 
@@ -222,9 +248,10 @@
   <note><para>Ab &name-icinga; 1.5.0 ist <literal>gmake install-config</literal> NICHT mehr in <literal>gmake fullinstall </literal> 
   enthalten, um ein versehentliches Überschreiben der Konfigurationsdateien zu verhindern.</para></note>
 
-  <para>Die Icinga-API wird beim Aufruf von "gmake install" installiert, wenn Sie nur die Icinga-API (nach)installieren möchten, nutzen Sie:
-  <programlisting> #&gt; gmake install-api</programlisting>Die Icinga-API ist Voraussetzung für das Icinga Web-Interface (nicht für die
-  klassische Ansicht!).</para>
+  <note>
+    <para>Die &name-icinga;-API diente als eine in PHP geschriebene Datenbank-Abstraktionsschicht. Seit &name-icinga; ist sie durch eine 
+    interne Datenbank-Abstraktionsschicht ersetzt worden, so dass &name-icinga;-API nicht mehr installiert werden muss.</para>
+  </note>
 
   <para>Starten Sie &name-icinga; noch nicht - es gibt noch ein paar Dinge zu tun...</para>
 
@@ -260,20 +287,19 @@
   </note>
 
   <para><emphasis role="bold">Aktivieren Sie das idomod-Eventbroker-Modul</emphasis></para>
-  <para>Editieren Sie &url-icinga-cfg; und suchen Sie nach "broker_module" und aktivieren Sie diese Zeile bzw. fügen Sie die folgende 
-  Zeile hinzu (passen Sie die Namen an, falls nötig).</para>
 
-  <programlisting> broker_module=&url-icinga-base;/bin/idomod.o config_file=&url-icinga-base;/etc/idomod.cfg</programlisting>
+  <important>
+    <para>Unter normalen Umständen gibt es im <filename>modules</filename>-Unterverzeichnis bereits die folgende module-Definition, so dass
+    Sie keine Änderungen an der Hauptkonfigurationsdatei vornehmen müssen.</para>
 
-  <note><para>Ab &name-icinga; 1.4 können Sie statt des broker_module-Eintrags die neue module-Definition in einer Ihrer
-  Objektkonfigurationsdateien benutzen:</para>
     <screen> define module{
         module_name    ido_mod
         path           &url-icinga-base;/bin/idomod.o
         module_type    neb
         args           config_file=&url-icinga-base;/etc/idomod.cfg
         }</screen>
-  </note>
+    Das bedeutet auch, dass ein entsprechender broker_module-Eintrag nicht aktiviert werden darf!
+  </important>
 
   <para><emphasis role="bold">Konfigurieren von Datenbank und &name-idoutils;</emphasis></para>
 
@@ -448,5 +474,9 @@
     <primary>Quickstart</primary>
 
     <secondary>&name-icinga; und &name-idoutils; auf &name-freebsd;</secondary>
+  </indexterm>
+
+  <indexterm zone="quickstart-idoutils_timezone-support">
+    <primary>&name-idoutils; / Zeitzonen-Unterstützung</primary>
   </indexterm>
 </section>

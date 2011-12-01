@@ -6,7 +6,7 @@
 <section version="5.0" xml:id="icinga-web-intro_1.5" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:svg="http://www.w3.org/2000/svg" xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml" xmlns:db="http://docbook.org/ns/docbook">
-  <title>Introduction to &name-web; (&gt;= 1.5.x)</title>
+  <title>Introduction to &name-web; 1.5.x</title>
 
   <para>If you followed the quickstart guides (<link linkend="quickstart-idoutils">&name-idoutils;</link> and <link
   linkend="icinga-web-scratch">&name-web;</link>) then please open your browser and enter http://&lt;icinga server&gt;/icinga-web. You will
@@ -42,7 +42,7 @@
   <para><emphasis>Main Screen</emphasis></para>
 
   <para>This is where everything comes together: You can drag and drop new windows over here resulting in a new opened tab. The views are
-  customisable for the current user (they remain persistent) by dragging the column heading to the new place. Rightclicking on the heading
+  customizable for the current user (they remain persistent) by dragging the column heading to the new place. Rightclicking on the heading
   allows to change the sort order or to hide columns. Selected search results will be opened here too, next to opening available
   cronks.</para>
 
@@ -130,7 +130,7 @@
     </listitem>
 
     <listitem>
-      <para>"Tactical Overview" keeps general charts and customised ones (custom variables)</para>
+      <para>"Tactical Overview" keeps general charts and customized ones (custom variables)</para>
 
       <figure>
         <title>&name-web; tactical overview cronks</title>
@@ -354,7 +354,7 @@
 
   <para><emphasis>Filters</emphasis></para>
 
-  <para>Icinga Web allows to set filters and create customised views which can be saved as own persistent cronk too. First, select "Filter"
+  <para>Icinga Web allows to set filters and create customized views which can be saved as own persistent cronk too. First, select "Filter"
   and "Modify". Add a restriction selected from the dropdown menu (this differs for various cronks). You can set more restrictions by
   repeating this procedure.</para>
 
@@ -557,9 +557,7 @@
     </screenshot>
   </figure>
 
-  <para>Well, that&apos;s it for now.</para>
-
-  <indexterm zone="icinga-web-intro_1.5">
+  <indexterm zone="icinga-web-intro_1.3">
     <primary>&name-web;</primary>
 
     <secondary>Overview version 1.5.x</secondary>
