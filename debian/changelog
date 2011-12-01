@@ -1,3 +1,15 @@
+icinga (1.6.0-1~artax1) artax; urgency=low
+
+  * Uploading to artax, remaining changes:
+    - Updating maintainer and uploaders fields.
+    - Updating vcs fields.
+    - Adding bugs field.
+    - Adding debconf handling for icinga check_external_commands option
+      (Closes: #592738).
+  * Regenerating debconf files.
+
+ -- Daniel Baumann <daniel.baumann@progress-linux.org>  Thu, 01 Dec 2011 07:12:28 +0100
+
 icinga (1.6.0-1) unstable; urgency=low
 
   * [0c69c1a] Fix permissions and remove *.in in contrib files (Closes: #648735)
