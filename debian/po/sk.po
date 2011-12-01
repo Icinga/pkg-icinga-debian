@@ -1,0 +1,94 @@
+# Slovak translations for icinga package
+# Slovenské preklady pre balík icinga.
+# Copyright (C) 2011 THE icinga'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the icinga package.
+# Automatically generated, 2011.
+# Slavko <linux@slavino.sk>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: icinga 1.5.1-1\n"
+"Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
+"POT-Creation-Date: 2010-05-06 08:46+0200\n"
+"PO-Revision-Date: 2011-09-18 13:24+0200\n"
+"Last-Translator: Slavko <linux@slavino.sk>\n"
+"Language-Team: Slovak <debian-l10n-slovak@lists.debian.org>\n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid "Apache servers to configure for icinga:"
+msgstr "Servery Apache, ktoré majú byť nastavené pre icinga:"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid "Please select which Apache servers should be configured for icinga."
+msgstr "Prosím, vyberte servery Apache, ktoré majú byť nastavené pre icinga."
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid ""
+"If you would prefer to perform configuration manually, leave all servers "
+"unselected."
+msgstr "Ak dávate prednosť manuálnemu nastaveniu, nevyberte žiadny server."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid "Icinga web administration password:"
+msgstr "Heslo webovej administrácie Icinga:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid ""
+"Please provide the password to be created with the \"icingaadmin\" user."
+msgstr ""
+"Prosím, zadajte heslo, ktoré má byť vytvorené pre používateľa „icingaadmin”."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid ""
+"This is the username and password to use when connecting to the Icinga "
+"server after completing the configuration. If you do not provide a password, "
+"you will have to configure access to Icinga manually later on."
+msgstr ""
+"Toto používateľské meno a heslo slúži na prístup k serveru Icinga, po "
+"dokončení nastavenia. Ak nezadáte heslo, budete musieť nastaviť prístup "
+"neskôr manuálne."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid "Re-enter password to verify:"
+msgstr "Zopakujte heslo, na overenie:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid ""
+"Please enter the same user password again to verify you have typed it "
+"correctly."
+msgstr ""
+"Prosím, zadajte rovnaké používateľské heslo znova, na overenie, že ste ho "
+"napísali správne."
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "Password input error"
+msgstr "Chyba zadania hesla"
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "The two passwords you entered were not the same. Please try again."
+msgstr "Zadané dve heslá sa nezhodujú. Prosím, skúste znova."

@@ -39,7 +39,7 @@ Description: host and network monitoring system - support files
 
 Package: icinga-cgi
 Architecture: any
-Depends: icinga-common (= ${source:Version}), coreutils (>= 4.5.3), ucf (>= 0.28), apache2-utils, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, adduser, libjs-scriptaculous, libjs-prototype, libjs-mootools
+Depends: icinga-common (= ${source:Version}), coreutils (>= 4.5.3), ucf (>= 0.28), apache2-utils, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, adduser, libjs-jquery
 Recommends: apache2 | httpd, nagios-images (>> 0.1)
 Description: host and network monitoring system - CGI scripts
  Icinga is a modular monitoring framework for hosts, services, and
@@ -149,29 +149,6 @@ Description: host and network monitoring system - documentation
     file, etc.
  .
  This package provides the documentation for Icinga.
-
-Package: icinga-phpapi
-Architecture: all
-Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}, php5 | php5-cgi | php5-cli | libapache2-mod-php5
-Recommends: icinga-idoutils, php5-mysql | php5-pgsql
-Description: host and network monitoring system - PHP API
- Icinga is a modular monitoring framework for hosts, services, and
- networks, based on the Nagios project. It is designed to be easy to
- understand and modify to fit any need.
- .
- Features include:
-  * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port
-  * plugin interface to allow for user-developed service checks;
-  * contact notifications when problems occur and get resolved (via
-    email, pager, or user-defined method)
-  * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events)
-  * web output: current status, notifications, problem history, log
-    file, etc.
- .
- This package provides the API needed to access idoutils and livestatus
- information from PHP.
 
 Package: icinga-dbg
 Section: debug
