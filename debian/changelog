@@ -1,3 +1,12 @@
+icinga (1.6.1-2) unstable; urgency=low
+
+  * [56d53d9] fix template for ido2db_check_proc.cfg
+  * [200d89f] Depend on libdbi-dev (Closes: #653277)
+  * [69370bc] Add indonesian po translation.
+    Thanks to Mahyuddin Susanto for the translation (Closes: #654159)
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 03 Jan 2012 16:51:45 +0100
+
 icinga (1.6.1-1) unstable; urgency=low
 
   * [0e847f9] Add versioned dep for jquery
