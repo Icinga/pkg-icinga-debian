@@ -69,6 +69,8 @@ fix-configs-stamp: configure-stamp
 	sed -e '/Sample CGI/ s/\([0-9]\.[0-9]\.[0-9]\)//' \
 	    -e '/Last Modified/,+1 d' \
 	    sample-config/cgi.cfg > debian-configs/cgi.cfg
+	sed -i -e 's/local-service/generic-service/' \
+		module/idoutils/config/ido2db_check_proc.cfg
 	sed -e '/Sample Main Config/ s/\([0-9]\.[0-9]\.[0-9]\)//' \
 	    -e '/Last Modified/ d' \
 	    sample-config/icinga.cfg > debian-configs/icinga.cfg
