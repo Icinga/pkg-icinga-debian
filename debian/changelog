@@ -1,3 +1,16 @@
+icinga (1.6.1-2~artax1) artax; urgency=low
+
+  * Uploading to artax, remaining changes:
+    - Updating maintainer and uploaders fields.
+    - Updating vcs fields.
+    - Adding bugs field.
+    - Adding debconf handling for icinga check_external_commands option
+      (Closes: #592738).
+  * Making build-depends on libdbi backports friendly.
+  * Regenerating debconf files.
+
+ -- Daniel Baumann <daniel.baumann@progress-linux.org>  Wed, 04 Jan 2012 14:01:00 +0100
+
 icinga (1.6.1-2) unstable; urgency=low
 
   * [56d53d9] fix template for ido2db_check_proc.cfg
