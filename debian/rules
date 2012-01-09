@@ -71,6 +71,8 @@ fix-configs-stamp: configure-stamp
 	    sample-config/cgi.cfg > debian-configs/cgi.cfg
 	sed -i -e 's/local-service/generic-service/' \
 		module/idoutils/config/ido2db_check_proc.cfg
+	sed -i -e 's#/usr/sbin/#/usr/lib/icinga/#' \
+		module/idoutils/config/idoutils.cfg-sample
 	sed -e '/Sample Main Config/ s/\([0-9]\.[0-9]\.[0-9]\)//' \
 	    -e '/Last Modified/ d' \
 	    sample-config/icinga.cfg > debian-configs/icinga.cfg
@@ -123,6 +125,7 @@ install-stamp: build-stamp fix-configs-stamp
 	dh_installdirs -a -i  
 	make install-unstripped DESTDIR=$b/tmp INSTALL_OPTS="" COMMAND_OPTS=""
 	make install-idoutils DESTDIR=$b/icinga-idoutils INSTALL_OPTS="" COMMAND_OPTS=""
+	rm $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample
 	#We have to rename the sample files 
 	#mv $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample $b/icinga-idoutils/etc/icinga/ido2db.cfg
 	mv $b/icinga-idoutils/etc/icinga/idomod.cfg-sample $b/icinga-idoutils/etc/icinga/idomod.cfg
