@@ -7,7 +7,7 @@ Standards-Version: 3.9.2
 Vcs-Browser: http://git.debian.org/?p=pkg-nagios/icinga.git
 Vcs-Git: git://git.debian.org/pkg-nagios/icinga.git
 Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
- libpng12-dev, libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1), iputils-ping,
+ libpng-dev, libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1), iputils-ping,
  autotools-dev, dpkg-dev (>= 1.13.19), libdbi-dev | libdbi0-dev
 
 Package: icinga-common
