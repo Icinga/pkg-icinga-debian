@@ -8,17 +8,12 @@ b := $(shell pwd)/debian
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
-# -Wall disabled until source is fixed to not print tons of warnings with it. :)
-#CFLAGS = -Wall -g
-CFLAGS = -g
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-CFLAGS += -O0
-else
-CFLAGS += -O2
-endif
+CFLAGS = `dpkg-buildflags --get CFLAGS`
+CFLAGS += `dpkg-buildflags --get CPPFLAGS`
+LDFLAGS = `dpkg-buildflags --get LDFLAGS`
 
 SHELL		= /bin/sh -e
-CONFIGURE	= CFLAGS='$(CFLAGS)' ./configure --prefix=/usr \
+CONFIGURE	= CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --prefix=/usr \
 				--mandir=/usr/share/man \
 				--bindir=/usr/sbin \
 				--sbindir=/usr/lib/cgi-bin/icinga \
