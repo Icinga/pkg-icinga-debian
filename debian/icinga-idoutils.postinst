@@ -10,5 +10,10 @@ dbc_generate_include_owner='nagios:nagios'
 dbc_generate_include_args='--ucf -o template_infile=/usr/share/icinga/tmpl/ido2db.cfg-sample'
 dbc_go icinga-idoutils $@
 
+if [ -x "/etc/init.d/ido2db" ]; then
+	update-rc.d ido2db defaults 35 20 >/dev/null
+	invoke-rc.d ido2db start 3>&- || exit $?
+fi
+
 #DEBHELPER#
 

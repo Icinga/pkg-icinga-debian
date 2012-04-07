@@ -7,5 +7,8 @@ set -e
 . /usr/share/dbconfig-common/dpkg/prerm
 dbc_go icinga-idoutils $@
 
-#DEBHELPER#
+if [ -x "/etc/init.d/ido2db" ]; then
+	invoke-rc.d ido2db stop 3>&- || exit $?
+fi
 
+#DEBHELPER#

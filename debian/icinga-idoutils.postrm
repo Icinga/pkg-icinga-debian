@@ -12,9 +12,13 @@ if [ -f /usr/share/dbconfig-common/dpkg/postrm ]; then
 fi
 
 if [ "$1" = "purge" ]; then
-	rm -f /etc/icinga/ido2db.cfg 
+	rm -f /etc/icinga/ido2db.cfg
 	ucf --purge /etc/icinga/ido2db.cfg
 	db_purge
+fi
+
+if [ "$1" = "purge" ] ; then
+	update-rc.d ido2db remove >/dev/null
 fi
 
 #DEBHELPER#

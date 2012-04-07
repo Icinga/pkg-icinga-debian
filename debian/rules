@@ -164,7 +164,7 @@ install-stamp: build-stamp fix-configs-stamp
 	dh_installlogrotate
 	dh_installchangelogs -i
 	dh_installinit 	     --name icinga -- defaults 30 18
-	dh_installinit	     -picinga-idoutils --name ido2db -- defaults 35 20
+	dh_installinit	  -n -picinga-idoutils --name ido2db -- defaults 35 20
 	chmod 755 ${b}/icinga-common/var/lib/icinga 
 	# the real version is in -cgi 
 	rm ${b}/icinga-common/etc/icinga/cgi.cfg
