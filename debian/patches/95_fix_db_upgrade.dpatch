@@ -1,45 +1,56 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## disable_standard_conforming_strings.dpatch by Alexander Wirt <formorer@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
-
-@DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/module/idoutils/src/db.c pkg-icinga/module/idoutils/src/db.c
---- pkg-icinga~/module/idoutils/src/db.c	2011-11-26 09:14:41.000000000 +0100
-+++ pkg-icinga/module/idoutils/src/db.c	2012-04-07 09:41:27.178825882 +0200
-@@ -426,6 +426,9 @@
- #endif
- #ifdef USE_LIBDBI
- 	const char *dbi_error;
-+	const char *error_msg;
-+	char *buf;
-+	buf = NULL;
- #endif
- 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_connect() start\n");
- 
-@@ -529,6 +532,24 @@
- 		idi->dbinfo.connected = IDO_TRUE;
- 		syslog(LOG_USER | LOG_INFO, "Successfully connected to %s database", ido2db_db_settings.dbserver);
- 	}
+--- icinga-1.6.1.orig/debian/patches/95_fix_db_upgrade.dpatch
++++ icinga-1.6.1/debian/patches/95_fix_db_upgrade.dpatch
+@@ -0,0 +1,53 @@
++#! /bin/sh /usr/share/dpatch/dpatch-run
++## 95_fix_db_upgrade.dpatch by Alexander Wirt <formorer@debian.org>
++##
++## All lines beginning with `## DP:' are a description of the patch.
++## DP: No description.
 +
-+
-+	switch (idi->dbinfo.server_type) {
-+		case IDO2DB_DBSERVER_PGSQL:
-+			/* disable standardconforming strings for postgres,
-+			 * this should make idoutils compatible with 9.1 until
-+			 * there is a proper fix */
-+			if (dbi_conn_query(idi->dbinfo.dbi_conn, "set standard_conforming_strings = off;") == NULL) {
-+				dbi_conn_error(idi->dbinfo.dbi_conn, &error_msg);
-+				syslog(LOG_USER | LOG_INFO, "Error: Could not unset standard_conforming_strings: %s\n", buf, error_msg);
-+			} else {
-+				syslog(LOG_USER | LOG_INFO, "Disable standard_conforming_strings in pgsql\n");
-+			}
-+			break;
-+		default:
-+			break;
-+	}
-+	free(buf);
- #endif
- 
- #ifdef USE_PGSQL /* pgsql */
++@DPATCH@
++diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql
++--- pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql	2011-11-26 09:13:04.000000000 +0100
+++++ pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql	2012-04-07 22:25:04.000000000 +0200
++@@ -8,8 +8,6 @@
++ -- Please check http://docs.icinga.org for upgrading information!
++ -- -----------------------------------------
++ 
++-CREATE LANGUAGE plpgsql;
++-
++ -- -----------------------------------------
++ -- update dbversion
++ -- -----------------------------------------
++@@ -50,22 +48,6 @@
++ 
++ 
++ -- -----------------------------------------
++--- drop unique keys for check history
++--- -----------------------------------------
++-
++-ALTER TABLE icinga_servicechecks DROP CONSTRAINT icinga_servicechecks_instance_id_key;
++-
++-ALTER TABLE icinga_hostchecks DROP CONSTRAINT icinga_hostchecks_instance_id_key;
++-
++--- -----------------------------------------
++--- drop unique keys for * contacts
++--- -----------------------------------------
++-
++-ALTER TABLE icinga_service_contacts DROP CONSTRAINT icinga_service_contacts_instance_id_key;
++-ALTER TABLE icinga_host_contacts DROP CONSTRAINT icinga_host_contacts_instance_id_key;
++-
++-
++--- -----------------------------------------
++ -- add address6 column to hosts
++ -- -----------------------------------------
++ 
++diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql
++--- pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql	2011-11-26 09:13:04.000000000 +0100
+++++ pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql	2012-04-07 22:25:04.000000000 +0200
++@@ -11,7 +11,6 @@
++ -- drop unique keys for multiline inserts
++ -- -----------------------------------------
++ 
++-ALTER TABLE icinga_timeperiod_timeranges DROP CONSTRAINT uq_timeperiod_timeranges;
++ ALTER TABLE icinga_host_parenthosts DROP CONSTRAINT uq_host_parenthosts;
++ ALTER TABLE icinga_host_contactgroups DROP CONSTRAINT uq_host_contactgroups;
++ ALTER TABLE icinga_service_contactgroups DROP CONSTRAINT uq_service_contactgroups;
