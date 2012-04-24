@@ -1,3 +1,4 @@
 etc/icinga
 usr/lib/icinga
 usr/share/dbconfig-common/data/icinga-idoutils/install/
+usr/share/dbconfig-common/data/icinga-idoutils/upgrade-dbadmin/

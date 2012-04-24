@@ -1,1 +1,2 @@
 module/idoutils/config/ido2db.cfg-sample usr/share/icinga/tmpl 
+debian/db/admin/pgsql usr/share/dbconfig-common/data/icinga-idoutils/install-dbadmin/
