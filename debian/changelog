@@ -1,3 +1,33 @@
+icinga (1.6.1-3) unstable; urgency=medium
+
+  [ Daniel Baumann ]
+  * [548ece5] Adding debconf handling for icinga check_external_commands option (Closes: #592738).
+
+  [ Alexander Wirt ]
+  * [d3c349e] Add alternative for libdbi-dev
+  * [2d0c4bb] Fix broker location in ido example config and enhance README
+  * [4416c9c] Always display debconf note for external command
+  * [9dec07f] Build-depend on libpng-dev (Closes: #662374)
+  * [dfacf10] Add buildalternative for libpng
+  * [c4a5675] Update translationfiles
+  * [181d023] Enable hardening buildflags (Closes: #656866)
+  * [6ec83b0] Fix json output of tac.cgi (Closes: #663224)
+  * [3fc1a26] Fix endlessloop in idoutils during installation (Closes: #652647)
+  * [6ff2be5] Fix postgres escaping with postgres 9.1 (Closes: #659675)
+  * [4c7bac5] Fix db upgrades with postgres (Closes: #663440)
+  * [46dfeea] Add prepared dbc debug flag into idoutils.postinst
+  * [495fe20] Install plpgsql for postgres < 9.0 (Closes: #659675)
+  * [b6bba3b] Remove stale socket on daemon startup and start idoutils before icinga
+    (Closes: #670201, #663678)
+  * [309ba7a] Fix db upgrade for postgres (Closes: #641391)
+  * [c1c3991] Add postgres admin functions for plperl (Closes: #659675)
+  * [6230476] Update polish and dutch po translations (Closes: #659252, #670365)
+  * [dfef271] don't install sample configs for idoutils (Closes: #661797)
+  * [3263424] improve apache configuration.
+    Thanks to Christoph Anton Mitterer for the patch (Closes: #659896)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 04 May 2012 08:04:12 +0200
+
 icinga (1.6.1-2) unstable; urgency=low
 
   * [56d53d9] fix template for ido2db_check_proc.cfg
