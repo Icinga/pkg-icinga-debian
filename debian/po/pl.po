@@ -24,14 +24,12 @@ msgstr ""
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:2001
-#| msgid "Apache servers to configure for icinga:"
 msgid "Apache servers to configure for icinga:"
 msgstr "Konfiguracja serwerów Apache do icinga:"
 
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:2001
-#| msgid "Please select which apache servers should be configured for icinga."
 msgid "Please select which Apache servers should be configured for icinga."
 msgstr ""
 "Proszę wybrać, które serwery Apache powinny zostać skonfigurowane dla icinga."
@@ -43,21 +41,17 @@ msgid ""
 "If you would prefer to perform configuration manually, leave all servers "
 "unselected."
 msgstr ""
-"Proszę nie zaznaczać żadnego serwera, aby przeprowadzić konfigurację "
-"ręcznie."
+"Proszę nie zaznaczać żadnego serwera, aby przeprowadzić konfigurację ręcznie."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
-#| msgid "Nagios web administration password:"
 msgid "Icinga web administration password:"
 msgstr "Hasło administratora Icinga:"
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
-#| msgid ""
-#| "Please provide the password to be created with the \"nagiosadmin\" user."
 msgid ""
 "Please provide the password to be created with the \"icingaadmin\" user."
 msgstr "Proszę podać hasło dla użytkownika \"icingaadmin\"."
@@ -65,19 +59,14 @@ msgstr "Proszę podać hasło dla użytkownika \"icingaadmin\"."
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
-#| msgid ""
-#| "This is the username and password you will use to log in to your nagios "
-#| "installation after configuration is complete.  If you do not provide a "
-#| "password, you will have to configure access to nagios yourself."
 msgid ""
 "This is the username and password to use when connecting to the Icinga "
 "server after completing the configuration. If you do not provide a password, "
 "you will have to configure access to Icinga manually later on."
 msgstr ""
 "Po zakończeniu konfiguracji ta nazwa użytkownika oraz hasło zostaną użyte do "
-"zalogowania się do serwera Icinga. Jeśli hasło nie zostanie podane, konieczne "
-"będzie "
-"ręczne skonfigurowanie dostępu do Icinga."
+"zalogowania się do serwera Icinga. Jeśli hasło nie zostanie podane, "
+"konieczne będzie ręczne skonfigurowanie dostępu do Icinga."
 
 #. Type: password
 #. Description
@@ -108,3 +97,25 @@ msgid "The two passwords you entered were not the same. Please try again."
 msgstr ""
 "Dwa hasła, które zostały wprowadzone, nie są identyczne. Proszę spróbować "
 "ponownie."
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid "Icinga check external commands:"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid ""
+"Icinga is not configured to look for external commands in the default "
+"configuration as a security feature. Enabling external commands will give "
+"the web server write access to the nagios command pipe and is required if "
+"you want to be able to use the CGI command interface."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:1001
+msgid "If unsure, choose no."
+msgstr ""
