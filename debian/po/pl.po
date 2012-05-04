@@ -2,37 +2,39 @@
 # Polish translation
 # Copyright (C) 2008
 # This file is distributed under the same license as the ppp package.
-# Łukasz Paździora <lukpaz@gmail.com>, 2008
 #
+# Łukasz Paździora <lukpaz@gmail.com>, 2008.
+# Michał Kułach <michal.kulach@gmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: icinga 3.0.3-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
 "POT-Creation-Date: 2010-05-06 08:46+0200\n"
-"PO-Revision-Date: 2008-11-20 17:20+0100\n"
-"Last-Translator: Łukasz Paździora <lukpaz@gmail.com>\n"
+"PO-Revision-Date: 2012-04-25 01:30+0200\n"
+"Last-Translator: Michał Kułach <michal.kulach@gmail.com>\n"
 "Language-Team: Polish <debian-l10n-polish@lists.debian.org>\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.2\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
 
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:2001
-#, fuzzy
 #| msgid "Apache servers to configure for icinga:"
 msgid "Apache servers to configure for icinga:"
-msgstr "Konfiguracja serwerów Apache dla icinga:"
+msgstr "Konfiguracja serwerów Apache do icinga:"
 
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:2001
-#, fuzzy
 #| msgid "Please select which apache servers should be configured for icinga."
 msgid "Please select which Apache servers should be configured for icinga."
 msgstr ""
-"Proszę wybrać, które serwery apache powinny zostać skonfigurowane dla icinga."
+"Proszę wybrać, które serwery Apache powinny zostać skonfigurowane dla icinga."
 
 #. Type: multiselect
 #. Description
@@ -41,31 +43,28 @@ msgid ""
 "If you would prefer to perform configuration manually, leave all servers "
 "unselected."
 msgstr ""
-"Nie zaznaczaj żadnego serwera jeżeli chcesz przeprowadzić konfigurację "
+"Proszę nie zaznaczać żadnego serwera, aby przeprowadzić konfigurację "
 "ręcznie."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
-#, fuzzy
 #| msgid "Nagios web administration password:"
 msgid "Icinga web administration password:"
-msgstr "Hasło administratora Nagios:"
+msgstr "Hasło administratora Icinga:"
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
-#, fuzzy
 #| msgid ""
 #| "Please provide the password to be created with the \"nagiosadmin\" user."
 msgid ""
 "Please provide the password to be created with the \"icingaadmin\" user."
-msgstr "Proszę podać hasło dla użytkownika \"nagiosadmin\"."
+msgstr "Proszę podać hasło dla użytkownika \"icingaadmin\"."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
-#, fuzzy
 #| msgid ""
 #| "This is the username and password you will use to log in to your nagios "
 #| "installation after configuration is complete.  If you do not provide a "
@@ -76,14 +75,15 @@ msgid ""
 "you will have to configure access to Icinga manually later on."
 msgstr ""
 "Po zakończeniu konfiguracji ta nazwa użytkownika oraz hasło zostaną użyte do "
-"zalogowania się w nagios. Jeśli hasło nie zostanie podane, konieczne będzie "
-"ręczne skonfigurowanie dostępu do nagios."
+"zalogowania się do serwera Icinga. Jeśli hasło nie zostanie podane, konieczne "
+"będzie "
+"ręczne skonfigurowanie dostępu do Icinga."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:4001
 msgid "Re-enter password to verify:"
-msgstr ""
+msgstr "Proszę wprowadzić hasło ponownie:"
 
 #. Type: password
 #. Description
@@ -92,70 +92,19 @@ msgid ""
 "Please enter the same user password again to verify you have typed it "
 "correctly."
 msgstr ""
+"Proszę wprowadzić to samo hasło ponownie, aby sprawdzić, czy zostało wpisane "
+"poprawnie."
 
 #. Type: error
 #. Description
 #: ../icinga-cgi.templates:5001
 msgid "Password input error"
-msgstr ""
+msgstr "Błąd wprowadzania hasła"
 
 #. Type: error
 #. Description
 #: ../icinga-cgi.templates:5001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr ""
-
-#. Type: boolean
-#. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
-msgstr ""
-
-#. Type: boolean
-#. Description
-#: ../icinga-common.templates:1001
-msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
-msgstr ""
-
-#. Type: boolean
-#. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
-msgstr ""
-
-#~ msgid "Password confirmation:"
-#~ msgstr "Potwierdzenie hasła:"
-
-#~ msgid "The passwords do not match"
-#~ msgstr "Hasła nie są takie same"
-
-#, fuzzy
-#~| msgid "Enable support for nagios 1.x links in icinga?"
-#~ msgid "Enable support for nagios 1.x links in nagios3?"
-#~ msgstr "Włączyć obsługę linków z nagios 1.x w icinga?"
-
-#, fuzzy
-#~| msgid ""
-#~| "Please choose whether the Apache configuration for icinga should provide "
-#~| "compatibility with links from nagios 1.x."
-#~ msgid ""
-#~ "Please choose whether the Apache configuration for nagios3 should provide "
-#~ "compatibility with links from nagios 1.x."
-#~ msgstr ""
-#~ "Czy konfiguracja Apache dla icinga powinna być kompatybilna z linkami z "
-#~ "nagios 1.x."
-
-#~ msgid ""
-#~ "If you select this option, the apache configuration used for nagios will "
-#~ "include directives to support URLs from nagios 1.x. You should not choose "
-#~ "this option if you still have nagios 1.x on your system, or unpredictable "
-#~ "results may occur."
-#~ msgstr ""
-#~ "Jeśli ta opcja zostanie wybrana, konfiguracja apache używana dla nagios "
-#~ "będzie zawierać dyrektywy obsługujące URL-e z nagios 1.x. Ta opcja nie "
-#~ "powinna być zaznaczona jeśli nagios 1.x jest nadal zainstalowany na tym "
-#~ "systemie ponieważ może to wywołać niemożliwe do przewidzenia efekty."
+"Dwa hasła, które zostały wprowadzone, nie są identyczne. Proszę spróbować "
+"ponownie."
