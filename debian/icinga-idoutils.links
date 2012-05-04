@@ -1,0 +1,11 @@
+usr/share/dbconfig-common/data/icinga-idoutils/install-dbadmin/pgsql usr/share/dbconfig-common/data/icinga-idoutils/upgrade-dbadmin/pgsql/1.6.0-1.sql
+
+usr/share/dbconfig-common/data/icinga-idoutils/install-dbadmin/pgsql usr/share/dbconfig-common/data/icinga-idoutils/upgrade-dbadmin/pgsql/1.5.0-1.sql
+
+usr/share/dbconfig-common/data/icinga-idoutils/install-dbadmin/pgsql usr/share/dbconfig-common/data/icinga-idoutils/upgrade-dbadmin/pgsql/1.4.0-1.sql
+
+usr/share/dbconfig-common/data/icinga-idoutils/install-dbadmin/pgsql usr/share/dbconfig-common/data/icinga-idoutils/upgrade-dbadmin/pgsql/1.2.99-1.sql
+
+
+
+
