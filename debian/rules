@@ -125,6 +125,8 @@ install-stamp: build-stamp fix-configs-stamp
 	#mv $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample $b/icinga-idoutils/etc/icinga/ido2db.cfg
 	mv $b/icinga-idoutils/etc/icinga/idomod.cfg-sample $b/icinga-idoutils/etc/icinga/idomod.cfg
 	mv $b/icinga-idoutils/usr/sbin/idomod.o $b/icinga-idoutils/usr/lib/icinga/
+	mkdir -p $b/icinga-idoutils/usr/share/doc/idoutils/examples
+	mv $b/icinga-idoutils/etc/icinga/modules/idoutils.cfg-sample $b/icinga-idoutils/usr/share/doc/idoutils/examples
 	cp module/idoutils/db/mysql/mysql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/mysql
 	cp module/idoutils/db/pgsql/pgsql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/pgsql
 	mkdir -p $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/
