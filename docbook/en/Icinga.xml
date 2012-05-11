@@ -42,7 +42,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009-2011 Icinga Development Team.</para>
+      <para>Copyright 2009-2012 Icinga Development Team.</para>
     </legalnotice>
 
     <legalnotice>
@@ -74,11 +74,11 @@
 
     <revhistory>
       <revision>
-        <revnumber>1.6</revnumber>
+        <revnumber>1.7</revnumber>
 
-        <date>2011-11-30</date>
+        <date>2012-05-15</date>
 
-        <revremark>1.6 Icinga Documentation</revremark>
+        <revremark>1.7 Icinga Documentation</revremark>
       </revision>
 
       <revision>
@@ -89,6 +89,14 @@
         <revremark>1.x Icinga Documentation</revremark>
       </revision>
 <!--
+      <revision>
+        <revnumber>1.6</revnumber>
+
+        <date>2011-11-30</date>
+
+        <revremark>1.6 Icinga Documentation</revremark>
+      </revision>
+
       <revision>
         <revnumber>1.5</revnumber>
 
@@ -207,6 +215,8 @@
 
     <xi:include href="upgrading_idoutils.xml" />
 
+    <xi:include href="monitoring-overview.xml" />
+
     <xi:include href="monitoring-windows.xml" />
 
     <xi:include href="monitoring-linux.xml" />
@@ -270,6 +280,7 @@
     <xi:include href="networkreachability.xml" />
 
     <xi:include href="notifications.xml" />
+    <xi:include href="notifications2.xml" />
   </chapter>
 
   <chapter version="5.0" xml:id="ch06">
@@ -317,6 +328,7 @@
     <xi:include href="perfdata.xml" />
 
     <xi:include href="downtime.xml" />
+    <xi:include href="recurring_downtimes.xml" />
 
     <xi:include href="embeddedperl.xml" />
 
@@ -331,6 +343,8 @@
     <xi:include href="checkscheduling.xml" />
 
     <xi:include href="cgiincludes.xml" />
+
+    <xi:include href="modified_attr.xml" />
 
     <xi:include href="objectinheritance.xml" />
 

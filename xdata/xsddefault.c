@@ -3,8 +3,8 @@
  * XSDDEFAULT.C - Default external status data input routines for Icinga
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -367,7 +367,7 @@ int xsddefault_save_status_data(void) {
 	if ((fd = mkstemp(temp_file)) == -1) {
 
 		/* log an error */
-		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Unable to create temp file for writing status data: %s\n", strerror(errno));
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Unable to create temp file '%s' for writing status data: %s\n", temp_file, strerror(errno));
 
 		/* free memory */
 		my_free(temp_file);
@@ -698,6 +698,7 @@ int xsddefault_save_status_data(void) {
 		fprintf(fp, "\tis_in_effect=%d\n", temp_downtime->is_in_effect);
 		fprintf(fp, "\tauthor=%s\n", temp_downtime->author);
 		fprintf(fp, "\tcomment=%s\n", temp_downtime->comment);
+		fprintf(fp, "\ttrigger_time=%lu\n", temp_downtime->trigger_time);
 		fprintf(fp, "\t}\n\n");
 	}
 
@@ -789,6 +790,7 @@ int xsddefault_read_status_data(char *config_file, int options) {
 	unsigned long duration = 0L;
 	int x = 0;
 	int is_in_effect = FALSE;
+	time_t trigger_time = 0L;
 
 
 	/* initialize some vars */
@@ -871,11 +873,13 @@ int xsddefault_read_status_data(char *config_file, int options) {
 				break;
 
 			case XSDDEFAULT_HOSTSTATUS_DATA:
+				temp_hoststatus->added = 0;
 				add_host_status(temp_hoststatus);
 				temp_hoststatus = NULL;
 				break;
 
 			case XSDDEFAULT_SERVICESTATUS_DATA:
+				temp_servicestatus->added = 0;
 				add_service_status(temp_servicestatus);
 				temp_servicestatus = NULL;
 				break;
@@ -912,9 +916,9 @@ int xsddefault_read_status_data(char *config_file, int options) {
 
 				/* add the downtime */
 				if (data_type == XSDDEFAULT_HOSTDOWNTIME_DATA)
-					add_host_downtime(host_name, entry_time, author, comment_data, start_time, end_time, fixed, triggered_by, duration, downtime_id, is_in_effect);
+					add_host_downtime(host_name, entry_time, author, comment_data, start_time, end_time, fixed, triggered_by, duration, downtime_id, is_in_effect, trigger_time);
 				else
-					add_service_downtime(host_name, service_description, entry_time, author, comment_data, start_time, end_time, fixed, triggered_by, duration, downtime_id, is_in_effect);
+					add_service_downtime(host_name, service_description, entry_time, author, comment_data, start_time, end_time, fixed, triggered_by, duration, downtime_id, is_in_effect, trigger_time);
 
 				/* free temp memory */
 				my_free(host_name);
@@ -1155,6 +1159,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 						temp_hoststatus->percent_state_change = strtod(val, NULL);
 					else if (!strcmp(var, "scheduled_downtime_depth"))
 						temp_hoststatus->scheduled_downtime_depth = atoi(val);
+					else if (!strcmp(var, "modified_attributes"))
+						temp_hoststatus->modified_attributes = strtoul(val, NULL, 10);
 					/*
 					else if(!strcmp(var,"state_history")){
 						temp_ptr=val;
@@ -1265,6 +1271,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 						temp_servicestatus->percent_state_change = strtod(val, NULL);
 					else if (!strcmp(var, "scheduled_downtime_depth"))
 						temp_servicestatus->scheduled_downtime_depth = atoi(val);
+					else if (!strcmp(var, "modified_attributes"))
+						temp_servicestatus->modified_attributes = strtoul(val, NULL, 10);
 					/*
 					else if(!strcmp(var,"state_history")){
 						temp_ptr=val;
@@ -1332,6 +1340,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 					author = (char *)strdup(val);
 				else if (!strcmp(var, "comment"))
 					comment_data = (char *)strdup(val);
+				else if (!strcmp(var, "trigger_time"))
+					trigger_time = strtoul(val, NULL, 10);
 				break;
 
 			default:

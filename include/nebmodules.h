@@ -3,8 +3,8 @@
  * NEBMODULES.H - Include file for event broker modules
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -64,6 +64,7 @@
 #define NEBMODULE_ERROR_NO_INIT     3    /* _module_init() function was not found in module */
 #define NEBMODULE_ERROR_BAD_INIT    4    /* _module_init() function returned a bad code */
 #define NEBMODULE_ERROR_API_VERSION 5    /* module version is incompatible with current api */
+#define NEBMODULE_ERROR_IDO_VERSION 6    /* ido module version is incompatible with current core */
 
 
 

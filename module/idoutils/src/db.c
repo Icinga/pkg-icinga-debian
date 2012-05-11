@@ -2,7 +2,7 @@
  * DB.C - Datatabase routines for IDO2DB daemon
  *
  * Copyright (c) 2005-2007 Ethan Galstad
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
@@ -91,7 +91,6 @@ int ido2db_oci_prepared_statement_objects_select_name1_name2(ido2db_idi *idi);
 int ido2db_oci_prepared_statement_objects_select_cached(ido2db_idi *idi);
 int ido2db_oci_prepared_statement_logentries_select(ido2db_idi *idi);
 int ido2db_oci_prepared_statement_instances_select(ido2db_idi *idi);
-int ido2db_oci_prepared_statement_sequence_select(ido2db_idi *idi);
 
 /* update stuff */
 int ido2db_oci_prepared_statement_objects_update_inactive(ido2db_idi *idi);
@@ -329,7 +328,7 @@ int ido2db_db_init(ido2db_idi *idi) {
 	}
 
 	/* register error handler and init oci */
-	if (!OCI_Initialize(ido2db_ocilib_err_handler, NULL, OCI_ENV_CONTEXT)) {
+	if (!OCI_Initialize(ido2db_ocilib_err_handler, NULL, OCI_ENV_THREADED|OCI_ENV_CONTEXT)) {
 		syslog(LOG_USER | LOG_INFO, "Error:  OCI_Initialize() failed\n");
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "OCI_Initialize() failed\n");
 		return IDO_ERROR;
@@ -1077,12 +1076,7 @@ int ido2db_db_connect(ido2db_idi *idi) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_oci_prepared_statement_instances_delete_time() failed\n");
 		return IDO_ERROR;
 	}
-	/* sequence */
-	if (ido2db_oci_prepared_statement_sequence_select(idi) == IDO_ERROR) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_oci_prepared_statement_sequence_select() failed\n");
-		return IDO_ERROR;
-	}
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_oci_prepared_statement_sequence_select prepare statements end\n");
+
 
 	/* dbversion */
 	if (ido2db_oci_prepared_statement_dbversion_select(idi) == IDO_ERROR) {
@@ -1173,6 +1167,7 @@ int ido2db_db_disconnect(ido2db_idi *idi) {
 	 *  close prepared statements
 	 *  2011-06-19 only if handle is set
 	 * */
+	//ido2db_oci_statement_free(idi->dbinfo.oci_statement, "oci_statement");
 	ido2db_oci_statement_free(idi->dbinfo.oci_statement_timedevents, "oci_statement_objects_update_inactive");
 	ido2db_oci_statement_free(idi->dbinfo.oci_statement_timedevents_queue, "oci_statement_timedevents_queue");
 	ido2db_oci_statement_free(idi->dbinfo.oci_statement_timedeventqueue, "oci_statement_timedeventqueue");
@@ -1277,7 +1272,6 @@ int ido2db_db_disconnect(ido2db_idi *idi) {
 	ido2db_oci_statement_free(idi->dbinfo.oci_statement_downtime_delete, "oci_statement_downtime_delete");
 
 	ido2db_oci_statement_free(idi->dbinfo.oci_statement_instances_select, "oci_statement_instances_select");
-	ido2db_oci_statement_free(idi->dbinfo.oci_statement_sequence_select, "oci_statement_sequence_select");
 
 	ido2db_oci_statement_free(idi->dbinfo.oci_statement_conninfo_update, "oci_statement_conninfo_update");
 	ido2db_oci_statement_free(idi->dbinfo.oci_statement_conninfo_update_checkin, "oci_statement_conninfo_update_checkin");
@@ -3147,44 +3141,77 @@ void ido2db_ocilib_err_handler(OCI_Error *err) {
 
 /**
  * retrieving last sequence value for ids
- * its using select last_number from user_sequences.
- * This is save because only the same process=session will change sequence values
- * previous used .currval is only valid if the same session executed .nextval before
+ * This is multiprocess save because query should only get values
+ * the same session increased just before
+ *
  * @param idi structure
  * @param sequence_name
- * @return last_number from user_sequences or zero
+ * @return ulong currval for named sequence or zero on error
  */
 unsigned long ido2db_oci_sequence_lastid(ido2db_idi *idi, char *seq_name) {
 
 	unsigned long insert_id = 0L;
+	char *buf = NULL;
+	OCI_Statement *st=NULL;
+	OCI_Resultset *rs=NULL;
 	char * fname = "ido2db_oci_sequence_lastid";
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s() start\n", fname);
 	if (idi == NULL || seq_name == NULL) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s() Error:At least one parameter is NULL\n", fname);
 		return insert_id;
 	}
-	if (!OCI_BindString(idi->dbinfo.oci_statement_sequence_select, MT(":X1"), seq_name, 0)) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s(%s) Error:Bind Name failed\n", fname, seq_name);
-		return insert_id;
-	}
-	if (ido2db_oci_execute_out(idi->dbinfo.oci_statement_sequence_select, fname) == IDO_ERROR) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s(%s) Execute error\n", fname, seq_name);
-		return insert_id;
+	/* check connection */
+	if (idi->dbinfo.oci_connection == NULL) {
+			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s Error:No Connection\n", fname);
+			return insert_id;
 	}
 
+	/* create new handle */
+	st = OCI_StatementCreate(idi->dbinfo.oci_connection);
+	if (st == NULL) {
+			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s Error:Create Statement\n", fname);
+			return insert_id;
+	}
+	/* prepare sql.
+	 * unfortunally seqname is in the dynmaic part so statements are changed
+	 * but the numer of seq is limited and cannot poison sga
+	 * */
+	if (asprintf(&buf, "SELECT %s.currval from dual",seq_name) == -1) {
+			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s Error:memory allocation failed\n", fname);
+			buf = NULL;
+			return insert_id;
+	}
+	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s query: %s\n", fname, buf);
+	if (!OCI_Prepare(st, MT(buf))) {
+			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s Error:prepare failed failed\n", fname);
+			if (buf) free(buf);
+			OCI_StatementFree(st);
+			return insert_id;
+	}
+
+	free(buf);
+	//ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s() prepared\n",fname);
+	/* execute statement */
+	if (!OCI_Execute(st)) {
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s() execute error\n",fname);
+			OCI_StatementFree(st);
+			return insert_id;
+	}
+	//ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s() executed\n",fname);
 	/*  get result set */
-	idi->dbinfo.oci_resultset = OCI_GetResultset(idi->dbinfo.oci_statement_sequence_select);
+	rs = OCI_GetResultset(st);
 
-	if (idi->dbinfo.oci_resultset != NULL) {
+	if (rs != NULL) {
 		/* check if next row */
-		if (OCI_FetchNext(idi->dbinfo.oci_resultset)) {
-			insert_id = OCI_GetUnsignedInt(idi->dbinfo.oci_resultset, 1);
+		if (OCI_FetchNext(rs)) {
+			insert_id = OCI_GetUnsignedInt(rs, 1);
 			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s(%s) id=%lu\n", fname, seq_name, insert_id);
 		}
 	}
 	if (insert_id == 0L) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s(%s) Warning:No Result\n", fname, seq_name);
 	}
+	OCI_StatementFree(st);
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s(%s) end\n", fname, seq_name);
 	return insert_id;
 }
@@ -3193,49 +3220,6 @@ unsigned long ido2db_oci_sequence_lastid(ido2db_idi *idi, char *seq_name) {
 /****************************************************************************/
 /* PREPARED STATEMENTS                                                      */
 /****************************************************************************/
-
-
-/************************************/
-/* SEQUENCE                         */
-/************************************/
-
-int ido2db_oci_prepared_statement_sequence_select(ido2db_idi *idi) {
-	char *fname = "oci_prepared_statement_sequence_lastid";
-	char *buf = NULL;
-
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s() start\n", fname);
-
-	if (asprintf(&buf, "SELECT last_number-1 from user_sequences where sequence_name=upper(:X1)") == -1) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s Error:memory allocation failed\n", fname);
-		buf = NULL;
-		return IDO_ERROR;
-	}
-
-	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s query: %s\n", fname, buf);
-
-	if (idi->dbinfo.oci_connection) {
-
-		idi->dbinfo.oci_statement_sequence_select = OCI_StatementCreate(idi->dbinfo.oci_connection);
-
-		OCI_AllowRebinding(idi->dbinfo.oci_statement_sequence_select, 1);
-
-		if (!OCI_Prepare(idi->dbinfo.oci_statement_sequence_select, MT(buf))) {
-			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s Error:prepare failed failed\n", fname);
-			free(buf);
-			return IDO_ERROR;
-		}
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s Error:No Connection\n", fname);
-		free(buf);
-		return IDO_ERROR;
-	}
-	free(buf);
-
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s end\n", fname);
-
-	return IDO_OK;
-}
-
 
 /************************************/
 /* INSTANCES                        */
@@ -4706,13 +4690,13 @@ int ido2db_oci_prepared_statement_eventhandlerdata(ido2db_idi *idi) {
 	             "AND start_time_usec=:X7) "
 	             "WHEN MATCHED THEN "
 	             "UPDATE SET eventhandler_type=:X2, object_id=:X3, "
-	             "state=:X4, state_type=:X5, end_time=:X8, "
+	             "state=:X4, state_type=:X5, end_time=unixts2localts(:X8), "
 	             "end_time_usec=:X9, command_object_id=:X10, "
 	             "command_args=:X11, command_line=:X12, "
 	             "timeout=:X13, early_timeout=:X14, execution_time=:X15, "
 	             "return_code=:X16, output=:X17, long_output=:X18u "
 	             "WHEN NOT MATCHED THEN "
-	             "INSERT (instance_id, eventhandler_type, object_id, "
+	             "INSERT (id, instance_id, eventhandler_type, object_id, "
 	             "state, state_type, start_time, start_time_usec, "
 	             "end_time, end_time_usec, command_object_id, "
 	             "command_args, command_line, "
@@ -5083,15 +5067,18 @@ int ido2db_oci_prepared_statement_downtimedata_scheduled_downtime(ido2db_idi *id
 	             "comment_data=:X6, triggered_by_id=:X8, "
 	             "is_fixed=:X9, duration=:X10, "
 	             "scheduled_start_time=unixts2localts(:X11) , "
-	             "scheduled_end_time=unixts2localts(:X12) "
+	             "scheduled_end_time=unixts2localts(:X12), "
+		     "is_in_effect=:X13, trigger_time=unixts2localts(:X14) "
 	             "WHEN NOT MATCHED THEN "
 	             "INSERT (id, instance_id, downtime_type, object_id, "
 	             "entry_time, author_name, comment_data, "
 	             "internal_downtime_id, triggered_by_id, "
-	             "is_fixed, duration, scheduled_start_time, scheduled_end_time) "
+	             "is_fixed, duration, scheduled_start_time, scheduled_end_time "
+		     "is_in_effect, trigger_time) "
 	             "VALUES (seq_scheduleddowntime.nextval, :X1, :X2, :X3, "
 	             "unixts2localts(:X4), :X5, :X6, "
-	             ":X7, :X8, :X9, :X10, unixts2localts(:X11),unixts2localts(:X12))",
+	             ":X7, :X8, :X9, :X10, unixts2localts(:X11),unixts2localts(:X12), "
+		     ":X13, unixts2localts(:X14))",
 	             ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME]) == -1) {
 		buf = NULL;
 	}
@@ -5135,15 +5122,18 @@ int ido2db_oci_prepared_statement_downtimedata_downtime_history(ido2db_idi *idi)
 	             "UPDATE SET downtime_type=:X2, author_name=:X5, "
 	             "comment_data=:X6, triggered_by_id=:X8, is_fixed=:X9, "
 	             "duration=:X10, scheduled_start_time=unixts2localts(:X11), "
-	             "scheduled_end_time=unixts2localts(:X12) "
+	             "scheduled_end_time=unixts2localts(:X12), "
+		     "is_in_effect=:X13, trigger_time=unixts2localts(:X14) "
 	             "WHEN NOT MATCHED THEN "
 	             "INSERT (id, instance_id, downtime_type, object_id, "
 	             "entry_time, author_name, comment_data, internal_downtime_id, "
 	             "triggered_by_id, is_fixed, duration, "
-	             "scheduled_start_time, scheduled_end_time) "
+	             "scheduled_start_time, scheduled_end_time, "
+		     "is_in_effect, trigger_time)"
 	             "VALUES (seq_downtimehistory.nextval, :X1, :X2, :X3, "
 	             "unixts2localts(:X4), :X5, :X6, :X7, :X8, :X9, :X10, "
-	             "unixts2localts(:X11), unixts2localts(:X12))",
+	             "unixts2localts(:X11), unixts2localts(:X12), "
+		     ":X13, unixts2localts(:X14))",
 	             ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY]) == -1) {
 		buf = NULL;
 	}
@@ -5179,7 +5169,8 @@ int ido2db_oci_prepared_statement_downtimehistory_update_start(ido2db_idi *idi) 
 
 	if (asprintf(&buf,
 	             "UPDATE %s SET actual_start_time=unixts2localts(:X1) , "
-	             "actual_start_time_usec=:X2, was_started=:X3 "
+	             "actual_start_time_usec=:X2, was_started=:X3, "
+		     "is_in_effect=:X10, trigger_time=unixts2localts(:X11) "
 	             "WHERE instance_id=:X4 "
 	             "AND downtime_type=:X5 "
 	             "AND object_id=:X6 "
@@ -5223,7 +5214,8 @@ int ido2db_oci_prepared_statement_scheduleddowntime_update_start(ido2db_idi *idi
 
 	if (asprintf(&buf,
 	             "UPDATE %s SET actual_start_time=unixts2localts(:X1), "
-	             "actual_start_time_usec=:X2, was_started=:X3 "
+	             "actual_start_time_usec=:X2, was_started=:X3, "
+		     "is_in_effect=:X10, trigger_time=unixts2localts(:X11) "
 	             "WHERE instance_id=:X4 "
 	             "AND downtime_type=:X5 "
 	             "AND object_id=:X6 "
@@ -5269,7 +5261,8 @@ int ido2db_oci_prepared_statement_downtimehistory_update_stop(ido2db_idi *idi) {
 	if (asprintf(&buf,
 	             "UPDATE %s SET "
 	             "actual_end_time=unixts2localts(:X1) , "
-	             "actual_end_time_usec=:X2, was_cancelled=:X3 "
+	             "actual_end_time_usec=:X2, was_cancelled=:X3, "
+		     "is_in_effect=:X10, trigger_time=unixts2localts(:X11) "
 	             "WHERE instance_id=:X4 "
 	             "AND downtime_type=:X5 "
 	             "AND object_id=:X6 "
@@ -7826,11 +7819,13 @@ void ido2db_oci_statement_free(OCI_Statement *st, char * stname) {
 int ido2db_oci_bind_clob(OCI_Statement *st, char * bindname, char * text, OCI_Lob ** lobp) {
 	char * fname = "ido2db_oci_bind_clob";
 	unsigned long len = 0;
-	unsigned int cb = 0;
-	unsigned int bb = 0;
-	unsigned long rc = 0;
-	const int chunk = 1024;
-
+	unsigned long slen = 0;
+	unsigned int cb = 0; //char byte
+	unsigned int bb = 0; //bin�r byte
+	unsigned long rc = 0; //recent position
+	const int chunk = OCI_LOB_CHUNK_SIZE; //max chunk size
+	char * buffer =NULL; //temporary buffer
+	int code=0;
 
 	if (st == NULL) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s:Statement handle is null\n", fname);
@@ -7849,39 +7844,82 @@ int ido2db_oci_bind_clob(OCI_Statement *st, char * bindname, char * text, OCI_Lo
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s failed\n", fname, bindname);
 		return IDO_ERROR;
 	}
+
+
 	len = text ? strlen(text) : 0;
+	slen= text ? ido2db_oci_StringUTF8Length(text):0;
 	if (len == 0) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s,Null or empty\n", fname, bindname);
 		OCI_BindSetNull(OCI_GetBind2(st, bindname));
 		return IDO_OK;
 	}
 
-
+	buffer = malloc(chunk+1);
+	if (buffer == NULL) {
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s:Buffer allocation error\n", fname);
+		return IDO_ERROR;
+	}
+	//reset lob
+	rc=0; //stream position
+	OCI_LobTruncate(*lobp,rc);
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s,%lu Bytes requested\n", fname, bindname, len);
+
 	while ((len - rc) > 0) {
+
 		if ((len - rc) > chunk) {
-			cb = chunk;
+			bb = chunk; //buffer full size
 		} else {
-			cb = len - rc;
+			bb = len - rc; //remaining bytes
 		}
-		if (OCI_LobWrite2(*lobp, text + rc, &cb, &bb)) {
-			rc = rc + cb;
-			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s,%d Bytes(total %lu/%lu)   appended\n", fname, bindname, cb, rc, len);
+		if (bb < 1) break; //should not happens
+		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s,Next chunk %lu bytes from pos %lu (total %lu) \n", fname, bindname,bb,rc, len);
+
+		memset(buffer,0,chunk+1);
+		memcpy(buffer,text+rc,bb);
+		cb=0;//reset character pointer, we will work with bytes
+		if (OCI_LobWrite2(*lobp, buffer, &cb, &bb)) {
+			rc = rc + bb;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s,%d Bytes=%d Chars (total %lu/%lu)   appended\n", fname, bindname, bb, cb,rc, len);
 		} else {
-			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s,Last append failed: %d Bytes(total %lu/%lu)\n", fname, bindname, cb, rc, len);
+			ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "%s:Bind %s,Last append failed: %d Bytes=%d Chars(total %lu/%lu):'%s'\n", fname, bindname, bb, cb, rc, len,buffer);
+			code=1; //this is an error
 			break;
 		}
 
 	}
+	//final length check
 	cb = OCI_LobGetLength(*lobp);
-	if (cb == len) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s:Bind %s,Lob appended:%lu bytes \n", fname, bindname, len);
-
+	if (cb == slen) {
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s:Bind %s,Lob successfully written:%lu bytes=%lu chars \n", fname, bindname, len,slen);
 	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s:Bind %s,Lob append failed:len %lu!= %lu written \n", fname, bindname, len, cb);
-		return IDO_ERROR;
+		//final size differs, but only an error if write failed
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "%s:Bind %s,Lob write warning:len %lu, but lob size %lu bytes=%lu chars (last chunk '%s')\n", fname, bindname, len,slen, cb,buffer);
 	}
+	free(buffer);
+	if (code == 1) return IDO_ERROR;
 	return IDO_OK;
+}
+/* UTF8 ready string length function,
+ * taken from http://sourceforge.net/projects/orclib/forums/forum/470801/topic/5000325
+ */
+int ido2db_oci_StringUTF8Length
+(
+    const char *str
+)
+{
+    int size = 0;
+
+    while (*str)
+    {
+        if ((*str & 0xc0) != 0x80)
+        {
+            size++;
+        }
+
+        str++;
+    }
+
+    return size;
 }
 /*
 int ido2db_oci_bind_bigint(OCI_Statement *st, char * bindname, void ** data) {

@@ -3,7 +3,7 @@
  * IDOMOD.C - Icinga Data Output Event Broker Module
  *
  * Copyright (c) 2005-2007 Ethan Galstad
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  *****************************************************************************/
 
@@ -100,6 +100,13 @@ int nebmodule_init(int flags, char *args, void *handle) {
 
 	/* save our handle */
 	idomod_module_handle = handle;
+
+	/* set some info for the core to be checked */
+	neb_set_module_info(idomod_module_handle, NEBMODULE_MODINFO_TITLE, IDOMOD_NAME);
+	neb_set_module_info(idomod_module_handle, NEBMODULE_MODINFO_AUTHOR, "Ethan Galstad, Icinga Development Team");
+	neb_set_module_info(idomod_module_handle, NEBMODULE_MODINFO_VERSION, IDO_VERSION);
+	neb_set_module_info(idomod_module_handle, NEBMODULE_MODINFO_LICENSE, "GPL v2");
+	neb_set_module_info(idomod_module_handle, NEBMODULE_MODINFO_DESC, "Icinga Data Out Module, sends data to socket for ido2db");
 
 	/* log module info to the Icinga log file */
 	snprintf(temp_buffer, sizeof(temp_buffer) - 1, "idomod: %s %s (%s) %s", IDOMOD_NAME, IDO_VERSION, IDO_DATE, IDO_COPYRIGHT);
@@ -1267,6 +1274,7 @@ int idomod_broker_data(int event_type, void *data) {
 	nebstruct_statechange_data *schangedata = NULL;
 	nebstruct_contact_status_data *csdata = NULL;
 	nebstruct_adaptive_contact_data *acdata = NULL;
+	customvariablesmember *temp_customvar = NULL;
 
 	double retry_interval = 0.0;
 	int last_state = -1;
@@ -1278,7 +1286,6 @@ int idomod_broker_data(int event_type, void *data) {
 			return 0;
 	}
 
-	customvariablesmember *temp_customvar = NULL;
 
 	idomod_log_debug_info(IDOMOD_DEBUGL_PROCESSINFO, 2, "idomod_broker_data() start\n");
 
@@ -1994,7 +2001,7 @@ int idomod_broker_data(int event_type, void *data) {
 		es[3] = ido_escape_buffer(downdata->comment_data);
 
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%s\n%d=%s\n%d=%lu\n%d=%s\n%d=%s\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%lu\n%d\n\n"
+		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%s\n%d=%s\n%d=%lu\n%d=%s\n%d=%s\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d\n\n"
 		         , IDO_API_DOWNTIMEDATA
 		         , IDO_DATA_TYPE
 		         , downdata->type
@@ -2029,6 +2036,10 @@ int idomod_broker_data(int event_type, void *data) {
 		         , (unsigned long)downdata->triggered_by
 		         , IDO_DATA_DOWNTIMEID
 		         , (unsigned long)downdata->downtime_id
+		         , IDO_DATA_DOWNTIMEISINEFFECT
+		         , (int)downdata->is_in_effect
+		         , IDO_DATA_DOWNTIMETRIGGERTIME
+		         , (unsigned long)downdata->trigger_time
 		         , IDO_API_ENDDATA
 		        );
 

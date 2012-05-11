@@ -3,8 +3,8 @@
  * NEBSTRUCTS.H - Event broker includes for Icinga
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -227,6 +227,8 @@ typedef struct nebstruct_downtime_struct{
 	unsigned long   downtime_id;
 
 	void            *object_ptr; /* not implemented yet */
+	int		is_in_effect;
+	time_t		trigger_time;
         }nebstruct_downtime_data;
 
 

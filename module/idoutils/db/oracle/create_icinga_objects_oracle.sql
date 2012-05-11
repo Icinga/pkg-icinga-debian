@@ -4,11 +4,11 @@
 -- icinga DB object definition for Oracle
 -- called and defines set from oracle.sql
 --
--- Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+-- Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
 --
 -- initial version: 2008-02-20 David Schmidt
 --                  2011-01-17 Michael Friedrich <michael.friedrich(at)univie.ac.at>
--- current version: 2011-10-27 Thomas Dressler
+-- current version: 2012-01-29 Thomas Dressler
 -- -- --------------------------------------------------------
 */
 -- -----------------------------------------
@@ -638,7 +638,9 @@ CREATE INDEX customvariablest_idx ON customvariablestatus(varname)
 CREATE TABLE dbversion (
   id integer ,
   name varchar2(10),
-  version varchar2(10)
+  version varchar2(10),
+  create_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
+  modify_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR')
 )tablespace &&DATATBS;
 alter table dbversion add constraint dbversion_pk PRIMARY KEY  (id)
 	using index tablespace &&IDXTBS;
@@ -671,7 +673,9 @@ CREATE TABLE downtimehistory (
   actual_start_time_usec integer default 0 ,
   actual_end_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
   actual_end_time_usec integer default 0 ,
-  was_cancelled integer default 0 
+  was_cancelled integer default 0, 
+  is_in_effect integer default 0,
+  trigger_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') 
 )tablespace &&DATATBS;
 
 alter table downtimehistory add constraint downtimehistory_pk PRIMARY KEY  (id)
@@ -998,7 +1002,7 @@ CREATE TABLE hosts (
   eventhandler_command_args varchar2(1024),
   notif_timeperiod_object_id integer default 0 , 
   check_timeperiod_object_id integer default 0 ,
-  failure_prediction_options varchar2(64),
+  failure_prediction_options varchar2(128),
   check_interval number default 0 ,
   retry_interval number default 0 ,
   max_check_attempts integer default 0 ,
@@ -1313,7 +1317,9 @@ CREATE TABLE scheduleddowntime (
   scheduled_end_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
   was_started integer default 0 ,
   actual_start_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
-  actual_start_time_usec integer default 0 
+  actual_start_time_usec integer default 0,
+  is_in_effect integer default 0,
+  trigger_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR')
 )tablespace &&DATATBS;
 
 alter table scheduleddowntime add constraint scheduleddowntime_pk PRIMARY KEY  (id)
@@ -1967,7 +1973,11 @@ CREATE INDEX objects_inst_id_idx ON objects(instance_id) tablespace &&IDXTBS;
 CREATE INDEX loge_time_idx on logentries(logentry_time) tablespace &&IDXTBS;
 
 -- statehistory
-CREATE INDEX statehist_i_id_o_id_s_ty_s_ti on statehistory(instance_id, object_id, state_type, state_time) tablespace &&IDXTBS;
+CREATE INDEX statehist_time_idx on statehistory(instance_id, object_id, state_type, state_time) tablespace &&IDXTBS;
+-- #2274
+create index statehistory_state_idx on statehistory(object_id,state)
+tablespace &&IDXTBS;
+
 
 -- slahistory
 CREATE INDEX slahist_idx on slahistory(instance_id,object_id,start_time,end_time) tablespace &&IDXTBS;
@@ -2279,6 +2289,68 @@ CREATE SEQUENCE seq_slahistory
    start with 1
    increment by 1
    nocache nomaxvalue;
+
+-- add default individual caching sizes to the sequences 
+-- should be adjusted for your environment 
+alter sequence SEQ_ACKNOWLEDGEMENTS cache 10;
+alter sequence SEQ_COMMANDS cache 5; 
+alter sequence SEQ_COMMENTHISTORY cache 20; 
+alter sequence SEQ_COMMENTS cache 20; 
+alter sequence SEQ_CONFIGFILES cache 5; 
+alter sequence SEQ_CONFIGFILEVARIABLES cache 10; 
+alter sequence SEQ_CONNINFO nocache; 
+alter sequence SEQ_CONTACTGROUPS nocache; 
+alter sequence SEQ_CONTACTGROUP_MEMBERS cache 5; 
+alter sequence SEQ_CONTACTNOTIFICATIONS cache 10; 
+alter sequence SEQ_CONTACTNOTIFMETHODS cache 5; 
+alter sequence SEQ_CONTACTS cache 20; 
+alter sequence SEQ_CONTACTSTATUS cache 10; 
+alter sequence SEQ_CONTACT_ADDRESSES cache 5; 
+alter sequence SEQ_CONTACT_NOTIFCOMMANDS cache 5; 
+alter sequence SEQ_CUSTOMVARIABLES cache 20; 
+alter sequence SEQ_CUSTOMVARIABLESTATUS cache 20; 
+alter sequence SEQ_DOWNTIMEHISTORY cache 10; 
+alter sequence SEQ_EVENTHANDLERS cache 10; 
+alter sequence SEQ_EXTERNALCOMMANDS cache 5; 
+alter sequence SEQ_FLAPPINGHISTORY cache 20; 
+alter sequence SEQ_HOSTCHECKS cache 100; 
+alter sequence SEQ_HOSTDEPENDENCIES cache 5; 
+alter sequence SEQ_HOSTESCALATIONS cache 20; 
+alter sequence SEQ_HOSTESC_CONTACTGROUPS nocache; 
+alter sequence SEQ_HOSTESC_CONTACTS cache 5; 
+alter sequence SEQ_HOSTGROUPS nocache; 
+alter sequence SEQ_HOSTGROUP_MEMBERS cache 5; 
+alter sequence SEQ_HOSTS cache 20; 
+alter sequence SEQ_HOSTSTATUS cache 20; 
+alter sequence SEQ_HOST_CONTACTGROUPS nocache;
+alter sequence SEQ_HOST_CONTACTS cache 5; 
+alter sequence SEQ_HOST_PARENTHOSTS cache 5; 
+alter sequence SEQ_INSTANCES nocache; 
+alter sequence SEQ_LOGENTRIES cache 50;
+alter sequence SEQ_NOTIFICATIONS cache 20; 
+alter sequence SEQ_OBJECTS cache 20; 
+alter sequence SEQ_PROCESSEVENTS cache 20;
+alter sequence SEQ_PROGRAMSTATUS cache 50;
+alter sequence SEQ_RUNTIMEVARIABLES cache 10; 
+alter sequence SEQ_SCHEDULEDDOWNTIME cache 5;
+alter sequence SEQ_SERVICECHECKS cache 100;
+alter sequence SEQ_SERVICEDEPENDENCIES cache 10; 
+alter sequence SEQ_SERVICEESCALATIONS cache 5; 
+alter sequence SEQ_SERVICEESCCONTACTGROUPS nocache; 
+alter sequence SEQ_SERVICEESC_CONTACTS cache 5; 
+alter sequence SEQ_SERVICEGROUPS nocache; 
+alter sequence SEQ_SERVICEGROUP_MEMBERS cache 5;
+alter sequence SEQ_SERVICES cache 20; 
+alter sequence SEQ_SERVICESTATUS cache 20;
+alter sequence SEQ_SERVICE_CONTACTGROUPS nocache;
+alter sequence SEQ_SERVICE_CONTACTS cache 5;
+alter sequence SEQ_SLAHISTORY cache 20;
+alter sequence SEQ_STATEHISTORY cache 50; 
+alter sequence SEQ_SYSTEMCOMMANDS cache 5; 
+alter sequence SEQ_TIMEDEVENTQUEUE cache 10;
+alter sequence SEQ_TIMEDEVENTS cache 10; 
+alter sequence SEQ_TIMEPERIODS nocache; 
+alter sequence SEQ_TIMEP_TIMER cache 5;
 
 /* final check */
 select object_name,object_type,status  from user_objects where status !='VALID';

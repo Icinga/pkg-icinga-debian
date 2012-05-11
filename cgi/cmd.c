@@ -3,7 +3,7 @@
  * CMD.C - Icinga Command CGI
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  * Last Modified: 08-08-2010
  *
@@ -53,7 +53,6 @@ extern int  use_authentication;
 extern int  lock_author_names;
 extern int  persistent_ack_comments;
 extern int  default_expiring_acknowledgement_duration;
-extern int  log_external_commands_user;
 
 extern int  content_type;
 extern int  display_header;
@@ -122,17 +121,6 @@ struct errorlist {
 };
 
 
-/** @name Vars which are imported for cgiutils
- *  @warning these wars should be all extern, @n
- *	then they could get deleted, because they aren't used here.
- *	@n cgiutils.c , needs them
-    @{ **/
-int show_all_hosts = TRUE;			/**< */
-int show_all_hostgroups = TRUE;			/**< */
-int show_all_servicegroups = TRUE;		/**< */
-int display_type = DISPLAY_HOSTS;			/**< */
-/** @}*/
-
 /** @name Internal vars
     @{ **/
 char *host_name = "";				/**< requested host name */
@@ -173,6 +161,8 @@ time_t start_time = 0L;				/**< start time as unix timestamp */
 time_t end_time = 0L;				/**< end time as unix timestamp */
 
 int CGI_ID = CMD_CGI_ID;				/**< ID to identify the cgi for functions in cgiutils.c */
+
+unsigned long attr = MODATTR_NONE;		/**< default modified_attributes */
 
 authdata current_authdata;			/**< struct to hold current authentication data */
 
@@ -217,7 +207,7 @@ void commit_command_data(int);
  *  @return success / fail
  *
  *  Here the command get formatted properly to be readable by icinga
- *  core. It passes the data to @ref cmd_submitf .
+ *  core. It passes the data to @c cmd_submitf .
 **/
 int commit_command(int);
 
@@ -302,7 +292,7 @@ int main(void) {
 	/* read the CGI configuration file */
 	result = read_cgi_config_file(get_cgi_config_location());
 	if (result == ERROR) {
-		document_header(CGI_ID, FALSE);
+		document_header(CGI_ID, FALSE, "Error");
 		if (content_type == WML_CONTENT)
 			printf("<p>Error: Could not open CGI config file!</p>\n");
 		else
@@ -314,7 +304,7 @@ int main(void) {
 	/* read the main configuration file */
 	result = read_main_config_file(main_config_file);
 	if (result == ERROR) {
-		document_header(CGI_ID, FALSE);
+		document_header(CGI_ID, FALSE, "Error");
 		if (content_type == WML_CONTENT)
 			printf("<p>Error: Could not open main config file!</p>\n");
 		else
@@ -334,7 +324,7 @@ int main(void) {
 	/* read all object configuration data */
 	result = read_all_object_configuration_data(main_config_file, READ_ALL_OBJECT_DATA);
 	if (result == ERROR) {
-		document_header(CGI_ID, FALSE);
+		document_header(CGI_ID, FALSE, "Error");
 		if (content_type == WML_CONTENT)
 			printf("<p>Error: Could not read object config data!</p>\n");
 		else
@@ -343,7 +333,7 @@ int main(void) {
 		return ERROR;
 	}
 
-	document_header(CGI_ID, TRUE);
+	document_header(CGI_ID, TRUE, "External Command Interface");
 
 	/* get authentication information */
 	get_authentication_information(&current_authdata);
@@ -359,7 +349,7 @@ int main(void) {
 
 		/* left column of the first row */
 		printf("<td align=left valign=top width=33%%>\n");
-		display_info_table("External Command Interface", FALSE, &current_authdata, daemon_check);
+		display_info_table("External Command Interface", &current_authdata, daemon_check);
 		printf("</td>\n");
 
 		/* center column of the first row */
@@ -437,6 +427,17 @@ int process_cgivars(void) {
 
 			command_type = atoi(variables[x]);
 		}
+
+                /* we found the attr */
+                else if (!strcmp(variables[x], "attr")) {
+                        x++;
+                        if (variables[x] == NULL) {
+                                error = TRUE;
+                                break;
+                        }
+
+                        attr = strtoul(variables[x], NULL, 10);
+                }
 
 		/* we found the command mode */
 		else if (!strcmp(variables[x], "cmd_mod")) {
@@ -822,16 +823,24 @@ void print_object_list(int list_type) {
 
 		printf("<tr class=\"status%s\"><td width=\"50%%\"", (row_color == 0) ? "Even" : "Odd ");
 		if (list_type == PRINT_SERVICE_LIST) {
-			/* if hostname is empty print inputbox instead */
-			if (!strcmp(commands[x].host_name, ""))
-				printf("><INPUT TYPE='TEXT' NAME='host' SIZE=30></td>");
-			else
-				printf("><INPUT TYPE='HIDDEN' NAME='host' VALUE='%s'>%s</td>", escape_string(commands[x].host_name), escape_string(commands[x].host_name));
-			/* if service description is empty print inputbox instead */
-			if (!strcmp(commands[x].description, ""))
-				printf("<td><INPUT TYPE='TEXT' NAME='service' SIZE=30></td></tr>\n");
-			else
-				printf("<td><INPUT TYPE='HIDDEN' NAME='service' VALUE='%s'>%s</td></tr>\n", escape_string(commands[x].description), escape_string(commands[x].description));
+			/* hostname and service description are present */
+			if (strlen(commands[x].host_name) != 0  && strlen(commands[x].description) != 0) {
+				printf(">%s</td>", escape_string(commands[x].host_name));
+				/* we can use "escape_string" only twice in one line */
+				printf("<td><INPUT TYPE='HIDDEN' NAME='hostservice' VALUE='%s^%s'>", escape_string(commands[x].host_name), escape_string(commands[x].description));
+				printf("%s</td></tr>\n", escape_string(commands[x].description));
+			} else {
+				/* if hostname is empty print inputbox instead */
+				if (!strcmp(commands[x].host_name, ""))
+					printf("><INPUT TYPE='TEXT' NAME='host' SIZE=30></td>");
+				else
+					printf("><INPUT TYPE='HIDDEN' NAME='host' VALUE='%s'>%s</td>", escape_string(commands[x].host_name), escape_string(commands[x].host_name));
+				/* if service description is empty print inputbox instead */
+				if (!strcmp(commands[x].description, ""))
+					printf("<td><INPUT TYPE='TEXT' NAME='service' SIZE=30></td></tr>\n");
+				else
+					printf("<td><INPUT TYPE='HIDDEN' NAME='service' VALUE='%s'>%s</td></tr>\n", escape_string(commands[x].description), escape_string(commands[x].description));
+			}
 		} else if (list_type == PRINT_HOST_LIST) {
 			/* if hostname is empty print inputbox instead */
 			if (!strcmp(commands[x].host_name, ""))
@@ -1387,6 +1396,14 @@ void request_command_data(int cmd) {
 		snprintf(action, sizeof(action), "Send a custom %s notification", (cmd == CMD_SEND_CUSTOM_HOST_NOTIFICATION) ? "host" : "service");
 		break;
 
+        case CMD_CHANGE_HOST_MODATTR:
+		snprintf(action, sizeof(action), "Reset modified attributes for Host(s).");
+		break;
+
+        case CMD_CHANGE_SVC_MODATTR:
+		snprintf(action, sizeof(action), "Reset modified attributes for Service(s).");
+		break;
+
 	default:
 		print_generic_error_message("Sorry Dave, I can't let you do that...", "Executing an unknown command? Shame on you!", 2);
 
@@ -1852,6 +1869,24 @@ void request_command_data(int cmd) {
 
 		break;
 
+        case CMD_CHANGE_HOST_MODATTR:
+		print_object_list(PRINT_HOST_LIST);
+		print_form_element(PRINT_COMMON_HEADER, cmd);
+		printf("<tr class=\"statusEven\"><td width=\"50%%\" style=\"font-weight:bold;\">Modified Attributes:</td>");
+		printf("<td><INPUT TYPE='HIDDEN' NAME='attr' VALUE='%lu'>", attr);
+		print_modified_attributes(HTML_CONTENT, CMD_CGI, attr);
+		printf("</td></tr>\n");
+		break;
+
+        case CMD_CHANGE_SVC_MODATTR:
+		print_object_list(PRINT_SERVICE_LIST);
+		print_form_element(PRINT_COMMON_HEADER, cmd);
+		printf("<tr class=\"statusEven\"><td width=\"50%%\" style=\"font-weight:bold;\">Modified Attributes:</td>");
+		printf("<td><INPUT TYPE='HIDDEN' NAME='attr' VALUE='%lu'>", attr);
+		print_modified_attributes(HTML_CONTENT, CMD_CGI, attr);
+		printf("</td></tr>\n");
+		break;
+
 	default:
 		printf("<tr><td CLASS='objectDescription' COLSPAN=\"2\">This should not be happening... :-(</td></tr>\n");
 	}
@@ -2257,6 +2292,36 @@ void commit_command_data(int cmd) {
 
 		break;
 
+	case CMD_CHANGE_HOST_MODATTR:
+	case CMD_CHANGE_SVC_MODATTR:
+
+                for (x = 0; x < NUMBER_OF_STRUCTS; x++) {
+
+                        cmd_has_objects = TRUE;
+
+                        if (commands[x].host_name == NULL)
+                                continue;
+
+                        /* see if the user is authorized to issue a command... */
+                        is_authorized[x] = FALSE;
+                        if (cmd == CMD_CHANGE_HOST_MODATTR) {
+                                temp_host = find_host(commands[x].host_name);
+                                if (is_authorized_for_host_commands(temp_host, &current_authdata) == TRUE)
+                                        is_authorized[x] = TRUE;
+                        } else {
+                                temp_service = find_service(commands[x].host_name, commands[x].description);
+                                if (is_authorized_for_service_commands(temp_service, &current_authdata) == TRUE)
+                                        is_authorized[x] = TRUE;
+                        }
+
+			/* do not allow other attributes than reset (0) */
+			if (attr != MODATTR_NONE) {
+				error[e++].message = strdup("You cannot change modified attributes other than reset them!");
+			}
+                }
+
+		break;
+
 	default:
 		print_generic_error_message("Sorry Dave, I can't let you do that...", "Executing an unknown command? Shame on you!", 2);
 
@@ -2440,20 +2505,19 @@ static int cmd_submitf(int id, const char *fmt, ...) {
 	va_list ap;
 
 	command = extcmd_get_name(id);
+
 	/*
 	 * We disallow sending 'CHANGE' commands from the cgi's
 	 * until we do proper session handling to prevent cross-site
 	 * request forgery
+	 * 2012-04-23 MF: Allow those and do proper checks on the cmds
+	 * for changed mod attr
 	 */
-	if (!command || (strlen(command) > 6 && !memcmp("CHANGE", command, 6)))
+	/*if (!command || (strlen(command) > 6 && !memcmp("CHANGE", command, 6)))
 		return ERROR;
+	*/
 
-	if (log_external_commands_user == TRUE) {
-		get_authentication_information(&current_authdata);
-		len = snprintf(cmd, sizeof(cmd) - 1, "[%lu] %s;%s;", time(NULL), command, current_authdata.username);
-	} else {
-		len = snprintf(cmd, sizeof(cmd) - 1, "[%lu] %s;", time(NULL), command);
-	}
+	len = snprintf(cmd, sizeof(cmd) - 1, "[%lu] %s;", time(NULL), command);
 
 	if (len < 0)
 		return ERROR;
@@ -2885,6 +2949,25 @@ int commit_command(int cmd) {
 		if (affect_host_and_services == TRUE) {
 			if (is_authorized[x])
 				submit_result[x] |= cmd_submitf(CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME, "%s;%lu;%lu;%d;0;%lu;%s;%s", servicegroup_name, start_time, end_time, fixed, duration, comment_author, comment_data);
+		}
+		break;
+
+        case CMD_CHANGE_HOST_MODATTR:
+                for (x = 0; x < NUMBER_OF_STRUCTS; x++) {
+                        if (commands[x].host_name == NULL)
+                                continue;
+
+			if (is_authorized[x])
+				submit_result[x] = cmd_submitf(cmd, "%s;%lu", commands[x].host_name, attr);
+		}
+		break;
+
+        case CMD_CHANGE_SVC_MODATTR:
+                for (x = 0; x < NUMBER_OF_STRUCTS; x++) {
+                        if (commands[x].host_name == NULL)
+                                continue;
+			if (is_authorized[x])
+				submit_result[x] = cmd_submitf(cmd, "%s;%s;%lu", commands[x].host_name, commands[x].description, attr);
 		}
 		break;
 

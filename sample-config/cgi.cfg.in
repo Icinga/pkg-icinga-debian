@@ -95,7 +95,7 @@ use_pending_states=1
 # WARNING:
 # This log is highly experimental and changes may occure without notice. Use at your own risk!!
 
-use_logging=0
+use_logging=@ENABLECGILOG@
 
 
 # CGI LOG FILE
@@ -400,10 +400,18 @@ ping_syntax=/bin/ping -n -U -c 5 $HOSTADDRESS$
 
 # REFRESH RATE
 # This option allows you to specify the refresh rate in seconds
-# of various CGIs (status, statusmap, extinfo, and outages).
+# of various CGIs (extinfo, outages, status, statusmap and tac).
 
 refresh_rate=90
 
+
+# REFRESH TYPE
+# This option determines what type of refresh should be used.
+# You can choose between http header and javascript. By
+# default javascript (1) is activated. If you have trouble
+# using javascript then try refresh via http header (0).
+
+refresh_type=1
 
 
 # ESCAPE HTML TAGS
@@ -498,6 +506,16 @@ status_show_long_plugin_output=0
 
 
 
+# DISPLAY STATUS TOTAL
+# This option allows you to specify if the
+# Host Status Totals and Service Status Totals
+# should be displayed.
+# Default value is 0.
+
+display_status_totals=0
+
+
+
 # SHOW ONLY HARD STATES IN TAC OPTION
 # This options allows you to specify if the tactical overview
 # should only show hard states on hosts and services.
@@ -569,6 +587,16 @@ show_tac_header_pending=1
 # By default it's enabled. Default is 0.
 
 #showlog_current_states=0
+
+
+
+# DEFAULT NUM DISPLAYED LOG ENTRIES OPTION
+# This options specifies the number of log entries
+# displayed by default in showlog.cgi. To display
+# all log entries by default set this value to 0.
+# Default is 10000.
+
+#default_num_displayed_log_entries=10000
 
 
 

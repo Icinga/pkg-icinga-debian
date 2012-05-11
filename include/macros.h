@@ -3,8 +3,8 @@
  * MACROS.H - Common macro functions
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -38,7 +38,7 @@
 
 /****************** MACRO DEFINITIONS *****************/
 
-#define MACRO_ENV_VAR_PREFIX			"ICINGA_"
+#define MACRO_ENV_VAR_PREFIX			ENV_PREFIX
 
 #define MAX_USER_MACROS				256	/* maximum number of $USERx$ macros */
 

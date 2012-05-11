@@ -5,13 +5,13 @@ define([AC_CACHE_LOAD],)
 define([AC_CACHE_SAVE],)
 
 AC_INIT(base/icinga.c)
-AC_CONFIG_HEADER(include/config.h include/snprintf.h)
+AC_CONFIG_HEADER(include/config.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.6.1"
+PKG_VERSION="1.7.0beta1"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="12-02-2011"
+PKG_REL_DATE="05-09-2012"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -68,10 +68,10 @@ AC_CHECK_FUNC(asprintf,,SNPRINTF_O=../common/snprintf.o)
 AC_CHECK_FUNC(vasprintf,,SNPRINTF_O=../common/snprintf.o)
 
 dnl module/idoutils/src/Makefile.in
-AC_CHECK_FUNC(vsnprintf,,SNPRINTF_O_IDO=../../../common/snprintf.o)
-AC_CHECK_FUNC(snprintf,,SNPRINTF_O_IDO=../../../common/snprintf.o)
-AC_CHECK_FUNC(asprintf,,SNPRINTF_O_IDO=../../../common/snprintf.o)
-AC_CHECK_FUNC(vasprintf,,SNPRINTF_O_IDO=../../../common/snprintf.o)
+AC_CHECK_FUNC(vsnprintf,,SNPRINTF_O_IDO=snprintf.o)
+AC_CHECK_FUNC(snprintf,,SNPRINTF_O_IDO=snprintf.o)
+AC_CHECK_FUNC(asprintf,,SNPRINTF_O_IDO=snprintf.o)
+AC_CHECK_FUNC(vasprintf,,SNPRINTF_O_IDO=snprintf.o)
 
 AC_CACHE_CHECK([for C99 vsnprintf],ac_cv_HAVE_C99_VSNPRINTF,[
 AC_TRY_RUN([
@@ -309,13 +309,57 @@ if test x$CHECKRESULTDIR = xno; then
 fi
 AC_SUBST(CHECKRESULTDIR)
 
-dnl Location of check result path
+dnl Location of temp path
 TMPDIR=no
-AC_ARG_WITH(temp-dir,AC_HELP_STRING([--with-temp-dir=<path>],[sets path to temp directory]),TMPDIR=$withval,TMPDIR=no)
+AC_ARG_WITH(temp-dir,AC_HELP_STRING([--with-temp-dir=<path>],[sets path to temp directory path where Icinga can create temp files for service/host check results]),TMPDIR=$withval,TMPDIR=no)
 if test x$TMPDIR = xno; then
 	TMPDIR="/tmp"
 fi
 AC_SUBST(TMPDIR)
+
+dnl Location of temp file
+TMPFILE=no
+AC_ARG_WITH(temp-file,AC_HELP_STRING([--with-temp-file=<filepath>],[sets path to an Icinga exclusive update temp file i.e. /tmp/icinga.tmp]),TMPFILE=$withval,TMPFILE=no)
+if test x$TMPFILE = xno; then
+	        TMPFILE="/tmp/icinga.tmp"
+	fi
+AC_SUBST(TMPFILE)
+
+
+dnl Location of state dir
+STATEDIR=no
+AC_ARG_WITH(state-dir,AC_HELP_STRING([--with-state-dir=<filepath>],[sets path to custom localstate dir e.g. /var/spool/icinga]),STATEDIR=$withval,STATEDIR=no)
+if test x$STATEDIR = xno; then
+                STATEDIR="$localstatedir"
+        fi
+AC_SUBST(STATEDIR)
+
+
+dnl Location of http auth file
+HTTPAUTHFILE=no
+AC_ARG_WITH(http-auth-file,AC_HELP_STRING([--with-http-auth-file=<filepath>],[sets path to an Icinga HTTP auth file]),HTTPAUTHFILE=$withval,HTTPAUTHFILE=no)
+if test x$HTTPAUTHFILE = xno; then
+                HTTPAUTHFILE="$sysconfdir/htpasswd.users"
+        fi
+AC_SUBST(HTTPAUTHFILE)
+
+
+dnl Location of plugin path
+PLUGINDIR=no
+AC_ARG_WITH(plugin-dir,AC_HELP_STRING([--with-plugin-dir=<path>],[sets path to plugins directory path i.e. $prefix/libexec]),PLUGINDIR=$withval,PLUGINDIR=no)
+if test x$PLUGINDIR = xno; then
+	        PLUGINDIR="$libexecdir"
+	fi
+AC_SUBST(PLUGINDIR)
+
+dnl Location of eventhandler path
+EVENTHANDLERDIR=no
+AC_ARG_WITH(eventhandler-dir,AC_HELP_STRING([--with-eventhandler-dir=<path>],[sets path to eventhandlers directory path i.e. $prefix/libexec/eventhandlers]),EVENTHANDLERDIR=$withval,EVENTHANDLERDIR=no)
+if test x$EVENTHANDLERDIR = xno; then
+                EVENTHANDLERDIR="$libexecdir/eventhandlers"
+        fi
+AC_SUBST(EVENTHANDLERDIR)
+
 
 
 dnl ################
@@ -329,6 +373,21 @@ if test x$LOGDIR = xno; then
 fi
 AC_SUBST(LOGDIR)
 
+dnl Enable cgi logging
+ENABLE_CGILOG=no
+AC_ARG_ENABLE(cgi-log,--enable-cgi-log enables cgi logging - experimental!!,[
+        if test x$enableval = xyes; then
+		ENABLE_CGILOG=yes
+	fi
+	],ENABLE_CGILOG=no)
+
+if test x$ENABLE_CGILOG = xyes; then
+        ENABLECGILOG=1
+else
+        ENABLECGILOG=0
+fi
+AC_SUBST(ENABLECGILOG)
+
 dnl Location of cgi logging path
 CGILOGDIR=no
 AC_ARG_WITH(cgi-log-dir,AC_HELP_STRING([--with-cgi-log-dir=<path>],[sets path to cgi logging directory]),CGILOGDIR=$withval,CGILOGDIR=no)
@@ -336,13 +395,6 @@ if test x$CGILOGDIR = xno; then
         CGILOGDIR="$datarootdir/log"
 fi
 AC_SUBST(CGILOGDIR)
-
-dnl ################
-dnl PHPAPI DIRS - DEPRECATED, REMOVE WITH 1.7.0 FIXME
-dnl ################
-dnl Location of phpapi logging path
-AC_ARG_WITH(phpapi-log-dir,AC_HELP_STRING([--with-phpapi-log-dir=<path>],[!!deprecated, removed from package!!]),[],[])
-
 
 dnl ################
 dnl OTHER DIRS
@@ -390,6 +442,39 @@ dnl User can override lock file location
 AC_ARG_WITH(lockfile,AC_HELP_STRING([--with-lockfile=<path>],[sets path and file name for lock file]),lockfile=$withval,lockfile=$localstatedir/icinga.lock)
 AC_SUBST(lockfile)
 
+
+dnl Location of icinga.chk (error log on initscript)
+ICINGACHKFILE=no
+AC_ARG_WITH(icinga-chkfile,AC_HELP_STRING([--with-icinga-chkfile=<path>],[sets path and file name for icinga initscript error file]),ICINGACHKFILE=$withval,ICINGACHKFILE=no)
+if test x$ICINGACHKFILE = xno; then
+        ICINGACHKFILE="$localstatedir/icinga.chk"
+fi
+AC_SUBST(ICINGACHKFILE)
+
+dnl Location of ido2db.lock
+IDO2DBLOCKFILE=no
+AC_ARG_WITH(ido2db-lockfile,AC_HELP_STRING([--with-ido2db-lockfile=<path>],[sets path and file name for ido2db lock file]),IDO2DBLOCKFILE=$withval,IDO2DBLOCKFILE=no)
+if test x$IDO2DBLOCKFILE = xno; then
+        IDO2DBLOCKFILE="$localstatedir/ido2db.lock"
+fi
+AC_SUBST(IDO2DBLOCKFILE)
+
+
+dnl Location of ido.sock
+IDOSOCKFILE=no
+AC_ARG_WITH(ido-sockfile,AC_HELP_STRING([--with-ido-sockfile=<path>],[sets path and file name for ido sock file]),IDOSOCKFILE=$withval,IDOSOCKFILE=no)
+if test x$IDOSOCKFILE = xno; then
+        IDO2SOCKFILE="$localstatedir/ido.sock"
+fi
+AC_SUBST(IDOSOCKFILE)
+
+dnl Location of idomod.tmp
+IDOMODTMPFILE=no
+AC_ARG_WITH(idomod-tmpfile,AC_HELP_STRING([--with-idomod-tmpfile=<path>],[sets path and file name for idomod tmp file]),IDOMODTMPFILE=$withval,IDOMODTMPFILE=no)
+if test x$IDOMODTMPFILE = xno; then
+        IDOMODTMPFILE="$localstatedir/idomod.tmp"
+fi
+AC_SUBST(IDOMODTMPFILE)
 
 
 dnl Default xdata routines...
@@ -717,8 +802,10 @@ if test x$USE_EVENTBROKER = xyes; then
 	AC_MSG_CHECKING(for linker flags for loadable modules)
 	case $host_os in
 		solaris2*|sysv4*)
-			MOD_LDFLAGS="-G"
+			MOD_LDFLAGS="-G -fPIC"
+			MOD_CFLAGS="-fPIC"
 			INIT_OPTS="-o root -g root"
+			SNPRINTF_BROKEN="yes"
 		;;
 		aix4*|aix5*)
 			#MOD_LDFLAGS="-G -bnoentry -bexpall"
@@ -766,6 +853,15 @@ if test x$USE_EVENTBROKER = xyes; then
 	AC_SUBST(BROKER_H)
 fi
 
+dnl workaround for broken printf implementations (like solaris)
+if test x$SNPRINTF_BROKEN = xyes; then
+	AC_DEFINE(SNPRINTF_BROKEN,"1")
+	SNPRINTF_O=../common/snprintf.o
+	SNPRINTF_O_IDO=snprintf.o
+	AC_SUBST(SNPRINTF_O)
+	AC_SUBST(SNPRINTF_O_IDO)
+fi
+
 dnl Configure state based escalation ranges
 USE_STATE_BASED_ESCAL_RANGES=no
 AC_ARG_ENABLE(state-based-escal-ranges,AC_HELP_STRING([--enable-state-based-escal-ranges],[enables state based escalation ranges - attention: interferes with mk_livestatus neb module]),USE_STATE_BASED_ESCAL_RANGES=$enableval,USE_STATE_BASED_ESCAL_RANGES=no)
@@ -788,7 +884,7 @@ if test x$USE_IDOUTILS = xyes; then
 
 	dnl instance name
 	IDO_INSTANCE_NAME=no
-	AC_ARG_WITH(ido-instance-name,AC_HELP_STRING([--ido-instance-name=<instancename>],[sets instance_name for IDOUtils]),IDO_INSTANCE_NAME=$withval,IDO_INSTANCE_NAME=no)
+	AC_ARG_WITH(ido-instance-name,AC_HELP_STRING([--with-ido-instance-name=<instancename>],[sets instance_name for IDOUtils in idomod.cfg]),IDO_INSTANCE_NAME=$withval,IDO_INSTANCE_NAME=no)
 	if test x$IDO_INSTANCE_NAME = xno; then
 	        IDO_INSTANCE_NAME="default"
 	fi
@@ -1027,36 +1123,23 @@ AC_TRY_COMPILE([#ifdef __STDC__
 [AC_MSG_RESULT(yes)],
 [AC_DEFINE(NEED_VA_LIST,,[defined if va_list fails to compile]) AC_MSG_RESULT(no)])
 
-dnl Check if we should build local libtap
-dnl From Nagios Plugins
-dnl Have disabled autodetection of system library until later
+dnl libtap is now from https://github.com/zorgnax/libtap, no configure needed anymore - FIXME in 1.8
 AC_ARG_ENABLE(libtap,
   AC_HELP_STRING([--enable-libtap],
-                [Enable built-in libtap for unit-testing (default: no).]),
+                [this is deprecated, libtap is built with make test]),
         [enable_libtap=$enableval],
-        [enable_libtap=no])
-#Disabled for moment
-#AM_CONDITIONAL([USE_LIBTAP_LOCAL],[test "$enable_libtap" = "yes"])
+        [enable_libtap=yes])
 
-# Disabled for moment
-# If not local, check if we can use the system one
-#if test "$enable_libtap" != "yes" ; then
-#        dnl Check for libtap, to run perl-like tests
-#        AC_CHECK_LIB(tap, plan_tests,
-#                enable_libtap="yes"
-#                )
-#fi
+dnl Environment Prefix
+env_prefix="ICINGA_"
+AC_ARG_ENABLE(nagiosenv,
+ 	AC_HELP_STRING([--enable-nagiosenv],[expose Icinga Environment variables as NAGIOS_*)]))
+AS_IF([ test "x$enable_nagiosenv" = "xyes"],[
+ 	env_prefix="NAGIOS_"
+ 	AC_DEFINE(USE_NAGIOS_ENV,"1",[use NAGIOS_ as EnvVar Prefix])
+ 	])
+ 
 
-# Finally, define tests if we use libtap
-if test "$enable_libtap" = "yes" ; then
-	AC_CONFIG_SUBDIRS([tap])
-	USE_LIBTAP=yes
-else
-	USE_LIBTAP=no
-fi
-
-
-AC_SUBST(USE_LIBTAP)
 AC_SUBST(CGIEXTRAS)
 AC_SUBST(GDLIBS)
 AC_SUBST(PERLLIBS)
@@ -1278,7 +1361,6 @@ perl subst $srcdir/sample-config/template-object/switch.cfg
 echo ""
 echo "Creating sample config files in module/idoutils/config/ ..."
 
-perl subst $srcdir/module/idoutils/config/icinga.cfg
 perl subst $srcdir/module/idoutils/config/idoutils.cfg-sample
 perl subst $srcdir/module/idoutils/config/ido2db.cfg-sample
 perl subst $srcdir/module/idoutils/config/idomod.cfg-sample
@@ -1317,6 +1399,9 @@ else
 AC_MSG_RESULT([             Event Broker:  no])
 fi
 if test x$USE_IDOUTILS = xyes; then
+AC_MSG_RESULT([          ido2db lockfile:  $IDO2DBLOCKFILE])
+AC_MSG_RESULT([             ido sockfile:  $IDOSOCKFILE])
+AC_MSG_RESULT([          idomod tempfile:  $IDOMODTMPFILE])
 if test x$USE_IDOUTILS_ORACLE = xyes; then
 AC_MSG_RESULT([           Build IDOUtils:  ocilib, instance_name=$IDO_INSTANCE_NAME])
 else
@@ -1327,14 +1412,26 @@ AC_MSG_RESULT([           Build IDOUtils:  no])
 fi
 AC_MSG_RESULT([        Install \${prefix}:  $prefix])
 AC_MSG_RESULT([                Lock file:  $lockfile])
+AC_MSG_RESULT([                Temp file:  $TMPFILE])
+AC_MSG_RESULT([                 Chk file:  $ICINGACHKFILE])
+AC_MSG_RESULT([           HTTP auth file:  $HTTPAUTHFILE])
+AC_MSG_RESULT([            Lib directory:  $libdir])
+AC_MSG_RESULT([            Bin directory:  $bindir])
+AC_MSG_RESULT([         Plugin directory:  $PLUGINDIR])
+AC_MSG_RESULT([   Eventhandler directory:  $EVENTHANDLERDIR])
 AC_MSG_RESULT([            Log directory:  $LOGDIR])
+if test x$ENABLE_CGILOG = xyes; then
 AC_MSG_RESULT([        cgi log directory:  $CGILOGDIR])
+fi
 AC_MSG_RESULT([   Check result directory:  $CHECKRESULTDIR])
+AC_MSG_RESULT([           Temp directory:  $TMPDIR])
+AC_MSG_RESULT([          State directory:  $STATEDIR])
 AC_MSG_RESULT([   Ext Cmd file directory:  $EXTCMDFILEDIR])
 AC_MSG_RESULT([           Init directory:  $init_dir])
 AC_MSG_RESULT([  Apache conf.d directory:  $HTTPD_CONF])
 AC_MSG_RESULT([             Mail program:  $MAIL_PROG])
 AC_MSG_RESULT([                  Host OS:  $host_os])
+AC_MSG_RESULT([       Environment Prefix:  $env_prefix])
 
 echo ""
 echo " Web Interface Options:"

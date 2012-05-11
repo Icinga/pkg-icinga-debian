@@ -75,8 +75,8 @@ command *global_host_event_handler_ptr;
 
 /* Icinga special */
 int sync_state_information(void) {}
-int log_external_commands_user = DEFAULT_LOG_EXTERNAL_COMMANDS_USER;
-
+int log_passive_checks = DEFAULT_LOG_PASSIVE_CHECKS;
+int log_external_commands = DEFAULT_LOG_EXTERNAL_COMMANDS;
 /* Catch lower calls through these stubs */
 time_t test_start_time = 0L;
 char *test_hostname;
@@ -112,7 +112,7 @@ int
 main() {
 	time_t now = 0L;
 
-	plan_tests(62);
+	plan(62);
 
 	ok(test_start_time == 0L, "Start time is empty");
 	ok(test_comment == NULL, "And test_comment is blank");
