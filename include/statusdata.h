@@ -3,8 +3,8 @@
  * STATUSDATA.H - Header for external status data routines
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -104,6 +104,8 @@ typedef struct hoststatus_struct{
 	struct  hoststatus_struct *nexthash;
 	time_t  acknowledgement_end_time;
 	int	search_matched;
+	int	added;
+	unsigned long modified_attributes;
         }hoststatus;
 
 
@@ -160,6 +162,8 @@ typedef struct servicestatus_struct{
 	struct  servicestatus_struct *nexthash;
 	time_t  acknowledgement_end_time;
 	int	search_matched;
+	int	added;
+	unsigned long modified_attributes;
         }servicestatus;
 
 

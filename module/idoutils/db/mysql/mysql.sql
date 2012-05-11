@@ -2,7 +2,7 @@
 -- mysql.sql
 -- DB definition for MySQL
 --
--- Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+-- Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
 --
 -- -- --------------------------------------------------------
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS icinga_acknowledgements (
   object_id bigint unsigned default 0,
   state smallint default 0,
   author_name varchar(64) character set latin1  default '',
-  comment_data varchar(255) character set latin1  default '',
+  comment_data TEXT character set latin1  default '',
   is_sticky smallint default 0,
   persistent_comment smallint default 0,
   notify_contacts smallint default 0,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS icinga_commands (
   instance_id bigint unsigned default 0,
   config_type smallint default 0,
   object_id bigint unsigned default 0,
-  command_line varchar(1024) character set latin1  default '',
+  command_line TEXT character set latin1  default '',
   PRIMARY KEY  (command_id),
   UNIQUE KEY instance_id (instance_id,object_id,config_type)
 ) ENGINE=InnoDB  COMMENT='Command definitions';
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS icinga_commenthistory (
   comment_time timestamp  default '0000-00-00 00:00:00',
   internal_comment_id bigint unsigned default 0,
   author_name varchar(64) character set latin1  default '',
-  comment_data varchar(255) character set latin1  default '',
+  comment_data TEXT character set latin1  default '',
   is_persistent smallint default 0,
   comment_source smallint default 0,
   expires smallint default 0,
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS icinga_comments (
   comment_time timestamp  default '0000-00-00 00:00:00',
   internal_comment_id bigint unsigned default 0,
   author_name varchar(64) character set latin1  default '',
-  comment_data varchar(255) character set latin1  default '',
+  comment_data TEXT character set latin1  default '',
   is_persistent smallint default 0,
   comment_source smallint default 0,
   expires smallint default 0,
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS icinga_configfilevariables (
   instance_id bigint unsigned default 0,
   configfile_id bigint unsigned default 0,
   varname varchar(64) character set latin1  default '',
-  varvalue varchar(1024) character set latin1  default '',
+  varvalue TEXT character set latin1  default '',
   PRIMARY KEY  (configfilevariable_id)
 ) ENGINE=InnoDB  COMMENT='Configuration file variables';
 
@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS icinga_contactgroups (
   instance_id bigint unsigned default 0,
   config_type smallint default 0,
   contactgroup_object_id bigint unsigned default 0,
-  alias varchar(255) character set latin1  default '',
+  alias TEXT character set latin1  default '',
   PRIMARY KEY  (contactgroup_id),
   UNIQUE KEY instance_id (instance_id,config_type,contactgroup_object_id)
 ) ENGINE=InnoDB  COMMENT='Contactgroup definitions';
@@ -212,7 +212,7 @@ CREATE TABLE IF NOT EXISTS icinga_contactnotificationmethods (
   end_time timestamp  default '0000-00-00 00:00:00',
   end_time_usec  int default 0,
   command_object_id bigint unsigned default 0,
-  command_args varchar(255) character set latin1  default '',
+  command_args TEXT character set latin1  default '',
   PRIMARY KEY  (contactnotificationmethod_id),
   UNIQUE KEY instance_id (instance_id,contactnotification_id,start_time,start_time_usec)
 ) ENGINE=InnoDB  COMMENT='Historical record of contact notification methods';
@@ -338,7 +338,7 @@ CREATE TABLE IF NOT EXISTS icinga_customvariables (
   config_type smallint default 0,
   has_been_modified smallint default 0,
   varname varchar(255) character set latin1  default '',
-  varvalue varchar(255) character set latin1  default '',
+  varvalue TEXT character set latin1  default '',
   PRIMARY KEY  (customvariable_id),
   UNIQUE KEY object_id_2 (object_id,config_type,varname),
   KEY varname (varname)
@@ -357,7 +357,7 @@ CREATE TABLE IF NOT EXISTS icinga_customvariablestatus (
   status_update_time timestamp  default '0000-00-00 00:00:00',
   has_been_modified smallint default 0,
   varname varchar(255) character set latin1  default '',
-  varvalue varchar(255) character set latin1  default '',
+  varvalue TEXT character set latin1  default '',
   PRIMARY KEY  (customvariablestatus_id),
   UNIQUE KEY object_id_2 (object_id,varname),
   KEY varname (varname)
@@ -373,6 +373,8 @@ CREATE TABLE IF NOT EXISTS icinga_dbversion (
   dbversion_id serial,
   name varchar(10) character set latin1  default '',
   version varchar(10) character set latin1  default '',
+  create_time timestamp default '0000-00-00 00:00:00',
+  modify_time timestamp default '0000-00-00 00:00:00',
   PRIMARY KEY (dbversion_id),
   UNIQUE KEY dbversion (name)
 ) ENGINE=InnoDB;
@@ -390,7 +392,7 @@ CREATE TABLE IF NOT EXISTS icinga_downtimehistory (
   object_id bigint unsigned default 0,
   entry_time timestamp  default '0000-00-00 00:00:00',
   author_name varchar(64) character set latin1  default '',
-  comment_data varchar(255) character set latin1  default '',
+  comment_data TEXT character set latin1  default '',
   internal_downtime_id bigint unsigned default 0,
   triggered_by_id bigint unsigned default 0,
   is_fixed smallint default 0,
@@ -403,6 +405,8 @@ CREATE TABLE IF NOT EXISTS icinga_downtimehistory (
   actual_end_time timestamp  default '0000-00-00 00:00:00',
   actual_end_time_usec  int default 0,
   was_cancelled smallint default 0,
+  is_in_effect smallint default 0,
+  trigger_time timestamp  default '0000-00-00 00:00:00',
   PRIMARY KEY  (downtimehistory_id),
   UNIQUE KEY instance_id (instance_id,object_id,entry_time,internal_downtime_id)
 ) ENGINE=InnoDB  COMMENT='Historical scheduled host and service downtime';
@@ -425,13 +429,13 @@ CREATE TABLE IF NOT EXISTS icinga_eventhandlers (
   end_time timestamp  default '0000-00-00 00:00:00',
   end_time_usec  int default 0,
   command_object_id bigint unsigned default 0,
-  command_args varchar(255) character set latin1  default '',
-  command_line varchar(1024) character set latin1  default '',
+  command_args TEXT character set latin1  default '',
+  command_line TEXT character set latin1  default '',
   timeout smallint default 0,
   early_timeout smallint default 0,
   execution_time double  default '0',
   return_code smallint default 0,
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   PRIMARY KEY  (eventhandler_id),
   UNIQUE KEY instance_id (instance_id,object_id,start_time,start_time_usec)
@@ -449,7 +453,7 @@ CREATE TABLE IF NOT EXISTS icinga_externalcommands (
   entry_time timestamp  default '0000-00-00 00:00:00',
   command_type smallint default 0,
   command_name varchar(128) character set latin1  default '',
-  command_args varchar(255) character set latin1  default '',
+  command_args TEXT character set latin1  default '',
   PRIMARY KEY  (externalcommand_id)
 ) ENGINE=InnoDB  COMMENT='Historical record of processed external commands';
 
@@ -497,14 +501,14 @@ CREATE TABLE IF NOT EXISTS icinga_hostchecks (
   end_time timestamp  default '0000-00-00 00:00:00',
   end_time_usec  int default 0,
   command_object_id bigint unsigned default 0,
-  command_args varchar(255) character set latin1  default '',
-  command_line varchar(1024) character set latin1  default '',
+  command_args TEXT character set latin1  default '',
+  command_line TEXT character set latin1  default '',
   timeout smallint default 0,
   early_timeout smallint default 0,
   execution_time double  default '0',
   latency double  default '0',
   return_code smallint default 0,
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   perfdata TEXT character set latin1  default '',
   PRIMARY KEY  (hostcheck_id)
@@ -595,7 +599,7 @@ CREATE TABLE IF NOT EXISTS icinga_hostgroups (
   instance_id bigint unsigned default 0,
   config_type smallint default 0,
   hostgroup_object_id bigint unsigned default 0,
-  alias varchar(255) character set latin1  default '',
+  alias TEXT character set latin1  default '',
   PRIMARY KEY  (hostgroup_id),
   UNIQUE KEY instance_id (instance_id,hostgroup_object_id)
 ) ENGINE=InnoDB  COMMENT='Hostgroup definitions';
@@ -630,12 +634,12 @@ CREATE TABLE IF NOT EXISTS icinga_hosts (
   address varchar(128) character set latin1  default '',
   address6 varchar(128) character set latin1  default '',
   check_command_object_id bigint unsigned default 0,
-  check_command_args varchar(255) character set latin1  default '',
+  check_command_args TEXT character set latin1  default '',
   eventhandler_command_object_id bigint unsigned default 0,
-  eventhandler_command_args varchar(255) character set latin1  default '',
+  eventhandler_command_args TEXT character set latin1  default '',
   notification_timeperiod_object_id bigint unsigned default 0,
   check_timeperiod_object_id bigint unsigned default 0,
-  failure_prediction_options varchar(64) character set latin1  default '',
+  failure_prediction_options varchar(128) character set latin1  default '',
   check_interval double  default '0',
   retry_interval double  default '0',
   max_check_attempts smallint default 0,
@@ -666,13 +670,13 @@ CREATE TABLE IF NOT EXISTS icinga_hosts (
   notifications_enabled smallint default 0,
   obsess_over_host smallint default 0,
   failure_prediction_enabled smallint default 0,
-  notes varchar(255) character set latin1  default '',
-  notes_url varchar(255) character set latin1  default '',
-  action_url varchar(255) character set latin1  default '',
-  icon_image varchar(255) character set latin1  default '',
-  icon_image_alt varchar(255) character set latin1  default '',
-  vrml_image varchar(255) character set latin1  default '',
-  statusmap_image varchar(255) character set latin1  default '',
+  notes TEXT character set latin1  default '',
+  notes_url TEXT character set latin1  default '',
+  action_url TEXT character set latin1  default '',
+  icon_image TEXT character set latin1  default '',
+  icon_image_alt TEXT character set latin1  default '',
+  vrml_image TEXT character set latin1  default '',
+  statusmap_image TEXT character set latin1  default '',
   have_2d_coords smallint default 0,
   x_2d smallint default 0,
   y_2d smallint default 0,
@@ -696,7 +700,7 @@ CREATE TABLE IF NOT EXISTS icinga_hoststatus (
   instance_id bigint unsigned default 0,
   host_object_id bigint unsigned default 0,
   status_update_time timestamp  default '0000-00-00 00:00:00',
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   perfdata TEXT character set latin1  default '',
   current_state smallint default 0,
@@ -734,8 +738,8 @@ CREATE TABLE IF NOT EXISTS icinga_hoststatus (
   process_performance_data smallint default 0,
   obsess_over_host smallint default 0,
   modified_host_attributes  int default 0,
-  event_handler varchar(255) character set latin1  default '',
-  check_command varchar(255) character set latin1  default '',
+  event_handler TEXT character set latin1  default '',
+  check_command TEXT character set latin1  default '',
   normal_check_interval double  default '0',
   retry_check_interval double  default '0',
   check_timeperiod_object_id bigint unsigned default 0,
@@ -811,7 +815,7 @@ CREATE TABLE IF NOT EXISTS icinga_logentries (
   entry_time timestamp  default '0000-00-00 00:00:00',
   entry_time_usec  int default 0,
   logentry_type  int default 0,
-  logentry_data varchar(255) character set latin1  default '',
+  logentry_data TEXT character set latin1  default '',
   realtime_data smallint default 0,
   inferred_data_extracted smallint default 0,
   PRIMARY KEY  (logentry_id)
@@ -834,7 +838,7 @@ CREATE TABLE IF NOT EXISTS icinga_notifications (
   end_time timestamp  default '0000-00-00 00:00:00',
   end_time_usec  int default 0,
   state smallint default 0,
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   escalated smallint default 0,
   contacts_notified smallint default 0,
@@ -908,8 +912,8 @@ CREATE TABLE IF NOT EXISTS icinga_programstatus (
   obsess_over_services smallint default 0,
   modified_host_attributes  int default 0,
   modified_service_attributes  int default 0,
-  global_host_event_handler varchar(255) character set latin1  default '',
-  global_service_event_handler varchar(255) character set latin1  default '',
+  global_host_event_handler TEXT character set latin1  default '',
+  global_service_event_handler TEXT character set latin1  default '',
   PRIMARY KEY  (programstatus_id),
   UNIQUE KEY instance_id (instance_id)
 ) ENGINE=InnoDB  COMMENT='Current program status information';
@@ -924,7 +928,7 @@ CREATE TABLE IF NOT EXISTS icinga_runtimevariables (
   runtimevariable_id serial,
   instance_id bigint unsigned default 0,
   varname varchar(64) character set latin1  default '',
-  varvalue varchar(255) character set latin1  default '',
+  varvalue TEXT character set latin1  default '',
   PRIMARY KEY  (runtimevariable_id)
 ) ENGINE=InnoDB  COMMENT='Runtime variables from the Icinga daemon';
 
@@ -941,7 +945,7 @@ CREATE TABLE IF NOT EXISTS icinga_scheduleddowntime (
   object_id bigint unsigned default 0,
   entry_time timestamp  default '0000-00-00 00:00:00',
   author_name varchar(64) character set latin1  default '',
-  comment_data varchar(255) character set latin1  default '',
+  comment_data TEXT character set latin1  default '',
   internal_downtime_id bigint unsigned default 0,
   triggered_by_id bigint unsigned default 0,
   is_fixed smallint default 0,
@@ -951,6 +955,8 @@ CREATE TABLE IF NOT EXISTS icinga_scheduleddowntime (
   was_started smallint default 0,
   actual_start_time timestamp  default '0000-00-00 00:00:00',
   actual_start_time_usec  int default 0,
+  is_in_effect smallint default 0,
+  trigger_time timestamp  default '0000-00-00 00:00:00',
   PRIMARY KEY  (scheduleddowntime_id),
   UNIQUE KEY instance_id (instance_id,object_id,entry_time,internal_downtime_id)
 ) ENGINE=InnoDB COMMENT='Current scheduled host and service downtime';
@@ -975,14 +981,14 @@ CREATE TABLE IF NOT EXISTS icinga_servicechecks (
   end_time timestamp  default '0000-00-00 00:00:00',
   end_time_usec  int default 0,
   command_object_id bigint unsigned default 0,
-  command_args varchar(255) character set latin1  default '',
-  command_line varchar(1024) character set latin1  default '',
+  command_args TEXT character set latin1  default '',
+  command_line TEXT character set latin1  default '',
   timeout smallint default 0,
   early_timeout smallint default 0,
   execution_time double  default '0',
   latency double  default '0',
   return_code smallint default 0,
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   perfdata TEXT character set latin1  default '',
   PRIMARY KEY  (servicecheck_id)
@@ -1075,7 +1081,7 @@ CREATE TABLE IF NOT EXISTS icinga_servicegroups (
   instance_id bigint unsigned default 0,
   config_type smallint default 0,
   servicegroup_object_id bigint unsigned default 0,
-  alias varchar(255) character set latin1  default '',
+  alias TEXT character set latin1  default '',
   PRIMARY KEY  (servicegroup_id),
   UNIQUE KEY instance_id (instance_id,config_type,servicegroup_object_id)
 ) ENGINE=InnoDB  COMMENT='Servicegroup definitions';
@@ -1108,9 +1114,9 @@ CREATE TABLE IF NOT EXISTS icinga_services (
   service_object_id bigint unsigned default 0,
   display_name varchar(255) character set latin1 collate latin1_general_cs  default '',
   check_command_object_id bigint unsigned default 0,
-  check_command_args varchar(255) character set latin1  default '',
+  check_command_args TEXT character set latin1  default '',
   eventhandler_command_object_id bigint unsigned default 0,
-  eventhandler_command_args varchar(255) character set latin1  default '',
+  eventhandler_command_args TEXT character set latin1  default '',
   notification_timeperiod_object_id bigint unsigned default 0,
   check_timeperiod_object_id bigint unsigned default 0,
   failure_prediction_options varchar(64) character set latin1  default '',
@@ -1148,11 +1154,11 @@ CREATE TABLE IF NOT EXISTS icinga_services (
   notifications_enabled smallint default 0,
   obsess_over_service smallint default 0,
   failure_prediction_enabled smallint default 0,
-  notes varchar(255) character set latin1  default '',
-  notes_url varchar(255) character set latin1  default '',
-  action_url varchar(255) character set latin1  default '',
-  icon_image varchar(255) character set latin1  default '',
-  icon_image_alt varchar(255) character set latin1  default '',
+  notes TEXT character set latin1  default '',
+  notes_url TEXT character set latin1  default '',
+  action_url TEXT character set latin1  default '',
+  icon_image TEXT character set latin1  default '',
+  icon_image_alt TEXT character set latin1  default '',
   PRIMARY KEY  (service_id),
   UNIQUE KEY instance_id (instance_id,config_type,service_object_id),
   KEY service_object_id (service_object_id)
@@ -1169,7 +1175,7 @@ CREATE TABLE IF NOT EXISTS icinga_servicestatus (
   instance_id bigint unsigned default 0,
   service_object_id bigint unsigned default 0,
   status_update_time timestamp  default '0000-00-00 00:00:00',
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   perfdata TEXT character set latin1  default '',
   current_state smallint default 0,
@@ -1208,8 +1214,8 @@ CREATE TABLE IF NOT EXISTS icinga_servicestatus (
   process_performance_data smallint default 0,
   obsess_over_service smallint default 0,
   modified_service_attributes  int default 0,
-  event_handler varchar(255) character set latin1  default '',
-  check_command varchar(255) character set latin1  default '',
+  event_handler TEXT character set latin1  default '',
+  check_command TEXT character set latin1  default '',
   normal_check_interval double  default '0',
   retry_check_interval double  default '0',
   check_timeperiod_object_id bigint unsigned default 0,
@@ -1264,7 +1270,7 @@ CREATE TABLE IF NOT EXISTS icinga_statehistory (
   max_check_attempts smallint default 0,
   last_state smallint default 0,
   last_hard_state smallint default 0,
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   PRIMARY KEY  (statehistory_id)
 ) ENGINE=InnoDB COMMENT='Historical host and service state changes';
@@ -1282,12 +1288,12 @@ CREATE TABLE IF NOT EXISTS icinga_systemcommands (
   start_time_usec  int default 0,
   end_time timestamp  default '0000-00-00 00:00:00',
   end_time_usec  int default 0,
-  command_line varchar(1024) character set latin1  default '',
+  command_line TEXT character set latin1  default '',
   timeout smallint default 0,
   early_timeout smallint default 0,
   execution_time double  default '0',
   return_code smallint default 0,
-  output varchar(255) character set latin1  default '',
+  output TEXT character set latin1  default '',
   long_output TEXT  default '',
   PRIMARY KEY  (systemcommand_id),
   UNIQUE KEY instance_id (instance_id,start_time,start_time_usec)
@@ -1346,7 +1352,7 @@ CREATE TABLE IF NOT EXISTS icinga_timeperiods (
   instance_id bigint unsigned default 0,
   config_type smallint default 0,
   timeperiod_object_id bigint unsigned default 0,
-  alias varchar(255) character set latin1  default '',
+  alias TEXT character set latin1  default '',
   PRIMARY KEY  (timeperiod_id),
   UNIQUE KEY instance_id (instance_id,config_type,timeperiod_object_id)
 ) ENGINE=InnoDB  COMMENT='Timeperiod definitions';
@@ -1563,6 +1569,9 @@ CREATE INDEX loge_inst_id_time_idx on icinga_logentries (instance_id ASC, logent
 
 -- statehistory
 CREATE INDEX statehist_i_id_o_id_s_ty_s_ti on icinga_statehistory(instance_id, object_id, state_type, state_time);
+--#2274
+create index statehist_state_idx on icinga_statehistory(object_id,state);
+
 
 -- SLA statehistory
 CREATE INDEX slahist_i_id_o_id_s_ti_s_s_ti_e on icinga_slahistory(instance_id,object_id,start_time,end_time);
@@ -1579,6 +1588,6 @@ CREATE INDEX services_combined_object_idx ON icinga_services(service_object_id, 
 -- -----------------------------------------
 -- set dbversion
 -- -----------------------------------------
-INSERT INTO icinga_dbversion (name, version) VALUES ('idoutils', '1.6.0') ON DUPLICATE KEY UPDATE version='1.6.0';
+INSERT INTO icinga_dbversion (name, version, create_time, modify_time) VALUES ('idoutils', '1.7.0', NOW(), NOW()) ON DUPLICATE KEY UPDATE version='1.7.0', modify_time=NOW();
 
 

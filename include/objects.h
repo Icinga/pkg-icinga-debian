@@ -3,8 +3,8 @@
  * OBJECTS.H - Header file for object addition/search functions
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -401,7 +401,11 @@ struct host_struct{
 	objectlist *hostgroups_ptr;
 #endif
 	struct  host_struct *next;
-	struct  host_struct *nexthash;
+	/* recycle this currently unused attribute
+		struct  host_struct *nexthash;
+	 * see #2182 for more info
+	 */
+	void *next_check_event;
 	/* 2011-02-07 MF: added for keeping the command for NEB callback
 	   PROCESSED state on host|service checks  */
 	char	*processed_command;
@@ -544,7 +548,11 @@ struct service_struct{
 	objectlist *servicegroups_ptr;
 #endif
 	struct service_struct *next;
-	struct service_struct *nexthash;
+	/* recycle this currently unused attribute
+		struct service_struct *nexthash;
+	 * see #2182 for more info
+	 */
+	 void *next_check_event;
 	/* 2011-02-07 MF: added for keeping the command for NEB callback
 	   PROCESSED state on host|service checks  */
 	char	*processed_command;

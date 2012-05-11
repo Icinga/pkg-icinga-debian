@@ -3,7 +3,7 @@
  * CGIUTILS.H - Header file for common CGI functions
  *
  * Copyright (c) 1999-2008  Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org) 
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org) 
  *
  * License:
  * 
@@ -35,9 +35,12 @@ extern "C" {
 #endif
 
 
-/**************************** CGI REFRESH RATE ******************************/
+/**************************** CGI REFRESH ******************************/
 
 #define DEFAULT_REFRESH_RATE	60	/* 60 second refresh rate for CGIs */
+
+#define HTTPHEADER_REFRESH	0
+#define JAVASCRIPT_REFRESH	1
 
 
 /******************************* CGI NAMES **********************************/
@@ -134,6 +137,7 @@ extern "C" {
 #define JQUERY_MAIN_JS		"jquery-1.6.2.min.js"
 #define JQUERY_DD_JS		"jquery.dd.js"
 #define SKINNYTIP_JS		"skinnytip.js"
+#define PAGE_REFRESH_JS		"page_refresh.js"
 
 /********************************* ICONS ************************************/
 
@@ -240,6 +244,7 @@ extern "C" {
 #define AUTOSAVE_ICON			"save.gif"
 #define DAEMON_WARNING_ICON		"warning_triangle.gif"
 #define STATS_ICON			"stats.gif"
+#define RELOAD_ICON			"icon_reload.png"
 
 #define TAC_HEADER_DEFAULT_LOGO		"Icinga_Header_Webinterface.jpg"
 #define TAC_HEADER_DEFAULT_LOGO_ALT	"Icinga"
@@ -524,7 +529,7 @@ extern "C" {
 
 /************************** JSON OUTPUT VERSION ************************/
 
-#define JSON_OUTPUT_VERSION "1.6.0"
+#define JSON_OUTPUT_VERSION "1.7.0"
 
 
 /************************** BUFFER  ***************************************/
@@ -551,6 +556,7 @@ extern "C" {
 #define DISPLAY_HOSTESCALATIONS         12
 #define DISPLAY_ALL			13
 #define DISPLAY_MODULES			14
+#define DISPLAY_CGICONFIG		15
 #define DISPLAY_COMMAND_EXPANSION       16211
 
 #define STYLE_OVERVIEW                  0
@@ -628,7 +634,7 @@ char * escape_string(char *);					/* escape string for html form usage */
 void print_extra_hostgroup_url(char *,char *);
 void print_extra_servicegroup_url(char *,char *);
 
-void display_info_table(char *,int,authdata *, int);
+void display_info_table(char *,authdata *, int);
 void display_nav_table(char *,int);
 
 void display_splunk_host_url(host *);
@@ -648,7 +654,7 @@ void print_error(char*, int);
 
 void display_context_help(char *);				/* displays context-sensitive help window */
 
-void document_header(int,int);					/* print document header */
+void document_header(int,int, char *);				/* print document header */
 void document_footer(int);					/* print document footer */
 
 void write_popup_code(int);					/* PopUp's for graphics */
@@ -669,6 +675,25 @@ int string_to_time(char *, time_t *);				/* converts a defined formated string t
 
 int is_dlst_time(time_t *);
 char *json_encode(char *);
+
+/** @brief print's a little comment icon in status lists
+ *  @param [in] host_name of host to display comments
+ *  @param [in] svc_description if comment's for service is requested
+ *
+ *  This function print's a little comment icon and generates html code
+ *  to display a tooltip box which pops up on mouse over.
+**/
+void print_comment_icon(char *, char *);
+
+/** @brief prints modified attributes as string, by line seperator
+ *  @param [in] content_type can be \c CSV_CONTENT , \c JSON_CONTENT , \c XML_CONTENT or \c HTML_CONTENT
+ *  @param [in] cgi name of cgi as defined in include/cgiutils.h
+ *  @param [in] modified_attributes is the number to compare with
+ *  @note takes care that modified_attributes is represented as string
+ *
+ *  This function prints modified_attributes as string
+**/
+void print_modified_attributes(int , char *, unsigned long);
 
 /******************************** MULTIURL PATCH *******************************/
 

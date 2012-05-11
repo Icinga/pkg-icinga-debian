@@ -2,7 +2,7 @@
  * DBHANDLERS.C - Data handler routines for IDO2DB daemon
  *
  * Copyright (c) 2005-2007 Ethan Galstad
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
@@ -105,10 +105,14 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 			break;
 		case IDO2DB_DBSERVER_SQLITE3:
 			break;
+		case IDO2DB_DBSERVER_PGSQL:
+			/* Postgres does case sensitive compare  */
+			if (asprintf(&buf1, "name1=E'%s'", es[0]) == -1)
+				buf1 = NULL;
+			break;
 		default:
 			/* William Preston: mysql does case sensitive compare
 			 * IF the collation is changed to latin1_general_cs */
-			/* Postgres does case sensitive compare  */
 			if (asprintf(&buf1, "name1='%s'", es[0]) == -1)
 				buf1 = NULL;
 			break;
@@ -138,10 +142,14 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 			break;
 		case IDO2DB_DBSERVER_SQLITE3:
 			break;
+                case IDO2DB_DBSERVER_PGSQL:
+                        /* Postgres does case sensitive compare  */
+                        if (asprintf(&buf2, "name2=E'%s'", es[0]) == -1)
+                                buf2 = NULL;
+                        break;
 		default:
 			/* William Preston: mysql does case sensitive compare
 			 * IF the collation is changed to latin1_general_cs */
-			/* Postgres does case sensitive compare  */
 			if (asprintf(&buf2, "name2='%s'", es[1]) == -1)
 				buf2 = NULL;
 			break;
@@ -208,7 +216,7 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 		}
 	} else {
 		if (!OCI_BindString(idi->dbinfo.oci_statement_objects_select_name1_name2, MT(":X3"), *(char **) data[2], 0)) {
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id Bind name1=%s failed\n", data[2]);
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id Bind name1=%s failed\n", (es[0]==NULL)?"(null)":es[0]);
 			return IDO_ERROR;
 		}
 	}
@@ -221,7 +229,7 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 		}
 	} else {
 		if (!OCI_BindString(idi->dbinfo.oci_statement_objects_select_name1_name2, MT(":X4"), *(char **) data[3], 0)) {
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id Bind name2=%s failed\n", data[3]);
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id Bind name2=%s failed\n", (es[1]==NULL)?"(null)":es[1]);
 			return IDO_ERROR;
 		}
 	}
@@ -229,7 +237,7 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 
 	/* execute statement */
 	if (!OCI_Execute(idi->dbinfo.oci_statement_objects_select_name1_name2)) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_objects_select_name1_name2(%s,%s) execute error\n", es[0], es[1]);
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_objects_select_name1_name2(%s,%s) execute error\n", (es[0]==NULL)?"(null)":es[0], (es[1]==NULL)?"(null)":es[1]);
 		return IDO_ERROR;
 	}
 
@@ -237,9 +245,9 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 	idi->dbinfo.oci_resultset = OCI_GetResultset(idi->dbinfo.oci_statement_objects_select_name1_name2);
 	if (OCI_FetchNext(idi->dbinfo.oci_resultset)) {
 		*object_id = OCI_GetUnsignedInt2(idi->dbinfo.oci_resultset, MT("id"));
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_objects_select_name1_name2(%s,%s) object id=%lu selected\n", es[0], es[1], *object_id);
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_objects_select_name1_name2(%s,%s) object id=%lu selected\n", (es[0]==NULL)?"(null)":es[0], (es[1]==NULL)?"(null)":es[1], *object_id);
 	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_objects_select_name1_name2(%s,%s) object id could not be found\n", es[0], es[1]);
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_objects_select_name1_name2(%s,%s) object id could not be found\n", (es[0]==NULL)?"(null)":es[0], (es[1]==NULL)?"(null)":es[1]);
 		result = IDO_ERROR;
 	}
 
@@ -303,7 +311,14 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	if (name1 != NULL) {
 		tmp = ido2db_db_escape_string(idi, name1);
-		dummy = asprintf(&es[0], "'%s'", tmp);
+                switch (idi->dbinfo.server_type) {
+                case IDO2DB_DBSERVER_PGSQL:
+			dummy = asprintf(&es[0], "E'%s'", tmp);
+                        break;
+                default:
+			dummy = asprintf(&es[0], "'%s'", tmp);
+                        break;
+                }
 		if (tmp) {
 			free(tmp);
 			tmp = NULL;
@@ -313,7 +328,14 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 
 	if (name2 != NULL) {
 		tmp = ido2db_db_escape_string(idi, name2);
-		dummy = asprintf(&es[1], "'%s'", tmp);
+                switch (idi->dbinfo.server_type) {
+                case IDO2DB_DBSERVER_PGSQL:
+                        dummy = asprintf(&es[1], "E'%s'", tmp);
+                        break;
+                default:
+                        dummy = asprintf(&es[1], "'%s'", tmp);
+                        break;
+                }
 		if (tmp) {
 			free(tmp);
 			tmp = NULL;
@@ -381,10 +403,10 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 	es[0] = ido2db_db_escape_string(idi, name1);
 	es[1] = ido2db_db_escape_string(idi, name2);
 
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id_with_insert() name1=%s, name2=%s\n", es[0], es[1]);
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id_with_insert() name1=%s, name2=%s\n", (es[0]==NULL)?"(null)":es[0], (es[1]==NULL)?"(null)":es[1]);
 
 #ifdef DEBUG_IDO2DB
-	syslog(LOG_USER | LOG_INFO, "name1=%s, name2=%s\n", es[0], es[1]);
+	syslog(LOG_USER | LOG_INFO, "name1=%s, name2=%s\n", (es[0]==NULL)?"(null)":es[0], (es[1]==NULL)?"(null)":es[1]);
 #endif
 
 	data[0] = (void *) &idi->dbinfo.instance_id;
@@ -433,7 +455,7 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 		}
 	} else {
 		if (!OCI_BindString(idi->dbinfo.oci_statement_objects_insert, MT(":X3"), *(char **) data[2], 0)) {
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id_with_insert() Bind name1=%s failed\n", data[2]);
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id_with_insert() Bind name1=%s failed\n", (es[0]==NULL)?"(null)":es[0]);
 			return IDO_ERROR;
 		}
 	}
@@ -447,7 +469,7 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 		}
 	} else {
 		if (!OCI_BindString(idi->dbinfo.oci_statement_objects_insert, MT(":X4"), *(char **) data[3], 0)) {
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id_with_insert() Bind name2=%s failed\n", data[3]);
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id_with_insert() Bind name2=%s failed\n", (es[1]==NULL)?"(null)":es[1]);
 			return IDO_ERROR;
 		}
 	}
@@ -984,9 +1006,16 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 
 	/* make sure we aren't importing a duplicate log entry... */
 #ifdef USE_LIBDBI /* everything else will be libdbi */
-
-	if (asprintf(&buf, "SELECT logentry_id FROM %s WHERE instance_id=%lu AND logentry_time=%s AND logentry_data='%s'", ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES], idi->dbinfo.instance_id, ts[0], es[0]) == -1)
-		buf = NULL;
+	switch (idi->dbinfo.server_type) {
+	case IDO2DB_DBSERVER_PGSQL:
+		if (asprintf(&buf, "SELECT logentry_id FROM %s WHERE instance_id=%lu AND logentry_time=%s AND logentry_data=E'%s'", ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES], idi->dbinfo.instance_id, ts[0], es[0]) == -1)
+			buf = NULL;
+		break;
+	default:
+		if (asprintf(&buf, "SELECT logentry_id FROM %s WHERE instance_id=%lu AND logentry_time=%s AND logentry_data='%s'", ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES], idi->dbinfo.instance_id, ts[0], es[0]) == -1)
+			buf = NULL;
+		break;
+	}
 
 	if ((result = ido2db_db_query(idi, buf)) == IDO_OK) {
 		if (idi->dbinfo.dbi_result != NULL) {
@@ -1058,13 +1087,27 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	/* save entry to db */
-	if (asprintf(
-	            &buf,
-	            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %lu, '%s', '0', '0')",
-	            ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
-	            idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
-	            : es[0]) == -1)
-		buf = NULL;
+	switch (idi->dbinfo.server_type) {
+	case IDO2DB_DBSERVER_PGSQL:
+	        if (asprintf(
+	                    &buf,
+	                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %lu, E'%s', '0', '0')",
+	                    ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
+	                    idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
+	                    : es[0]) == -1)
+	                buf = NULL;
+		break;
+	default:
+	        if (asprintf(
+	                    &buf,
+        	            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %lu, '%s', '0', '0')",
+	                    ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
+	                    idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
+	                    : es[0]) == -1)
+	                buf = NULL;
+		break;
+	}
+
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
@@ -1201,11 +1244,23 @@ int ido2db_handle_processdata(ido2db_idi *idi) {
 
 	/* save entry to db */
 #ifdef USE_LIBDBI /* everything else will be libdbi */
-	if (asprintf(&buf, "INSERT INTO %s (instance_id, event_type, event_time, event_time_usec, process_id, program_name, program_version, program_date) VALUES (%lu, %d, %s, %lu, %lu, '%s', '%s', '%s')",
-	             ido2db_db_tablenames[IDO2DB_DBTABLE_PROCESSEVENTS],
-	             idi->dbinfo.instance_id, type, ts[0], tstamp.tv_usec, process_id,
-	             es[0], es[1], es[2]) == -1)
-		buf = NULL;
+        switch (idi->dbinfo.server_type) {
+        case IDO2DB_DBSERVER_PGSQL:
+	        if (asprintf(&buf, "INSERT INTO %s (instance_id, event_type, event_time, event_time_usec, process_id, program_name, program_version, program_date) VALUES (%lu, %d, %s, %lu, %lu, E'%s', E'%s', E'%s')",
+	                     ido2db_db_tablenames[IDO2DB_DBTABLE_PROCESSEVENTS],
+	                     idi->dbinfo.instance_id, type, ts[0], tstamp.tv_usec, process_id,
+	                     es[0], es[1], es[2]) == -1)
+	                buf = NULL;
+                break;
+        default:
+	        if (asprintf(&buf, "INSERT INTO %s (instance_id, event_type, event_time, event_time_usec, process_id, program_name, program_version, program_date) VALUES (%lu, %d, %s, %lu, %lu, '%s', '%s', '%s')",
+                	     ido2db_db_tablenames[IDO2DB_DBTABLE_PROCESSEVENTS],
+        	             idi->dbinfo.instance_id, type, ts[0], tstamp.tv_usec, process_id,
+	                     es[0], es[1], es[2]) == -1)
+        	        buf = NULL;
+                break;
+        }
+
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
@@ -1880,11 +1935,23 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	/* save entry to db */
-	if (asprintf(&buf, "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, %lu, %lu, '%s', '1', '1')",
-	             ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
-	             idi->dbinfo.instance_id, ts[1], ts[0], tstamp.tv_usec, letype,
-	             es[0]) == -1)
-		buf = NULL;
+        switch (idi->dbinfo.server_type) {
+        case IDO2DB_DBSERVER_PGSQL:
+	        if (asprintf(&buf, "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, %lu, %lu, E'%s', '1', '1')",
+	                     ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
+	                     idi->dbinfo.instance_id, ts[1], ts[0], tstamp.tv_usec, letype,
+	                     es[0]) == -1)
+	                buf = NULL;
+                break;
+        default:
+	        if (asprintf(&buf, "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, %lu, %lu, '%s', '1', '1')",
+	                     ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
+	                     idi->dbinfo.instance_id, ts[1], ts[0], tstamp.tv_usec, letype,
+	                     es[0]) == -1)
+	                buf = NULL;
+                break;
+        }
+
 	result = ido2db_db_query(idi, buf);
 	dbi_result_free(idi->dbinfo.dbi_result);
 
@@ -3078,8 +3145,10 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 	unsigned long start_time = 0L;
 	unsigned long end_time = 0L;
 	unsigned long object_id = 0L;
+	int is_in_effect = 0L;
+	unsigned long trigger_time = 0L;
 	int result = IDO_OK;
-	char *ts[4];
+	char *ts[5];
 	char *es[2];
 	int x = 0;
 #ifdef USE_LIBDBI
@@ -3089,7 +3158,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 #ifdef USE_ORACLE
 	unsigned long was_started = 1;
 #endif
-	void *data[15];
+	void *data[18];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_downtimedata() start\n");
 
@@ -3103,12 +3172,14 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 	/* convert vars */
 	result = ido2db_convert_string_to_int(idi->buffered_input[IDO_DATA_DOWNTIMETYPE], &downtime_type);
 	result = ido2db_convert_string_to_int(idi->buffered_input[IDO_DATA_FIXED], &fixed);
+	result = ido2db_convert_string_to_int(idi->buffered_input[IDO_DATA_DOWNTIMEISINEFFECT], &is_in_effect);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_DURATION], &duration);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_DOWNTIMEID], &internal_downtime_id);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_TRIGGEREDBY], &triggered_by);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_ENTRYTIME], &entry_time);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_STARTTIME], &start_time);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_ENDTIME], &end_time);
+	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_DOWNTIMETRIGGERTIME], &trigger_time);
 
 	es[0] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_AUTHORNAME]);
 	es[1] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_COMMENT]);
@@ -3117,6 +3188,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 	ts[1] = ido2db_db_timet_to_sql(idi, entry_time);
 	ts[2] = ido2db_db_timet_to_sql(idi, start_time);
 	ts[3] = ido2db_db_timet_to_sql(idi, end_time);
+	ts[4] = ido2db_db_timet_to_sql(idi, trigger_time);
 
 	/* get the object id */
 	if (downtime_type == SERVICE_DOWNTIME)
@@ -3149,6 +3221,11 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		data[12] = (void *) &entry_time;
 		data[13] = (void *) &start_time;
 		data[14] = (void *) &end_time;
+		/* is_in_effect + trigger_time as char* and ulong */
+		data[15] = (void *) &is_in_effect;
+		data[16] = (void *) &ts[4];
+		data[17] = (void *) &trigger_time;
+
 
 		result = ido2db_query_insert_or_update_downtimedata_downtime_history_add(idi, data);
 
@@ -3171,6 +3248,9 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 
 	/* save a record of scheduled downtime that starts */
 	if (type == NEBTYPE_DOWNTIME_START) {
+		/* start means downtime in effect as well, fake it */
+		is_in_effect = 1;
+
 		if (enable_sla)
 			sla_process_downtime(idi, object_id, tstamp.tv_sec, type);
 
@@ -3178,10 +3258,13 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 
 		if (asprintf(&buf,
-		             "UPDATE %s SET actual_start_time=%s, actual_start_time_usec=%lu, was_started=%d WHERE instance_id=%lu AND downtime_type=%d AND object_id=%lu AND entry_time=%s AND scheduled_start_time=%s AND scheduled_end_time=%s AND was_started=0",
-		             ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY], ts[0],
-		             tstamp.tv_usec, 1, idi->dbinfo.instance_id, downtime_type,
-		             object_id, ts[1], ts[2], ts[3]) == -1)
+		             "UPDATE %s SET "
+			     "actual_start_time=%s, actual_start_time_usec=%lu, was_started=%d, is_in_effect=%d, trigger_time=%s "
+			     "WHERE instance_id=%lu AND downtime_type=%d AND object_id=%lu AND entry_time=%s AND scheduled_start_time=%s AND scheduled_end_time=%s AND was_started=0"
+		             , ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY]
+			     , ts[0], tstamp.tv_usec, 1, is_in_effect, ts[4]
+			     , idi->dbinfo.instance_id, downtime_type, object_id, ts[1], ts[2], ts[3]
+			     ) == -1)
 			buf = NULL;
 
 		result = ido2db_db_query(idi, buf);
@@ -3210,6 +3293,9 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		data[6] = (void *) &entry_time;
 		data[7] = (void *) &start_time;
 		data[8] = (void *) &end_time;
+		/* is_in_effect + trigger_time as char* and ulong */
+		data[9] = (void *) &is_in_effect;
+		data[10] = (void *) &trigger_time;
 
 		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimehistory_update_start, MT(":X1"), (uint *) data[0])) { /* unixtimestamp instead of time2sql */
 			return IDO_ERROR;
@@ -3238,6 +3324,13 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimehistory_update_start, MT(":X9"), (uint *) data[8])) { /* unixtimestamp instead of time2sql */
 			return IDO_ERROR;
 		}
+		if (!OCI_BindInt(idi->dbinfo.oci_statement_downtimehistory_update_start, MT(":X10"), (int *) data[9])) {
+			return IDO_ERROR;
+		}
+		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimehistory_update_start, MT(":X11"), (uint *) data[10])) { /* unixtimestamp instead of time2sql */
+			return IDO_ERROR;
+		}
+
 
 		/* execute statement */
 		if (!OCI_Execute(idi->dbinfo.oci_statement_downtimehistory_update_start)) {
@@ -3265,11 +3358,13 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 
 		if (asprintf(
 		            &buf,
-		            "UPDATE %s SET actual_end_time=%s, actual_end_time_usec=%lu, was_cancelled=%d WHERE instance_id=%lu AND downtime_type=%d AND object_id=%lu AND entry_time=%s AND scheduled_start_time=%s AND scheduled_end_time=%s",
-		            ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY], ts[0],
-		            tstamp.tv_usec, (attr == NEBATTR_DOWNTIME_STOP_CANCELLED) ? 1
-		            : 0, idi->dbinfo.instance_id, downtime_type, object_id,
-		            ts[1], ts[2], ts[3]) == -1)
+		            "UPDATE %s "
+			    "SET actual_end_time=%s, actual_end_time_usec=%lu, was_cancelled=%d, is_in_effect=%d, trigger_time=%s "
+			    "WHERE instance_id=%lu AND downtime_type=%d AND object_id=%lu AND entry_time=%s AND scheduled_start_time=%s AND scheduled_end_time=%s"
+		            ,ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY]
+			    , ts[0], tstamp.tv_usec, (attr == NEBATTR_DOWNTIME_STOP_CANCELLED) ? 1 : 0, is_in_effect, ts[4]
+			    , idi->dbinfo.instance_id, downtime_type, object_id, ts[1], ts[2], ts[3]
+			    ) == -1)
 			buf = NULL;
 
 		result = ido2db_db_query(idi, buf);
@@ -3305,6 +3400,9 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		data[6] = (void *) &entry_time;
 		data[7] = (void *) &start_time;
 		data[8] = (void *) &end_time;
+                /* is_in_effect + trigger_time */
+                data[9] = (void *) &is_in_effect;
+                data[10] = (void *) &trigger_time;
 
 		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimehistory_update_stop, MT(":X1"), (uint *) data[0])) { /* unixtimestamp instead of time2sql */
 			return IDO_ERROR;
@@ -3333,6 +3431,13 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimehistory_update_stop, MT(":X9"), (uint *) data[8])) { /* unixtimestamp instead of time2sql */
 			return IDO_ERROR;
 		}
+		if (!OCI_BindInt(idi->dbinfo.oci_statement_downtimehistory_update_stop, MT(":X10"), (int *) data[9])) {
+			return IDO_ERROR;
+		}
+		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimehistory_update_stop, MT(":X11"), (uint *) data[10])) { /* unixtimestamp instead of time2sql */
+			return IDO_ERROR;
+		}
+
 
 		/* execute statement */
 		if (!OCI_Execute(idi->dbinfo.oci_statement_downtimehistory_update_stop)) {
@@ -3372,6 +3477,10 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		data[12] = (void *) &entry_time;
 		data[13] = (void *) &start_time;
 		data[14] = (void *) &end_time;
+                /* is_in_effect + trigger_time as char* and ulong */
+                data[15] = (void *) &is_in_effect;
+                data[16] = (void *) &ts[4];
+                data[17] = (void *) &trigger_time;
 
 		result = ido2db_query_insert_or_update_downtimedata_scheduled_downtime_add(idi, data);
 
@@ -3398,10 +3507,13 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 
 		if (asprintf(&buf,
-		             "UPDATE %s SET actual_start_time=%s, actual_start_time_usec=%lu, was_started=%d WHERE instance_id=%lu AND downtime_type=%d AND object_id=%lu AND entry_time=%s AND scheduled_start_time=%s AND scheduled_end_time=%s AND was_started=0",
-		             ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME], ts[0],
-		             tstamp.tv_usec, 1, idi->dbinfo.instance_id, downtime_type,
-		             object_id, ts[1], ts[2], ts[3]) == -1)
+		             "UPDATE %s "
+			     "SET actual_start_time=%s, actual_start_time_usec=%lu, was_started=%d, is_in_effect=%d, trigger_time=%s "
+			     "WHERE instance_id=%lu AND downtime_type=%d AND object_id=%lu AND entry_time=%s AND scheduled_start_time=%s AND scheduled_end_time=%s AND was_started=0"
+		             , ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME]
+			     , ts[0], tstamp.tv_usec, 1, is_in_effect, ts[4]
+			     , idi->dbinfo.instance_id, downtime_type, object_id, ts[1], ts[2], ts[3]
+			     ) == -1)
 			buf = NULL;
 
 		result = ido2db_db_query(idi, buf);
@@ -3431,6 +3543,10 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		data[6] = (void *) &entry_time;
 		data[7] = (void *) &start_time;
 		data[8] = (void *) &end_time;
+                /* is_in_effect + trigger_time */
+                data[9] = (void *) &is_in_effect;
+                data[10] = (void *) &trigger_time;
+
 
 		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_scheduleddowntime_update_start, MT(":X1"), (uint *) data[0])) { /* unixtimestamp instead of time2sql */
 			return IDO_ERROR;
@@ -3459,6 +3575,13 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_scheduleddowntime_update_start, MT(":X9"), (uint *) data[8])) { /* unixtimestamp instead of time2sql */
 			return IDO_ERROR;
 		}
+		if (!OCI_BindInt(idi->dbinfo.oci_statement_scheduleddowntime_update_start, MT(":X10"), (int *) data[9])) {
+			return IDO_ERROR;
+		}
+		if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_scheduleddowntime_update_start, MT(":X11"), (uint *) data[10])) { /* unixtimestamp instead of time2sql */
+			return IDO_ERROR;
+		}
+
 
 		/* execute statement */
 		if (!OCI_Execute(idi->dbinfo.oci_statement_scheduleddowntime_update_start)) {
@@ -4453,10 +4576,21 @@ int ido2db_handle_externalcommanddata(ido2db_idi *idi) {
 
 	/* save entry to db */
 #ifdef USE_LIBDBI /* everything else will be libdbi */
-	if (asprintf(&buf, "INSERT INTO %s (instance_id, command_type, entry_time, command_name, command_args) VALUES (%lu, %d, %s, '%s', '%s')",
-	             ido2db_db_tablenames[IDO2DB_DBTABLE_EXTERNALCOMMANDS],
-	             idi->dbinfo.instance_id, command_type, ts, es[0], es[1]) == -1)
-		buf = NULL;
+        switch (idi->dbinfo.server_type) {
+        case IDO2DB_DBSERVER_PGSQL:
+	        if (asprintf(&buf, "INSERT INTO %s (instance_id, command_type, entry_time, command_name, command_args) VALUES (%lu, %d, %s, E'%s', E'%s')",
+	                     ido2db_db_tablenames[IDO2DB_DBTABLE_EXTERNALCOMMANDS],
+	                     idi->dbinfo.instance_id, command_type, ts, es[0], es[1]) == -1)
+	                buf = NULL;
+                break;
+        default:
+	        if (asprintf(&buf, "INSERT INTO %s (instance_id, command_type, entry_time, command_name, command_args) VALUES (%lu, %d, %s, '%s', '%s')",
+	                     ido2db_db_tablenames[IDO2DB_DBTABLE_EXTERNALCOMMANDS],
+	                     idi->dbinfo.instance_id, command_type, ts, es[0], es[1]) == -1)
+	                buf = NULL;
+                break;
+        }
+
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
@@ -4615,21 +4749,42 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	/* the data part of the INSERT statement */
-	if (asprintf(&buf1, "(instance_id, entry_time, entry_time_usec, acknowledgement_type, object_id, state, author_name, comment_data, is_sticky, persistent_comment, notify_contacts, end_time) VALUES (%lu, %s, %lu, %d, %lu, %d, '%s', '%s', %d, %d, %d, %s)"
-	             , idi->dbinfo.instance_id
-	             , ts[0]
-	             , tstamp.tv_usec
-	             , acknowledgement_type
-	             , object_id
-	             , state
-	             , es[0]
-	             , es[1]
-	             , is_sticky
-	             , persistent_comment
-	             , notify_contacts
-	             , ts[1]
-	            ) == -1)
-		buf1 = NULL;
+        switch (idi->dbinfo.server_type) {
+        case IDO2DB_DBSERVER_PGSQL:
+	        if (asprintf(&buf1, "(instance_id, entry_time, entry_time_usec, acknowledgement_type, object_id, state, author_name, comment_data, is_sticky, persistent_comment, notify_contacts, end_time) VALUES (%lu, %s, %lu, %d, %lu, %d, E'%s', E'%s', %d, %d, %d, %s)"
+	                     , idi->dbinfo.instance_id
+	                     , ts[0]
+	                     , tstamp.tv_usec
+	                     , acknowledgement_type
+	                     , object_id
+	                     , state
+	                     , es[0]
+	                     , es[1]
+	                     , is_sticky
+	                     , persistent_comment
+	                     , notify_contacts
+        	             , ts[1]
+	                    ) == -1)
+	                buf1 = NULL;
+                break;
+        default:
+	        if (asprintf(&buf1, "(instance_id, entry_time, entry_time_usec, acknowledgement_type, object_id, state, author_name, comment_data, is_sticky, persistent_comment, notify_contacts, end_time) VALUES (%lu, %s, %lu, %d, %lu, %d, '%s', '%s', %d, %d, %d, %s)"
+	                     , idi->dbinfo.instance_id
+	                     , ts[0]
+	                     , tstamp.tv_usec
+	                     , acknowledgement_type
+	                     , object_id
+	                     , state
+	                     , es[0]
+	                     , es[1]
+	                     , is_sticky
+	                     , persistent_comment
+	                     , notify_contacts
+	                     , ts[1]
+	                    ) == -1)
+	                buf1 = NULL;
+                break;
+        }
 
 	if (asprintf(&buf, "INSERT INTO %s %s"
 	             , ido2db_db_tablenames[IDO2DB_DBTABLE_ACKNOWLEDGEMENTS]
@@ -4807,14 +4962,28 @@ int ido2db_handle_statechangedata(ido2db_idi *idi) {
 
 	/* save entry to db */
 #ifdef USE_LIBDBI /* everything else will be libdbi */
-	if (asprintf(
-	            &buf,
-	            "INSERT INTO %s (instance_id, state_time, state_time_usec, object_id, state_change, state, state_type, current_check_attempt, max_check_attempts, last_state, last_hard_state, output, long_output) VALUES (%lu, %s, %lu, %lu, %d, %d, %d, %d, %d, %d, %d, '%s', '%s')",
-	            ido2db_db_tablenames[IDO2DB_DBTABLE_STATEHISTORY],
-	            idi->dbinfo.instance_id, ts[0], tstamp.tv_usec, object_id,
-	            state_change_occurred, state, state_type, current_attempt,
-	            max_attempts, last_state, last_hard_state, es[0], es[1]) == -1)
-		buf = NULL;
+        switch (idi->dbinfo.server_type) {
+        case IDO2DB_DBSERVER_PGSQL:
+	        if (asprintf(
+        	            &buf,
+	                    "INSERT INTO %s (instance_id, state_time, state_time_usec, object_id, state_change, state, state_type, current_check_attempt, max_check_attempts, last_state, last_hard_state, output, long_output) VALUES (%lu, %s, %lu, %lu, %d, %d, %d, %d, %d, %d, %d, E'%s', E'%s')",
+	                    ido2db_db_tablenames[IDO2DB_DBTABLE_STATEHISTORY],
+	                    idi->dbinfo.instance_id, ts[0], tstamp.tv_usec, object_id,
+	                    state_change_occurred, state, state_type, current_attempt,
+	                    max_attempts, last_state, last_hard_state, es[0], es[1]) == -1)
+	                buf = NULL;
+                break;
+        default:
+	        if (asprintf(
+	                    &buf,
+	                    "INSERT INTO %s (instance_id, state_time, state_time_usec, object_id, state_change, state, state_type, current_check_attempt, max_check_attempts, last_state, last_hard_state, output, long_output) VALUES (%lu, %s, %lu, %lu, %d, %d, %d, %d, %d, %d, %d, '%s', '%s')",
+	                    ido2db_db_tablenames[IDO2DB_DBTABLE_STATEHISTORY],
+	                    idi->dbinfo.instance_id, ts[0], tstamp.tv_usec, object_id,
+	                    state_change_occurred, state, state_type, current_attempt,
+	                    max_attempts, last_state, last_hard_state, es[0], es[1]) == -1)
+	                buf = NULL;
+                break;
+        }
 
 	result = ido2db_db_query(idi, buf);
 
@@ -5115,16 +5284,30 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 		buf = buf1; /* save this pointer for later free'ing */
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
-
-		if (asprintf(&buf1, "%s%s(%lu, %lu, '%s', '%s')",
-		             buf1,
-		             (first == 1 ? "" : ","),
-		             idi->dbinfo.instance_id,
-		             configfile_id,
-		             es[1],
-		             es[2]
-		            ) == -1)
-			buf1 = NULL;
+                switch (idi->dbinfo.server_type) {
+                case IDO2DB_DBSERVER_PGSQL:
+	                if (asprintf(&buf1, "%s%s(%lu, %lu, E'%s', E'%s')",
+	                             buf1,
+	                             (first == 1 ? "" : ","),
+	                             idi->dbinfo.instance_id,
+	                             configfile_id,
+	                             es[1],
+	                             es[2]
+	                            ) == -1)
+	                        buf1 = NULL;
+                        break;
+                default:
+	                if (asprintf(&buf1, "%s%s(%lu, %lu, '%s', '%s')",
+        	                     buf1,
+	                             (first == 1 ? "" : ","),
+	                             idi->dbinfo.instance_id,
+	                             configfile_id,
+	                             es[1],
+	                             es[2]
+	                            ) == -1)
+	                        buf1 = NULL;
+                        break;
+                }
 #endif
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
@@ -5325,14 +5508,28 @@ int ido2db_handle_runtimevariables(ido2db_idi *idi) {
 		buf = buf1; /* save this pointer for later free'ing */
 
 #ifdef USE_LIBDBI
-		if (asprintf(&buf1, "%s%s(%lu,'%s','%s')",
-		             buf1,
-		             (first == 1 ? "" : ","),
-		             idi->dbinfo.instance_id,
-		             es[0],
-		             es[1]
-		            ) == -1)
-			buf1 = NULL;
+                switch (idi->dbinfo.server_type) {
+                case IDO2DB_DBSERVER_PGSQL:
+	                if (asprintf(&buf1, "%s%s(%lu, E'%s', E'%s')",
+	                             buf1,
+	                             (first == 1 ? "" : ","),
+	                             idi->dbinfo.instance_id,
+	                             es[0],
+	                             es[1]
+	                            ) == -1)
+	                        buf1 = NULL;
+                        break;
+                default:
+	                if (asprintf(&buf1, "%s%s(%lu, '%s', '%s')",
+	                             buf1,
+	                             (first == 1 ? "" : ","),
+	                             idi->dbinfo.instance_id,
+	                             es[0],
+	                             es[1]
+	                            ) == -1)
+	                        buf1 = NULL;
+                        break;
+                }
 #endif
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */

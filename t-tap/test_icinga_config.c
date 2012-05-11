@@ -259,8 +259,6 @@ int             syslog_local_facility = DEFAULT_SYSLOG_LOCAL_FACILITY;
 
 int             log_current_states = DEFAULT_LOG_CURRENT_STATES;
 
-int             log_external_commands_user = DEFAULT_LOG_EXTERNAL_COMMANDS_USER;
-
 int             log_long_plugin_output = DEFAULT_LOG_LONG_PLUGIN_OUTPUT;
 
 int             service_check_timeout_state = STATE_CRITICAL;
@@ -268,6 +266,11 @@ int             service_check_timeout_state = STATE_CRITICAL;
 int             stalking_event_handlers_for_hosts = DEFAULT_STALKING_EVENT_HANDLERS_FOR_HOSTS;
 int             stalking_event_handlers_for_services = DEFAULT_STALKING_EVENT_HANDLERS_FOR_SERVICES;
 
+int dump_retained_host_service_states_to_neb = TRUE;
+int stalking_notifications_for_hosts = DEFAULT_STALKING_NOTIFICATIONS_FOR_HOSTS;
+int stalking_notifications_for_services = DEFAULT_STALKING_NOTIFICATIONS_FOR_SERVICES;
+
+time_t          last_program_stop = 0L;
 
 /* Dummy variables */
 sched_info scheduling_info;
@@ -306,7 +309,7 @@ int update_contact_status(contact *cntct, int aggregated_dump) {}
 time_t get_next_service_notification_time(service *temp_service, time_t time_t1) {}
 void broker_retention_data(int type, int flags, int attr, struct timeval *timestamp) {}
 int host_notification(host *hst, int type, char *not_author, char *not_data, int options) {}
-void broker_downtime_data(int type, int flags, int attr, int downtime_type, char *host_name, char *svc_description, time_t entry_time, char *author_name, char *comment_data, time_t start_time, time_t end_time, int fixed, unsigned long triggered_by, unsigned long duration, unsigned long downtime_id, struct timeval *timestamp) {}
+void broker_downtime_data(int type, int flags, int attr, int downtime_type, char *host_name, char *svc_description, time_t entry_time, char *author_name, char *comment_data, time_t start_time, time_t end_time, int fixed, unsigned long triggered_by, unsigned long duration, unsigned long downtime_id, struct timeval *timestamp, int is_in_effect, time_t trigger_time) {}
 int update_service_status(service *svc, int aggregated_dump) {}
 time_t get_next_host_notification_time(host *temp_host, time_t time_t1) {}
 void check_for_host_flapping(host *hst, int update, int actual_check, int allow_flapstart_notification) {}
@@ -317,6 +320,8 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 int     event_profiling_enabled = FALSE;
 void    profiler_update(int event, struct timeval start) {}
 
+void remove_host_acknowledgement(host * hst) {}
+void remove_service_acknowledgement(service * svc) {}
 
 int main(int argc, char **argv) {
 	int result;
@@ -332,7 +337,7 @@ int main(int argc, char **argv) {
 	hostgroup *temp_hostgroup = NULL;
 	hostsmember *temp_member = NULL;
 
-	plan_tests(4);
+	plan(4);
 
 	/* reset program variables */
 	reset_variables();

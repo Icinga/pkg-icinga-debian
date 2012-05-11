@@ -1,7 +1,7 @@
 /***************************************************************
  * DBQUERIES.C - Data Query handler routines for IDO2DB daemon
  *
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
@@ -486,7 +486,18 @@ int ido2db_query_insert_or_update_systemcommanddata_add(ido2db_idi *idi, void **
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, start_time, start_time_usec, end_time, end_time_usec, command_line, timeout, early_timeout, execution_time, return_code, output, long_output) VALUES (%lu, %s, %lu, %s, %lu, '%s', %d, %d, %lf, %d, '%s', '%s') ON DUPLICATE KEY UPDATE end_time=%s, end_time_usec=%lu, command_line='%s', timeout=%d, early_timeout=%d, execution_time=%lf, return_code=%d, output='%s', long_output='%s'",
+		/* truncate long_output #2342 */
+		if (strlen(*(char **) data[11]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+			(*(char **) data[11])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_systemcommanddata_add() Warning:long_output truncated\n");
+		}
+		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, start_time, start_time_usec, "
+					"end_time, end_time_usec, command_line, timeout, early_timeout, "
+					"execution_time, return_code, output, long_output) "
+					"VALUES (%lu, %s, %lu, %s, %lu, '%s', %d, %d, %lf, %d, '%s', '%s') "
+					"ON DUPLICATE KEY UPDATE end_time=%s, end_time_usec=%lu, "
+					"command_line='%s', timeout=%d, early_timeout=%d, "
+					"execution_time=%lf, return_code=%d, output='%s', long_output='%s'",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SYSTEMCOMMANDS],
 		                 *(unsigned long *) data[0],     /* insert start */
 		                 *(char **) data[1],
@@ -515,7 +526,7 @@ int ido2db_query_insert_or_update_systemcommanddata_add(ido2db_idi *idi, void **
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET end_time=%s, end_time_usec=%lu, command_line='%s', timeout=%d, early_timeout=%d, execution_time=%lf, return_code=%d, output='%s', long_output='%s' WHERE instance_id=%lu AND start_time=%s AND start_time_usec=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET end_time=%s, end_time_usec=%lu, command_line=E'%s', timeout=%d, early_timeout=%d, execution_time=%lf, return_code=%d, output=E'%s', long_output=E'%s' WHERE instance_id=%lu AND start_time=%s AND start_time_usec=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SYSTEMCOMMANDS],
 		                 *(char **) data[3],             /* update start */
 		                 *(unsigned long *) data[4],
@@ -537,7 +548,7 @@ int ido2db_query_insert_or_update_systemcommanddata_add(ido2db_idi *idi, void **
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, start_time, start_time_usec, end_time, end_time_usec, command_line, timeout, early_timeout, execution_time, return_code, output, long_output) VALUES (%lu, %s, %lu, %s, %lu, '%s', %d, %d, %lf, %d, '%s', '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, start_time, start_time_usec, end_time, end_time_usec, command_line, timeout, early_timeout, execution_time, return_code, output, long_output) VALUES (%lu, %s, %lu, %s, %lu, E'%s', %d, %d, %lf, %d, E'%s', E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_SYSTEMCOMMANDS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(char **) data[1],
@@ -695,7 +706,20 @@ int ido2db_query_insert_or_update_eventhandlerdata_add(ido2db_idi *idi, void **d
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, eventhandler_type, object_id, state, state_type, start_time, start_time_usec, end_time, end_time_usec, command_object_id, command_args, command_line, timeout, early_timeout, execution_time, return_code, output, long_output) VALUES (%lu, %d, %lu, %d, %d, %s, %lu, %s, %lu, %lu, '%s', '%s', %d, %d, %lf, %d, '%s', '%s') ON DUPLICATE KEY UPDATE eventhandler_type=%d, object_id=%lu, state=%d, state_type=%d, end_time=%s, end_time_usec=%lu, command_object_id=%lu, command_args='%s', command_line='%s', timeout=%d, early_timeout=%d, execution_time=%lf, return_code=%d, output='%s', long_output='%s'",
+		/* truncate long_output #2342 */
+		if (strlen(*(char **) data[17]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+			(*(char **) data[17])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_eventhandlerdata_add() Warning:long_output truncated\n");
+		}
+		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, eventhandler_type, object_id, "
+						"state, state_type, start_time, start_time_usec, end_time, end_time_usec, "
+						"command_object_id, command_args, command_line, timeout, early_timeout, "
+						"execution_time, return_code, output, long_output) "
+						"VALUES (%lu, %d, %lu, %d, %d, %s, %lu, %s, %lu, %lu, '%s', '%s', %d, %d, %lf, %d, '%s', '%s') "
+						"ON DUPLICATE KEY UPDATE eventhandler_type=%d, object_id=%lu, "
+						"state=%d, state_type=%d, end_time=%s, end_time_usec=%lu, "
+						"command_object_id=%lu, command_args='%s', command_line='%s', timeout=%d, early_timeout=%d, "
+						"execution_time=%lf, return_code=%d, output='%s', long_output='%s'",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_EVENTHANDLERS],
 		                 *(unsigned long *) data[0],     /* insert start */
 		                 *(int *) data[1],
@@ -736,7 +760,7 @@ int ido2db_query_insert_or_update_eventhandlerdata_add(ido2db_idi *idi, void **d
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET eventhandler_type=%d, object_id=%lu, state=%d, state_type=%d, end_time=%s, end_time_usec=%lu, command_object_id=%lu, command_args='%s', command_line='%s', timeout=%d, early_timeout=%d, execution_time=%lf, return_code=%d, output='%s', long_output='%s' WHERE instance_id=%lu AND start_time=%s AND start_time_usec=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET eventhandler_type=%d, object_id=%lu, state=%d, state_type=%d, end_time=%s, end_time_usec=%lu, command_object_id=%lu, command_args=E'%s', command_line=E'%s', timeout=%d, early_timeout=%d, execution_time=%lf, return_code=%d, output=E'%s', long_output=E'%s' WHERE instance_id=%lu AND start_time=%s AND start_time_usec=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_EVENTHANDLERS],
 		                 *(int *) data[1],               /* update start */
 		                 *(unsigned long *) data[2],
@@ -764,7 +788,7 @@ int ido2db_query_insert_or_update_eventhandlerdata_add(ido2db_idi *idi, void **d
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, eventhandler_type, object_id, state, state_type, start_time, start_time_usec, end_time, end_time_usec, command_object_id, command_args, command_line, timeout, early_timeout, execution_time, return_code, output, long_output) VALUES (%lu, %d, %lu, %d, %d, %s, %lu, %s, %lu, %lu, '%s', '%s', %d, %d, %lf, %d, '%s', '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, eventhandler_type, object_id, state, state_type, start_time, start_time_usec, end_time, end_time_usec, command_object_id, command_args, command_line, timeout, early_timeout, execution_time, return_code, output, long_output) VALUES (%lu, %d, %lu, %d, %d, %s, %lu, %s, %lu, %lu, E'%s', E'%s', %d, %d, %lf, %d, E'%s', E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_EVENTHANDLERS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -949,8 +973,19 @@ int ido2db_query_insert_or_update_notificationdata_add(ido2db_idi *idi, void **d
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, notification_type, notification_reason, start_time, start_time_usec, end_time, end_time_usec, object_id, state, output, long_output, escalated, contacts_notified) VALUES (%lu, %d, %d, %s, %lu, %s, %lu, %lu, %d, '%s', '%s', %d, %d) ON DUPLICATE KEY UPDATE notification_type=%d, notification_reason=%d, end_time=%s, end_time_usec=%lu, state=%d, output='%s', long_output='%s', escalated=%d, contacts_notified=%d",
-		                 ido2db_db_tablenames[IDO2DB_DBTABLE_NOTIFICATIONS],
+		/* truncate long_output #2342 */
+		if (strlen(*(char **) data[10]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+			(*(char **) data[10])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_notificationdata_add() Warning:long_output truncated\n");
+		}
+		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, notification_type, notification_reason, "
+						"start_time, start_time_usec, end_time, end_time_usec, object_id, state, "
+						"output, long_output, escalated, contacts_notified) "
+						"VALUES (%lu, %d, %d, %s, %lu, %s, %lu, %lu, %d, '%s', '%s', %d, %d) "
+						"ON DUPLICATE KEY UPDATE notification_type=%d, notification_reason=%d, "
+						"end_time=%s, end_time_usec=%lu, state=%d, "
+						"output='%s', long_output='%s', escalated=%d, contacts_notified=%d",
+		                ido2db_db_tablenames[IDO2DB_DBTABLE_NOTIFICATIONS],
 		                 *(unsigned long *) data[0],     /* insert start */
 		                 *(int *) data[1],
 		                 *(int *) data[2],
@@ -979,7 +1014,7 @@ int ido2db_query_insert_or_update_notificationdata_add(ido2db_idi *idi, void **d
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET notification_type=%d, notification_reason=%d, end_time=%s, end_time_usec=%lu, state=%d, output='%s', long_output='%s', escalated=%d, contacts_notified=%d  WHERE instance_id=%lu AND start_time=%s AND start_time_usec=%lu AND object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET notification_type=%d, notification_reason=%d, end_time=%s, end_time_usec=%lu, state=%d, output=E'%s', long_output=E'%s', escalated=%d, contacts_notified=%d  WHERE instance_id=%lu AND start_time=%s AND start_time_usec=%lu AND object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_NOTIFICATIONS],
 		                 *(int *) data[1],               /* update start */
 		                 *(int *) data[2],
@@ -1002,7 +1037,7 @@ int ido2db_query_insert_or_update_notificationdata_add(ido2db_idi *idi, void **d
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, notification_type, notification_reason, start_time, start_time_usec, end_time, end_time_usec, object_id, state, output, long_output, escalated, contacts_notified) VALUES (%lu, %d, %d, %s, %lu, %s, %lu, %lu, %d, '%s', '%s', %d, %d)",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, notification_type, notification_reason, start_time, start_time_usec, end_time, end_time_usec, object_id, state, output, long_output, escalated, contacts_notified) VALUES (%lu, %d, %d, %s, %lu, %s, %lu, %lu, %d, E'%s', E'%s', %d, %d)",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_NOTIFICATIONS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -1313,7 +1348,7 @@ int ido2db_query_insert_or_update_contactnotificationmethoddata_add(ido2db_idi *
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET end_time=%s, end_time_usec=%lu, command_object_id=%lu, command_args='%s' WHERE instance_id=%lu AND contactnotification_id=%lu AND start_time=%s AND start_time_usec=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET end_time=%s, end_time_usec=%lu, command_object_id=%lu, command_args=E'%s' WHERE instance_id=%lu AND contactnotification_id=%lu AND start_time=%s AND start_time_usec=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONMETHODS],
 		                 *(char **) data[4],             /* update start */
 		                 *(unsigned long *) data[5],
@@ -1331,7 +1366,7 @@ int ido2db_query_insert_or_update_contactnotificationmethoddata_add(ido2db_idi *
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contactnotification_id, start_time, start_time_usec, end_time, end_time_usec, command_object_id, command_args) VALUES (%lu, %lu, %s, %lu, %s, %lu, %lu, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contactnotification_id, start_time, start_time_usec, end_time, end_time_usec, command_object_id, command_args) VALUES (%lu, %lu, %s, %lu, %s, %lu, %lu, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONMETHODS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -1451,9 +1486,52 @@ int ido2db_query_insert_servicecheckdata_add(ido2db_idi *idi, void **data) {
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
+				/* truncate long_output #2342 */
+				if (strlen(*(char **) data[17]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+					(*(char **) data[17])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:long_output truncated\n");
+				}
+				if (strlen(*(char **) data[18]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+									(*(char **) data[18])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+									ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:perfdata truncated\n");
+				}
+                dummy = asprintf(&query1,
+                		"INSERT INTO %s (instance_id, service_object_id, check_type, "
+                		"current_check_attempt, max_check_attempts, state, state_type, "
+                		"start_time, start_time_usec, end_time, end_time_usec, timeout, "
+                		"early_timeout, execution_time, latency, return_code, output, "
+                		"long_output, perfdata, command_object_id, command_args, command_line) "
+                		"VALUES (%lu, %lu, %d, %d, %d, %d, %d, %s, %lu, %s, %lu, %d, %d, %lf, %lf, %d, '%s', '%s', '%s', %lu, '%s', '%s')",
+                                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICECHECKS],
+                                 *(unsigned long *) data[0],     /* insert start */
+                                 *(unsigned long *) data[1],
+                                 *(int *) data[2],
+                                 *(int *) data[3],
+                                 *(int *) data[4],
+                                 *(int *) data[5],
+                                 *(int *) data[6],
+                                 *(char **) data[7],
+                                 *(unsigned long *) data[8],
+                                 *(char **) data[9],
+                                 *(unsigned long *) data[10],
+                                 *(int *) data[11],
+                                 *(int *) data[12],
+                                 *(double *) data[13],
+                                 *(double *) data[14],
+                                 *(int *) data[15],
+                                 *(char **) data[16],
+                                 *(char **) data[17],
+                                 *(char **) data[18],
+                                 *(unsigned long *) data[19],
+                                 *(char **) data[20],
+                                 *(char **) data[21]            /* insert end */
+                                );
+                /* send query to db */
+                result = ido2db_db_query(idi, query1);
+                free(query1);
+                break;
 	case IDO2DB_DBSERVER_PGSQL:
-		/* insert statement is the same for mysql and postgresql */
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, service_object_id, check_type, current_check_attempt, max_check_attempts, state, state_type, start_time, start_time_usec, end_time, end_time_usec, timeout, early_timeout, execution_time, latency, return_code, output, long_output, perfdata, command_object_id, command_args, command_line) VALUES (%lu, %lu, %d, %d, %d, %d, %d, %s, %lu, %s, %lu, %d, %d, %lf, %lf, %d, '%s', '%s', '%s', %lu, '%s', '%s')",
+		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, service_object_id, check_type, current_check_attempt, max_check_attempts, state, state_type, start_time, start_time_usec, end_time, end_time_usec, timeout, early_timeout, execution_time, latency, return_code, output, long_output, perfdata, command_object_id, command_args, command_line) VALUES (%lu, %lu, %d, %d, %d, %d, %d, %s, %lu, %s, %lu, %d, %d, %lf, %lf, %d, E'%s', E'%s', E'%s', %lu, E'%s', E'%s')",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICECHECKS],
 		                 *(unsigned long *) data[0],     /* insert start */
 		                 *(unsigned long *) data[1],
@@ -1653,9 +1731,52 @@ int ido2db_query_insert_hostcheckdata_add(ido2db_idi *idi, void **data) {
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
+		/* truncate long_output #2342 */
+				if (strlen(*(char **) data[21]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+						(*(char **) data[21])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+						ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:long_output truncated\n");
+				}
+				if (strlen(*(char **) data[22]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+						(*(char **) data[22])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+						ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:perfdata truncated\n");
+				}
+                dummy = asprintf(&query1, "INSERT INTO %s (command_object_id, command_args, command_line, "
+                				"instance_id, host_object_id, check_type, is_raw_check, current_check_attempt, "
+                				"max_check_attempts, state, state_type, start_time, start_time_usec, end_time, "
+                				"end_time_usec, timeout, early_timeout, execution_time, latency, return_code, "
+                				"output, long_output, perfdata) "
+                				"VALUES (%lu, '%s', '%s', %lu, %lu, %d, %d, %d, %d, %d, %d, %s, %lu, %s, %lu, %d, %d, %lf, %lf, %d, '%s', '%s', '%s')",
+                                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTCHECKS],
+                                 *(unsigned long *) data[0],     /* insert start */
+                                 *(char **) data[1],
+                                 *(char **) data[2],
+                                 *(unsigned long *) data[3],
+                                 *(unsigned long *) data[4],
+                                 *(int *) data[5],
+                                 *(int *) data[6],
+                                 *(int *) data[7],
+                                 *(int *) data[8],
+                                 *(int *) data[9],
+                                 *(int *) data[10],
+                                 *(char **) data[11],
+                                 *(unsigned long *) data[12],
+                                 *(char **) data[13],
+                                 *(unsigned long *) data[14],
+                                 *(int *) data[15],
+                                 *(int *) data[16],
+                                 *(double *) data[17],
+                                 *(double *) data[18],
+                                 *(int *) data[19],
+                                 *(char **) data[20],
+                                 *(char **) data[21],
+                                 *(char **) data[22]            /* insert end */
+                                );
+                /* send query to db */
+                result = ido2db_db_query(idi, query1);
+                free(query1);
+                break;
 	case IDO2DB_DBSERVER_PGSQL:
-		/* the insert queries are the same for mysql and postgresql :) */
-		dummy = asprintf(&query1, "INSERT INTO %s (command_object_id, command_args, command_line, instance_id, host_object_id, check_type, is_raw_check, current_check_attempt, max_check_attempts, state, state_type, start_time, start_time_usec, end_time, end_time_usec, timeout, early_timeout, execution_time, latency, return_code, output, long_output, perfdata) VALUES (%lu, '%s', '%s', %lu, %lu, %d, %d, %d, %d, %d, %d, %s, %lu, %s, %lu, %d, %d, %lf, %lf, %d, '%s', '%s', '%s')",
+		dummy = asprintf(&query1, "INSERT INTO %s (command_object_id, command_args, command_line, instance_id, host_object_id, check_type, is_raw_check, current_check_attempt, max_check_attempts, state, state_type, start_time, start_time_usec, end_time, end_time_usec, timeout, early_timeout, execution_time, latency, return_code, output, long_output, perfdata) VALUES (%lu, E'%s', E'%s', %lu, %lu, %d, %d, %d, %d, %d, %d, %s, %lu, %s, %lu, %d, %d, %lf, %lf, %d, E'%s', E'%s', E'%s')",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTCHECKS],
 		                 *(unsigned long *) data[0],     /* insert start */
 		                 *(char **) data[1],
@@ -1885,7 +2006,7 @@ int ido2db_query_insert_or_update_commentdata_add(ido2db_idi *idi, void **data) 
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET comment_type=%d, entry_type=%d, object_id=%lu, author_name='%s', comment_data='%s', is_persistent=%d, comment_source=%d, expires=%d, expiration_time=%s WHERE instance_id=%lu AND comment_time=%s AND internal_comment_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET comment_type=%d, entry_type=%d, object_id=%lu, author_name=E'%s', comment_data=E'%s', is_persistent=%d, comment_source=%d, expires=%d, expiration_time=%s WHERE instance_id=%lu AND comment_time=%s AND internal_comment_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_COMMENTS],
 		                 *(int *) data[3],               /* update start */
 		                 *(int *) data[4],
@@ -1907,7 +2028,7 @@ int ido2db_query_insert_or_update_commentdata_add(ido2db_idi *idi, void **data) 
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (entry_time, entry_time_usec, instance_id, comment_type, entry_type, object_id, comment_time, internal_comment_id, author_name, comment_data, is_persistent, comment_source, expires, expiration_time) VALUES (%s, %lu, %lu, %d, %d, %lu, %s, %lu, '%s', '%s', %d, %d, %d, %s)",
+			dummy = asprintf(&query2, "INSERT INTO %s (entry_time, entry_time_usec, instance_id, comment_type, entry_type, object_id, comment_time, internal_comment_id, author_name, comment_data, is_persistent, comment_source, expires, expiration_time) VALUES (%s, %lu, %lu, %d, %d, %lu, %s, %lu, E'%s', E'%s', %d, %d, %d, %s)",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_COMMENTS],
 			                 *(char **) data[0],             /* insert start */
 			                 *(unsigned long *) data[1],
@@ -2080,7 +2201,7 @@ int ido2db_query_insert_or_update_commentdata_history_add(ido2db_idi *idi, void 
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET comment_type=%d, entry_type=%d, object_id=%lu, author_name='%s', comment_data='%s', is_persistent=%d, comment_source=%d, expires=%d, expiration_time=%s WHERE instance_id=%lu AND comment_time=%s AND internal_comment_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET comment_type=%d, entry_type=%d, object_id=%lu, author_name=E'%s', comment_data=E'%s', is_persistent=%d, comment_source=%d, expires=%d, expiration_time=%s WHERE instance_id=%lu AND comment_time=%s AND internal_comment_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_COMMENTHISTORY],
 		                 *(int *) data[3],               /* update start */
 		                 *(int *) data[4],
@@ -2102,7 +2223,7 @@ int ido2db_query_insert_or_update_commentdata_history_add(ido2db_idi *idi, void 
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (entry_time, entry_time_usec, instance_id, comment_type, entry_type, object_id, comment_time, internal_comment_id, author_name, comment_data, is_persistent, comment_source, expires, expiration_time) VALUES (%s, %lu, %lu, %d, %d, %lu, %s, %lu, '%s', '%s', %d, %d, %d, %s)",
+			dummy = asprintf(&query2, "INSERT INTO %s (entry_time, entry_time_usec, instance_id, comment_type, entry_type, object_id, comment_time, internal_comment_id, author_name, comment_data, is_persistent, comment_source, expires, expiration_time) VALUES (%s, %lu, %lu, %d, %d, %lu, %s, %lu, E'%s', E'%s', %d, %d, %d, %s)",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_COMMENTHISTORY],
 			                 *(char **) data[0],             /* insert start */
 			                 *(unsigned long *) data[1],
@@ -2249,48 +2370,59 @@ int ido2db_query_insert_or_update_downtimedata_scheduled_downtime_add(ido2db_idi
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time) VALUES (%lu, %d, %lu, %s, '%s', '%s', %lu, %lu, %d, %lu, %s, %s) ON DUPLICATE KEY UPDATE downtime_type=%d, author_name='%s', comment_data='%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s ",
-		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME],
-		                 *(unsigned long *) data[0],     /* insert start */
-		                 *(int *) data[1],
-		                 *(unsigned long *) data[2],
-		                 *(char **) data[3],
-		                 *(char **) data[4],
-		                 *(char **) data[5],
-		                 *(unsigned long *) data[6],
-		                 *(unsigned long *) data[7],
-		                 *(int *) data[8],
-		                 *(unsigned long *) data[9],
-		                 *(char **) data[10],
-		                 *(char **) data[11],     	/* insert end */
-		                 *(int *) data[1],               /* update start */
-		                 *(char **) data[4],
-		                 *(char **) data[5],
-		                 *(unsigned long *) data[7],
-		                 *(int *) data[8],
-		                 *(unsigned long *) data[9],
-		                 *(char **) data[10],
-		                 *(char **) data[11]             /* update end */
+		dummy = asprintf(&query1, "INSERT INTO %s "
+						"(instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time, is_in_effect, trigger_time) "
+						"VALUES (%lu, %d, %lu, %s, '%s', '%s', %lu, %lu, %d, %lu, %s, %s, %d, %s) "
+						"ON DUPLICATE KEY UPDATE downtime_type=%d, author_name='%s', comment_data='%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s, is_in_effect=%d, trigger_time=%s "
+		                 ,ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME]
+		                 ,*(unsigned long *) data[0]     /* insert start */
+		                 ,*(int *) data[1]
+		                 ,*(unsigned long *) data[2]
+		                 ,*(char **) data[3]
+		                 ,*(char **) data[4]
+		                 ,*(char **) data[5]
+		                 ,*(unsigned long *) data[6]
+		                 ,*(unsigned long *) data[7]
+		                 ,*(int *) data[8]
+		                 ,*(unsigned long *) data[9]
+		                 ,*(char **) data[10]
+		                 ,*(char **) data[11]
+				 ,*(int *) data[15]
+				 ,*(char **) data[16]		 /* insert end */
+		                 ,*(int *) data[1]               /* update start */
+		                 ,*(char **) data[4]
+		                 ,*(char **) data[5]
+		                 ,*(unsigned long *) data[7]
+		                 ,*(int *) data[8]
+		                 ,*(unsigned long *) data[9]
+		                 ,*(char **) data[10]
+		                 ,*(char **) data[11]             
+				 ,*(int *) data[15]
+				 ,*(char **) data[16]		 /* update end */
 		                );
 		/* send query to db */
 		result = ido2db_db_query(idi, query1);
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET downtime_type=%d, author_name='%s', comment_data='%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s WHERE instance_id=%lu AND object_id=%lu AND entry_time=%s AND internal_downtime_id=%lu",
-		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME],
-		                 *(int *) data[1],               /* update start */
-		                 *(char **) data[4],
-		                 *(char **) data[5],
-		                 *(unsigned long *) data[7],
-		                 *(int *) data[8],
-		                 *(unsigned long *) data[9],
-		                 *(char **) data[10],
-		                 *(char **) data[11],            /* update end */
-		                 *(unsigned long *) data[0],     /* unique constraint start */
-		                 *(unsigned long *) data[2],
-		                 *(char **) data[3],
-		                 *(unsigned long *) data[6]      /* unique constraint end */
+		dummy = asprintf(&query1, "UPDATE %s "
+						"SET downtime_type=%d, author_name=E'%s', comment_data=E'%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s, is_in_effect=%d, trigger_time=%s "
+						"WHERE instance_id=%lu AND object_id=%lu AND entry_time=%s AND internal_downtime_id=%lu"
+		                 ,ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME]
+		                 ,*(int *) data[1]               /* update start */
+		                 ,*(char **) data[4]
+		                 ,*(char **) data[5]
+		                 ,*(unsigned long *) data[7]
+		                 ,*(int *) data[8]
+		                 ,*(unsigned long *) data[9]
+		                 ,*(char **) data[10]
+		                 ,*(char **) data[11]
+				 ,*(int *) data[15]
+				 ,*(char **) data[16]		 /* update end */
+		                 ,*(unsigned long *) data[0]     /* unique constraint start */
+		                 ,*(unsigned long *) data[2]
+		                 ,*(char **) data[3]
+		                 ,*(unsigned long *) data[6]      /* unique constraint end */
 		                );
 		/* send query to db */
 		result = ido2db_db_query(idi, query1);
@@ -2299,20 +2431,24 @@ int ido2db_query_insert_or_update_downtimedata_scheduled_downtime_add(ido2db_idi
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time) VALUES (%lu, %d, %lu, %s, '%s', '%s', %lu, %lu, %d, %lu, %s, %s)",
-			                 ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME],
-			                 *(unsigned long *) data[0],     /* insert start */
-			                 *(int *) data[1],
-			                 *(unsigned long *) data[2],
-			                 *(char **) data[3],
-			                 *(char **) data[4],
-			                 *(char **) data[5],
-			                 *(unsigned long *) data[6],
-			                 *(unsigned long *) data[7],
-			                 *(int *) data[8],
-			                 *(unsigned long *) data[9],
-			                 *(char **) data[10],
-			                 *(char **) data[11]             /* insert end */
+			dummy = asprintf(&query2, "INSERT INTO %s "
+							"(instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time, is_in_effect, trigger_time) "
+							"VALUES (%lu, %d, %lu, %s, E'%s', E'%s', %lu, %lu, %d, %lu, %s, %s, %d, %s)"
+			                 ,ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME]
+			                 ,*(unsigned long *) data[0]     /* insert start */
+			                 ,*(int *) data[1]
+			                 ,*(unsigned long *) data[2]
+			                 ,*(char **) data[3]
+			                 ,*(char **) data[4]
+			                 ,*(char **) data[5]
+			                 ,*(unsigned long *) data[6]
+			                 ,*(unsigned long *) data[7]
+			                 ,*(int *) data[8]
+			                 ,*(unsigned long *) data[9]
+			                 ,*(char **) data[10]
+					 ,*(char **) data[11]
+				 	 ,*(int *) data[15]
+					 ,*(char **) data[16]		 /* insert end */
 			                );
 			/* send query to db */
 			result = ido2db_db_query(idi, query2);
@@ -2399,6 +2535,12 @@ int ido2db_query_insert_or_update_downtimedata_scheduled_downtime_add(ido2db_idi
 	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimedata_scheduled_downtime, MT(":X12"), (uint *) data[14])) { /* unixtimestamp instead of time2sql */
 		return IDO_ERROR;
 	}
+	if (!OCI_BindInt(idi->dbinfo.oci_statement_downtimedata_scheduled_downtime, MT(":X13"), (int *) data[15])) {
+		return IDO_ERROR;
+	}
+	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimedata_scheduled_downtime, MT(":X14"), (uint *) data[17])) { /* unixtimestamp instead of time2sql */
+		return IDO_ERROR;
+	}
 
 	/* execute statement */
 	if (!OCI_Execute(idi->dbinfo.oci_statement_downtimedata_scheduled_downtime)) {
@@ -2433,48 +2575,63 @@ int ido2db_query_insert_or_update_downtimedata_downtime_history_add(ido2db_idi *
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time) VALUES (%lu, %d, %lu, %s, '%s', '%s', %lu, %lu, %d, %lu, %s, %s) ON DUPLICATE KEY UPDATE downtime_type=%d, author_name='%s', comment_data='%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s ",
-		                 ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY],
-		                 *(unsigned long *) data[0],     /* insert start */
-		                 *(int *) data[1],
-		                 *(unsigned long *) data[2],
-		                 *(char **) data[3],
-		                 *(char **) data[4],
-		                 *(char **) data[5],
-		                 *(unsigned long *) data[6],
-		                 *(unsigned long *) data[7],
-		                 *(int *) data[8],
-		                 *(unsigned long *) data[9],
-		                 *(char **) data[10],
-		                 *(char **) data[11],            /* insert end */
-		                 *(int *) data[1],               /* update start */
-		                 *(char **) data[4],
-		                 *(char **) data[5],
-		                 *(unsigned long *) data[7],
-		                 *(int *) data[8],
-		                 *(unsigned long *) data[9],
-		                 *(char **) data[10],
-		                 *(char **) data[11]             /* update end */
+		dummy = asprintf(&query1, "INSERT INTO %s "
+						"(instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time, is_in_effect, trigger_time) "
+						"VALUES (%lu, %d, %lu, %s, '%s', '%s', %lu, %lu, %d, %lu, %s, %s, %d, %s) "
+						" ON DUPLICATE KEY UPDATE "
+						"downtime_type=%d, author_name='%s', comment_data='%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s, is_in_effect=%d, trigger_time=%s "
+		                 ,ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY]
+		                 ,*(unsigned long *) data[0]     /* insert start */
+		                 ,*(int *) data[1]
+		                 ,*(unsigned long *) data[2]
+		                 ,*(char **) data[3]
+		                 ,*(char **) data[4]
+		                 ,*(char **) data[5]
+		                 ,*(unsigned long *) data[6]
+		                 ,*(unsigned long *) data[7]
+		                 ,*(int *) data[8]
+		                 ,*(unsigned long *) data[9]
+		                 ,*(char **) data[10]
+		                 ,*(char **) data[11]
+				 ,*(int *) data[15] /* is_in_effect */
+				 ,*(char **) data[16] /* trigger_time as sql string */
+				 				 /* insert end */
+		                 ,*(int *) data[1]               /* update start */
+		                 ,*(char **) data[4]
+		                 ,*(char **) data[5]
+		                 ,*(unsigned long *) data[7]
+		                 ,*(int *) data[8]
+		                 ,*(unsigned long *) data[9]
+		                 ,*(char **) data[10]
+		                 ,*(char **) data[11]
+				 ,*(int *) data[15] /* is_in_effect */
+				 ,*(char **) data[16] /* trigger_time as sql string */
+				 				/* update end */
 		                );
 		/* send query to db */
 		result = ido2db_db_query(idi, query1);
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET downtime_type=%d, author_name='%s', comment_data='%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s WHERE instance_id=%lu AND object_id=%lu AND entry_time=%s AND internal_downtime_id=%lu",
-		                 ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY],
-		                 *(int *) data[1],               /* update start */
-		                 *(char **) data[4],
-		                 *(char **) data[5],
-		                 *(unsigned long *) data[7],
-		                 *(int *) data[8],
-		                 *(unsigned long *) data[9],
-		                 *(char **) data[10],
-		                 *(char **) data[11],            /* update end */
-		                 *(unsigned long *) data[0],     /* unique constraint start */
-		                 *(unsigned long *) data[2],
-		                 *(char **) data[3],
-		                 *(unsigned long *) data[6]      /* unique constraint end */
+		dummy = asprintf(&query1, "UPDATE %s "
+						"SET downtime_type=%d, author_name=E'%s', comment_data=E'%s', triggered_by_id=%lu, is_fixed=%d, duration=%lu, scheduled_start_time=%s, scheduled_end_time=%s, is_in_effect=%d, trigger_time=%s "
+						"WHERE instance_id=%lu AND object_id=%lu AND entry_time=%s AND internal_downtime_id=%lu"
+		                 ,ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY]
+		                 ,*(int *) data[1]               /* update start */
+		                 ,*(char **) data[4]
+		                 ,*(char **) data[5]
+		                 ,*(unsigned long *) data[7]
+		                 ,*(int *) data[8]
+		                 ,*(unsigned long *) data[9]
+		                 ,*(char **) data[10]
+		                 ,*(char **) data[11]
+				 ,*(int *) data[15] /* is_in_effect */
+				 ,*(char **) data[16] /* trigger_time as sql string */
+				 				/* update end */
+		                 ,*(unsigned long *) data[0]     /* unique constraint start */
+		                 ,*(unsigned long *) data[2]
+		                 ,*(char **) data[3]
+		                 ,*(unsigned long *) data[6]      /* unique constraint end */
 		                );
 
 		/* send query to db */
@@ -2484,20 +2641,26 @@ int ido2db_query_insert_or_update_downtimedata_downtime_history_add(ido2db_idi *
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time) VALUES (%lu, %d, %lu, %s, '%s', '%s', %lu, %lu, %d, %lu, %s, %s)",
-			                 ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY],
-			                 *(unsigned long *) data[0],     /* insert start */
-			                 *(int *) data[1],
-			                 *(unsigned long *) data[2],
-			                 *(char **) data[3],
-			                 *(char **) data[4],
-			                 *(char **) data[5],
-			                 *(unsigned long *) data[6],
-			                 *(unsigned long *) data[7],
-			                 *(int *) data[8],
-			                 *(unsigned long *) data[9],
-			                 *(char **) data[10],
-			                 *(char **) data[11]             /* insert end */
+			dummy = asprintf(&query2, "INSERT INTO %s "
+							"(instance_id, downtime_type, object_id, entry_time, author_name, comment_data, internal_downtime_id, triggered_by_id, is_fixed, duration, scheduled_start_time, scheduled_end_time, is_in_effect, trigger_time) "
+							"VALUES (%lu, %d, %lu, %s, E'%s', E'%s', %lu, %lu, %d, %lu, %s, %s, %d, %s)"
+			                 ,ido2db_db_tablenames[IDO2DB_DBTABLE_DOWNTIMEHISTORY]
+					 ,*(unsigned long *) data[0]     /* insert start */
+			                 ,*(int *) data[1]
+			                 ,*(unsigned long *) data[2]
+			                 ,*(char **) data[3]
+			                 ,*(char **) data[4]
+			                 ,*(char **) data[5]
+			                 ,*(unsigned long *) data[6]
+			                 ,*(unsigned long *) data[7]
+			                 ,*(int *) data[8]
+			                 ,*(unsigned long *) data[9]
+			                 ,*(char **) data[10]
+			                 ,*(char **) data[11]             
+				 	 ,*(int *) data[15] /* is_in_effect */
+					 ,*(char **) data[16] /* trigger_time as sql string */
+
+					 /* insert end */
 			                );
 			/* send query to db */
 			result = ido2db_db_query(idi, query2);
@@ -2582,6 +2745,12 @@ int ido2db_query_insert_or_update_downtimedata_downtime_history_add(ido2db_idi *
 		return IDO_ERROR;
 	}
 	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimedata_downtime_history, MT(":X12"), (uint *) data[14])) { /* unixtimestamp instead of time2sql */
+		return IDO_ERROR;
+	}
+	if (!OCI_BindInt(idi->dbinfo.oci_statement_downtimedata_downtime_history, MT(":X13"), (int *) data[15])) {
+		return IDO_ERROR;
+	}
+	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_downtimedata_downtime_history, MT(":X14"), (uint *) data[17])) { /* unixtimestamp instead of time2sql */
 		return IDO_ERROR;
 	}
 
@@ -2675,7 +2844,7 @@ int ido2db_query_insert_or_update_programstatusdata_add(ido2db_idi *idi, void **
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET status_update_time=%s, program_start_time=%s, is_currently_running=1, process_id=%lu, daemon_mode=%d, last_command_check=%s, last_log_rotation=%s, notifications_enabled=%d, active_service_checks_enabled=%d, passive_service_checks_enabled=%d, active_host_checks_enabled=%d, passive_host_checks_enabled=%d, event_handlers_enabled=%d, flap_detection_enabled=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_hosts=%d, obsess_over_services=%d, modified_host_attributes=%lu, modified_service_attributes=%lu, global_host_event_handler='%s', global_service_event_handler='%s' WHERE instance_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET status_update_time=%s, program_start_time=%s, is_currently_running=1, process_id=%lu, daemon_mode=%d, last_command_check=%s, last_log_rotation=%s, notifications_enabled=%d, active_service_checks_enabled=%d, passive_service_checks_enabled=%d, active_host_checks_enabled=%d, passive_host_checks_enabled=%d, event_handlers_enabled=%d, flap_detection_enabled=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_hosts=%d, obsess_over_services=%d, modified_host_attributes=%lu, modified_service_attributes=%lu, global_host_event_handler=E'%s', global_service_event_handler=E'%s' WHERE instance_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_PROGRAMSTATUS],
 		                 *(char **) data[1],             /* update start */
 		                 *(char **) data[2],
@@ -2707,7 +2876,7 @@ int ido2db_query_insert_or_update_programstatusdata_add(ido2db_idi *idi, void **
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, status_update_time, program_start_time, is_currently_running, process_id, daemon_mode, last_command_check, last_log_rotation, notifications_enabled, active_service_checks_enabled, passive_service_checks_enabled, active_host_checks_enabled, passive_host_checks_enabled, event_handlers_enabled, flap_detection_enabled, failure_prediction_enabled, process_performance_data, obsess_over_hosts, obsess_over_services, modified_host_attributes, modified_service_attributes, global_host_event_handler, global_service_event_handler) VALUES (%lu, %s, %s, '1', %lu, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lu, %lu, '%s', '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, status_update_time, program_start_time, is_currently_running, process_id, daemon_mode, last_command_check, last_log_rotation, notifications_enabled, active_service_checks_enabled, passive_service_checks_enabled, active_host_checks_enabled, passive_host_checks_enabled, event_handlers_enabled, flap_detection_enabled, failure_prediction_enabled, process_performance_data, obsess_over_hosts, obsess_over_services, modified_host_attributes, modified_service_attributes, global_host_event_handler, global_service_event_handler) VALUES (%lu, %s, %s, '1', %lu, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lu, %lu, E'%s', E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_PROGRAMSTATUS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(char **) data[1],
@@ -2894,7 +3063,52 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, host_object_id, status_update_time, output, long_output, perfdata, current_state, has_been_checked, should_be_scheduled, current_check_attempt, max_check_attempts, last_check, next_check, check_type, last_state_change, last_hard_state_change, last_hard_state, last_time_up, last_time_down, last_time_unreachable, state_type, last_notification, next_notification, no_more_notifications, notifications_enabled, problem_has_been_acknowledged, acknowledgement_type, current_notification_number, passive_checks_enabled, active_checks_enabled, event_handler_enabled, flap_detection_enabled, is_flapping, percent_state_change, latency, execution_time, scheduled_downtime_depth, failure_prediction_enabled, process_performance_data, obsess_over_host, modified_host_attributes, event_handler, check_command, normal_check_interval, retry_check_interval, check_timeperiod_object_id) VALUES (%lu, %lu, %s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %lf, %d, %d, %d, %d, %lu, '%s', '%s', %lf, %lf, %lu) ON DUPLICATE KEY UPDATE instance_id=%lu, host_object_id=%lu, status_update_time=%s, output='%s', long_output='%s', perfdata='%s', current_state=%d, has_been_checked=%d, should_be_scheduled=%d, current_check_attempt=%d, max_check_attempts=%d, last_check=%s, next_check=%s, check_type=%d, last_state_change=%s, last_hard_state_change=%s, last_hard_state=%d, last_time_up=%s, last_time_down=%s, last_time_unreachable=%s, state_type=%d, last_notification=%s, next_notification=%s, no_more_notifications=%d, notifications_enabled=%d, problem_has_been_acknowledged=%d, acknowledgement_type=%d, current_notification_number=%d, passive_checks_enabled=%d, active_checks_enabled=%d, event_handler_enabled=%d, flap_detection_enabled=%d, is_flapping=%d, percent_state_change='%lf', latency='%lf', execution_time='%lf', scheduled_downtime_depth=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_host=%d, modified_host_attributes=%lu, event_handler='%s', check_command='%s', normal_check_interval='%lf', retry_check_interval='%lf', check_timeperiod_object_id=%lu",
+		/* truncate long_output #2342 */
+		if (strlen(*(char **) data[4]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+			(*(char **) data[4])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:long_output truncated\n");
+		}
+		if (strlen(*(char **) data[5]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+			(*(char **) data[5])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:perfdata truncated\n");
+		}
+		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, host_object_id, status_update_time, "
+							"output, long_output, perfdata, current_state, "
+							"has_been_checked, should_be_scheduled, current_check_attempt, "
+							"max_check_attempts, last_check, next_check, "
+							"check_type, last_state_change, last_hard_state_change, "
+							"last_hard_state, last_time_up, last_time_down, "
+							"last_time_unreachable, state_type, last_notification, "
+							"next_notification, no_more_notifications, "
+							"notifications_enabled, problem_has_been_acknowledged, "
+							"acknowledgement_type, current_notification_number, "
+							"passive_checks_enabled, active_checks_enabled, "
+							"event_handler_enabled, flap_detection_enabled, "
+							"is_flapping, percent_state_change, latency, "
+							"execution_time, scheduled_downtime_depth, "
+							"failure_prediction_enabled, process_performance_data, "
+							"obsess_over_host, modified_host_attributes, event_handler, "
+							"check_command, normal_check_interval, retry_check_interval, "
+							"check_timeperiod_object_id) "
+							"VALUES (%lu, %lu, %s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %lf, %d, %d, %d, %d, %lu, '%s', '%s', %lf, %lf, %lu) "
+							"ON DUPLICATE KEY UPDATE instance_id=%lu, host_object_id=%lu, status_update_time=%s, "
+							"output='%s', long_output='%s', perfdata='%s', current_state=%d, "
+							"has_been_checked=%d, should_be_scheduled=%d, current_check_attempt=%d, "
+							"max_check_attempts=%d, last_check=%s, next_check=%s, "
+							"check_type=%d, last_state_change=%s, last_hard_state_change=%s, "
+							"last_hard_state=%d, last_time_up=%s, last_time_down=%s, "
+							"last_time_unreachable=%s, state_type=%d, last_notification=%s, "
+							"next_notification=%s, no_more_notifications=%d, "
+							"notifications_enabled=%d, problem_has_been_acknowledged=%d, "
+							"acknowledgement_type=%d, current_notification_number=%d, "
+							"passive_checks_enabled=%d, active_checks_enabled=%d, "
+							"event_handler_enabled=%d, flap_detection_enabled=%d, "
+							"is_flapping=%d, percent_state_change='%lf', latency='%lf', "
+							"execution_time='%lf', scheduled_downtime_depth=%d, "
+							"failure_prediction_enabled=%d, process_performance_data=%d, "
+							"obsess_over_host=%d, modified_host_attributes=%lu, event_handler='%s', "
+							"check_command='%s', normal_check_interval='%lf', retry_check_interval='%lf', "
+							"check_timeperiod_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTSTATUS],
 		                 *(unsigned long *) data[0],     /* insert start */
 		                 *(unsigned long *) data[1],
@@ -2994,7 +3208,7 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, host_object_id=%lu, status_update_time=%s, output='%s', long_output='%s', perfdata='%s', current_state=%d, has_been_checked=%d, should_be_scheduled=%d, current_check_attempt=%d, max_check_attempts=%d, last_check=%s, next_check=%s, check_type=%d, last_state_change=%s, last_hard_state_change=%s, last_hard_state=%d, last_time_up=%s, last_time_down=%s, last_time_unreachable=%s, state_type=%d, last_notification=%s, next_notification=%s, no_more_notifications=%d, notifications_enabled=%d, problem_has_been_acknowledged=%d, acknowledgement_type=%d, current_notification_number=%d, passive_checks_enabled=%d, active_checks_enabled=%d, event_handler_enabled=%d, flap_detection_enabled=%d, is_flapping=%d, percent_state_change='%lf', latency='%lf', execution_time='%lf', scheduled_downtime_depth=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_host=%d, modified_host_attributes=%lu, event_handler='%s', check_command='%s', normal_check_interval='%lf', retry_check_interval='%lf', check_timeperiod_object_id=%lu WHERE host_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, host_object_id=%lu, status_update_time=%s, output=E'%s', long_output=E'%s', perfdata=E'%s', current_state=%d, has_been_checked=%d, should_be_scheduled=%d, current_check_attempt=%d, max_check_attempts=%d, last_check=%s, next_check=%s, check_type=%d, last_state_change=%s, last_hard_state_change=%s, last_hard_state=%d, last_time_up=%s, last_time_down=%s, last_time_unreachable=%s, state_type=%d, last_notification=%s, next_notification=%s, no_more_notifications=%d, notifications_enabled=%d, problem_has_been_acknowledged=%d, acknowledgement_type=%d, current_notification_number=%d, passive_checks_enabled=%d, active_checks_enabled=%d, event_handler_enabled=%d, flap_detection_enabled=%d, is_flapping=%d, percent_state_change='%lf', latency='%lf', execution_time='%lf', scheduled_downtime_depth=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_host=%d, modified_host_attributes=%lu, event_handler=E'%s', check_command=E'%s', normal_check_interval='%lf', retry_check_interval='%lf', check_timeperiod_object_id=%lu WHERE host_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTSTATUS],
 		                 *(unsigned long *) data[0],     /* update start */
 		                 *(unsigned long *) data[1],
@@ -3051,7 +3265,7 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, host_object_id, status_update_time, output, long_output, perfdata, current_state, has_been_checked, should_be_scheduled, current_check_attempt, max_check_attempts, last_check, next_check, check_type, last_state_change, last_hard_state_change, last_hard_state, last_time_up, last_time_down, last_time_unreachable, state_type, last_notification, next_notification, no_more_notifications, notifications_enabled, problem_has_been_acknowledged, acknowledgement_type, current_notification_number, passive_checks_enabled, active_checks_enabled, event_handler_enabled, flap_detection_enabled, is_flapping, percent_state_change, latency, execution_time, scheduled_downtime_depth, failure_prediction_enabled, process_performance_data, obsess_over_host, modified_host_attributes, event_handler, check_command, normal_check_interval, retry_check_interval, check_timeperiod_object_id) VALUES (%lu, %lu, %s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %lf, %d, %d, %d, %d, %lu, '%s', '%s', %lf, %lf, %lu)",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, host_object_id, status_update_time, output, long_output, perfdata, current_state, has_been_checked, should_be_scheduled, current_check_attempt, max_check_attempts, last_check, next_check, check_type, last_state_change, last_hard_state_change, last_hard_state, last_time_up, last_time_down, last_time_unreachable, state_type, last_notification, next_notification, no_more_notifications, notifications_enabled, problem_has_been_acknowledged, acknowledgement_type, current_notification_number, passive_checks_enabled, active_checks_enabled, event_handler_enabled, flap_detection_enabled, is_flapping, percent_state_change, latency, execution_time, scheduled_downtime_depth, failure_prediction_enabled, process_performance_data, obsess_over_host, modified_host_attributes, event_handler, check_command, normal_check_interval, retry_check_interval, check_timeperiod_object_id) VALUES (%lu, %lu, %s, E'%s', E'%s', E'%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %lf, %d, %d, %d, %d, %lu, E'%s', E'%s', %lf, %lf, %lu)",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTSTATUS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -3295,8 +3509,8 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 	lob_pi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_pu = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5i", *(char **)data[4], &lob_pi);
-	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5u", *(char **)data[4], &lob_pu);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5i", *(char **)data[4], &lob_li);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5u", *(char **)data[4], &lob_lu);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X6i", *(char **)data[5], &lob_pi);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X6u", *(char **)data[5], &lob_pu);
 	if (result == IDO_OK) {
@@ -3354,7 +3568,38 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	switch (idi->dbinfo.server_type) {
 	case IDO2DB_DBSERVER_MYSQL:
-		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, service_object_id, status_update_time, output, long_output, perfdata, current_state, has_been_checked, should_be_scheduled, current_check_attempt, max_check_attempts, last_check, next_check, check_type, last_state_change, last_hard_state_change, last_hard_state, last_time_ok, last_time_warning, last_time_unknown, last_time_critical, state_type, last_notification, next_notification, no_more_notifications, notifications_enabled, problem_has_been_acknowledged, acknowledgement_type, current_notification_number, passive_checks_enabled, active_checks_enabled, event_handler_enabled, flap_detection_enabled, is_flapping, percent_state_change, latency, execution_time, scheduled_downtime_depth, failure_prediction_enabled, process_performance_data, obsess_over_service, modified_service_attributes, event_handler, check_command, normal_check_interval, retry_check_interval, check_timeperiod_object_id) VALUES (%lu, %lu, %s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, '%lf', '%lf', '%lf', %d, %d, %d, %d, %lu, '%s', '%s', '%lf', '%lf', %lu) ON DUPLICATE KEY UPDATE instance_id=%lu, service_object_id=%lu, status_update_time=%s, output='%s', long_output='%s', perfdata='%s', current_state=%d, has_been_checked=%d, should_be_scheduled=%d, current_check_attempt=%d, max_check_attempts=%d, last_check=%s, next_check=%s, check_type=%d, last_state_change=%s, last_hard_state_change=%s, last_hard_state=%d, last_time_ok=%s, last_time_warning=%s, last_time_unknown=%s, last_time_critical=%s, state_type=%d, last_notification=%s, next_notification=%s, no_more_notifications=%d, notifications_enabled=%d, problem_has_been_acknowledged=%d, acknowledgement_type=%d, current_notification_number=%d, passive_checks_enabled=%d, active_checks_enabled=%d, event_handler_enabled=%d, flap_detection_enabled=%d, is_flapping=%d, percent_state_change='%lf', latency='%lf', execution_time='%lf', scheduled_downtime_depth=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_service=%d, modified_service_attributes=%lu, event_handler='%s', check_command='%s', normal_check_interval='%lf', retry_check_interval='%lf', check_timeperiod_object_id=%lu",
+		/* truncate long_output #2342 */
+		if (strlen(*(char **) data[4]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+			(*(char **) data[5])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:long_output truncated\n");
+		}
+		if (strlen(*(char **) data[4]) > IDO2DB_MYSQL_MAX_TEXT_LEN ) {
+			(*(char **) data[4])[IDO2DB_MYSQL_MAX_TEXT_LEN]=0;
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:perfdata truncated\n");
+		}
+		dummy = asprintf(&query1, "INSERT INTO %s (instance_id, service_object_id, status_update_time, "
+					"output, long_output, perfdata, current_state, has_been_checked, should_be_scheduled, "
+					"current_check_attempt, max_check_attempts, last_check, next_check, check_type, "
+					"last_state_change, last_hard_state_change, last_hard_state, last_time_ok, last_time_warning, "
+					"last_time_unknown, last_time_critical, state_type, last_notification, "
+					"next_notification, no_more_notifications, notifications_enabled, problem_has_been_acknowledged, "
+					"acknowledgement_type, current_notification_number, passive_checks_enabled, active_checks_enabled, "
+					"event_handler_enabled, flap_detection_enabled, is_flapping, percent_state_change, latency, "
+					"execution_time, scheduled_downtime_depth, failure_prediction_enabled, process_performance_data, "
+					"obsess_over_service, modified_service_attributes, event_handler, check_command, "
+					"normal_check_interval, retry_check_interval, check_timeperiod_object_id) "
+					"VALUES (%lu, %lu, %s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, '%lf', '%lf', '%lf', %d, %d, %d, %d, %lu, '%s', '%s', '%lf', '%lf', %lu) "
+					"ON DUPLICATE KEY UPDATE instance_id=%lu, service_object_id=%lu, status_update_time=%s, "
+					"output='%s', long_output='%s', perfdata='%s', current_state=%d, has_been_checked=%d, should_be_scheduled=%d, "
+					"current_check_attempt=%d, max_check_attempts=%d, last_check=%s, next_check=%s, check_type=%d, "
+					"last_state_change=%s, last_hard_state_change=%s, last_hard_state=%d, last_time_ok=%s, last_time_warning=%s, "
+					"last_time_unknown=%s, last_time_critical=%s, state_type=%d, last_notification=%s, "
+					"next_notification=%s, no_more_notifications=%d, notifications_enabled=%d, problem_has_been_acknowledged=%d, "
+					"acknowledgement_type=%d, current_notification_number=%d, passive_checks_enabled=%d, active_checks_enabled=%d, "
+					"event_handler_enabled=%d, flap_detection_enabled=%d, is_flapping=%d, percent_state_change='%lf', latency='%lf', "
+					"execution_time='%lf', scheduled_downtime_depth=%d, failure_prediction_enabled=%d, process_performance_data=%d, "
+					"obsess_over_service=%d, modified_service_attributes=%lu, event_handler='%s', check_command='%s', "
+					"normal_check_interval='%lf', retry_check_interval='%lf', check_timeperiod_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICESTATUS],
 		                 *(unsigned long *) data[0],     /* insert start */
 		                 *(unsigned long *) data[1],
@@ -3456,7 +3701,7 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, service_object_id=%lu, status_update_time=%s, output='%s', long_output='%s', perfdata='%s', current_state=%d, has_been_checked=%d, should_be_scheduled=%d, current_check_attempt=%d, max_check_attempts=%d, last_check=%s, next_check=%s, check_type=%d, last_state_change=%s, last_hard_state_change=%s, last_hard_state=%d, last_time_ok=%s, last_time_warning=%s, last_time_unknown=%s, last_time_critical=%s, state_type=%d, last_notification=%s, next_notification=%s, no_more_notifications=%d, notifications_enabled=%d, problem_has_been_acknowledged=%d, acknowledgement_type=%d, current_notification_number=%d, passive_checks_enabled=%d, active_checks_enabled=%d, event_handler_enabled=%d, flap_detection_enabled=%d, is_flapping=%d, percent_state_change='%lf', latency='%lf', execution_time='%lf', scheduled_downtime_depth=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_service=%d, modified_service_attributes=%lu, event_handler='%s', check_command='%s', normal_check_interval='%lf', retry_check_interval='%lf', check_timeperiod_object_id=%lu WHERE service_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, service_object_id=%lu, status_update_time=%s, output=E'%s', long_output=E'%s', perfdata=E'%s', current_state=%d, has_been_checked=%d, should_be_scheduled=%d, current_check_attempt=%d, max_check_attempts=%d, last_check=%s, next_check=%s, check_type=%d, last_state_change=%s, last_hard_state_change=%s, last_hard_state=%d, last_time_ok=%s, last_time_warning=%s, last_time_unknown=%s, last_time_critical=%s, state_type=%d, last_notification=%s, next_notification=%s, no_more_notifications=%d, notifications_enabled=%d, problem_has_been_acknowledged=%d, acknowledgement_type=%d, current_notification_number=%d, passive_checks_enabled=%d, active_checks_enabled=%d, event_handler_enabled=%d, flap_detection_enabled=%d, is_flapping=%d, percent_state_change='%lf', latency='%lf', execution_time='%lf', scheduled_downtime_depth=%d, failure_prediction_enabled=%d, process_performance_data=%d, obsess_over_service=%d, modified_service_attributes=%lu, event_handler=E'%s', check_command=E'%s', normal_check_interval='%lf', retry_check_interval='%lf', check_timeperiod_object_id=%lu WHERE service_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICESTATUS],
 		                 *(unsigned long *) data[0],     /* update start */
 		                 *(unsigned long *) data[1],
@@ -3515,7 +3760,7 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, service_object_id, status_update_time, output, long_output, perfdata, current_state, has_been_checked, should_be_scheduled, current_check_attempt, max_check_attempts, last_check, next_check, check_type, last_state_change, last_hard_state_change, last_hard_state, last_time_ok, last_time_warning, last_time_unknown, last_time_critical, state_type, last_notification, next_notification, no_more_notifications, notifications_enabled, problem_has_been_acknowledged, acknowledgement_type, current_notification_number, passive_checks_enabled, active_checks_enabled, event_handler_enabled, flap_detection_enabled, is_flapping, percent_state_change, latency, execution_time, scheduled_downtime_depth, failure_prediction_enabled, process_performance_data, obsess_over_service, modified_service_attributes, event_handler, check_command, normal_check_interval, retry_check_interval, check_timeperiod_object_id) VALUES (%lu, %lu, %s, '%s', '%s', '%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, '%lf', '%lf', '%lf', %d, %d, %d, %d, %lu, '%s', '%s', '%lf', '%lf', %lu)",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, service_object_id, status_update_time, output, long_output, perfdata, current_state, has_been_checked, should_be_scheduled, current_check_attempt, max_check_attempts, last_check, next_check, check_type, last_state_change, last_hard_state_change, last_hard_state, last_time_ok, last_time_warning, last_time_unknown, last_time_critical, state_type, last_notification, next_notification, no_more_notifications, notifications_enabled, problem_has_been_acknowledged, acknowledgement_type, current_notification_number, passive_checks_enabled, active_checks_enabled, event_handler_enabled, flap_detection_enabled, is_flapping, percent_state_change, latency, execution_time, scheduled_downtime_depth, failure_prediction_enabled, process_performance_data, obsess_over_service, modified_service_attributes, event_handler, check_command, normal_check_interval, retry_check_interval, check_timeperiod_object_id) VALUES (%lu, %lu, %s, E'%s', E'%s', E'%s', %d, %d, %d, %d, %d, %s, %s, %d, %s, %s, %d, %s, %s, %s, %s, %d, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, '%lf', '%lf', '%lf', %d, %d, %d, %d, %lu, E'%s', E'%s', '%lf', '%lf', %lu)",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICESTATUS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -3763,8 +4008,8 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 	lob_pu = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatus() bind clobs\n");
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5i", *(char **)data[4], &lob_pi);
-	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5u", *(char **)data[4], &lob_pu);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5i", *(char **)data[4], &lob_li);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5u", *(char **)data[4], &lob_lu);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X6i", *(char **)data[5], &lob_pi);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X6u", *(char **)data[5], &lob_pu);
 
@@ -3998,7 +4243,7 @@ int ido2db_query_insert_or_update_configfilevariables_add(ido2db_idi *idi, void 
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, configfile_type=%d, configfile_path='%s' WHERE instance_id=%lu AND configfile_type=%d AND configfile_path='%s'",
+		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, configfile_type=%d, configfile_path=E'%s' WHERE instance_id=%lu AND configfile_type=%d AND configfile_path=E'%s'",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILES],
 		                 *(unsigned long *) data[0],     /* update start */
 		                 *(int *) data[1],
@@ -4016,7 +4261,7 @@ int ido2db_query_insert_or_update_configfilevariables_add(ido2db_idi *idi, void 
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, configfile_type, configfile_path) VALUES (%lu, %d, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, configfile_type, configfile_path) VALUES (%lu, %d, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILES],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -4125,7 +4370,7 @@ int ido2db_query_insert_or_update_runtimevariables_add(ido2db_idi *idi, void **d
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET varvalue='%s' WHERE instance_id=%lu AND varname='%s'",
+		dummy = asprintf(&query1, "UPDATE %s SET varvalue=E'%s' WHERE instance_id=%lu AND varname=E'%s'",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_RUNTIMEVARIABLES],
 		                 *(char **) data[2],             /* update start/end */
 		                 *(unsigned long *) data[0],     /* unique constraint start */
@@ -4138,7 +4383,7 @@ int ido2db_query_insert_or_update_runtimevariables_add(ido2db_idi *idi, void **d
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, varname, varvalue) VALUES (%lu, '%s', '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, varname, varvalue) VALUES (%lu, E'%s', E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_RUNTIMEVARIABLES],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(char **) data[1],
@@ -4362,7 +4607,7 @@ int ido2db_query_insert_or_update_hostdefinition_definition_add(ido2db_idi *idi,
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET alias='%s', display_name='%s', address='%s', check_command_object_id=%lu, check_command_args='%s', eventhandler_command_object_id=%lu, eventhandler_command_args='%s', check_timeperiod_object_id=%lu, notification_timeperiod_object_id=%lu, failure_prediction_options='%s', check_interval=%lf, retry_interval=%lf, max_check_attempts=%d, first_notification_delay=%lf, notification_interval=%lf, notify_on_down=%d, notify_on_unreachable=%d, notify_on_recovery=%d, notify_on_flapping=%d, notify_on_downtime=%d, stalk_on_up=%d, stalk_on_down=%d, stalk_on_unreachable=%d, flap_detection_enabled=%d, flap_detection_on_up=%d, flap_detection_on_down=%d, flap_detection_on_unreachable=%d, low_flap_threshold=%lf, high_flap_threshold=%lf, process_performance_data=%d, freshness_checks_enabled=%d, freshness_threshold=%d, passive_checks_enabled=%d, event_handler_enabled=%d, active_checks_enabled=%d, retain_status_information=%d, retain_nonstatus_information=%d, notifications_enabled=%d, obsess_over_host=%d, failure_prediction_enabled=%d, notes='%s', notes_url='%s', action_url='%s', icon_image='%s', icon_image_alt='%s', vrml_image='%s', statusmap_image='%s', have_2d_coords=%d, x_2d=%d, y_2d=%d, have_3d_coords=%d, x_3d=%lf, y_3d=%lf, z_3d=%lf, address6='%s' WHERE instance_id=%lu AND config_type=%d AND host_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET alias=E'%s', display_name=E'%s', address=E'%s', check_command_object_id=%lu, check_command_args=E'%s', eventhandler_command_object_id=%lu, eventhandler_command_args=E'%s', check_timeperiod_object_id=%lu, notification_timeperiod_object_id=%lu, failure_prediction_options=E'%s', check_interval=%lf, retry_interval=%lf, max_check_attempts=%d, first_notification_delay=%lf, notification_interval=%lf, notify_on_down=%d, notify_on_unreachable=%d, notify_on_recovery=%d, notify_on_flapping=%d, notify_on_downtime=%d, stalk_on_up=%d, stalk_on_down=%d, stalk_on_unreachable=%d, flap_detection_enabled=%d, flap_detection_on_up=%d, flap_detection_on_down=%d, flap_detection_on_unreachable=%d, low_flap_threshold=%lf, high_flap_threshold=%lf, process_performance_data=%d, freshness_checks_enabled=%d, freshness_threshold=%d, passive_checks_enabled=%d, event_handler_enabled=%d, active_checks_enabled=%d, retain_status_information=%d, retain_nonstatus_information=%d, notifications_enabled=%d, obsess_over_host=%d, failure_prediction_enabled=%d, notes=E'%s', notes_url=E'%s', action_url=E'%s', icon_image=E'%s', icon_image_alt=E'%s', vrml_image=E'%s', statusmap_image=E'%s', have_2d_coords=%d, x_2d=%d, y_2d=%d, have_3d_coords=%d, x_3d=%lf, y_3d=%lf, z_3d=%lf, address6=E'%s' WHERE instance_id=%lu AND config_type=%d AND host_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTS],
 		                 *(char **) data[3],             /* update start */
 		                 *(char **) data[4],
@@ -4430,7 +4675,7 @@ int ido2db_query_insert_or_update_hostdefinition_definition_add(ido2db_idi *idi,
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, host_object_id, alias, display_name, address, check_command_object_id, check_command_args, eventhandler_command_object_id, eventhandler_command_args, check_timeperiod_object_id, notification_timeperiod_object_id, failure_prediction_options, check_interval, retry_interval, max_check_attempts, first_notification_delay, notification_interval, notify_on_down, notify_on_unreachable, notify_on_recovery, notify_on_flapping, notify_on_downtime, stalk_on_up, stalk_on_down, stalk_on_unreachable, flap_detection_enabled, flap_detection_on_up, flap_detection_on_down, flap_detection_on_unreachable, low_flap_threshold, high_flap_threshold, process_performance_data, freshness_checks_enabled, freshness_threshold, passive_checks_enabled, event_handler_enabled, active_checks_enabled, retain_status_information, retain_nonstatus_information, notifications_enabled, obsess_over_host, failure_prediction_enabled, notes, notes_url, action_url, icon_image, icon_image_alt, vrml_image, statusmap_image, have_2d_coords, x_2d, y_2d, have_3d_coords, x_3d, y_3d, z_3d, address6) VALUES (%lu, %d, %lu, '%s', '%s', '%s', %lu, '%s', %lu, '%s', %lu, %lu, '%s', %lf, %lf, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, %lf, %lf, %lf, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, host_object_id, alias, display_name, address, check_command_object_id, check_command_args, eventhandler_command_object_id, eventhandler_command_args, check_timeperiod_object_id, notification_timeperiod_object_id, failure_prediction_options, check_interval, retry_interval, max_check_attempts, first_notification_delay, notification_interval, notify_on_down, notify_on_unreachable, notify_on_recovery, notify_on_flapping, notify_on_downtime, stalk_on_up, stalk_on_down, stalk_on_unreachable, flap_detection_enabled, flap_detection_on_up, flap_detection_on_down, flap_detection_on_unreachable, low_flap_threshold, high_flap_threshold, process_performance_data, freshness_checks_enabled, freshness_threshold, passive_checks_enabled, event_handler_enabled, active_checks_enabled, retain_status_information, retain_nonstatus_information, notifications_enabled, obsess_over_host, failure_prediction_enabled, notes, notes_url, action_url, icon_image, icon_image_alt, vrml_image, statusmap_image, have_2d_coords, x_2d, y_2d, have_3d_coords, x_3d, y_3d, z_3d, address6) VALUES (%lu, %d, %lu, E'%s', E'%s', E'%s', %lu, E'%s', %lu, E'%s', %lu, %lu, E'%s', %lf, %lf, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, E'%s', E'%s', E'%s', E'%s', E'%s', E'%s', E'%s', %d, %d, %d, %d, %lf, %lf, %lf, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -5064,7 +5309,7 @@ int ido2db_query_insert_or_update_hostgroupdefinition_definition_add(ido2db_idi 
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET config_type=%d, alias='%s' WHERE instance_id=%lu AND hostgroup_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET config_type=%d, alias=E'%s' WHERE instance_id=%lu AND hostgroup_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTGROUPS],
 		                 *(int *) data[1],		/* update start */
 		                 *(char **) data[3],             /* update end */
@@ -5078,7 +5323,7 @@ int ido2db_query_insert_or_update_hostgroupdefinition_definition_add(ido2db_idi 
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, hostgroup_object_id, alias) VALUES (%lu, %d, %lu, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, hostgroup_object_id, alias) VALUES (%lu, %d, %lu, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTGROUPS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -5394,7 +5639,7 @@ int ido2db_query_insert_or_update_servicedefinition_definition_add(ido2db_idi *i
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET host_object_id=%lu, display_name='%s', check_command_object_id=%lu, check_command_args='%s', eventhandler_command_object_id=%lu, eventhandler_command_args='%s', check_timeperiod_object_id=%lu, notification_timeperiod_object_id=%lu, failure_prediction_options='%s', check_interval=%lf, retry_interval=%lf, max_check_attempts=%d, first_notification_delay=%lf, notification_interval=%lf, notify_on_warning=%d, notify_on_unknown=%d, notify_on_critical=%d, notify_on_recovery=%d, notify_on_flapping=%d, notify_on_downtime=%d, stalk_on_ok=%d, stalk_on_warning=%d, stalk_on_unknown=%d, stalk_on_critical=%d, is_volatile=%d, flap_detection_enabled=%d, flap_detection_on_ok=%d, flap_detection_on_warning=%d, flap_detection_on_unknown=%d, flap_detection_on_critical=%d, low_flap_threshold=%lf, high_flap_threshold=%lf, process_performance_data=%d, freshness_checks_enabled=%d, freshness_threshold=%d, passive_checks_enabled=%d, event_handler_enabled=%d, active_checks_enabled=%d, retain_status_information=%d, retain_nonstatus_information=%d, notifications_enabled=%d, obsess_over_service=%d, failure_prediction_enabled=%d, notes='%s', notes_url='%s', action_url='%s', icon_image='%s', icon_image_alt='%s' WHERE instance_id=%lu AND config_type=%d AND service_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET host_object_id=%lu, display_name=E'%s', check_command_object_id=%lu, check_command_args=E'%s', eventhandler_command_object_id=%lu, eventhandler_command_args=E'%s', check_timeperiod_object_id=%lu, notification_timeperiod_object_id=%lu, failure_prediction_options=E'%s', check_interval=%lf, retry_interval=%lf, max_check_attempts=%d, first_notification_delay=%lf, notification_interval=%lf, notify_on_warning=%d, notify_on_unknown=%d, notify_on_critical=%d, notify_on_recovery=%d, notify_on_flapping=%d, notify_on_downtime=%d, stalk_on_ok=%d, stalk_on_warning=%d, stalk_on_unknown=%d, stalk_on_critical=%d, is_volatile=%d, flap_detection_enabled=%d, flap_detection_on_ok=%d, flap_detection_on_warning=%d, flap_detection_on_unknown=%d, flap_detection_on_critical=%d, low_flap_threshold=%lf, high_flap_threshold=%lf, process_performance_data=%d, freshness_checks_enabled=%d, freshness_threshold=%d, passive_checks_enabled=%d, event_handler_enabled=%d, active_checks_enabled=%d, retain_status_information=%d, retain_nonstatus_information=%d, notifications_enabled=%d, obsess_over_service=%d, failure_prediction_enabled=%d, notes=E'%s', notes_url=E'%s', action_url=E'%s', icon_image=E'%s', icon_image_alt=E'%s' WHERE instance_id=%lu AND config_type=%d AND service_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICES],
 		                 *(unsigned long *) data[2], 	/* update start */
 		                 *(char **) data[4],
@@ -5455,7 +5700,7 @@ int ido2db_query_insert_or_update_servicedefinition_definition_add(ido2db_idi *i
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, host_object_id, service_object_id, display_name, check_command_object_id, check_command_args, eventhandler_command_object_id, eventhandler_command_args, check_timeperiod_object_id, notification_timeperiod_object_id, failure_prediction_options, check_interval, retry_interval, max_check_attempts, first_notification_delay, notification_interval, notify_on_warning, notify_on_unknown, notify_on_critical, notify_on_recovery, notify_on_flapping, notify_on_downtime, stalk_on_ok, stalk_on_warning, stalk_on_unknown, stalk_on_critical, is_volatile, flap_detection_enabled, flap_detection_on_ok, flap_detection_on_warning, flap_detection_on_unknown, flap_detection_on_critical, low_flap_threshold, high_flap_threshold, process_performance_data, freshness_checks_enabled, freshness_threshold, passive_checks_enabled, event_handler_enabled, active_checks_enabled, retain_status_information, retain_nonstatus_information, notifications_enabled, obsess_over_service, failure_prediction_enabled, notes, notes_url, action_url, icon_image, icon_image_alt) VALUES (%lu, %d, %lu, %lu, '%s', %lu, '%s', %lu, '%s', %lu, %lu, '%s', %lf, %lf, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, host_object_id, service_object_id, display_name, check_command_object_id, check_command_args, eventhandler_command_object_id, eventhandler_command_args, check_timeperiod_object_id, notification_timeperiod_object_id, failure_prediction_options, check_interval, retry_interval, max_check_attempts, first_notification_delay, notification_interval, notify_on_warning, notify_on_unknown, notify_on_critical, notify_on_recovery, notify_on_flapping, notify_on_downtime, stalk_on_ok, stalk_on_warning, stalk_on_unknown, stalk_on_critical, is_volatile, flap_detection_enabled, flap_detection_on_ok, flap_detection_on_warning, flap_detection_on_unknown, flap_detection_on_critical, low_flap_threshold, high_flap_threshold, process_performance_data, freshness_checks_enabled, freshness_threshold, passive_checks_enabled, event_handler_enabled, active_checks_enabled, retain_status_information, retain_nonstatus_information, notifications_enabled, obsess_over_service, failure_prediction_enabled, notes, notes_url, action_url, icon_image, icon_image_alt) VALUES (%lu, %d, %lu, %lu, E'%s', %lu, E'%s', %lu, E'%s', %lu, %lu, E'%s', %lf, %lf, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %lf, %lf, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, E'%s', E'%s', E'%s', E'%s', E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICES],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -5923,7 +6168,7 @@ int ido2db_query_insert_or_update_servicegroupdefinition_definition_add(ido2db_i
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET alias='%s' WHERE instance_id=%lu AND config_type=%d AND servicegroup_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET alias=E'%s' WHERE instance_id=%lu AND config_type=%d AND servicegroup_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEGROUPS],
 		                 *(char **) data[3],		/* update start/end */
 		                 *(unsigned long *) data[0],     /* unique constraint start */
@@ -5937,7 +6182,7 @@ int ido2db_query_insert_or_update_servicegroupdefinition_definition_add(ido2db_i
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, servicegroup_object_id, alias) VALUES (%lu, %d, %lu, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, servicegroup_object_id, alias) VALUES (%lu, %d, %lu, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEGROUPS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -7272,7 +7517,7 @@ int ido2db_query_insert_or_update_commanddefinition_definition_add(ido2db_idi *i
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET command_line='%s' WHERE instance_id=%lu AND object_id=%lu AND config_type=%d",
+		dummy = asprintf(&query1, "UPDATE %s SET command_line=E'%s' WHERE instance_id=%lu AND object_id=%lu AND config_type=%d",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_COMMANDS],
 		                 *(char **) data[3],		/* update start/end */
 		                 *(unsigned long *) data[0],     /* unique constraint start */
@@ -7286,7 +7531,7 @@ int ido2db_query_insert_or_update_commanddefinition_definition_add(ido2db_idi *i
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, object_id, config_type, command_line) VALUES (%lu, %lu, %d, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, object_id, config_type, command_line) VALUES (%lu, %lu, %d, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_COMMANDS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -7401,7 +7646,7 @@ int ido2db_query_insert_or_update_timeperiodefinition_definition_add(ido2db_idi 
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET alias='%s' WHERE instance_id=%lu AND config_type=%d AND timeperiod_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET alias=E'%s' WHERE instance_id=%lu AND config_type=%d AND timeperiod_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_TIMEPERIODS],
 		                 *(char **) data[3],		/* update start/end */
 		                 *(unsigned long *) data[0],    	/* unique constraint start */
@@ -7415,7 +7660,7 @@ int ido2db_query_insert_or_update_timeperiodefinition_definition_add(ido2db_idi 
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, timeperiod_object_id, alias) VALUES (%lu, %d, %lu, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, timeperiod_object_id, alias) VALUES (%lu, %d, %lu, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_TIMEPERIODS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -7687,7 +7932,7 @@ int ido2db_query_insert_or_update_contactdefinition_definition_add(ido2db_idi *i
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET alias='%s', email_address='%s', pager_address='%s', host_timeperiod_object_id=%lu, service_timeperiod_object_id=%lu, host_notifications_enabled=%d, service_notifications_enabled=%d, can_submit_commands=%d, notify_service_recovery=%d, notify_service_warning=%d, notify_service_unknown=%d, notify_service_critical=%d, notify_service_flapping=%d, notify_service_downtime=%d, notify_host_recovery=%d, notify_host_down=%d, notify_host_unreachable=%d, notify_host_flapping=%d, notify_host_downtime=%d WHERE instance_id=%lu AND config_type=%d AND contact_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET alias=E'%s', email_address=E'%s', pager_address=E'%s', host_timeperiod_object_id=%lu, service_timeperiod_object_id=%lu, host_notifications_enabled=%d, service_notifications_enabled=%d, can_submit_commands=%d, notify_service_recovery=%d, notify_service_warning=%d, notify_service_unknown=%d, notify_service_critical=%d, notify_service_flapping=%d, notify_service_downtime=%d, notify_host_recovery=%d, notify_host_down=%d, notify_host_unreachable=%d, notify_host_flapping=%d, notify_host_downtime=%d WHERE instance_id=%lu AND config_type=%d AND contact_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTS],
 		                 *(char **) data[3],		/* update start */
 		                 *(char **) data[4],
@@ -7719,7 +7964,7 @@ int ido2db_query_insert_or_update_contactdefinition_definition_add(ido2db_idi *i
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, contact_object_id, alias, email_address, pager_address, host_timeperiod_object_id, service_timeperiod_object_id, host_notifications_enabled, service_notifications_enabled, can_submit_commands, notify_service_recovery, notify_service_warning, notify_service_unknown, notify_service_critical, notify_service_flapping, notify_service_downtime, notify_host_recovery, notify_host_down, notify_host_unreachable, notify_host_flapping, notify_host_downtime) VALUES (%lu, %d, %lu, '%s', '%s', '%s', %lu, %lu, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d)",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, contact_object_id, alias, email_address, pager_address, host_timeperiod_object_id, service_timeperiod_object_id, host_notifications_enabled, service_notifications_enabled, can_submit_commands, notify_service_recovery, notify_service_warning, notify_service_unknown, notify_service_critical, notify_service_flapping, notify_service_downtime, notify_host_recovery, notify_host_down, notify_host_unreachable, notify_host_flapping, notify_host_downtime) VALUES (%lu, %d, %lu, E'%s', E'%s', E'%s', %lu, %lu, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d)",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],
@@ -7914,7 +8159,7 @@ int ido2db_query_insert_or_update_contactdefinition_addresses_add(ido2db_idi *id
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, address='%s' WHERE contact_id=%lu AND address_number=%d",
+		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, address=E'%s' WHERE contact_id=%lu AND address_number=%d",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTADDRESSES],
 		                 *(unsigned long *) data[0],     /* update start */
 		                 *(char **) data[3],		/* update end */
@@ -7928,7 +8173,7 @@ int ido2db_query_insert_or_update_contactdefinition_addresses_add(ido2db_idi *id
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contact_id, address_number, address) VALUES (%lu, %lu, %d, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contact_id, address_number, address) VALUES (%lu, %lu, %d, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTADDRESSES],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -8039,7 +8284,7 @@ int ido2db_query_insert_or_update_contactdefinition_notificationcommands_add(ido
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET command_args='%s' WHERE instance_id=%lu AND contact_id=%lu AND notification_type=%d AND command_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET command_args=E'%s' WHERE instance_id=%lu AND contact_id=%lu AND notification_type=%d AND command_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONCOMMANDS],
 		                 (*(char **) data[4] == NULL) ? "" : *(char **) data[4],		/* update start/end */
 		                 *(unsigned long *) data[0],     /* unique constraint start */
@@ -8054,7 +8299,7 @@ int ido2db_query_insert_or_update_contactdefinition_notificationcommands_add(ido
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contact_id, notification_type, command_object_id, command_args) VALUES (%lu, %lu, %d, %lu, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contact_id, notification_type, command_object_id, command_args) VALUES (%lu, %lu, %d, %lu, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONCOMMANDS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -8169,7 +8414,7 @@ int ido2db_query_insert_or_update_contactdefinition_servicenotificationcommands_
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET command_args='%s' WHERE instance_id=%lu AND contact_id=%lu AND notification_type=%d AND command_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET command_args=E'%s' WHERE instance_id=%lu AND contact_id=%lu AND notification_type=%d AND command_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONCOMMANDS],
 		                 *(char **) data[4],		/* update start/end */
 		                 *(unsigned long *) data[0],     /* unique constraint start */
@@ -8184,7 +8429,7 @@ int ido2db_query_insert_or_update_contactdefinition_servicenotificationcommands_
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contact_id, notification_type, command_object_id, command_args) VALUES (%lu, %lu, %d, %lu, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, contact_id, notification_type, command_object_id, command_args) VALUES (%lu, %lu, %d, %lu, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONCOMMANDS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -8302,7 +8547,7 @@ int ido2db_query_insert_or_update_save_custom_variables_customvariables_add(ido2
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, config_type=%d, has_been_modified=%d, varvalue='%s' WHERE object_id=%lu AND varname='%s'",
+		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, config_type=%d, has_been_modified=%d, varvalue=E'%s' WHERE object_id=%lu AND varname=E'%s'",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLES],
 		                 *(unsigned long *) data[0],     /* update start */
 		                 *(int *) data[2],
@@ -8318,7 +8563,7 @@ int ido2db_query_insert_or_update_save_custom_variables_customvariables_add(ido2
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, object_id, config_type, has_been_modified, varname, varvalue) VALUES (%lu, %lu, %d, %d, '%s', '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, object_id, config_type, has_been_modified, varname, varvalue) VALUES (%lu, %lu, %d, %d, E'%s', E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLES],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -8449,7 +8694,7 @@ int ido2db_query_insert_or_update_save_custom_variables_customvariablestatus_add
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, status_update_time=%s, has_been_modified=%d, varvalue='%s' WHERE object_id=%lu AND varname='%s'",
+		dummy = asprintf(&query1, "UPDATE %s SET instance_id=%lu, status_update_time=%s, has_been_modified=%d, varvalue=E'%s' WHERE object_id=%lu AND varname=E'%s'",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLESTATUS],
 		                 *(unsigned long *) data[0],     /* update start */
 		                 *(char **) data[2],
@@ -8465,7 +8710,7 @@ int ido2db_query_insert_or_update_save_custom_variables_customvariablestatus_add
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, object_id, status_update_time, has_been_modified, varname, varvalue) VALUES (%lu, %lu, %s, %d, '%s', '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, object_id, status_update_time, has_been_modified, varname, varvalue) VALUES (%lu, %lu, %s, %d, E'%s', E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLESTATUS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(unsigned long *) data[1],
@@ -8602,7 +8847,7 @@ int ido2db_query_insert_or_update_contactgroupdefinition_definition_add(ido2db_i
 		free(query1);
 		break;
 	case IDO2DB_DBSERVER_PGSQL:
-		dummy = asprintf(&query1, "UPDATE %s SET alias='%s' WHERE instance_id=%lu AND config_type=%d AND contactgroup_object_id=%lu",
+		dummy = asprintf(&query1, "UPDATE %s SET alias=E'%s' WHERE instance_id=%lu AND config_type=%d AND contactgroup_object_id=%lu",
 		                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTGROUPS],
 		                 *(char **) data[3],		/* update start/end */
 		                 *(unsigned long *) data[0], 	/* unique constraint start */
@@ -8616,7 +8861,7 @@ int ido2db_query_insert_or_update_contactgroupdefinition_definition_add(ido2db_i
 		/* check result if update was ok */
 		if (dbi_result_get_numrows_affected(idi->dbinfo.dbi_result) == 0) {
 			/* try insert instead */
-			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, contactgroup_object_id, alias) VALUES (%lu, %d, %lu, '%s')",
+			dummy = asprintf(&query2, "INSERT INTO %s (instance_id, config_type, contactgroup_object_id, alias) VALUES (%lu, %d, %lu, E'%s')",
 			                 ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTGROUPS],
 			                 *(unsigned long *) data[0],     /* insert start */
 			                 *(int *) data[1],

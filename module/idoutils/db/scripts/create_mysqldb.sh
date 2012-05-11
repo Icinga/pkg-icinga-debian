@@ -3,7 +3,7 @@
 #-- create_mysqldb.sh
 #-- DB definition for MySQL
 #--
-#-- Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+#-- Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
 #--
 #-- current version: 2011-05-03 Thomas Dressler
 #-- -- --------------------------------------------------------
@@ -25,7 +25,7 @@ cd ../mysql
 
 echo "Enter password for mysql user '$DBADMIN' or <enter> if none"
 read ROOTPASS
-if [ -s "ROOTPASS" ];then
+if [ -n "ROOTPASS" ];then
 	P=-p$ROOTPASS
 fi
 echo "drop existing DB $DB and user $DBUSER..."

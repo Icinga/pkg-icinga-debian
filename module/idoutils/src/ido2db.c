@@ -2,11 +2,12 @@
  * IDO2DB.C - IDO To Database Daemon
  *
  * Copyright (c) 2005-2008 Ethan Galstad
- * Copyright (c) 2009-2011 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
 /*#define DEBUG_MEMORY 1*/
+/*#define DEBUG_IDO2DB2 1*/
 
 #ifdef DEBUG_MEMORY
 #include <mcheck.h>
@@ -23,7 +24,6 @@
 #include "../include/dbhandlers.h"
 #include "../include/sla.h"
 #include "../include/logging.h"
-
 #ifdef HAVE_SSL
 #include "../../../include/dh.h"
 #endif
@@ -114,6 +114,10 @@ int main(int argc, char **argv) {
 
 	driver = NULL;
 #endif
+#ifdef USE_ORACLE
+	unsigned int v1,v2;
+#endif
+
 	result = ido2db_process_arguments(argc, argv);
 
 	if (result != IDO_OK || ido2db_show_help == IDO_TRUE || ido2db_show_license == IDO_TRUE || ido2db_show_version == IDO_TRUE) {
@@ -255,17 +259,23 @@ int main(int argc, char **argv) {
 	/******************************/
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db with ocilib() driver check\n");
-	if (OCI_GetOCIRuntimeVersion == OCI_UNKNOWN) {
-		printf("Unknown ocilib runtime version detected. Exiting...\n");
 
-#ifdef HAVE_SSL
-		if (use_ssl == IDO_TRUE)
-			SSL_CTX_free(ctx);
-#endif
-
-		exit(1);
+	/* at this stage, is oci driver not loaded, but loading will be later in db_init.
+	 * check will try to init,read variables and cleanup afterwards
+	 */
+	if (OCI_Initialize(NULL,NULL,OCI_ENV_DEFAULT)) {
+	    v1=OCI_GetOCIRuntimeVersion();
+	    v2=OCI_GetOCICompileVersion();
+	    syslog(LOG_INFO, "OCILIB driver check OK(OCI Version:%u,CompileTime:%u)",
+	        v1,v2);
+	    /* we need to cleanup to succeed ido2db_db_init */
+	        OCI_Cleanup();
+	}else{
+	        printf("Cannot initialize OCILIB, exiting!\n");
+	        syslog(LOG_ERR,"Cannot initialize OCILIB, exiting!");
+	        exit (1);
 	}
+
 
 #endif /* Oracle ocilib specific */
 	/******************************/
@@ -1454,7 +1464,7 @@ int ido2db_check_for_client_input(ido2db_idi *idi) {
 
 #ifdef DEBUG_IDO2DB2
 	printf("RAWBUF: %s\n", dbuf.buf);
-	printf("  USED1: %lu, BYTES: %lu, LINES: %lu\n", dbuf->used_size, idi->bytes_processed, idi->lines_processed);
+	printf("  USED1: %lu, BYTES: %lu, LINES: %lu\n", dbuf.used_size, idi->bytes_processed, idi->lines_processed);
 #endif
 
 	/* search for complete lines of input */
@@ -1507,7 +1517,7 @@ int ido2db_handle_client_input(ido2db_idi *idi, char *buf) {
 	int data_type = IDO_DATA_NONE;
 	int input_type = IDO2DB_INPUT_DATA_NONE;
 
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_client_input(instance_name=%s) start\n", idi->instance_name);
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_client_input start\n");
 
 #ifdef DEBUG_IDO2DB2
 	printf("HANDLING: '%s'\n", buf);
@@ -1515,6 +1525,8 @@ int ido2db_handle_client_input(ido2db_idi *idi, char *buf) {
 
 	if (buf == NULL || idi == NULL)
 		return IDO_ERROR;
+
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_client_input instance_name=%s\n", (idi->instance_name == NULL) ? "(null)" : idi->instance_name);
 
 	/* we're ignoring client data because of wrong protocol version, etc...  */
 	if (idi->ignore_client_data == IDO_TRUE)
