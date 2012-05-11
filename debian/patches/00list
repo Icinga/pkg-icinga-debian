@@ -1,7 +1,6 @@
 50_cgi.cfg-debianize.dpatch
 51_commands.cfg-debianize.dpatch
 52_icinga.cfg-debianize.dpatch
-55_idoutils-debianize
 70_fix_eventhandler_paths.dpatch
 80_fix_tac_json
 90_disable_standard_conforming_strings.dpatch
