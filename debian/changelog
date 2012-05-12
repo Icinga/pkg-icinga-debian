@@ -1,3 +1,20 @@
+icinga (1.7.0~beta1-1) UNRELEASED; urgency=low
+
+  * [8ae8e90] Imported Upstream version 1.7.0~beta1
+  * [8ae8e90] Imported Upstream version 1.7.0~beta1
+  * [57b5f42] Remove .rej from patch
+  * [6751776] Remove obsolete patch
+  * [e20c16d] 80_fix_tac_json is now upstream
+  * [ab9a6aa] Update rules file for 1.7
+  * [e17e241] Add NEWS file for idoutils broker move
+  * [2f26c8d] Update icinga.cfg patch
+  * [2ebdf35] Update idoutils docs
+  * [5e02b2e] Fix tempfile path
+  * [22b4070] Fix status.dat location
+  * [a938089] Remove not used conf.d from icinga.cfg
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 12 May 2012 07:25:39 +0200
+
 icinga (1.6.1-3) unstable; urgency=medium
 
   [ Daniel Baumann ]
