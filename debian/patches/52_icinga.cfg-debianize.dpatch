@@ -6,8 +6,8 @@
 
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/sample-config/icinga.cfg.in pkg-icinga/sample-config/icinga.cfg.in
---- pkg-icinga~/sample-config/icinga.cfg.in	2011-08-25 19:28:09.000000000 +0200
-+++ pkg-icinga/sample-config/icinga.cfg.in	2011-08-26 21:45:13.399141107 +0200
+--- pkg-icinga~/sample-config/icinga.cfg.in	2012-05-11 22:33:54.000000000 +0200
++++ pkg-icinga/sample-config/icinga.cfg.in	2012-05-12 06:48:15.020835267 +0200
 @@ -14,9 +14,19 @@
  # for historical purposes.  This should be the first option specified
  # in the config file!!!
@@ -17,11 +17,11 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
 +# Commands definitions
 +cfg_file=/etc/icinga/commands.cfg
-+
+ 
 +# Debian also defaults to using the check commands defined by the debian
 +# nagios-plugins package
 +cfg_dir=/etc/nagios-plugins/config
- 
++
 +# Debian uses by default a configuration directory where icinga-common,
 +# other packages and the local admin can dump or link configuration
 +# files into.
@@ -29,8 +29,8 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  # OBJECT CONFIGURATION FILE(S)
  # These are the object configuration files in which you define hosts,
-@@ -25,13 +35,11 @@
- # if you wish (as shown below), or keep them all in a single config file.
+@@ -40,13 +50,11 @@
+ # this will include bar.cfg 2 times and lead to config verification errors.
  
  # You can specify individual object config files as shown below:
 -cfg_file=@sysconfdir@/objects/commands.cfg
@@ -47,25 +47,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  # Definitions for monitoring a Windows machine
  #cfg_file=@sysconfdir@/objects/windows.cfg
-@@ -64,7 +72,7 @@
- # directly) in order to prevent inconsistencies that can occur
- # when the config files are modified after Icinga starts.
- 
--object_cache_file=@localstatedir@/objects.cache
-+object_cache_file=/var/cache/icinga/objects.cache
- 
- 
- 
-@@ -80,7 +88,7 @@
- # Read the documentation section on optimizing Icinga to find our more
- # about how this feature works.
- 
--precached_object_file=@localstatedir@/objects.precache
-+precached_object_file=/var/cache/icinga/objects.precache
- 
- 
- 
-@@ -142,7 +150,7 @@
+@@ -150,7 +158,7 @@
  # you will have to enable this.
  # Values: 0 = disable commands, 1 = enable commands
  
@@ -74,7 +56,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -171,8 +179,10 @@
+@@ -179,8 +187,10 @@
  # is running as (usually 'nobody').  Permissions should be set at the 
  # directory level instead of on the file, as the file is deleted every
  # time its contents are processed.
@@ -86,26 +68,19 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -203,7 +213,7 @@
- # is created, used, and deleted throughout the time that Icinga is
- # running.
+@@ -266,6 +276,11 @@
+ # Example:
+ #   broker_module=<modulepath> [moduleargs]
  
--temp_file=@localstatedir@/icinga.tmp
-+temp_file=/var/cache/icinga/icinga.tmp
- 
- 
- 
-@@ -251,7 +261,8 @@
- #broker_module=/somewhere/module2.o arg1 arg2=3 debug=0
- 
- # Uncomment this to enable idomod.o
--#broker_module=@bindir@/idomod.o config_file=@sysconfdir@/idomod.cfg
++# Enabling idoutils in icinga.cfg is not recommended. If you want to 
++# enable idoutils in Debian install icinga-idoutils and copy
++# /usr/share/doc/icinga-idoutils/examples/idoutils.cfg-sample to
++# /etc/icinga/modules/idoutils.cfg.
 +# Don't forget to also enable the daemon in /etc/default/icinga
-+#broker_module=/usr/lib/icinga/idomod.o config_file=@sysconfdir@/idomod.cfg
+ #broker_module=@libdir@/idomod.so config_file=@sysconfdir@/idomod.cfg
  
  
- 
-@@ -272,7 +283,7 @@
+@@ -287,7 +302,7 @@
  # This is the directory where archived (rotated) log files should be 
  # placed (assuming you've chosen to do log rotation).
  
@@ -114,7 +89,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1208,7 +1219,7 @@
+@@ -1211,7 +1226,7 @@
  #	strict-iso8601	(YYYY-MM-DDTHH:MM:SS)
  #
  
@@ -123,7 +98,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1238,7 +1249,7 @@
+@@ -1241,7 +1256,7 @@
  # embedded Perl interpreter) is located.  If you didn't compile
  # Icinga with embedded Perl support, this option has no effect.
  
@@ -132,7 +107,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1252,7 +1263,7 @@
+@@ -1255,7 +1270,7 @@
  # Only enable this setting when you really know what you are doing!
  # Values: 0 = disable interpreter, 1 = enable interpreter
  
@@ -141,7 +116,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1336,8 +1347,8 @@
+@@ -1350,8 +1365,8 @@
  # using the $ADMINEMAIL$ and $ADMINPAGER$ macros in your notification
  # commands.
  
@@ -152,7 +127,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1378,7 +1389,7 @@
+@@ -1392,7 +1407,7 @@
  # Values: 1 - Enable environment variable macros
  #         0 - Disable environment variable macros (default)
  
@@ -161,7 +136,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  
  
-@@ -1446,7 +1457,7 @@
+@@ -1460,7 +1475,7 @@
  # DEBUG FILE
  # This option determines where Icinga should write debugging information.
  
