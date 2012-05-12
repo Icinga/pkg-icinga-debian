@@ -4,10 +4,9 @@ icinga-idoutils for Debian
 The idoutils include a Nagios event broker module (idomod.o) that exports
 data from the Icinga daemon. You have to enable it after installing the package
 
-Either edit /etc/icinga/icinga.cfg and change or append the following line:
-broker_module=/usr/lib/icinga/idomod.o config_file=/etc/icinga/idomod.cfg
-or rename /etc/icinga/modules/idoutils.cfg-sample to
-/etc/icinga/modules/idoutils.cfg.
+To enable the module copy /etc/icinga/modules/idoutils.cfg-sample to
+/etc/icinga/modules/idoutils.cfg. You can also add the broker to
+/etc/icinga/icinga.cfg, but the module way is recommended.
 
 Don't forget to restart Icinga after changing the configuration:
 
