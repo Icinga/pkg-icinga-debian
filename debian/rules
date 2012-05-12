@@ -24,6 +24,7 @@ CONFIGURE	= CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --prefix=/usr \
 				--localstatedir=/var/lib/icinga \
 				--with-state-dir=/var/cache/icinga \
 				--enable-event-broker \
+				--with-ido-sockfile=/var/lib/icinga/ido.sock \
 				--enable-embedded-perl \
 				--with-icinga-user=nagios \
 				--with-icinga-group=nagios \
