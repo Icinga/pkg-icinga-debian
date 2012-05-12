@@ -7,7 +7,7 @@
 @DPATCH@
 diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/sample-config/icinga.cfg.in pkg-icinga/sample-config/icinga.cfg.in
 --- pkg-icinga~/sample-config/icinga.cfg.in	2012-05-11 22:33:54.000000000 +0200
-+++ pkg-icinga/sample-config/icinga.cfg.in	2012-05-12 06:48:15.020835267 +0200
++++ pkg-icinga/sample-config/icinga.cfg.in	2012-05-12 07:01:19.264827790 +0200
 @@ -14,9 +14,19 @@
  # for historical purposes.  This should be the first option specified
  # in the config file!!!
@@ -47,6 +47,15 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
  # Definitions for monitoring a Windows machine
  #cfg_file=@sysconfdir@/objects/windows.cfg
+@@ -111,7 +119,7 @@
+ # The contents of the status file are deleted every time Icinga
+ #  restarts.
+ 
+-status_file=@STATEDIR@/status.dat
++status_file=/var/lib/icinga/status.dat
+ 
+ 
+ 
 @@ -150,7 +158,7 @@
  # you will have to enable this.
  # Values: 0 = disable commands, 1 = enable commands
