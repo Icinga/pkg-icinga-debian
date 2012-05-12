@@ -1,0 +1,10 @@
+icinga (1.7.0~beta1-1) UNRELEASED; urgency=low
+
+  The location of the idoutils icinga broker changed from
+  /usr/lib/icinga/idomod.o to /usr/lib/icinga/idomod.so. 
+  The best way to fix this is to remove the broker like from
+  icinga.cfg and copy
+  /usr/share/doc/icinga-idoutils/examples/idoutils.cfg-sample to
+  /etc/icinga/modules/idoutils.cfg.
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 12 May 2012 06:28:56 +0200
