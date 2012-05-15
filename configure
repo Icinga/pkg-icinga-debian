@@ -2461,9 +2461,9 @@ ac_config_headers="$ac_config_headers include/config.h"
 
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.7.0beta1"
+PKG_VERSION="1.7.0"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="05-09-2012"
+PKG_REL_DATE="05-15-2012"
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
@@ -5609,7 +5609,7 @@ else
 fi
 
 if test x$IDOSOCKFILE = xno; then
-        IDO2SOCKFILE="$localstatedir/ido.sock"
+        IDOSOCKFILE="$localstatedir/ido.sock"
 fi
 
 
