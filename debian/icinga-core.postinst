@@ -1,21 +1,53 @@
 #!/bin/sh -e
 
-if [ -e "/var/lib/icinga/retention.dat" ]
-then
-    echo "Move old retention.dat to new location (/var/cache/icinga/)"
-    mv /var/lib/icinga/retention.dat /var/cach/icinga/retention.dat
-fi
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+#
+# quoting from the policy:
+#     Any necessary prompting should almost always be confined to the
+#     post-installation script, and should be protected with a conditional
+#     so that unnecessary prompting doesn't happen if a package's
+#     installation fails and the `postinst' is called with `abort-upgrade',
+#     `abort-remove' or `abort-deconfigure'.
 
-#if we stop icinga in icinga.prerm we should also start it here..
-if [ -x "/etc/init.d/icinga" ]; then
-	if ! /etc/init.d/icinga status >/dev/null; then
+case "$1" in
+    configure)
+        if [ -e "/var/lib/icinga/retention.dat" ]
+        then
+            echo "Move old retention.dat to new location (/var/cache/icinga/)"
+            mv /var/lib/icinga/retention.dat /var/cach/icinga/retention.dat
+        fi
 
-		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-			invoke-rc.d icinga start || true
-		else
-			/etc/init.d/icinga start || true
-		fi
-	fi
-fi
+        #if we stop icinga in icinga.prerm we should also start it here..
+        if [ -x "/etc/init.d/icinga" ]; then
+            if ! /etc/init.d/icinga status >/dev/null; then
+
+                if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+                    invoke-rc.d icinga start || true
+                else
+                    /etc/init.d/icinga start || true
+                fi
+            fi
+        fi
+
+        ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+
+        ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
+esac
 
 #DEBHELPER#
