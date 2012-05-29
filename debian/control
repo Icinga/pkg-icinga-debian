@@ -12,7 +12,7 @@ Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
 
 Package: icinga-common
 Architecture: all
-Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-6), ucf (>= 0.28), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
+Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-6), ucf (>= 0.28), dpkg (>= 1.16.1), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
 Recommends: nagios-plugins
 Description: host and network monitoring system - support files
  Icinga is a modular monitoring framework for hosts, services, and
