@@ -21,7 +21,7 @@
 case "$1" in
     configure)
         if dpkg --compare-versions $2 lt-nl '1.7.0-1'; then
-            if [ -e "/var/lib/icinga/retention.dat" ]
+            if [ -e "/var/lib/icinga/retention.dat" ] && [ ! -e "/var/cache/icinga/retention.dat" ]
             then
                 echo "Move old retention.dat to new location (/var/cache/icinga/)"
                 mv /var/lib/icinga/retention.dat /var/cache/icinga/retention.dat
