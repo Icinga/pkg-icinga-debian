@@ -1,3 +1,17 @@
+icinga (1.7.0-2) unstable; urgency=low
+
+  * [57cc621] Fix example path for idoutils broker
+  * [c27a750] Depend on dpkg >= 1.16.1 for s-s-d --status (Closes: #675041)
+  * [24e3fc9] Move old retention.dat to new locatation (Closes: #675046)
+  * [f365185] make icinga-core.postinst a little bit nicer and more verbose
+  * [e5fd639] Improve retention.dat move
+  * [4b2e286] Don't overwrite existing files during retention.dat move
+  * [d3ba784] Fix status.dat location for cgi (Closes: #671908)
+  * [37d3c92] Remove trailing / in configure (Closes: #675043)
+  * [c57ac90] Fix filenames for dbconfig-common sql files (Closes: #675277)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 01 Jun 2012 10:12:50 +0200
+
 icinga (1.7.0-1) unstable; urgency=low
 
   * [8ae8e90] Imported Upstream version 1.7.0~beta1
