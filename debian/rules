@@ -38,11 +38,11 @@ CONFIGURE	= CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --prefix=/usr \
 				--host=$(DEB_HOST_GNU_TYPE) \
 				--with-htmurl=/icinga \
 				--with-cgiurl=/cgi-bin/icinga \
-				--with-p1-file-dir=/usr/lib/icinga/ \
+				--with-p1-file-dir=/usr/lib/icinga \
 				--enable-idoutils \
 				--with-ido2db-lockfile=/var/run/icinga/ido2db.pid \
-				--with-log-dir=/var/log/icinga/ \
-				--libdir=/usr/lib/icinga/ \
+				--with-log-dir=/var/log/icinga \
+				--libdir=/usr/lib/icinga \
 				--with-temp-file=/var/cache/icinga/icinga.tmp
 
 clean: clean-patched unpatch
