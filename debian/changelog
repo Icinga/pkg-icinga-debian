@@ -1,4 +1,4 @@
-icinga (1.7.0-2) unstable; urgency=low
+icinga (1.7.0-2) unstable; urgency=medium
 
   * [57cc621] Fix example path for idoutils broker
   * [c27a750] Depend on dpkg >= 1.16.1 for s-s-d --status (Closes: #675041)
