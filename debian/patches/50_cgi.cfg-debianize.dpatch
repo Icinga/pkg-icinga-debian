@@ -5,12 +5,12 @@
 ## DP: Debianize cgi.cfg
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' icinga-20100403125013~/sample-config/cgi.cfg.in icinga-20100403125013/sample-config/cgi.cfg.in
---- icinga-20100403125013~/sample-config/cgi.cfg.in	2010-03-03 10:29:37.000000000 +0100
-+++ icinga-20100403125013/sample-config/cgi.cfg.in	2010-04-03 12:50:55.732189974 +0200
-@@ -55,7 +55,22 @@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/sample-config/cgi.cfg.in pkg-icinga/sample-config/cgi.cfg.in
+--- pkg-icinga~/sample-config/cgi.cfg.in	2012-05-11 22:33:54.000000000 +0200
++++ pkg-icinga/sample-config/cgi.cfg.in	2012-06-01 08:42:30.385584123 +0200
+@@ -56,7 +56,22 @@
  
- use_pending_states=1
+ http_charset=utf-8
  
 +# NAGIOS PROCESS CHECK COMMAND
 +# This is the full path and filename of the program used to check
@@ -27,7 +27,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +# have to be tweaked a bit, as different versions of the plugin
 +# use different command line arguments/syntaxes.
  
-+icinga_check_command=/usr/lib/nagios/plugins/check_nagios /var/cache/icinga/status.dat 5 '/usr/sbin/icinga'
++icinga_check_command=/usr/lib/nagios/plugins/check_nagios /var/lib/icinga/status.dat 5 '/usr/sbin/icinga'
  
- 
- # AUTHENTICATION USAGE
+ # CONTEXT-SENSITIVE HELP
+ # This option determines whether or not a context-sensitive

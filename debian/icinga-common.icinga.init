@@ -55,7 +55,7 @@ check_started () {
     		return 6
 	fi
    else 
-        check_cmd="/usr/lib/nagios/plugins/check_nagios /var/cache/icinga/status.dat 5 '/usr/sbin/icinga'"
+        check_cmd="/usr/lib/nagios/plugins/check_nagios /var/lib/icinga/status.dat 5 '/usr/sbin/icinga'"
    fi
 
   eval $check_cmd >/dev/null
