@@ -1,3 +1,10 @@
+icinga (1.7.0-3) unstable; urgency=low
+
+  * [7c55fce] Install plpgsql as early as possible into postgres
+    (Closes: #675536)
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 02 Jun 2012 09:06:09 +0200
+
 icinga (1.7.0-2) unstable; urgency=medium
 
   * [57cc621] Fix example path for idoutils broker
