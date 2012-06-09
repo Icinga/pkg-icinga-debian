@@ -1,3 +1,11 @@
+icinga (1.7.0-4) unstable; urgency=low
+
+  * [704a3bc] Quote version for dpkg-compare
+  * [6e25045] Add patch to fix typo in handle-master-proc-event script
+    (Closes: #676586)
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 09 Jun 2012 08:37:42 +0200
+
 icinga (1.7.0-3) unstable; urgency=low
 
   * [7c55fce] Install plpgsql as early as possible into postgres
