@@ -1,3 +1,11 @@
+icinga (1.7.0-4~ppa1~lucid1) lucid; urgency=low
+
+  * [b66eda1] Fix icinga-idoutils.ido2db initscipt
+    - replace "--status" with "--start --test", "--status" not available on
+    lucid.
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 15 Jun 2012 20:42:03 +0200
+
 icinga (1.7.0-4) unstable; urgency=low
 
   * [704a3bc] Quote version for dpkg-compare
