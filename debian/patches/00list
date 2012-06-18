@@ -2,5 +2,4 @@
 51_commands.cfg-debianize.dpatch
 52_icinga.cfg-debianize.dpatch
 70_fix_eventhandler_paths.dpatch
-90_disable_standard_conforming_strings.dpatch
 95_fix_db_upgrade.dpatch
