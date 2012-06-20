@@ -1,0 +1,41 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 80_fix_dbd_handling.dpatch by Alexander Wirt <formorer@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: See https://dev.icinga.org/issues/2698
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/module/idoutils/src/db.c pkg-icinga/module/idoutils/src/db.c
+--- pkg-icinga~/module/idoutils/src/db.c	2012-06-21 00:03:10.000000000 +0200
++++ pkg-icinga/module/idoutils/src/db.c	2012-06-21 00:03:41.470300905 +0200
+@@ -497,8 +497,28 @@
+ 		return IDO_ERROR;
+ 	}
+ 
+-	dbi_conn_set_option(idi->dbinfo.dbi_conn, "host", ido2db_db_settings.host);
+-	dbi_conn_set_option_numeric(idi->dbinfo.dbi_conn, "port", (int)ido2db_db_settings.port);
++       /* decide wether to set host and port, or not ... drivers will use socket otherwise */
++        switch (idi->dbinfo.server_type) {
++        case IDO2DB_DBSERVER_MYSQL:
++               if (ido2db_db_settings.host != NULL)
++                       dbi_conn_set_option(idi->dbinfo.dbi_conn, "host", ido2db_db_settings.host);
++               if (ido2db_db_settings.port != 0)
++                       dbi_conn_set_option_numeric(idi->dbinfo.dbi_conn, "port", (int)ido2db_db_settings.port);
++                break;
++        case IDO2DB_DBSERVER_PGSQL:
++               if (ido2db_db_settings.host != NULL)
++                       dbi_conn_set_option(idi->dbinfo.dbi_conn, "host", ido2db_db_settings.host);
++               if (ido2db_db_settings.port != 0)
++                       dbi_conn_set_option_numeric(idi->dbinfo.dbi_conn, "port", (int)ido2db_db_settings.port);
++                break;
++        default:
++               if (ido2db_db_settings.host != NULL)
++                       dbi_conn_set_option(idi->dbinfo.dbi_conn, "host", ido2db_db_settings.host);
++               if (ido2db_db_settings.port != 0)
++                       dbi_conn_set_option_numeric(idi->dbinfo.dbi_conn, "port", (int)ido2db_db_settings.port);
++                break;
++        }
++
+ 	dbi_conn_set_option(idi->dbinfo.dbi_conn, "username", ido2db_db_settings.username);
+ 	dbi_conn_set_option(idi->dbinfo.dbi_conn, "password", ido2db_db_settings.password);
+ 	dbi_conn_set_option(idi->dbinfo.dbi_conn, "dbname", ido2db_db_settings.dbname);
