@@ -1,3 +1,15 @@
+icinga (1.7.1-1) unstable; urgency=low
+
+  * [b64d290] Imported Upstream version 1.7.1
+  * [bcba7da] 80_fix_typos_in_eventhandlers is now upstream
+  * [abd8b59] icinga 1.7.0 should work with Postgresql >= 9.0
+  * [29506e2] Add a patch for better handling of mysql and
+              pgsql default in ido2b
+  * [29d6787] Check if ucf really exists during purge
+              (Closes: #677064)
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 21 Jun 2012 00:09:52 +0200
+
 icinga (1.7.0-4~ppa1~lucid1) lucid; urgency=low
 
   * [b66eda1] Fix icinga-idoutils.ido2db initscipt
