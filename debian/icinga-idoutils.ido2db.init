@@ -10,7 +10,7 @@
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: ido2db initscript
-# Description:       icinga-databojects daemon
+# Description:       icinga-dataobjects daemon
 ### END INIT INFO
 
 # Author: Alexander Wirt <formorer@debian.org>
