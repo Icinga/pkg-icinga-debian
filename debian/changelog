@@ -1,8 +1,7 @@
 icinga (1.7.1-2) unstable; urgency=low
 
   [ Alexander Wirt ]
-  * [6dee566] Start after postgresql or mydsql
-  * [6e66d23] Fix typo
+  * [6dee566] Start after postgresql or mysql
 
   [ Christian Perrier ]
   * Debconf templates and debian/control reviewed by the debian-l10n-
