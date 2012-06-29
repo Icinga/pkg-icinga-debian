@@ -1,3 +1,31 @@
+icinga (1.7.1-2) unstable; urgency=low
+
+  [ Alexander Wirt ]
+  * [6dee566] Start after postgresql or mydsql
+  * [6e66d23] Fix typo
+
+  [ Christian Perrier ]
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Closes: #674024
+  * [Debconf translation updates]
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Closes: #674024
+  * [Debconf translation updates]
+  * Czech (Martin Sin).  Closes: #677033
+  * Swedish (Martin Bagge / brother).  Closes: #677064
+  * Russian (Yuri Kozlov).  Closes: #677178
+  * Slovak (Slavko).  Closes: #677240
+  * Portuguese (Américo Monteiro).  Closes: #677316
+  * Dutch; (Jeroen Schot).  Closes: #677357
+  * Danish (Joe Hansen).  Closes: #677808
+  * Italian (Luca Monducci).  Closes: #677841
+  * German (Holger Wansing).  Closes: #677914
+  * French (Steve Petruzzello).  Closes: #677952
+  * Galician ().  Closes: #678913
+  * Spanish; (Omar Campagne).  Closes: #678944
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 29 Jun 2012 23:02:35 +0200
+
 icinga (1.7.1-1) unstable; urgency=low
 
   * [b64d290] Imported Upstream version 1.7.1
