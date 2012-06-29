@@ -1,16 +1,16 @@
 # Danish translation icinga.
-# Copyright (C) 2010 icinga & Joe Hansen.
+# Copyright (C) 2012 icinga & Joe Hansen.
 # This file is distributed under the same license as the icinga package.
-# Joe Hansen <joedalton2@yahoo.dk>, 2010. 
+# Joe Hansen <joedalton2@yahoo.dk>, 2010, 2012. 
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: icinga\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
-"PO-Revision-Date: 2010-05-05 17:30+01:00\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"PO-Revision-Date: 2012-06-16 17:30+01:00\n"
 "Last-Translator: Joe Hansen <joedalton2@yahoo.dk>\n"
-"Language-Team: Danish <debian-l10n-danish@lists.debian.org> \n"
+"Language-Team: Danish <debian-l10n-danish@lists.debian.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -94,22 +94,27 @@ msgstr "De to adgangskoder du indtastede var ikke ens. Forsøg igen."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
+msgstr "Brug eksterne kommandoer med Icinga?"
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
+#: ../icinga-common.templates:2001
 msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
 msgstr ""
+"Af sikkerhedsmæssige årsager så kigger Icinga ikke i sin "
+"standardkonfiguration for eksterne kommandoer. Aktivering af eksterne "
+"kommandoer vil give internetserveren skriveadgang til kommandodatakanalen "
+"for nagios og er krævet, hvis du ønsker at være i stand til at bruge CGI-"
+"kommandogrænsefladen."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
+msgstr "Hvis du er i tvivl, så skal du ikke aktivere eksterne kommandoer."

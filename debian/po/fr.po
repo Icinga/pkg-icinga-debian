@@ -2,13 +2,13 @@
 # Copyright (C) 2006-2010 Debian French l10n Team <debian-l10n-french@lists.debian.org>
 # This file is distributed under the same license as the icinga package.
 # Translator:
-# Steve Petruzzello <dlist@bluewin.ch>, 2006-2010
+# Steve Petruzzello <dlist@bluewin.ch>, 2006-2012
 msgid ""
 msgstr ""
-"Project-Id-Version: icinga_1.0.1-3\n"
+"Project-Id-Version: icinga_1.7.0-4\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
-"PO-Revision-Date: 2006-06-07 10:58+0100\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"PO-Revision-Date: 2012-06-18 08:31+0200\n"
 "Last-Translator: Steve Petruzzello <dlist@bluewin.ch>\n"
 "Language-Team: French <debian-l10n-frencg@lists.debian.org>\n"
 "Language: fr\n"
@@ -97,61 +97,27 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
+msgstr "Faut-il utiliser des commandes externes avec Icinga ?"
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
+#: ../icinga-common.templates:2001
 msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
 msgstr ""
+"Pour des raisons de sécurité, Icinga, dans sa configuration par défaut, "
+"n'autorise pas l'utilisation de commandes externes. L'activation de "
+"l'utilisation de commandes externes revient à autoriser le serveur web à "
+"lancer des commandes externes avec les privilèges de nagios et est requise "
+"si vous souhaitez utiliser l'interface de commandes CGI."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
-msgstr ""
-
-#~ msgid "Password confirmation:"
-#~ msgstr "Confirmation du mot de passe :"
-
-#~ msgid "The passwords do not match"
-#~ msgstr "Mots de passe différents"
-
-#, fuzzy
-#~| msgid "Enable support for nagios 1.x links in icinga?"
-#~ msgid "Enable support for nagios 1.x links in nagios3?"
-#~ msgstr "Faut-il activer la gestion des liens de Nagios 1.x pour Nagios3 ?"
-
-#, fuzzy
-#~| msgid ""
-#~| "Please choose whether the Apache configuration for icinga should provide "
-#~| "compatibility with links from nagios 1.x."
-#~ msgid ""
-#~ "Please choose whether the Apache configuration for nagios3 should provide "
-#~ "compatibility with links from nagios 1.x."
-#~ msgstr ""
-#~ "Veuillez choisir si la configuration d'Apache pour Nagios3 doit permettre "
-#~ "la compatibilité avec les liens de Nagios 1.x."
-
-#~ msgid ""
-#~ "If you select this option, the apache configuration used for nagios will "
-#~ "include directives to support URLs from nagios 1.x. You should not choose "
-#~ "this option if you still have nagios 1.x on your system, or unpredictable "
-#~ "results may occur."
-#~ msgstr ""
-#~ "En choisissant cette option, la configuration d'Apache pour Nagios "
-#~ "contiendra des directives permettant la gestion d'URL depuis Nagios 1.x. "
-#~ "Vous ne devriez pas choisir cette option si vous avez encore Nagios 1.x "
-#~ "sur votre système, sinon vous risquez d'avoir des résultats inattendus."
-
-#~ msgid "apache2"
-#~ msgstr "apache2"
-
-#~ msgid "false"
-#~ msgstr "Faux"
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
+msgstr "Dans le doute, il est déconseillé d'activer les commandes externes."

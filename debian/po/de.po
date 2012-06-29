@@ -1,21 +1,22 @@
-# translation of po-debconf template to German
+# translation of po-debconf templates for icinga into German.
 # This file is distributed under the same license as the icinga package.
 #
 # Copyright ©:
 # Matthias Julius <mdeb@julius-net.net>, 2006, 2010.
+# Holger Wansing <linux@wansing-online.de>, 2012.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: icinga 1.0.1-3\n"
+"Project-Id-Version: icinga 1.7.0-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
-"PO-Revision-Date: 2010-05-20 00:04-0400\n"
-"Last-Translator: Matthias Julius <mdeb@julius-net.net>\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"PO-Revision-Date: 2012-06-17 20:16+0200\n"
+"Last-Translator: Holger Wansing <linux@wansing-online.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.0\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 #. Type: multiselect
@@ -91,27 +92,32 @@ msgstr "Fehler bei der Passworteingabe"
 #: ../icinga-cgi.templates:5001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr ""
-"Die beiden Passwörter, die Sie eingegeben haben, sind nicht gleich. Bitte "
+"Die beiden Passwörter, die Sie eingegeben haben, sind nicht identisch. Bitte "
 "versuchen Sie es noch einmal."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
+msgstr "Externe Befehle mit Icinga verwenden?"
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
+#: ../icinga-common.templates:2001
 msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
 msgstr ""
+"Aus Sicherheitsgründen schaut Icinga in seiner Standard-Konfiguration nicht "
+"nach externen Befehlen. Externe Befehle zu aktivieren würde dem Web-Server "
+"Schreibzugriff auf die Nagios-Befehlsweiterleitung geben und ist "
+"erforderlich, wenn Sie die CGI-Befehlsschnittstelle verwenden möchten."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
 msgstr ""
+"Wenn Sie unsicher sind, aktivieren Sie nicht die Verwendung externer Befehle."

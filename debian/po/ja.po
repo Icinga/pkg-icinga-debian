@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the icinga package.
 # Noritada Kobayashi, 2007
 # Hideki Yamane <henrich@debian.org>, 2010
-
 msgid ""
 msgstr ""
 "Project-Id-Version: icinga (debconf) 1.0.2-1\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
 "PO-Revision-Date: 2010-09-16 01:10+0900\n"
 "Last-Translator: Hideki Yamane <henrich@debian.org>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
@@ -59,9 +58,9 @@ msgid ""
 "server after completing the configuration. If you do not provide a password, "
 "you will have to configure access to Icinga manually later on."
 msgstr ""
-"これは、設定完了後に Icinga サーバに接続時に使用するユーザ名とパスワード"
-"です。ここでパスワードを入力しない場合は、後ほど手動で Icinga へのアクセスを"
-"設定しなければなりません。"
+"これは、設定完了後に Icinga サーバに接続時に使用するユーザ名とパスワードで"
+"す。ここでパスワードを入力しない場合は、後ほど手動で Icinga へのアクセスを設"
+"定しなければなりません。"
 
 #. Type: password
 #. Description
@@ -92,22 +91,22 @@ msgstr "入力された 2 つのパスワードが一致しません。もう一
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
 msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
+#: ../icinga-common.templates:2001
 msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
 msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
 msgstr ""
