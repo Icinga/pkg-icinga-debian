@@ -10,6 +10,142 @@
 
   <para>As usual this is only a brief overview. Please take a look at the Changelog as well if you are missing something.</para>
 
+  <para><emphasis role="bold">Core</emphasis></para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>fix duplicated events on check scheduling logic for new events (Andreas Ericsson) #2676 #2993</para>
+    </listitem>
+
+    <listitem>
+      <para>avoid duplicate events when scheduling forced host|service check (Imri Zvik) #2993</para>
+    </listitem>
+
+    <listitem>
+      <para>get rid of the instame macro usage while logging alerts and states (Andreas Ericsson) #2665</para>
+    </listitem>
+
+    <listitem>
+      <para>revamp the detection of embedded perl usage directive "# icinga: +epn" (Andreas Ericsson) #2197</para>
+    </listitem>
+
+    <listitem>
+      <para>fix whitespaces are not stripped using multiple templates ("use abc, def, ghi") #2701</para>
+    </listitem>
+
+    <listitem>
+      <para>add hint on icinga.cfg package location, and tip to read Changelog CHANGES on upgrades #2879</para>
+    </listitem>
+
+    <listitem>
+      <para>bail out early with config error if resource.cfg macros contain NULL values #2879</para>
+    </listitem>
+
+    <listitem>
+      <para>fix logical bug on icinga.cfg detection on config read #2879</para>
+    </listitem>
+
+    <listitem>
+      <para>fsync() files before fclose() (Andreas Ericsson) #2948</para>
+    </listitem>
+
+    <listitem>
+      <para>remove weird switch() statement when scanning checkresult queue (Andreas Ericsson) #2950</para>
+    </listitem>
+
+    <listitem>
+      <para>fix deleting too old check result files (Andreas Ericsson) #2951</para>
+    </listitem>
+
+    <listitem>
+      <para>icinga.spec: forced update on icinga.cfg change package locations #2923</para>
+    </listitem>
+
+    <listitem>
+      <para>icinga.spec: fix permissions on ido2db.cfg potentially world readable (Aaron Russo) #2897</para>
+    </listitem>
+
+  </itemizedlist>
+
+  <para><emphasis role="bold">IDOUtils</emphasis></para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>fix icinga mysql db creation script grants access to all dbs #2917</para>
+    </listitem>
+
+    <listitem>
+      <para>fix ignoring mysql password in create_mysqldb.sh #2994</para>
+    </listitem>
+  </itemizedlist>
+
+  <para><emphasis role="bold">1.7.1</emphasis></para>
+
+  <para><emphasis role="bold">Core</emphasis></para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>use prefix in solaris service definition #2609</para>
+    </listitem>
+
+    <listitem>
+      <para>fix various memory leaks in downtime eventhandling on SIGHUP (Carlos Velasco) #2666</para>
+    </listitem>
+
+    <listitem>
+      <para>check_ido2db_procs.cfg should not depend on local-service template #2616</para>
+    </listitem>
+
+    <listitem>
+      <para>adapt lsb headers for icinga and ido2db #2637</para>
+    </listitem>
+
+    <listitem>
+      <para>fix typo in contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event (thanks uosiu) #2671</para>
+    </listitem>
+
+  </itemizedlist>
+
+  <para><emphasis role="bold">Classic UI</emphasis></para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>Fixed status.cgi time out when displaying hostgroups in large environments #2617</para>
+    </listitem>
+
+    <listitem>
+      <para>Fixed Invalid JSON output for hostgroup overview (Torsten Rehn) #2680</para>
+    </listitem>
+
+    <listitem>
+      <para>Fixed Confusing use of display_name in JSON and CSV output (Torsten Rehn) #2681</para>
+    </listitem>
+
+    <listitem>
+      <para>Fixed wrong totals in "Service Status Summary" on Status Summary page (Mark Ziesemer) #2689</para>
+    </listitem>
+
+  </itemizedlist>
+
+  <para><emphasis role="bold">IDOUtils</emphasis></para>
+
+  <itemizedlist>
+
+    <listitem>
+      <para>fix small compiler issues #2620</para>
+    </listitem>
+
+    <listitem>
+      <para>fix upgradedb script typos and past changes #2682</para>
+    </listitem>
+  </itemizedlist>
+
+  <para><emphasis role="bold">1.7.0</emphasis></para>
+
   <para><emphasis role="bold">CHANGES</emphasis></para>
 
   <itemizedlist>

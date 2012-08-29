@@ -95,16 +95,10 @@
     check_freshness         1
     freshness_threshold     180         # check interval + x seconds
     ...
- }</programlisting></para>
-
-          <para>and a command definition</para>
-
-          <programlisting> define command{
+ }</programlisting>and a command definition<programlisting> define command{
     command_name            check_stats
     command_line            $USER1$/check_dummy $ARG1$ $ARG2$
- }</programlisting>
-
-          <para>Don't forget to restart &name-icinga; after this change.</para>
+ }</programlisting>Don't forget to restart &name-icinga; after these changes.</para>
 
           <para>Add a line to the crontab of the &name-icinga; user which will call the <filename>icingastats</filename> binary and submit
           the results to the command pipe<programlisting> * * * * * &url-icinga-base;/libexec/check_nagiostats --passive &lt;host&gt; icingastats &gt;&gt; &url-icinga-base;/var/rw/icinga.cmd</programlisting>
