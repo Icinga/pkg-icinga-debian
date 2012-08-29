@@ -588,13 +588,15 @@ int run_async_service_check(service *svc, int check_options, double latency, int
 
 	/* process any macros contained in the argument */
 	process_macros_r(&mac, raw_command, &processed_command, 0);
+
+	my_free(raw_command);
+
 	if (processed_command == NULL) {
 		clear_volatile_macros_r(&mac);
 		log_debug_info(DEBUGL_CHECKS, 0, "Processed check command for service '%s' on host '%s' was NULL - aborting.\n", svc->description, svc->host_name);
 		if (preferred_time)
 			*preferred_time += (svc->check_interval * interval_length);
 		svc->latency = old_latency;
-		my_free(raw_command);
 		return ERROR;
 	}
 
@@ -613,7 +615,6 @@ int run_async_service_check(service *svc, int check_options, double latency, int
 		clear_volatile_macros_r(&mac);
 		svc->latency = old_latency;
 		my_free(processed_command);
-		my_free(raw_command);
 		return OK;
 	}
 #endif
@@ -1881,15 +1882,6 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 		return;
 	}
 
-	/* allocate memory for a new event item */
-	new_event = (timed_event *)malloc(sizeof(timed_event));
-	if (new_event == NULL) {
-
-		logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Could not reschedule check of service '%s' on host '%s'!\n", svc->description, svc->host_name);
-
-		return;
-	}
-
 	/* default is to use the new event */
 	use_original_event = FALSE;
 
@@ -1903,7 +1895,7 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 	 */
 	if (temp_event != NULL) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Found another service check event for this service @ %s", ctime(&temp_event->run_time));
+		log_debug_info(DEBUGL_CHECKS, 2, "Found another service check event for service '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&temp_event->run_time));
 
 		/* use the originally scheduled check unless we decide otherwise */
 		use_original_event = TRUE;
@@ -1938,31 +1930,38 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 				log_debug_info(DEBUGL_CHECKS, 2, "New service check event occurs after the existing event, so we'll ignore it.\n");
 			}
 		}
-
-		/* the originally queued event won the battle, so keep it */
-		if (use_original_event == TRUE) {
-			my_free(new_event);
-		}
-
-		/* else we're using the new event, so remove the old one */
-		else {
-			remove_event(temp_event, &event_list_low, &event_list_low_tail);
-			/* save new event for later */
-			svc->next_check_event = new_event;
-			my_free(temp_event);
-		}
 	}
 
-	/* save check options for retention purposes */
-	svc->check_options = options;
 
-	/* schedule a new event */
+	/*
+	 * we can't use the original event,
+	 * so schedule a new event
+	 */
 	if (use_original_event == FALSE) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new service check event.\n");
+		log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new service check event for '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&check_time));
 
-		/* set the next service check time */
+		/* allocate memory for a new event item */
+		new_event = (timed_event *)malloc(sizeof(timed_event));
+
+		if (new_event == NULL) {
+			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Could not reschedule check of service '%s' on host '%s'!\n", svc->description, svc->host_name);
+			return;
+		}
+
+		/* make sure we kill off the old event */
+		if (temp_event) {
+			log_debug_info(DEBUGL_CHECKS, 2, "Removing service check event for service '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&temp_event->run_time));
+			remove_event(temp_event, &event_list_low, &event_list_low_tail);
+			my_free(temp_event);
+		}
+
+		/* set the next service check event and time */
+		svc->next_check_event = new_event;
 		svc->next_check = check_time;
+
+		/* save check options for retention purposes */
+		svc->check_options = options;
 
 		/* place the new event in the event queue */
 		new_event->event_type = EVENT_SERVICE_CHECK;
@@ -2360,14 +2359,6 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 		return;
 	}
 
-	/* allocate memory for a new event item */
-	if ((new_event = (timed_event *)malloc(sizeof(timed_event))) == NULL) {
-
-		logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Could not reschedule check of host '%s'!\n", hst->name);
-
-		return;
-	}
-
 	/* default is to use the new event */
 	use_original_event = FALSE;
 
@@ -2381,7 +2372,7 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 	 */
 	if (temp_event != NULL) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Found another host check event for this host @ %s", ctime(&temp_event->run_time));
+		log_debug_info(DEBUGL_CHECKS, 2, "Found another host check event for host '%s' @ %s", hst->name, ctime(&temp_event->run_time));
 
 		/* use the originally scheduled check unless we decide otherwise */
 		use_original_event = TRUE;
@@ -2416,31 +2407,34 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 				log_debug_info(DEBUGL_CHECKS, 2, "New host check event occurs after the existing event, so we'll ignore it.\n");
 			}
 		}
-
-		/* the originally queued event won the battle, so keep it */
-		if (use_original_event == TRUE) {
-			my_free(new_event);
-		}
-
-		/* else use the new event, so remove the old */
-		else {
-			remove_event(temp_event, &event_list_low, &event_list_low_tail);
-			/* save new event for later */
-			hst->next_check_event = new_event;
-			my_free(temp_event);
-		}
 	}
 
-	/* save check options for retention purposes */
-	hst->check_options = options;
-
-	/* use the new event */
+	/*
+	 * we can't use the original event,
+	 * so schedule a new event
+	 */
 	if (use_original_event == FALSE) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new host check event.\n");
+		log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new host check event for '%s' @ %s", hst->name, ctime(&check_time));
 
-		/* set the next host check time */
+		/* allocate memory for a new event item */
+		if((new_event = (timed_event *)malloc(sizeof(timed_event))) == NULL) {
+			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Could not reschedule check of host '%s'!\n", hst->name);
+			return;
+		}
+
+		if (temp_event) {
+			log_debug_info(DEBUGL_CHECKS, 2, "Removing host check event for host '%s' @ %s", hst->name, ctime(&temp_event->run_time));
+			remove_event(temp_event, &event_list_low, &event_list_low_tail);
+			my_free(temp_event);
+		}
+
+		/* set the next host check event and time */
+		hst->next_check_event = new_event;
 		hst->next_check = check_time;
+
+		/* save check options for retention purposes */
+		hst->check_options = options;
 
 		/* place the new event in the event queue */
 		new_event->event_type = EVENT_HOST_CHECK;
@@ -2922,6 +2916,7 @@ int execute_sync_host_check_3x(host *hst) {
 	/* process any macros contained in the argument */
 	process_macros_r(&mac, raw_command, &processed_command, 0);
 	if (processed_command == NULL) {
+		my_free(raw_command);
 		clear_volatile_macros_r(&mac);
 		return ERROR;
 	}
@@ -2938,6 +2933,7 @@ int execute_sync_host_check_3x(host *hst) {
 
 	log_debug_info(DEBUGL_COMMANDS, 1, "Raw host check command: %s\n", raw_command);
 	log_debug_info(DEBUGL_COMMANDS, 0, "Processed host check ommand: %s\n", processed_command);
+	my_free(raw_command);
 
 	/* clear plugin output and performance data buffers */
 	my_free(hst->plugin_output);
@@ -2969,7 +2965,6 @@ int execute_sync_host_check_3x(host *hst) {
 
 	/* free memory */
 	my_free(temp_plugin_output);
-	my_free(raw_command);
 	my_free(processed_command);
 
 	/* a NULL host check command means we should assume the host is UP */
@@ -3191,6 +3186,9 @@ int run_async_host_check_3x(host *hst, int check_options, double latency, int sc
 
 	/* process any macros contained in the argument */
 	process_macros_r(&mac, raw_command, &processed_command, 0);
+
+	my_free(raw_command);
+
 	if (processed_command == NULL) {
 		clear_volatile_macros_r(&mac);
 		log_debug_info(DEBUGL_CHECKS, 0, "Processed check command for host '%s' was NULL - aborting.\n", hst->name);
