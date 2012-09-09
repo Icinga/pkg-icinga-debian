@@ -1,3 +1,11 @@
+icinga (1.7.2-1) experimental; urgency=low
+
+  * [4394714] Imported Upstream version 1.7.2
+    - Fix duplicated events (Closes: #686036)
+  * [683ca22] Cherrypick epn fix from git
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 29 Aug 2012 21:54:35 +0200
+
 icinga (1.7.1-2) unstable; urgency=low
 
   [ Alexander Wirt ]
