@@ -2,7 +2,6 @@ debian-configs/cgi.cfg /etc/icinga
 debian/httpd.webapps-common /usr/share/icinga/debian
 usr/lib/cgi-bin/*
 usr/share/icinga/htdocs/*.html
-usr/share/icinga/htdocs/contexthelp
 usr/share/icinga/htdocs/images
 usr/share/icinga/htdocs/js/*
 usr/share/icinga/htdocs/media
