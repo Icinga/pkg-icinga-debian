@@ -2,6 +2,5 @@
 51_commands.cfg-debianize.dpatch
 52_icinga.cfg-debianize.dpatch
 70_fix_eventhandler_paths.dpatch
-80_fix_dbd_handling.dpatch
 95_fix_db_upgrade.dpatch
 99_fix_epn.dpatch
