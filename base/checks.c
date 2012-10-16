@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -367,6 +367,7 @@ int reap_check_results(void) {
 		time(&current_time);
 		if ((int)(current_time - reaper_start_time) > max_check_reaper_time) {
 			log_debug_info(DEBUGL_CHECKS, 0, "Breaking out of check result reaper: max reaper time exceeded\n");
+			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Breaking out of check result reaper: max reaper time (%d) exceeded. Reaped %d results, but more checkresults to process. Perhaps check core performance tuning tips?\n", max_check_reaper_time, reaped_checks);
 			break;
 		}
 
@@ -1444,11 +1445,11 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 		temp_service->last_notification = (time_t)0;
 		temp_service->next_notification = (time_t)0;
 		temp_service->current_notification_number = 0;
-#ifdef USE_ST_BASED_ESCAL_RANGES
+		/* state based escalation ranges */
 		temp_service->current_warning_notification_number = 0;
 		temp_service->current_critical_notification_number = 0;
 		temp_service->current_unknown_notification_number = 0;
-#endif
+
 		temp_service->problem_has_been_acknowledged = FALSE;
 		temp_service->acknowledgement_type = ACKNOWLEDGEMENT_NONE;
 		temp_service->notified_on_unknown = FALSE;
@@ -1689,13 +1690,13 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 			check_for_host_flapping(temp_host, TRUE, FALSE, TRUE);
 			flapping_check_done = TRUE;
 
-#ifdef USE_ST_BASED_ESCAL_RANGES
+			/* state based escalation ranges */
 			if (hard_state_change == TRUE) {
 				temp_service->current_warning_notification_number = 0;
 				temp_service->current_critical_notification_number = 0;
 				temp_service->current_unknown_notification_number = 0;
 			}
-#endif
+
 			/* (re)send notifications out about this service problem if the host is up (and was at last check also) and the dependencies were okay... */
 			service_notification(temp_service, NOTIFICATION_NORMAL, NULL, NULL, NOTIFICATION_OPTION_NONE);
 
@@ -1983,6 +1984,9 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 
 		log_debug_info(DEBUGL_CHECKS, 2, "Keeping original service check event (ignoring the new one).\n");
 	}
+
+	/* update next_check time for service */
+	update_service_status(svc, FALSE);
 
 	return;
 }
@@ -2456,6 +2460,9 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 
 		log_debug_info(DEBUGL_CHECKS, 2, "Keeping original host check event (ignoring the new one).\n");
 	}
+
+	/* update next_check time for host */
+	update_host_status(hst, FALSE);
 
 	return;
 }
@@ -4376,10 +4383,10 @@ int handle_host_state(host *hst) {
 		/* notify contacts about the recovery or problem if its a "hard" state */
 		if (hst->state_type == HARD_STATE) {
 
-#ifdef USE_ST_BASED_ESCAL_RANGES
+			/* state based escalation ranges */
 			hst->current_down_notification_number = 0;
 			hst->current_unreachable_notification_number = 0;
-#endif
+
 			host_notification(hst, NOTIFICATION_NORMAL, NULL, NULL, NOTIFICATION_OPTION_NONE);
 		}
 

@@ -19,7 +19,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 #****************************************************************************/
 #
@@ -32,6 +32,8 @@
 # 2012.03.21:  0.07 bugfix: fix end date check; splitted code
 # 2012.03.22:  0.08 bugfix: set author/comment if blank
 #                   enable no blank before opening brace (2nd try)
+# 2012.07.13:  0.09 bugfix: fix exit from procedure
+# 2012.09.24:  0.10 bugfix: fix "all" services
 
 use strict;
 use Getopt::Long qw(:config no_ignore_case bundling);
@@ -50,7 +52,7 @@ EOT
 #
 
 my $creator = "2012 Icinga Team";
-my $version = "0.08";
+my $version = "0.10";
 my $script  = "sched_down.pl";
 
 my $cFile = "/usr/local/icinga/etc/icinga.cfg";
@@ -115,7 +117,10 @@ if ($examine) {
 } else {
 	read_config_file ($cFile,1);
  	%cDowntimes = read_status_file ($sFile,2);
-	(%hg,%sg) = read_object_file ($oFile,3);
+	my ($ref_hg, $ref_sg) = read_object_file ($oFile,3);
+	%hg = %$ref_hg;
+	%sg = %$ref_sg;
+#	(%hg,%sg) = read_object_file ($oFile,3);
 	@sDowntimes = read_downtimes ($dFile,4);
 }
 plan_downtimes ();
@@ -282,6 +287,9 @@ sub read_object_file {
 # services per host
 			if ($tmp->{object} =~ /service$/) {
 				my %t = %srv;
+				if (exists ($sObject {"$tmp->{host_name}"})) {
+					%t = (%t, %{$sObject {"$tmp->{host_name}"}});
+				}
 				$sObject {"$tmp->{host_name}"} = \%t;
 			}
 			$tmp = init_entry2 ();
@@ -289,6 +297,7 @@ sub read_object_file {
 			next;
 		}
 		my ($obj,$val) = /(.*?)\s+(.*)/;
+		next unless (defined $val);	# skip if value is empty
 		if ($obj =~ /(.+)group_name/) {
 			$tmp->{type} = $1;
 			$tmp->{name} = $val;
@@ -306,7 +315,7 @@ sub read_object_file {
 	for my $key (sort keys %sGroup) {
 		info (2,"SG $key ($sGroup{$key}{alias}): $sGroup{$key}{members}");
 	}
-	return (%hGroup, %sGroup);
+	return (\%hGroup, \%sGroup);
 }
 
 #
@@ -429,7 +438,7 @@ sub plan_downtimes {
 						info (2, "object $h does not exist");
 						next;
 					}
-				} else  {
+				} elsif ($s ne "all")  {
 					unless (exists ($sObject{"$h;$s"})) {
 						info (2, "object $h;$s does not exist");
 						next;
@@ -494,10 +503,13 @@ sub plan_downtimes {
 						($year,$mon,$mday) = Add_Delta_YMD ((Localtime($dt->{end_ts}))[0..2],0,0,$midnight);
 						$dt->{end_ts} = Mktime ($year,$mon,$mday,$dt->{end_hh},$dt->{end_mm},0);
 		
-						if (exists($cDowntimes{"$key;$dt->{start_ts};$dt->{end_ts}"})) {
-							info (1,"Rejected: ==> already planned $key:".localtime($dt->{start_ts})." to ".localtime($dt->{end_ts})." for $duration mins");
+						if (exists($cDowntimes{"$h;$s;$dt->{start_ts};$dt->{end_ts}"})) {
+							info (1,"Rejected: > already planned $h;$s:".localtime($dt->{start_ts})." to ".localtime($dt->{end_ts})." for $duration mins");
 							next;
 						}
+						my $diff = $dt->{end_ts} - $dt->{start_ts};
+						$f = ($diff == ($duration*60)) ? 1 : 0;
+						$f = 1 if ($duration == 0);
 						my $data = "$dt->{start_ts};$dt->{end_ts};$f;$t;".($duration*60).";$a;$c";
 						next if (set_cmd(\@cmd,$dt,$key,$data,$hg,$sg,$h,$s,$c,$p,$duration));
 	
@@ -842,25 +854,25 @@ sub set_cmd {
 	my ($cmd,$dt,$key,$data,$hg,$sg,$h,$s,$c,$p,$duration) = @_;
 	my $extcmd = "";
 	my $f = ($dt->{end_ts} - $dt->{start_ts} == $duration * 60) ? 1 : 0;
-	my $key2 = "$s;$c;$dt->{start_ts};$dt->{end_ts}";
+	my $key2 = "$s;$dt->{start_ts};$dt->{end_ts}";
 	info (1, "possibly on: ".localtime($dt->{start_ts})." to ".localtime($dt->{end_ts})." for $duration mins");
 	if ("$h;$s" =~ /;$/) {	# no service_description
 		if ($hg) {	# host_groups defined
-			my @member = split (/,/,$hg{$hg}->{members});
-			next if (already_planned (\@member,"HG",1,$key,$key2,$duration));
-			$extcmd = "SCHEDULE_HOSTGROUP_HOST_DOWNTIME;$hg;$data";
+			my @member = split (/,/,$hg{$h}->{members});
+			return 1 if (already_planned (\@member,"HG",1,$key,$key2,$duration));
+			$extcmd = "SCHEDULE_HOSTGROUP_HOST_DOWNTIME;$h;$data";
 			push @$cmd, $extcmd;
-			$pDowntimes{"$hg;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
+			$pDowntimes{"$h;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
 		} elsif ($sg) {
-			my @mem = split (/,/,$sg{$sg}->{members});
+			my @mem = split (/,/,$sg{$h}->{members});
 			my @member = ();
 			for (my $idx = 0; $idx <= $#mem; $idx+=2) {
 				push @member, $mem[$idx];
 			}
 			return 1 if (already_planned (\@member,"SG",2,$key,$key2,$duration));
-			$extcmd = "SCHEDULE_SERVICEGROUP_HOST_DOWNTIME;$sg;$data";
+			$extcmd = "SCHEDULE_SERVICEGROUP_HOST_DOWNTIME;$h;$data";
 			push @$cmd, $extcmd;
-			$pDowntimes{"$sg;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
+			$pDowntimes{"$h;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
 		} else {			# host_name defined
 			if (exists($cDowntimes{"$h;;$dt->{start_ts};$dt->{end_ts}"})) {
 				info (1, "Rejected: ==> already planned $key");
@@ -876,11 +888,11 @@ sub set_cmd {
 		}
 	} else {					# service_description defined
 		if ($hg) {			# hostgroups defined
-			my @member = split (/,/,$hg{$hg}->{members});
+			my @member = split (/,/,$hg{$h}->{members});
 			my $cnt = 0;
 			if ($s =~ /^all$/i) {
 				for my $idx (0..$#member) {
-					my %srv = $sObject{$member[$idx]};
+					my %srv = %{$sObject{$member[$idx]}};
 					foreach my $idy (keys %srv) {
 						$cnt++ if (exists($cDowntimes{"$member[$idx];$srv{$idy};$dt->{start_ts};$dt->{end_ts}"}));
 					}
@@ -889,9 +901,9 @@ sub set_cmd {
 					info (1,"Rejected: ==> already planned HGs $key:".localtime($dt->{start_ts})." to ".localtime($dt->{end_ts})." for $duration mins");
 					return 1;
 				}
-				$extcmd = "SCHEDULE_HOSTGROUP_SVC_DOWNTIME;$hg;$data";
+				$extcmd = "SCHEDULE_HOSTGROUP_SVC_DOWNTIME;$h;$data";
 				push @$cmd, $extcmd;
-				$pDowntimes{"$hg;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
+				$pDowntimes{"$h;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
 			} else { # one or more services defined
 				next if (already_planned (\@member,"HG",1,$key,$key2,$duration));
 				for my $idx (0..$#member) {
@@ -904,12 +916,12 @@ sub set_cmd {
 				return 1;
 			}
 		} elsif ($sg) {	# servicegroups defined
-			my @member = split (/,/,$sg{$sg}->{members});
+			my @member = split (/,/,$sg{$h}->{members});
 			if ($s =~ /^all$/i) {
 				return 1 if (already_planned (\@member,"SG",2,$key,$key2,$duration));
-				$extcmd = "SCHEDULE_SERVICEGROUP_SVC_DOWNTIME;$hg;$data";
+				$extcmd = "SCHEDULE_SERVICEGROUP_SVC_DOWNTIME;$h;$data";
 				push @$cmd, $extcmd;
-				$pDowntimes{"$sg;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
+				$pDowntimes{"$h;;$dt->{start_ts};$dt->{end_ts}"} = $extcmd;
 			} else {
 				return 1 if (already_planned (\@member,"SG",2,$key,$key2,$duration));
 				for my $idx (0..$#member) {
@@ -922,7 +934,7 @@ sub set_cmd {
 			}
 		} else {				# host_name defined
 			if ($s =~ /^all$/i) {
-				my %srv = $sObject{$h};
+				my %srv = %{$sObject{$h}};
 				my $cnt = 0;
 				foreach my $idy (keys %srv) {
 					$cnt++ if (exists($cDowntimes{"$h;$srv{$idy};$dt->{start_ts};$dt->{end_ts}"}));

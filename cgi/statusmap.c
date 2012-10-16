@@ -23,7 +23,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -42,10 +42,6 @@
 static icinga_macros *mac;
 
 /*#define DEBUG*/
-
-#define UNKNOWN_GD2_ICON      "unknown.gd2"
-#define UNKNOWN_ICON_IMAGE    "unknown.gif"
-#define ICINGA_GD2_ICON       "icinga.gd2"
 
 extern char main_config_file[MAX_FILENAME_LENGTH];
 extern char physical_images_path[MAX_FILENAME_LENGTH];
@@ -545,11 +541,11 @@ void display_page_header(void) {
 		printf("<TR><TD CLASS='linkBox'>\n");
 
 		if (show_all_hosts == FALSE) {
-			printf("<a href='%s?host=all&max_width=%d&max_height=%d'>View Status Map For All Hosts</a><BR>", STATUSMAP_CGI, max_image_width, max_image_height);
-			printf("<a href='%s?host=%s'>View Status Detail For This Host</a><BR>\n", STATUS_CGI, url_encode(host_name));
+			printf("<a href='%s?host=all&max_width=%d&max_height=%d'>View <b>Status Map</b> For <b>All Hosts</b></a><br>", STATUSMAP_CGI, max_image_width, max_image_height);
+			printf("<a href='%s?host=%s'>View <b>Service Status Detail</b> For <b>This Host</b></a><br>\n", STATUS_CGI, url_encode(host_name));
 		}
-		printf("<a href='%s?host=all&style=hostdetail'>View Status Detail For All Hosts</a><BR>\n", STATUS_CGI);
-		printf("<a href='%s?host=all'>View Status Overview For All Hosts</a>\n", STATUS_CGI);
+		printf("<a href='%s?host=all&style=hostdetail'>View <b>Host Status Detail</b> For <b>All Hosts</b></a><br>\n", STATUS_CGI);
+		printf("<a href='%s?host=all'>View <b>Service Status Detail</b> For <b>All Hosts</b></a>\n", STATUS_CGI);
 
 		printf("</TD></TR>\n");
 		printf("</TABLE>\n");
@@ -700,12 +696,6 @@ void display_page_header(void) {
 		printf("</td><td CLASS='optBoxItem'>\n");
 		printf("<input type='submit' value='Update'>\n");
 		printf("</td></tr>\n");
-
-		/* display context-sensitive help */
-		printf("<tr><td></td><td align=right valign=bottom>\n");
-		display_context_help(CONTEXTHELP_MAP);
-		printf("</td></tr>\n");
-
 		printf("</table>\n");
 
 		printf("</td></tr>\n");

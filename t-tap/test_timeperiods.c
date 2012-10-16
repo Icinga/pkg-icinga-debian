@@ -27,7 +27,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -274,6 +274,11 @@ int dump_retained_host_service_states_to_neb = TRUE;
 int stalking_notifications_for_hosts = DEFAULT_STALKING_NOTIFICATIONS_FOR_HOSTS;
 int stalking_notifications_for_services = DEFAULT_STALKING_NOTIFICATIONS_FOR_SERVICES;
 
+time_t disable_notifications_expire_time = 0L;
+void enable_all_notifications() {}
+
+int             keep_unknown_macros = FALSE;
+
 /* Dummy variables */
 sched_info scheduling_info;
 timed_event event_list_low;
@@ -302,6 +307,7 @@ int neb_free_module_list(void) {}
 
 /* Icinga special */
 int     event_profiling_enabled = FALSE;
+unsigned long max_check_result_list_items = DEFAULT_MAX_CHECK_RESULT_LIST_ITEMS;
 void    profiler_update(int event, struct timeval start) {}
 
 void remove_host_acknowledgement(host * hst) {}

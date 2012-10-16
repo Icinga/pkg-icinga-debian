@@ -930,6 +930,7 @@ CREATE TABLE  icinga_programstatus (
   last_command_check timestamp with time zone default '1970-01-01 00:00:00',
   last_log_rotation timestamp with time zone default '1970-01-01 00:00:00',
   notifications_enabled INTEGER  default 0,
+  disable_notif_expire_time timestamp with time zone default '1970-01-01 00:00:00',
   active_service_checks_enabled INTEGER  default 0,
   passive_service_checks_enabled INTEGER  default 0,
   active_host_checks_enabled INTEGER  default 0,
@@ -1614,9 +1615,19 @@ create index statehist_state_idx on icinga_statehistory(object_id,state);
 -- SLA statehistory
 CREATE INDEX slahist_i_id_o_id_s_ti_s_s_ti_e on icinga_slahistory(instance_id,object_id,start_time,end_time);
 
+-- #2618
+CREATE INDEX cntgrpmbrs_cgid_coid ON icinga_contactgroup_members (contactgroup_id,contact_object_id);
+CREATE INDEX hstgrpmbrs_hgid_hoid ON icinga_hostgroup_members (hostgroup_id,host_object_id);
+CREATE INDEX hstcntgrps_hid_cgoid ON icinga_host_contactgroups (host_id,contactgroup_object_id);
+CREATE INDEX hstprnthsts_hid_phoid ON icinga_host_parenthosts (host_id,parent_host_object_id);
+CREATE INDEX runtimevars_iid_varn ON icinga_runtimevariables (instance_id,varname);
+CREATE INDEX sgmbrs_sgid_soid ON icinga_servicegroup_members (servicegroup_id,service_object_id);
+CREATE INDEX scgrps_sid_cgoid ON icinga_service_contactgroups (service_id,contactgroup_object_id);
+CREATE INDEX tperiod_tid_d_ss_es ON icinga_timeperiod_timeranges (timeperiod_id,day,start_sec,end_sec);
+
 -- -----------------------------------------
 -- set dbversion
 -- -----------------------------------------
 
-SELECT updatedbversion('1.7.0');
+SELECT updatedbversion('1.8.0');
 
