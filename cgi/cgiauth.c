@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -41,6 +41,8 @@ extern char		*authorized_for_all_services;
 extern char		*authorized_for_configuration_information;
 extern char		*authorized_for_full_command_resolution;
 extern char		*authorized_for_read_only;
+extern char		*authorized_for_comments_read_only;
+extern char		*authorized_for_downtimes_read_only;
 extern char		*authorized_for_system_commands;
 extern char		*authorized_for_system_information;
 extern char		*authorized_contactgroup_for_all_host_commands;
@@ -50,12 +52,15 @@ extern char		*authorized_contactgroup_for_all_services;
 extern char		*authorized_contactgroup_for_configuration_information;
 extern char		*authorized_contactgroup_for_full_command_resolution;
 extern char		*authorized_contactgroup_for_read_only;
+extern char		*authorized_contactgroup_for_comments_read_only;
+extern char		*authorized_contactgroup_for_downtimes_read_only;
 extern char		*authorized_contactgroup_for_system_commands;
 extern char		*authorized_contactgroup_for_system_information;
 extern char		*default_user_name;
 
 extern int		use_authentication;
 extern int		use_ssl_authentication;
+extern int		lowercase_user_name;
 extern int		show_all_services_host_is_authorized_for;
 
 /* get current authentication information */
@@ -64,6 +69,7 @@ int get_authentication_information(authdata *authinfo) {
 	char temp_data[MAX_INPUT_BUFFER];
 	contact *temp_contact;
 	contactgroup *temp_contactgroup;
+	int i = 0;
 
 	/** BEGIN MACRO declaration */
 
@@ -128,6 +134,8 @@ int get_authentication_information(authdata *authinfo) {
 	authinfo->authorized_for_configuration_information = FALSE;
 	authinfo->authorized_for_full_command_resolution = FALSE;
 	authinfo->authorized_for_read_only = FALSE;
+	authinfo->authorized_for_comments_read_only = FALSE;
+	authinfo->authorized_for_downtimes_read_only = FALSE;
 	authinfo->number_of_authentication_rules = 0;
 	authinfo->authentication_rules = NULL;
 
@@ -144,6 +152,11 @@ int get_authentication_information(authdata *authinfo) {
 	/* if we don't have a username yet, then fake the authentication if we find a default username defined */
 	if (temp_ptr == NULL || (!strcmp(temp_ptr, "") && strcmp(default_user_name, "")))
 		temp_ptr = default_user_name;
+
+	if (lowercase_user_name == TRUE) {
+		for (i = 0; i < strlen(temp_ptr); i++)
+			temp_ptr[i] = tolower(temp_ptr[i]);
+	}
 
 	authinfo->username = (char *)malloc(strlen(temp_ptr) + 1);
 
@@ -174,6 +187,8 @@ int get_authentication_information(authdata *authinfo) {
 	AUTH_USER(configuration_information)
 	AUTH_USER(full_command_resolution)
 	AUTH_USER(read_only)
+	AUTH_USER(comments_read_only)
+	AUTH_USER(downtimes_read_only)
 	AUTH_USER(system_commands)
 	AUTH_USER(system_information)
 
@@ -185,6 +200,8 @@ int get_authentication_information(authdata *authinfo) {
 		AUTH_GROUP(configuration_information)
 		AUTH_GROUP(full_command_resolution)
 		AUTH_GROUP(read_only)
+		AUTH_GROUP(comments_read_only)
+		AUTH_GROUP(downtimes_read_only)
 		AUTH_GROUP(system_commands)
 		AUTH_GROUP(system_information)
 	}
@@ -494,6 +511,34 @@ int is_authorized_for_read_only(authdata *authinfo) {
 		return FALSE;
 
 	return authinfo->authorized_for_read_only;
+}
+
+/* check if current user is allowed to view read only comment data */
+int is_authorized_for_comments_read_only(authdata *authinfo) {
+
+	/* if we're not using authentication, fake it */
+	if (use_authentication == FALSE)
+		return FALSE;
+
+	/* if this user has not authenticated return error */
+	if (authinfo->authenticated == FALSE)
+		return FALSE;
+
+	return authinfo->authorized_for_comments_read_only;
+}
+
+/* check if current user is allowed to view read only downtime data */
+int is_authorized_for_downtimes_read_only(authdata *authinfo) {
+
+	/* if we're not using authentication, fake it */
+	if (use_authentication == FALSE)
+		return FALSE;
+
+	/* if this user has not authenticated return error */
+	if (authinfo->authenticated == FALSE)
+		return FALSE;
+
+	return authinfo->authorized_for_downtimes_read_only;
 }
 
 /* check if user is authorized to view information about a particular service */

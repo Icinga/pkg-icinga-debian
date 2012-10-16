@@ -14,18 +14,11 @@ td { font-size: 8pt; border: 0; }
 .infoBoxBadProcStatus { color: #ff3300; }
 a.homepageURL:Hover { color: #ff3300; }
 
-.linkBox { border: 0; }
-table.linkBox { margin-top: 20px; }
-td.linkBox a { margin-left: 5px; padding-left: 10px; background: url(../images/interface/menu_li1.gif) 0 0.35em no-repeat; }
-td.linkBox a:hover { background: url(../images/interface/menu_li2.gif) 0 0.35em no-repeat; }
-
 .filter { border: 0; }
 .filterTitle { font-size: 10pt; font-weight: bold; }
 .filterValue { color: #707677 }
 
-.itemTotalsTitle { text-align: center; margin-top:5px; }
-
-.statusTitle { text-align: center; font-weight: bold; font-size: 10pt; }
+.statusTitle { text-align: center; font-weight: bold; font-size: 10pt; vertical-align: middle;}
 
 table.status { background-color: #fff; padding: 2px; border: 0; }
 th.status { font-size: 10pt; background-color: #707677; color: #fff; border: 0; }

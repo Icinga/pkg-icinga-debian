@@ -144,7 +144,7 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 			break;
                 case IDO2DB_DBSERVER_PGSQL:
                         /* Postgres does case sensitive compare  */
-                        if (asprintf(&buf2, "name2=E'%s'", es[0]) == -1)
+                        if (asprintf(&buf2, "name2=E'%s'", es[1]) == -1)
                                 buf2 = NULL;
                         break;
 		default:
@@ -171,8 +171,6 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 			idi->dbinfo.dbi_result = NULL;
 		}
 	}
-
-	dbi_result_free(idi->dbinfo.dbi_result);
 
 	free(buf);
 	free(buf1);
@@ -387,6 +385,7 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 		}
 	}
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 
 #endif
 
@@ -740,25 +739,35 @@ int ido2db_add_cached_object_id(ido2db_idi *idi, int object_type, char *n1, char
 	return result;
 }
 
+/*
+ * hash functions
+ */
+static unsigned long ido2db_object_sdbm(const char *str) {
+        unsigned long hash = 0;
+        int c;
+
+        while ((c = *str++) != '\0')
+                hash = c + (hash << 6) + (hash << 16) - hash;
+
+        return hash;
+}
+
 int ido2db_object_hashfunc(const char *name1, const char *name2, int hashslots) {
-	unsigned int i, result;
+        unsigned int result = 0;
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_object_hashfunc() start\n");
 
-	result = 0;
-	if (name1)
-		for (i = 0; i < strlen(name1); i++)
-			result += name1[i];
+        if (name1)
+                result += ido2db_object_sdbm(name1);
 
-	if (name2)
-		for (i = 0; i < strlen(name2); i++)
-			result += name2[i];
+        if (name2)
+                result += ido2db_object_sdbm(name2);
 
-	result = result % hashslots;
+        result = result % hashslots;
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_object_hashfunc() end\n");
 
-	return result;
+        return result;
 }
 
 int ido2db_compare_object_hashdata(const char *val1a, const char *val1b,
@@ -794,6 +803,9 @@ int ido2db_compare_object_hashdata(const char *val1a, const char *val1b,
 	return result;
 }
 
+/*
+ * free cached object ids
+ */
 int ido2db_free_cached_object_ids(ido2db_idi *idi) {
 	int x = 0;
 	ido2db_dbobject *temp_object = NULL;
@@ -825,6 +837,7 @@ int ido2db_free_cached_object_ids(ido2db_idi *idi) {
 	return IDO_OK;
 }
 
+
 int ido2db_set_all_objects_as_inactive(ido2db_idi *idi) {
 	int result = IDO_OK;
 #ifdef USE_LIBDBI
@@ -847,6 +860,7 @@ int ido2db_set_all_objects_as_inactive(ido2db_idi *idi) {
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 	free(buf);
 
 #endif
@@ -907,6 +921,7 @@ int ido2db_set_object_as_active(ido2db_idi *idi, int object_type,
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 	free(buf);
 
 #endif
@@ -954,6 +969,147 @@ int ido2db_set_object_as_active(ido2db_idi *idi, int object_type,
 
 	return result;
 }
+
+int ido2db_handle_object_enable_disable(ido2db_idi *idi, int enable) {
+	int result = IDO_OK;
+        char *name1 = NULL;
+        char *name2 = NULL;
+#ifdef USE_LIBDBI
+        char *buf = NULL;
+        char *buf1 = NULL;
+        char *buf2 = NULL;
+#endif
+#ifdef USE_ORACLE
+        void *data[4];
+#endif
+        char *es[2];
+
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_object_enable_disable(enable=%d) start\n", enable);
+
+	if (enable < 0 || enable > 1)
+		return IDO_ERROR;
+
+	name1 = idi->buffered_input[IDO_DATA_HOST];
+	name2 = idi->buffered_input[IDO_DATA_SERVICE];
+
+	es[0] = ido2db_db_escape_string(idi, name1);
+	es[1] = ido2db_db_escape_string(idi, name2);
+
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_object_enable_disable() name1='%s', name2='%s'\n", es[0] == NULL ? "(null)" : es[0], es[1] == NULL ? "(null)" : es[1]);
+
+#ifdef USE_LIBDBI /* everything else will be libdbi */
+
+	switch (idi->dbinfo.server_type) {
+	case IDO2DB_DBSERVER_PGSQL:
+		if (asprintf(&buf1, "name1=E'%s'", es[0]) == -1)
+			buf1 = NULL;
+		break;
+	default:
+		if (asprintf(&buf1, "name1='%s'", es[0]) == -1)
+			buf1 = NULL;
+		break;
+	}
+
+        if (es[1] == NULL) {
+                if (asprintf(&buf2, "name2 IS NULL") == -1)
+                        buf2 = NULL;
+        } else {
+                switch (idi->dbinfo.server_type) {
+                case IDO2DB_DBSERVER_PGSQL:
+                        if (asprintf(&buf2, "name2=E'%s'", es[1]) == -1)
+                                buf2 = NULL;
+                        break;
+                default:
+                        if (asprintf(&buf2, "name2='%s'", es[1]) == -1)
+                                buf2 = NULL;
+                        break;
+                }
+	}
+
+        if (asprintf(&buf, "UPDATE %s SET is_active=%d WHERE instance_id=%lu AND %s AND %s"
+			,ido2db_db_tablenames[IDO2DB_DBTABLE_OBJECTS]
+			,enable
+              		,idi->dbinfo.instance_id
+			,buf1
+			,buf2
+			) == -1
+		)
+                buf = NULL;
+
+        result = ido2db_db_query(idi, buf);
+
+        dbi_result_free(idi->dbinfo.dbi_result);
+        idi->dbinfo.dbi_result = NULL;
+        free(buf);
+        free(buf1);
+        free(buf2);
+#endif
+
+#ifdef USE_PGSQL /* pgsql */
+
+#endif
+
+#ifdef USE_ORACLE /* Oracle ocilib specific */
+
+        data[0] = (void *) &idi->dbinfo.instance_id;
+	data[1] = (void *) &enable;
+	data[2] = (void *) &es[0];
+	data[3] = (void *) &es[1];
+
+        if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_object_enable_disable, MT(":X1"), (uint *) data[0])) {
+                return IDO_ERROR;
+        }
+
+        if (!OCI_BindInt(idi->dbinfo.oci_statement_object_enable_disable, MT(":X2"), (int *) data[1])) {
+                return IDO_ERROR;
+        }
+
+        /* check if name1/2 would be NULL, explicitely bind that to NULL so that the IS NULL from the selects match */
+        if (name1 == NULL) {
+                if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_object_enable_disable, ":X3") == IDO_ERROR) {
+                        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, " Bind name1=null failed\n");
+                        return IDO_ERROR;
+                }
+        } else {
+                if (!OCI_BindString(idi->dbinfo.oci_statement_object_enable_disable, MT(":X3"), *(char **) data[2], 0)) {
+                        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, " Bind name1=%s failed\n", (es[0]==NULL)?"(null)":es[0]);
+                        return IDO_ERROR;
+                }
+        }
+        // Name2
+        if (name2 == NULL) {
+                if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_object_enable_disable, ":X4") == IDO_ERROR) {
+                        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, " Bind name2=null failed\n");
+                        return IDO_ERROR;
+                }
+        } else {
+                if (!OCI_BindString(idi->dbinfo.oci_statement_object_enable_disable, MT(":X4"), *(char **) data[3], 0)) {
+                        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, " Bind name2=%s failed\n", (es[1]==NULL)?"(null)":es[1]);
+                        return IDO_ERROR;
+                }
+        }
+
+        /* execute statement */
+        if (!OCI_Execute(idi->dbinfo.oci_statement_object_enable_disable)) {
+                ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_objects_enable_disable() execute error\n");
+                return IDO_ERROR;
+        }
+
+        /* commit statement */
+        OCI_Commit(idi->dbinfo.oci_connection);
+
+        /* do not free statement yet! */
+
+#endif /* Oracle ocilib specific */
+
+
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_object_enable_disable() end\n");
+
+	return result;
+
+}
+
+
 
 /****************************************************************************/
 /* ARCHIVED LOG DATA HANDLER                                                */
@@ -1025,6 +1181,7 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 	}
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 	free(buf);
 
 #endif
@@ -1111,6 +1268,7 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -1264,6 +1422,7 @@ int ido2db_handle_processdata(ido2db_idi *idi) {
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -1428,6 +1587,7 @@ int ido2db_handle_processdata(ido2db_idi *idi) {
 			buf = NULL;
 		result = ido2db_db_query(idi, buf);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 
 #endif
@@ -1550,6 +1710,7 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -1582,6 +1743,7 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -1609,6 +1771,7 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 #endif
 
@@ -1685,6 +1848,7 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 #endif
 
@@ -1744,6 +1908,7 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -1773,6 +1938,7 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 
 #endif
@@ -1837,6 +2003,7 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 			result = ido2db_db_query(idi, buf);
 
 			dbi_result_free(idi->dbinfo.dbi_result);
+			idi->dbinfo.dbi_result = NULL;
 			free(buf);
 #endif
 
@@ -1954,6 +2121,7 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
 
 	result = ido2db_db_query(idi, buf);
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 
 #endif
 
@@ -2100,6 +2268,7 @@ int ido2db_handle_systemcommanddata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2205,6 +2374,7 @@ int ido2db_handle_eventhandlerdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2361,6 +2531,7 @@ int ido2db_handle_notificationdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2495,6 +2666,7 @@ int ido2db_handle_contactnotificationdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2567,6 +2739,7 @@ int ido2db_handle_contactnotificationmethoddata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2699,6 +2872,7 @@ int ido2db_handle_servicecheckdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2833,6 +3007,7 @@ int ido2db_handle_hostcheckdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2937,6 +3112,7 @@ int ido2db_handle_commentdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -2967,6 +3143,7 @@ int ido2db_handle_commentdata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 
 #endif
@@ -3049,6 +3226,7 @@ int ido2db_handle_commentdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -3078,6 +3256,7 @@ int ido2db_handle_commentdata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 #endif
 
@@ -3231,6 +3410,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -3270,6 +3450,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 #endif
 
@@ -3370,6 +3551,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 #endif
 
@@ -3486,6 +3668,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -3519,6 +3702,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 
 #endif
@@ -3617,6 +3801,7 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 		result = ido2db_db_query(idi, buf);
 
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 		free(buf);
 #endif
 
@@ -3744,6 +3929,7 @@ int ido2db_handle_flappingdata(ido2db_idi *idi) {
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -3842,6 +4028,7 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 	unsigned long last_command_check = 0L;
 	unsigned long last_log_rotation = 0L;
 	int notifications_enabled = 0;
+	unsigned long disable_notifications_expire_time = 0L;
 	int active_service_checks_enabled = 0;
 	int passive_service_checks_enabled = 0;
 	int active_host_checks_enabled = 0;
@@ -3854,10 +4041,10 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 	int obsess_over_services = 0;
 	unsigned long modified_host_attributes = 0L;
 	unsigned long modified_service_attributes = 0L;
-	char *ts[4];
+	char *ts[5];
 	char *es[2];
 	int result = IDO_OK;
-	void *data[26];
+	void *data[28];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_programstatusdata() start\n");
 
@@ -3868,8 +4055,10 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 	result = ido2db_convert_standard_data_elements(idi, &type, &flags, &attr, &tstamp);
 
 	/* don't store old data */
-	if (tstamp.tv_sec < idi->dbinfo.latest_realtime_data_time)
+	if (tstamp.tv_sec < idi->dbinfo.latest_realtime_data_time) {
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_programstatusdata() %lu < %lu\n", tstamp.tv_sec, idi->dbinfo.latest_realtime_data_time);
 		return IDO_OK;
+	}
 
 	/* covert vars */
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_PROGRAMSTARTTIME], &program_start_time);
@@ -3890,6 +4079,7 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 	result = ido2db_convert_string_to_int(idi->buffered_input[IDO_DATA_OBSESSOVERSERVICES], &obsess_over_services);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_MODIFIEDHOSTATTRIBUTES], &modified_host_attributes);
 	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_MODIFIEDSERVICEATTRIBUTES], &modified_service_attributes);
+	result = ido2db_convert_string_to_unsignedlong(idi->buffered_input[IDO_DATA_DISABLED_NOTIFICATIONS_EXPIRE_TIME], &disable_notifications_expire_time);
 
 	es[0] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_GLOBALHOSTEVENTHANDLER]);
 	es[1] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_GLOBALSERVICEEVENTHANDLER]);
@@ -3898,6 +4088,7 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 	ts[1] = ido2db_db_timet_to_sql(idi, program_start_time);
 	ts[2] = ido2db_db_timet_to_sql(idi, last_command_check);
 	ts[3] = ido2db_db_timet_to_sql(idi, last_log_rotation);
+	ts[4] = ido2db_db_timet_to_sql(idi, disable_notifications_expire_time);
 
 	data[0] = (void *) &idi->dbinfo.instance_id;
 	data[1] = (void *) &ts[0];
@@ -3926,6 +4117,9 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 	data[23] = (void *) &program_start_time;
 	data[24] = (void *) &last_command_check;
 	data[25] = (void *) &last_log_rotation;
+	/* disabled notifications expiry */
+	data[26] = (void *) &ts[4];
+	data[27] = (void *) &disable_notifications_expire_time;
 
 	/* save entry to db */
 	result = ido2db_query_insert_or_update_programstatusdata_add(idi, data);
@@ -3937,6 +4131,7 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -4147,6 +4342,7 @@ int ido2db_handle_hoststatusdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -4369,6 +4565,7 @@ int ido2db_handle_servicestatusdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -4462,6 +4659,7 @@ int ido2db_handle_contactstatusdata(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -4594,6 +4792,7 @@ int ido2db_handle_externalcommanddata(ido2db_idi *idi) {
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -4798,6 +4997,7 @@ int ido2db_handle_acknowledgementdata(ido2db_idi *idi) {
 	free(buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -4988,6 +5188,7 @@ int ido2db_handle_statechangedata(ido2db_idi *idi) {
 	result = ido2db_db_query(idi, buf);
 
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -5119,8 +5320,8 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 	const int CONFIG_VARVALUE_SIZE = 2048; /* table configfilevariables column varvalue length */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
-	unsigned long  *fileid_arr;
+	big_uint  *instid_arr;
+	big_uint  *fileid_arr;
 	char * name_arr;
 	char * val_arr;
 
@@ -5219,6 +5420,7 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -5239,8 +5441,8 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	fileid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	fileid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 	/* string array buffer must be continous memory */
 	name_arr = (char *) malloc(OCI_BINDARRAY_MAX_SIZE * (CONFIG_VARNAME_SIZE + 1));
 	val_arr = (char *) malloc(OCI_BINDARRAY_MAX_SIZE * (CONFIG_VARVALUE_SIZE + 1));
@@ -5257,8 +5459,8 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_configfilevariables_elements()"
 	                      "  ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_configfilevariables_insert, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_configfilevariables_insert, MT(":X2"), (uint *)fileid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_configfilevariables_insert, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_configfilevariables_insert, MT(":X2"), fileid_arr, 0);
 	OCI_BindArrayOfStrings(idi->dbinfo.oci_statement_configfilevariables_insert, MT(":X3"), (char *)name_arr, CONFIG_VARNAME_SIZE, 0);
 	OCI_BindArrayOfStrings(idi->dbinfo.oci_statement_configfilevariables_insert, MT(":X4"), (char *)val_arr, CONFIG_VARVALUE_SIZE, 0);
 	arrsize = 0;
@@ -5370,6 +5572,7 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -5436,7 +5639,7 @@ int ido2db_handle_runtimevariables(ido2db_idi *idi) {
 	const int CONFIG_VARVALUE_SIZE = 1024; /* table runtimevariables column varvalue length */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
+	big_uint  *instid_arr;
 	char * name_arr;
 	char * val_arr;
 #endif
@@ -5466,7 +5669,7 @@ int ido2db_handle_runtimevariables(ido2db_idi *idi) {
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(int));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 	/* string array buffer must be continous memory */
 	name_arr = (char *) malloc(OCI_BINDARRAY_MAX_SIZE * (CONFIG_VARNAME_SIZE + 1));
 	val_arr = (char *) malloc(OCI_BINDARRAY_MAX_SIZE * (CONFIG_VARVALUE_SIZE + 1));
@@ -5482,7 +5685,7 @@ int ido2db_handle_runtimevariables(ido2db_idi *idi) {
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_runtimevariables()"
 	                      "  ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_runtimevariables, MT(":X1"), (uint *)instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_runtimevariables, MT(":X1"), instid_arr, 0);
 	OCI_BindArrayOfStrings(idi->dbinfo.oci_statement_runtimevariables, MT(":X2"), (char *)name_arr, CONFIG_VARNAME_SIZE, 0);
 	OCI_BindArrayOfStrings(idi->dbinfo.oci_statement_runtimevariables, MT(":X3"), (char *)val_arr, CONFIG_VARVALUE_SIZE, 0);
 	arrsize = 0;
@@ -5614,6 +5817,7 @@ int ido2db_handle_runtimevariables(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -5721,9 +5925,9 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
-	unsigned long  *hostid_arr;
-	unsigned long  *memberid_arr;
+	big_uint  *instid_arr;
+	big_uint  *hostid_arr;
+	big_uint  *memberid_arr;
 
 #endif
 	void *data[58];
@@ -5940,6 +6144,7 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -5971,9 +6176,9 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	hostid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	memberid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	hostid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	memberid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 
 	if ((instid_arr == NULL) || (hostid_arr == NULL) || (memberid_arr == NULL)) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition() parent"
@@ -5986,9 +6191,9 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition() parent"
 	                      " ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_parenthosts, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_parenthosts, MT(":X2"), (uint *)hostid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_parenthosts, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_parenthosts, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_parenthosts, MT(":X2"), hostid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_parenthosts, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 #endif /* Oracle ocilib specific */
@@ -6067,6 +6272,7 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -6116,9 +6322,9 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_contactgroups, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_contactgroups, MT(":X2"), (uint *)hostid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_contactgroups, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_contactgroups, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_contactgroups, MT(":X2"), hostid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_contactgroups, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 #endif /* Oracle ocilib specific */
@@ -6196,6 +6402,7 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -6244,9 +6451,9 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_contacts, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_contacts, MT(":X2"), (uint *)hostid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostdefinition_contacts, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_contacts, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_contacts, MT(":X2"), hostid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostdefinition_contacts, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 #endif /* Oracle ocilib specific */
@@ -6318,6 +6525,7 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -6384,9 +6592,9 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
-	unsigned long  *groupid_arr;
-	unsigned long  *memberid_arr;
+	big_uint  *instid_arr;
+	big_uint  *groupid_arr;
+	big_uint  *memberid_arr;
 
 #endif
 	void *data[4];
@@ -6479,6 +6687,7 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -6506,9 +6715,9 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	groupid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	memberid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	groupid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	memberid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 
 	if ((instid_arr == NULL) || (groupid_arr == NULL) || (memberid_arr == NULL)) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostgroupdefinition() members"
@@ -6520,9 +6729,9 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 	}
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition() members ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostgroupdefinition_hostgroupmembers, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostgroupdefinition_hostgroupmembers, MT(":X2"), (uint *)groupid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_hostgroupdefinition_hostgroupmembers, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostgroupdefinition_hostgroupmembers, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostgroupdefinition_hostgroupmembers, MT(":X2"), groupid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_hostgroupdefinition_hostgroupmembers, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 #endif /* Oracle ocilib specific */
@@ -6596,6 +6805,7 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -6699,9 +6909,9 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
-	unsigned long  *serviceid_arr;
-	unsigned long  *memberid_arr;
+	big_uint  *instid_arr;
+	big_uint  *serviceid_arr;
+	big_uint  *memberid_arr;
 
 #endif
 	void *data[51];
@@ -6907,6 +7117,7 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -6936,9 +7147,9 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	serviceid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	memberid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	serviceid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	memberid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 
 	if ((instid_arr == NULL) || (serviceid_arr == NULL) || (memberid_arr == NULL)) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicedefinition() contactgroups"
@@ -6951,9 +7162,9 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicedefinition() contactgroups"
 	                      " ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicedefinition_contactgroups, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicedefinition_contactgroups, MT(":X2"), (uint *)serviceid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicedefinition_contactgroups, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicedefinition_contactgroups, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicedefinition_contactgroups, MT(":X2"), serviceid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicedefinition_contactgroups, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 
@@ -7030,6 +7241,7 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -7079,9 +7291,9 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicedefinition_contacts, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicedefinition_contacts, MT(":X2"), (uint *)serviceid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicedefinition_contacts, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicedefinition_contacts, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicedefinition_contacts, MT(":X2"), serviceid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicedefinition_contacts, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 
@@ -7161,6 +7373,7 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -7228,9 +7441,9 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
-	unsigned long  *groupid_arr;
-	unsigned long  *memberid_arr;
+	big_uint  *instid_arr;
+	big_uint  *groupid_arr;
+	big_uint  *memberid_arr;
 #endif
 	void *data[4];
 	int first;
@@ -7323,6 +7536,7 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -7351,9 +7565,9 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	groupid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	memberid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	groupid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	memberid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 
 	if ((instid_arr == NULL) || (groupid_arr == NULL) || (memberid_arr == NULL)) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicegroupdefinition() "
@@ -7366,9 +7580,9 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicedefinition()"
 	                      " members ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicegroupdefinition_members, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicegroupdefinition_members, MT(":X2"), (uint *)groupid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_servicegroupdefinition_members, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicegroupdefinition_members, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicegroupdefinition_members, MT(":X2"), groupid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_servicegroupdefinition_members, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 #endif /* Oracle ocilib specific */
@@ -7447,6 +7661,7 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -7545,6 +7760,7 @@ int ido2db_handle_hostdependencydefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -7619,6 +7835,7 @@ int ido2db_handle_servicedependencydefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -7755,6 +7972,7 @@ int ido2db_handle_hostescalationdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -7787,6 +8005,7 @@ int ido2db_handle_hostescalationdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -7820,6 +8039,7 @@ int ido2db_handle_hostescalationdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -7961,6 +8181,7 @@ int ido2db_handle_serviceescalationdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -7993,6 +8214,7 @@ int ido2db_handle_serviceescalationdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8026,6 +8248,7 @@ int ido2db_handle_serviceescalationdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8084,6 +8307,7 @@ int ido2db_handle_commanddefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8125,11 +8349,11 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
-	unsigned long  *timeid_arr;
+	big_uint  *instid_arr;
+	big_uint  *timeid_arr;
 	int  *day_arr;
-	unsigned long  *startsec_arr;
-	unsigned long  *endsec_arr;
+	big_uint  *startsec_arr;
+	big_uint  *endsec_arr;
 #endif
 	void *data[5];
 	int first;
@@ -8226,6 +8450,7 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8254,11 +8479,11 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	timeid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	timeid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 	day_arr = (int *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(int));
-	startsec_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	endsec_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	startsec_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	endsec_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 
 	if ((instid_arr == NULL) || (timeid_arr == NULL) || (day_arr == NULL) || (startsec_arr == NULL) || (endsec_arr == NULL)) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_timeperiodefinition_timeranges()"
@@ -8273,11 +8498,11 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_timeperiodefinition_timeranges()"
 	                      " ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X2"), (uint *)timeid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X2"), timeid_arr, 0);
 	OCI_BindArrayOfInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X3"), (int *)day_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X4"), (uint *)startsec_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X5"), (uint *)endsec_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X4"), startsec_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_timeperiodefinition_timeranges, MT(":X5"), endsec_arr, 0);
 	arrsize = 0;
 
 #endif /* Oracle ocilib specific */
@@ -8365,6 +8590,7 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 
@@ -8576,6 +8802,7 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8616,6 +8843,7 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8660,6 +8888,7 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8706,6 +8935,7 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8785,6 +9015,7 @@ int ido2db_save_custom_variables(ido2db_idi *idi, int table_idx, unsigned long o
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 			dbi_result_free(idi->dbinfo.dbi_result);
+			idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8815,6 +9046,7 @@ int ido2db_save_custom_variables(ido2db_idi *idi, int table_idx, unsigned long o
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 			dbi_result_free(idi->dbinfo.dbi_result);
+			idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8855,9 +9087,9 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
-	unsigned long  *instid_arr;
-	unsigned long  *groupid_arr;
-	unsigned long  *memberid_arr;
+	big_uint  *instid_arr;
+	big_uint  *groupid_arr;
+	big_uint  *memberid_arr;
 #endif
 	void *data[4];
 	int first;
@@ -8948,6 +9180,7 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 	dbi_result_free(idi->dbinfo.dbi_result);
+	idi->dbinfo.dbi_result = NULL;
 #endif
 
 #ifdef USE_PGSQL /* pgsql */
@@ -8975,9 +9208,9 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 	/* allocate array buffers based an maximal expected sizes*/
-	instid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	groupid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
-	memberid_arr = (unsigned long *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(long));
+	instid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	groupid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
+	memberid_arr = (big_uint *) malloc(OCI_BINDARRAY_MAX_SIZE * sizeof(big_uint));
 
 	if ((instid_arr == NULL) || (groupid_arr == NULL) || (memberid_arr == NULL)) {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_contactgroupdefinition() members"
@@ -8989,9 +9222,9 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 	}
 	ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_contactgroupdefinition() members ArrayVars OK\n");
 	/* bind arrays to statement */
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_contactgroupdefinition_contactgroupmembers, MT(":X1"), (uint *)instid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_contactgroupdefinition_contactgroupmembers, MT(":X2"), (uint *)groupid_arr, 0);
-	OCI_BindArrayOfUnsignedInts(idi->dbinfo.oci_statement_contactgroupdefinition_contactgroupmembers, MT(":X3"), (uint *)memberid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_contactgroupdefinition_contactgroupmembers, MT(":X1"), instid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_contactgroupdefinition_contactgroupmembers, MT(":X2"), groupid_arr, 0);
+	OCI_BindArrayOfUnsignedBigInts(idi->dbinfo.oci_statement_contactgroupdefinition_contactgroupmembers, MT(":X3"), memberid_arr, 0);
 	arrsize = 0;
 
 #endif /* Oracle ocilib specific */
@@ -9067,6 +9300,7 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 	if (first == 0) {
 		result = ido2db_db_query(idi, buf1);
 		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 #endif
 

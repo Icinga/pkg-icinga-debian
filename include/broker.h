@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -98,6 +98,7 @@
 #define NEBTYPE_CONTACTNOTIFICATION_END          603
 #define NEBTYPE_CONTACTNOTIFICATIONMETHOD_START  604
 #define NEBTYPE_CONTACTNOTIFICATIONMETHOD_END    605
+#define NEBTYPE_CONTACTNOTIFICATIONMETHOD_EXECUTE 606
 
 #define NEBTYPE_SERVICECHECK_INITIATE            700
 #define NEBTYPE_SERVICECHECK_PROCESSED           701

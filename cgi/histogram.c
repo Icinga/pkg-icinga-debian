@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -38,8 +38,6 @@
 
 /*#define DEBUG			1*/
 
-
-#define HISTOGRAM_IMAGE         "histogram.png"
 
 /* archived state types */
 #define AS_NO_DATA		0
@@ -110,11 +108,8 @@ extern char main_config_file[MAX_FILENAME_LENGTH];
 extern char url_images_path[MAX_FILENAME_LENGTH];
 extern char physical_images_path[MAX_FILENAME_LENGTH];
 
-extern int     log_rotation_method;
-
 extern host *host_list;
 extern service *service_list;
-extern logentry *entry_list;
 
 
 authdata current_authdata;
@@ -137,7 +132,6 @@ void compute_report_times(void);
 void graph_all_histogram_data(void);
 void add_archived_state(int, time_t);
 void read_archived_state_data(void);
-void scan_log_file_for_archived_state_data(char *);
 void draw_line(int, int, int, int, int);
 void draw_dashed_line(int, int, int, int, int);
 
@@ -217,7 +211,6 @@ int main(int argc, char **argv) {
 	host *temp_host = NULL;
 	service *temp_service = NULL;
 	int is_authorized = TRUE;
-	int found = FALSE;
 	int days, hours, minutes, seconds;
 	char *first_service = NULL;
 	int x;
@@ -321,23 +314,23 @@ int main(int argc, char **argv) {
 
 			if (display_type == DISPLAY_HOST_HISTOGRAM) {
 #ifdef USE_TRENDS
-				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View Trends For This Host</a><BR>\n", TRENDS_CGI, url_encode(host_name), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
+				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View <b>Trends</b> For <b>This Host</b></a><br>\n", TRENDS_CGI, url_encode(host_name), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
 #endif
-				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&assumestateretention=%s&show_log_entries'>View Availability Report For This Host</a><BR>\n", AVAIL_CGI, url_encode(host_name), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
-				printf("<a href='%s?host=%s'>View Status Detail For This Host</a><BR>\n", STATUS_CGI, url_encode(host_name));
-				printf("<a href='%s?host=%s'>View History For This Host</a><BR>\n", HISTORY_CGI, url_encode(host_name));
-				printf("<a href='%s?host=%s'>View Notifications For This Host</a><BR>\n", NOTIFICATIONS_CGI, url_encode(host_name));
+				printf("<a href='%s?host=%s&t1=%lu&t2=%lu&assumestateretention=%s&show_log_entries'>View <b>Availability Report</b> For <b>This Host</b></a><br>\n", AVAIL_CGI, url_encode(host_name), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
+				printf("<a href='%s?host=%s'>View <b>Service Status Detail</b> For <b>This Host</b></a><br>\n", STATUS_CGI, url_encode(host_name));
+				printf("<a href='%s?type=%d&host=%s'>View <b>Information</b> For <b>This Host</b></a><br>\n", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(host_name));
+				printf("<a href='%s?host=%s'>View <b>Alert History</b> For <b>This Host</b></a><br>\n", HISTORY_CGI, url_encode(host_name));
+				printf("<a href='%s?host=%s'>View <b>Notifications</b> For <b>This Host</b></a><br>\n", NOTIFICATIONS_CGI, url_encode(host_name));
 			} else {
 #ifdef USE_TRENDS
 				printf("<a href='%s?host=%s", TRENDS_CGI, url_encode(host_name));
 #endif
-				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View Trends For This Service</a><BR>\n", url_encode(service_desc), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
+				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s'>View <b>Trends</b> For <b>This Service</b></a><br>\n", url_encode(service_desc), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
 				printf("<a href='%s?host=%s", AVAIL_CGI, url_encode(host_name));
-				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s&show_log_entries'>View Availability Report For This Service</a><BR>\n", url_encode(service_desc), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
-				printf("<A HREF='%s?host=%s&", HISTORY_CGI, url_encode(host_name));
-				printf("service=%s'>View History For This Service</A><BR>\n", url_encode(service_desc));
-				printf("<A HREF='%s?host=%s&", NOTIFICATIONS_CGI, url_encode(host_name));
-				printf("service=%s'>View Notifications For This Service</A><BR>\n", url_encode(service_desc));
+				printf("&service=%s&t1=%lu&t2=%lu&assumestateretention=%s&show_log_entries'>View <b>Availability Report</b> For <b>This Service</b></a><br>\n", url_encode(service_desc), t1, t2, (assume_state_retention == TRUE) ? "yes" : "no");
+				printf("<a href='%s?type=%d&host=%s&service=%s'>View <b>Information</b> For <b>This Service</b></a><br>\n", EXTINFO_CGI, DISPLAY_SERVICE_INFO, url_encode(host_name), url_encode(service_desc));
+				printf("<a href='%s?host=%s&service=%s'>View <b>Alert History</b> For <b>This Service</b></a><br>\n", HISTORY_CGI, url_encode(host_name), url_encode(service_desc));
+				printf("<a href='%s?host=%s&service=%s'>View <b>Notifications</b> For <b>This Service</b></a><br>\n", NOTIFICATIONS_CGI, url_encode(host_name), url_encode(service_desc));
 			}
 
 			printf("</TD></TR>\n");
@@ -471,27 +464,6 @@ int main(int argc, char **argv) {
 			printf("</td></tr>\n");
 		}
 
-		/* display context-sensitive help */
-		printf("<tr><td></td><td align=right valign=bottom>\n");
-		if (display_type != DISPLAY_NO_HISTOGRAM && input_type == GET_INPUT_NONE) {
-			if (display_type == DISPLAY_HOST_HISTOGRAM)
-				display_context_help(CONTEXTHELP_HISTOGRAM_HOST);
-			else
-				display_context_help(CONTEXTHELP_HISTOGRAM_SERVICE);
-		} else if (display_type == DISPLAY_NO_HISTOGRAM || input_type != GET_INPUT_NONE) {
-			if (input_type == GET_INPUT_NONE)
-				display_context_help(CONTEXTHELP_HISTOGRAM_MENU1);
-			else if (input_type == GET_INPUT_TARGET_TYPE)
-				display_context_help(CONTEXTHELP_HISTOGRAM_MENU1);
-			else if (input_type == GET_INPUT_HOST_TARGET)
-				display_context_help(CONTEXTHELP_HISTOGRAM_MENU2);
-			else if (input_type == GET_INPUT_SERVICE_TARGET)
-				display_context_help(CONTEXTHELP_HISTOGRAM_MENU3);
-			else if (input_type == GET_INPUT_OPTIONS)
-				display_context_help(CONTEXTHELP_HISTOGRAM_MENU4);
-		}
-		printf("</td></tr>\n");
-
 		printf("</table>\n");
 		printf("</form>\n");
 
@@ -593,7 +565,7 @@ int main(int argc, char **argv) {
 #endif
 
 			/* location of image template */
-			snprintf(image_template, sizeof(image_template) - 1, "%s/%s", physical_images_path, HISTOGRAM_IMAGE);
+			snprintf(image_template, sizeof(image_template) - 1, "%s%s", physical_images_path, HISTOGRAM_IMAGE);
 			image_template[sizeof(image_template)-1] = '\x0';
 
 			/* allocate buffer for storing image */
@@ -641,7 +613,9 @@ int main(int argc, char **argv) {
 			image_file = stdout;
 
 #ifdef DEBUG
-			image_file = fopen("/tmp/histogram.png", "w");
+			snprintf(temp_buffer, sizeof(temp_buffer) - 1, "/tmp/%s", HISTOGRAM_IMAGE);
+			temp_buffer[sizeof(temp_buffer)-1] = '\x0';
+			image_file = fopen(temp_buffer, "w");
 #endif
 
 			/* write the image to to STDOUT */
@@ -666,16 +640,12 @@ int main(int argc, char **argv) {
 		/* ask the user for what host they want a report for */
 		if (input_type == GET_INPUT_HOST_TARGET) {
 
-			printf("<P><DIV ALIGN=CENTER>\n");
 			printf("<DIV CLASS='reportSelectTitle'>Step 2: Select Host</DIV>\n");
-			printf("</DIV></P>\n");
-
-			printf("<P><DIV ALIGN=CENTER>\n");
 
 			printf("<form method=\"GET\" action=\"%s\">\n", HISTOGRAM_CGI);
 			printf("<input type='hidden' name='input' value='getoptions'>\n");
 
-			printf("<TABLE BORDER=0 cellspacing=0 cellpadding=10>\n");
+			printf("<TABLE BORDER=0 cellspacing=0 cellpadding=10 align='center'>\n");
 			printf("<tr><td class='reportSelectSubTitle' valign=center>Host:</td>\n");
 			printf("<td class='reportSelectItem' valign=center>\n");
 			printf("<select name='host'>\n");
@@ -694,53 +664,26 @@ int main(int argc, char **argv) {
 
 			printf("</TABLE>\n");
 			printf("</form>\n");
-
-			printf("</DIV></P>\n");
 		}
 
 		/* ask the user for what service they want a report for */
 		else if (input_type == GET_INPUT_SERVICE_TARGET) {
 
-			printf("<SCRIPT LANGUAGE='JavaScript'>\n");
-			printf("function gethostname(hostindex){\n");
-			printf("hostnames=[");
-
-			for (temp_service = service_list; temp_service != NULL; temp_service = temp_service->next) {
-				if (is_authorized_for_service(temp_service, &current_authdata) == TRUE) {
-					if (found == TRUE)
-						printf(",");
-					else
-						first_service = temp_service->host_name;
-					printf(" \"%s\"", temp_service->host_name);
-					found = TRUE;
-				}
-			}
-
-			printf(" ]\n");
-			printf("return hostnames[hostindex];\n");
-			printf("}\n");
-			printf("</SCRIPT>\n");
-
-
-			printf("<P><DIV ALIGN=CENTER>\n");
 			printf("<DIV CLASS='reportSelectTitle'>Step 2: Select Service</DIV>\n");
-			printf("</DIV></P>\n");
-
-			printf("<P><DIV ALIGN=CENTER>\n");
 
 			printf("<form method=\"GET\" action=\"%s\" name=\"serviceform\">\n", HISTOGRAM_CGI);
 			printf("<input type='hidden' name='input' value='getoptions'>\n");
 			printf("<input type='hidden' name='host' value='%s'>\n", (first_service == NULL) ? "unknown" : (char *)escape_string(first_service));
 
-			printf("<TABLE BORDER=0 cellpadding=5>\n");
+			printf("<TABLE BORDER=0 cellpadding=5 align='center'>\n");
 			printf("<tr><td class='reportSelectSubTitle'>Service:</td>\n");
 			printf("<td class='reportSelectItem'>\n");
-			printf("<select name='service' onFocus='document.serviceform.host.value=gethostname(this.selectedIndex);' onChange='document.serviceform.host.value=gethostname(this.selectedIndex);'>\n");
+			printf("<select name='hostservice'>\n");
 
 			for (temp_service = service_list; temp_service != NULL; temp_service = temp_service->next) {
 				if (is_authorized_for_service(temp_service, &current_authdata) == TRUE)
 					temp_host = find_host(temp_service->host_name);
-				printf("<option value='%s'>%s;%s\n", escape_string(temp_service->description), (temp_host->display_name != NULL) ? temp_host->display_name : temp_host->name, (temp_service->display_name != NULL) ? temp_service->display_name : temp_service->description);
+				printf("<option value='%s^%s'>%s;%s\n", escape_string(temp_service->host_name), escape_string(temp_service->description), (temp_host->display_name != NULL) ? temp_host->display_name : temp_host->name, (temp_service->display_name != NULL) ? temp_service->display_name : temp_service->description);
 			}
 
 			printf("</select>\n");
@@ -752,8 +695,6 @@ int main(int argc, char **argv) {
 
 			printf("</TABLE>\n");
 			printf("</form>\n");
-
-			printf("</DIV></P>\n");
 		}
 
 		/* ask the user for report range and options */
@@ -767,18 +708,14 @@ int main(int argc, char **argv) {
 			end_day = t->tm_mday;
 			end_year = t->tm_year + 1900;
 
-			printf("<P><DIV ALIGN=CENTER>\n");
 			printf("<DIV CLASS='reportSelectTitle'>Step 3: Select Report Options</DIV>\n");
-			printf("</DIV></P>\n");
-
-			printf("<P><DIV ALIGN=CENTER>\n");
 
 			printf("<form method=\"GET\" action=\"%s\">\n", HISTOGRAM_CGI);
 			printf("<input type='hidden' name='host' value='%s'>\n", escape_string(host_name));
 			if (display_type == DISPLAY_SERVICE_HISTOGRAM)
 				printf("<input type='hidden' name='service' value='%s'>\n", escape_string(service_desc));
 
-			printf("<TABLE BORDER=0 cellpadding=5>\n");
+			printf("<TABLE BORDER=0 cellpadding=5 align='center'>\n");
 			printf("<tr><td class='reportSelectSubTitle' align=right>Report Period:</td>\n");
 			printf("<td class='reportSelectItem'>\n");
 			printf("<select name='timeperiod'>\n");
@@ -918,21 +855,15 @@ int main(int argc, char **argv) {
 
 			printf("</TABLE>\n");
 			printf("</form>\n");
-
-			printf("</DIV></P>\n");
 		}
 
 		/* as the user whether they want a graph for a host or service */
 		else {
-			printf("<P><DIV ALIGN=CENTER>\n");
 			printf("<DIV CLASS='reportSelectTitle'>Step 1: Select Report Type</DIV>\n");
-			printf("</DIV></P>\n");
-
-			printf("<P><DIV ALIGN=CENTER>\n");
 
 			printf("<form method=\"GET\" action=\"%s\">\n", HISTOGRAM_CGI);
 
-			printf("<TABLE BORDER=0 cellpadding=5>\n");
+			printf("<TABLE BORDER=0 cellpadding=5 align='center'>\n");
 			printf("<tr><td class='reportSelectSubTitle' align=right>Type:</td>\n");
 			printf("<td class='reportSelectItem'>\n");
 			printf("<select name='input'>\n");
@@ -947,8 +878,6 @@ int main(int argc, char **argv) {
 
 			printf("</TABLE>\n");
 			printf("</form>\n");
-
-			printf("</DIV></P>\n");
 		}
 
 	}
@@ -963,6 +892,7 @@ int main(int argc, char **argv) {
 
 int process_cgivars(void) {
 	char **variables;
+	char *temp_buffer = NULL;
 	int error = FALSE;
 	int x;
 
@@ -1002,6 +932,31 @@ int process_cgivars(void) {
 			if ((service_desc = (char *)strdup(variables[x])) == NULL)
 				service_desc = "";
 			strip_html_brackets(service_desc);
+
+			display_type = DISPLAY_SERVICE_HISTOGRAM;
+		}
+
+		/* we found a combined host/service */
+		else if (!strcmp(variables[x], "hostservice")) {
+			x++;
+			if (variables[x] == NULL) {
+				error = TRUE;
+				break;
+			}
+
+			temp_buffer = strtok(variables[x], "^");
+
+			if ((host_name = (char *)strdup(temp_buffer)) == NULL)
+				host_name = "";
+			else
+				strip_html_brackets(host_name);
+
+			temp_buffer = strtok(NULL, "");
+
+			if ((service_desc = (char *)strdup(temp_buffer)) == NULL)
+				service_desc = "";
+			else
+				strip_html_brackets(service_desc);
 
 			display_type = DISPLAY_SERVICE_HISTOGRAM;
 		}
@@ -1489,7 +1444,7 @@ void graph_all_histogram_data(void) {
 #ifdef DEBUG
 	printf("Done determining max bucket values\n");
 	printf("MAX_VALUE=%lu\n", max_value);
-	printf("DRAWING_HEIGHT=%lu\n", DRAWING_HEIGHT);
+	printf("DRAWING_HEIGHT=%d\n", DRAWING_HEIGHT);
 #endif
 
 	/* min number of values to graph */
@@ -2057,78 +2012,14 @@ void add_archived_state(int state_type, time_t time_stamp) {
 
 /* reads log files for archived state data */
 void read_archived_state_data(void) {
-	char filename[MAX_FILENAME_LENGTH];
-	int newest_archive = 0;
-	int oldest_archive = 0;
-	int current_archive;
-
-#ifdef DEBUG2
-	printf("Determining archives to use...\n");
-#endif
-
-	/* determine earliest archive to use */
-	oldest_archive = determine_archive_to_use_from_time(t1);
-	if (log_rotation_method != LOG_ROTATION_NONE)
-		oldest_archive += backtrack_archives;
-
-	/* determine most recent archive to use */
-	newest_archive = determine_archive_to_use_from_time(t2);
-
-	if (oldest_archive < newest_archive)
-		oldest_archive = newest_archive;
-
-#ifdef DEBUG2
-	printf("Oldest archive: %d\n", oldest_archive);
-	printf("Newest archive: %d\n", newest_archive);
-#endif
-
-	/* Service filter */
-	add_log_filter(LOGENTRY_SERVICE_OK, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_SERVICE_WARNING, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_SERVICE_CRITICAL, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_SERVICE_UNKNOWN, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_SERVICE_RECOVERY, LOGFILTER_INCLUDE);
-
-	/* Host filter */
-	add_log_filter(LOGENTRY_HOST_UP, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_HOST_DOWN, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_HOST_UNREACHABLE, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_HOST_RECOVERY, LOGFILTER_INCLUDE);
-
-	/* system message */
-	add_log_filter(LOGENTRY_STARTUP, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_RESTART, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_SHUTDOWN, LOGFILTER_INCLUDE);
-	add_log_filter(LOGENTRY_BAILOUT, LOGFILTER_INCLUDE);
-
-	/* read in all the necessary archived logs */
-	for (current_archive = newest_archive; current_archive <= oldest_archive; current_archive++) {
-
-		/* get the name of the log file that contains this archive */
-		get_log_archive_to_use(current_archive, filename, sizeof(filename) - 1);
-
-#ifdef DEBUG2
-		printf("\tCurrent archive: %d (%s)\n", current_archive, filename);
-#endif
-
-		/* scan the log file for archived state data */
-		scan_log_file_for_archived_state_data(filename);
-	}
-
-	free_log_filters();
-
-	return;
-}
-
-
-
-/* grabs archives state data from a log file */
-void scan_log_file_for_archived_state_data(char *filename) {
 	char entry_host_name[MAX_INPUT_BUFFER];
 	char entry_service_desc[MAX_INPUT_BUFFER];
-	char *temp_buffer;
+	char *temp_buffer = NULL;
+	char *error_text = NULL;
 	logentry *temp_entry = NULL;
-	int status;
+	logentry *entry_list = NULL;
+	logfilter *filter_list = NULL;
+	int status = READLOG_OK;
 
 	/* print something so browser doesn't time out */
 	if (content_type == HTML_CONTENT) {
@@ -2136,20 +2027,30 @@ void scan_log_file_for_archived_state_data(char *filename) {
 		fflush(NULL);
 	}
 
-	status = get_log_entries(filename, NULL, FALSE, t1 - (60 * 60 * 24 * backtrack_archives), t2);
+	/* Service filter */
+	add_log_filter(&filter_list, LOGENTRY_SERVICE_OK, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_SERVICE_WARNING, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_SERVICE_CRITICAL, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_SERVICE_UNKNOWN, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_SERVICE_RECOVERY, LOGFILTER_INCLUDE);
 
-	if (status != READLOG_OK) {
-#ifdef DEBUG2
-		printf("Could not open file '%s' for reading.\n", filename);
-#endif
-		/* free memory */
-		free_log_entries();
-		return;
-	} else {
+	/* Host filter */
+	add_log_filter(&filter_list, LOGENTRY_HOST_UP, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_HOST_DOWN, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_HOST_UNREACHABLE, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_HOST_RECOVERY, LOGFILTER_INCLUDE);
 
-#ifdef DEBUG2
-		printf("Scanning log file '%s' for archived state data...\n", filename);
-#endif
+	/* system message */
+	add_log_filter(&filter_list, LOGENTRY_STARTUP, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_RESTART, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_SHUTDOWN, LOGFILTER_INCLUDE);
+	add_log_filter(&filter_list, LOGENTRY_BAILOUT, LOGFILTER_INCLUDE);
+
+	status = get_log_entries(&entry_list, &filter_list, &error_text, NULL, FALSE, t1 - (60 * 60 * 24 * backtrack_archives), t2);
+
+	free_log_filters(&filter_list);
+
+	if (status != READLOG_ERROR_FATAL) {
 
 		for (temp_entry = entry_list; temp_entry != NULL; temp_entry = temp_entry->next) {
 
@@ -2252,7 +2153,7 @@ void scan_log_file_for_archived_state_data(char *filename) {
 	}
 
 	/* free memory */
-	free_log_entries();
+	free_log_entries(&entry_list);
 
 	return;
 }

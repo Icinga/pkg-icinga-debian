@@ -27,7 +27,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -198,6 +198,7 @@ time_t          program_start = 0L;
 time_t          event_start = 0L;
 int             nagios_pid = 0;
 int             enable_notifications = TRUE;
+time_t		disable_notifications_expire_time = 0L;
 int             execute_service_checks = TRUE;
 int             accept_passive_service_checks = TRUE;
 int             execute_host_checks = TRUE;
@@ -254,6 +255,8 @@ int             command_file_created = FALSE;
 int             event_profiling_enabled = FALSE;
 #endif
 
+int		keep_unknown_macros = FALSE;
+
 extern contact	       *contact_list;
 extern contactgroup    *contactgroup_list;
 extern hostgroup       *hostgroup_list;
@@ -281,6 +284,8 @@ char            *debug_file;
 int             debug_level = DEFAULT_DEBUG_LEVEL;
 int             debug_verbosity = DEFAULT_DEBUG_VERBOSITY;
 unsigned long   max_debug_file_size = DEFAULT_MAX_DEBUG_FILE_SIZE;
+
+unsigned long   max_check_result_list_items = DEFAULT_MAX_CHECK_RESULT_LIST_ITEMS;
 
 int dummy;	/* reduce compiler warnings */
 
@@ -419,7 +424,7 @@ int main(int argc, char **argv, char **env) {
 		printf("GNU General Public License for more details.\n\n");
 		printf("You should have received a copy of the GNU General Public License\n");
 		printf("along with this program; if not, write to the Free Software\n");
-		printf("Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n");
+		printf("Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n\n");
 
 		exit(OK);
 	}

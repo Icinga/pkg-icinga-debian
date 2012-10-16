@@ -64,6 +64,7 @@ char *ido2db_group = NULL;
 int ido2db_sd = 0;
 int ido2db_socket_type = IDO_SINK_UNIXSOCKET;
 char *ido2db_socket_name = NULL;
+mode_t ido2db_socket_perm = 0755;
 
 int ido2db_tcp_port = IDO_DEFAULT_TCP_PORT;
 int ido2db_use_inetd = IDO_FALSE;
@@ -88,6 +89,8 @@ unsigned long ido2db_max_debug_file_size = 0L;
 
 int enable_sla = IDO_FALSE;
 int ido2db_debug_readable_timestamp = IDO_FALSE;
+
+char *libdbi_driver_dir = NULL;
 
 int stop_signal_detected = IDO_FALSE;
 
@@ -224,7 +227,7 @@ int main(int argc, char **argv) {
 	if (ido2db_check_dbd_driver() == IDO_FALSE) {
 		printf("Support for the specified database server is either not yet supported, or was not found on your system.\n");
 
-		numdrivers = dbi_initialize(NULL);
+		numdrivers = dbi_initialize(libdbi_driver_dir);
 		if (numdrivers == -1)
 			numdrivers = 0;
 
@@ -479,6 +482,8 @@ int ido2db_process_config_var(char *arg) {
 	} else if (!strcmp(var, "socket_name")) {
 		if ((ido2db_socket_name = strdup(val)) == NULL)
 			return IDO_ERROR;
+	} else if (!strcmp(var, "socket_perm")) {
+		ido2db_socket_perm = strtoul(val, NULL, 8);
 	} else if (!strcmp(var, "tcp_port")) {
 		ido2db_tcp_port = atoi(val);
 	} else if (!strcmp(var, "db_servertype")) {
@@ -605,6 +610,10 @@ int ido2db_process_config_var(char *arg) {
 	} else if (!strcmp(var, "debug_readable_timestamp")) {
 		ido2db_debug_readable_timestamp = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
 	}
+	else if (!strcmp(var, "libdbi_driver_dir")) {
+		if ((libdbi_driver_dir = strdup(val)) == NULL)
+			return IDO_ERROR;
+	}
 	//syslog(LOG_ERR,"ido2db_process_config_var(%s) end\n",var);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_process_config_var(%s) end\n", var);
@@ -702,6 +711,10 @@ int ido2db_free_program_memory(void) {
 	if (ido2db_debug_file) {
 		free(ido2db_debug_file);
 		ido2db_debug_file = NULL;
+	}
+	if (libdbi_driver_dir) {
+		free(libdbi_driver_dir);
+		libdbi_driver_dir = NULL;
 	}
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_free_program_memory() end\n");
@@ -1087,6 +1100,12 @@ int ido2db_wait_for_connections(void) {
 			return IDO_ERROR;
 		}
 
+		if (chmod(ido2db_socket_name, ido2db_socket_perm) < 0) {
+			close(ido2db_sd);
+			perror("Could not chmod socket");
+			return IDO_ERROR;
+		}
+
 		client_address_length = (socklen_t)sizeof(client_address_u);
 	}
 
@@ -1338,6 +1357,13 @@ int ido2db_handle_client_connection(int sd) {
 			}
 #endif
 
+
+			//cpu hogger for debugging only
+			//ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "received 0 bytes from socket. ido2db will try again.\n");
+			//continue;
+
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "received 0 bytes from socket. ido2db will disconnect.\n");
+
 			/* gracefully back out of current operation... */
 			ido2db_db_goodbye(&idi);
 
@@ -1347,6 +1373,7 @@ int ido2db_handle_client_connection(int sd) {
 #ifdef DEBUG_IDO2DB2
 		printf("BYTESREAD: %d\n", result);
 #endif
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "BYTESREAD: %d\n", result);
 
 		/* append data we just read to dynamic buffer */
 		buf[result] = '\x0';
@@ -1366,6 +1393,8 @@ int ido2db_handle_client_connection(int sd) {
 		/* should we disconnect the client? */
 		if (idi.disconnect_client == IDO_TRUE) {
 
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "client input data ended, told to disconnect.\n");
+
 			/* gracefully back out of current operation... */
 			ido2db_db_goodbye(&idi);
 
@@ -1376,6 +1405,7 @@ int ido2db_handle_client_connection(int sd) {
 #ifdef DEBUG_IDO2DB2
 	printf("BYTES: %lu, LINES: %lu\n", idi.bytes_processed, idi.lines_processed);
 #endif
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "BYTES: %lu, LINES: %lu\n", idi.bytes_processed, idi.lines_processed);
 
 	/* terminate threads */
 	ido2db_terminate_threads();
@@ -1783,6 +1813,13 @@ int ido2db_handle_client_input(ido2db_idi *idi, char *buf) {
 				/* deprecated - merged with host definitions */
 			case IDO_API_SERVICEEXTINFODEFINITION:
 				/* deprecated - merged with service definitions */
+			case IDO_API_ENABLEOBJECT:
+				idi->current_input_data = IDO2DB_INPUT_DATA_ENABLEOBJECT;
+				break;
+			case IDO_API_DISABLEOBJECT:
+				idi->current_input_data = IDO2DB_INPUT_DATA_DISABLEOBJECT;
+				break;
+
 			default:
 				break;
 			}
@@ -2264,6 +2301,12 @@ int ido2db_end_input_data(ido2db_idi *idi) {
 		break;
 	case IDO2DB_INPUT_DATA_SERVICEEXTINFODEFINITION:
 		/* deprecated - merged with service definitions */
+		break;
+	case IDO2DB_INPUT_DATA_ENABLEOBJECT:
+		result = ido2db_handle_object_enable_disable(idi, 1);
+		break;
+	case IDO2DB_INPUT_DATA_DISABLEOBJECT:
+		result = ido2db_handle_object_enable_disable(idi, 0);
 		break;
 
 	default:
@@ -2769,6 +2812,4 @@ int terminate_cleanup_thread(void) {
 	return IDO_OK;
 
 }
-
-
 
