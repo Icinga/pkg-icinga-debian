@@ -1,3 +1,27 @@
+icinga (1.8.0-1) experimental; urgency=low
+
+  * [5c6b2b6] Remove build-dep on iputils-ping and do a wrap-and-sort
+  * [3e31fec] Even more wrap-and-sort
+  * [0c39b06] Imported Upstream version 1.8.0
+    - Fix Conflicting declarations of variable highlight_table_rows
+      (Closes: #688459)
+    - Remove buggy sql creation script (never used by packages)
+      (Closes: #683320)
+  * [9752230] Remove obsolete patch 80_fix_dbd_handling.dpatch
+  * [74ea069] Remove obsolete patch 99_fix_epn.dpatch
+  * [ebc54b8] jquery was updated
+  * [c3c04db] contexthelp was removed from upstream
+  * [b876c8c] Fix jquery link
+  * [eec91d0] Don't ask question if there is no config (Closes: #689601)
+  * [ce7f089] Fix mainurl
+  * [7c8cb8d] Add indonesian translation (Closes: #677118)
+  * [c0ddb94] Update Polish translation (Closes: #678155)
+  * [7eccc2b] Make apache directory match more strict (Closes: #679476)
+  * [b0d4ee9] Handle /var/run/icinga on our own (Closes: #689551)
+  * [e604f8c] Install update sql files for idoutils
+
+ -- Alexander Wirt <alexander.wirt@credativ.de>  Fri, 19 Oct 2012 15:58:46 +0200
+
 icinga (1.7.2-1) experimental; urgency=low
 
   * [4394714] Imported Upstream version 1.7.2
