@@ -43,7 +43,8 @@ CONFIGURE	= CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --prefix=/usr \
 				--with-ido2db-lockfile=/var/run/icinga/ido2db.pid \
 				--with-log-dir=/var/log/icinga \
 				--libdir=/usr/lib/icinga \
-				--with-temp-file=/var/cache/icinga/icinga.tmp
+				--with-temp-file=/var/cache/icinga/icinga.tmp \
+				--with-mainurl=/cgi-bin/icinga/tac.cgi
 
 clean: clean-patched unpatch
 clean-patched:
