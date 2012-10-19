@@ -7,6 +7,5 @@ var/lib/icinga/rw
 var/lib/icinga/spool
 var/lib/icinga/spool/checkresults
 var/log/icinga/archives
-var/run/icinga
 var/cache/icinga
 usr/share/icinga/debian
