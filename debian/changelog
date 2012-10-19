@@ -1,3 +1,11 @@
+icinga (1.8.0-1~debmon60+1) debmon-squeeze; urgency=low
+
+  * [888d92e] Add gbp.conf
+  * [8e19039] Replace --status with --test in ido2dbs initscript
+  * [9c53523] Fix gbp config
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 19 Oct 2012 17:04:48 +0200
+
 icinga (1.8.0-1) experimental; urgency=low
 
   * [5c6b2b6] Remove build-dep on iputils-ping and do a wrap-and-sort
