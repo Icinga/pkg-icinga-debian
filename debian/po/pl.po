@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: icinga 3.0.3-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
 "POT-Creation-Date: 2012-06-11 08:15+0200\n"
-"PO-Revision-Date: 2012-04-25 01:30+0200\n"
+"PO-Revision-Date: 2012-06-14 19:39+0200\n"
 "Last-Translator: Michał Kułach <michal.kulach@gmail.com>\n"
 "Language-Team: Polish <debian-l10n-polish@lists.debian.org>\n"
 "Language: pl\n"
@@ -102,7 +102,7 @@ msgstr ""
 #. Description
 #: ../icinga-common.templates:2001
 msgid "Use external commands with Icinga?"
-msgstr ""
+msgstr "Użyć poleceń zewnętrznych z Icingą?"
 
 #. Type: boolean
 #. Description
@@ -113,9 +113,14 @@ msgid ""
 "access to the nagios command pipe and is required if you want to be able to "
 "use the CGI command interface."
 msgstr ""
+"W celu zwiększenia bezpieczeństwa, Icinga nie szuka zewnętrznych poleń w swej "
+"domyślnej konfiguracji. Włączenie poleceń zewnętrznych da serwerowi WWW "
+"dostęp, w trybie do zapisu, do potoku polecenia nagios i jest wymagany aby "
+"móc używać interfejsu wiersza poleceń."
 
 #. Type: boolean
 #. Description
 #: ../icinga-common.templates:2001
 msgid "If unsure, do not enable external commands."
-msgstr ""
+msgstr "W przypadku wątpliwości, proszę wybrać \"nie\"."
+
