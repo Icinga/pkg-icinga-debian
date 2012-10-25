@@ -166,10 +166,8 @@ stop () {
                 break
             fi
             sleep 1
-            echo -n "."
         done
     fi
-    echo
     if ! check_named_pipe; then
       rm -f $icingapipe
     fi
