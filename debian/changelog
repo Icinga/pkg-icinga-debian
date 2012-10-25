@@ -1,3 +1,9 @@
+icinga (1.8.1-1~debmon60+2) debmon-squeeze; urgency=low
+
+  * [f9c35cb] Fix sql script version, otherwise it get applied twice which fails
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 25 Oct 2012 15:13:24 +0200
+
 icinga (1.8.1-1~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon-squeeze
