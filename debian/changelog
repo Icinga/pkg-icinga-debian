@@ -1,5 +1,6 @@
-icinga (1.8.1-1) experimental; urgency=low
+icinga (1.8.1-2) experimental; urgency=low
 
+  * [5947e03] Remove useless echo in do_stop of icingas initscript
   * [fb9c4cb] Imported Upstream version 1.8.1
 
  -- Alexander Wirt <formorer@debian.org>  Thu, 25 Oct 2012 07:04:55 +0200
