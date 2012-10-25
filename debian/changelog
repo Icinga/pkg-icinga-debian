@@ -1,3 +1,9 @@
+icinga (1.8.1-1) experimental; urgency=low
+
+  * [fb9c4cb] Imported Upstream version 1.8.1
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 25 Oct 2012 07:04:55 +0200
+
 icinga (1.8.0-1) experimental; urgency=low
 
   * [5c6b2b6] Remove build-dep on iputils-ping and do a wrap-and-sort
