@@ -166,7 +166,6 @@ stop () {
                 break
             fi
             sleep 1
-            echo -n "."
         done
     fi
     echo
