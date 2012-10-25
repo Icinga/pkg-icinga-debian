@@ -1,4 +1,4 @@
-icinga (1.8.1-1~debmon60+1) debmon-suqeeze; urgency=low
+icinga (1.8.1-1~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon-squeeze
 
