@@ -1,10 +1,19 @@
+# These templates have been reviewed by the debian-l10n-english
+# team
+#
+# If modifications/additions/rewording are needed, please ask
+# debian-l10n-english@lists.debian.org for advice.
+#
+# Even minor modifications require translation updates and such
+# changes should be coordinated with translators and reviewers.
+
 Template: icinga/check_external_commands
 Type: boolean
 Default: false
-_Description: Icinga check external commands:
- Icinga is not configured to look for external commands in the default
- configuration as a security feature. Enabling external commands will give
+_Description: Use external commands with Icinga?
+ As a security feature, Icinga in its default configuration does not
+ look for external commands. Enabling external commands will give
  the web server write access to the nagios command pipe and is required
  if you want to be able to use the CGI command interface.
  .
- If unsure, choose no.
+ If unsure, do not enable external commands.

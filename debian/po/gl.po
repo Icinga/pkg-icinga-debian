@@ -1,0 +1,119 @@
+# Galician translations for icinga package.
+# Copyright (C) 2012 THE icinga'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the icinga package.
+#
+# Jorge Barreiro Gonzalez <yortx.barry@gmail.com>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: icinga\n"
+"Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"PO-Revision-Date: 2012-06-25 01:36+0200\n"
+"Last-Translator: Jorge Barreiro <yortx.barry@gmail.com>\n"
+"Language-Team: Galician <proxecto@trasno.net>\n"
+"Language: gl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid "Apache servers to configure for icinga:"
+msgstr "Servidores apache a configurar para «icinga»:"
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid "Please select which Apache servers should be configured for icinga."
+msgstr "Escolla que servidores apache deben ser configurados para «icinga»."
+
+#. Type: multiselect
+#. Description
+#: ../icinga-cgi.templates:2001
+msgid ""
+"If you would prefer to perform configuration manually, leave all servers "
+"unselected."
+msgstr ""
+"Se prefire realizar a configuración manualmente, non escolla ningún servidor."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid "Icinga web administration password:"
+msgstr "Contrasinal do administrador web de «icinga»:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid ""
+"Please provide the password to be created with the \"icingaadmin\" user."
+msgstr "Introduza o contrasinal que se creará co usuario «icingaadmin»."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:3001
+msgid ""
+"This is the username and password to use when connecting to the Icinga "
+"server after completing the configuration. If you do not provide a password, "
+"you will have to configure access to Icinga manually later on."
+msgstr ""
+"Este é o nome de usuario e contrasinal a usar cando se conecte co servidor "
+"«icinga» tras completara configuración. Se non fornece un contrasinal, terá "
+"que configurar o acceso a «icinga» manualmente máis tarde."
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid "Re-enter password to verify:"
+msgstr "Volva a introducir o contrasinal para verificar:"
+
+#. Type: password
+#. Description
+#: ../icinga-cgi.templates:4001
+msgid ""
+"Please enter the same user password again to verify you have typed it "
+"correctly."
+msgstr ""
+"Introduza o mesmo contrasinal de novo para verificar que o escribiu "
+"correctamente."
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "Password input error"
+msgstr "Produciuse un erro ao introducir o contrasinal"
+
+#. Type: error
+#. Description
+#: ../icinga-cgi.templates:5001
+msgid "The two passwords you entered were not the same. Please try again."
+msgstr "Os dous contrasinais que forneceu non eran o mesmo. Volva a tentalo."
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
+msgstr "Quere usar ordes externas con «icinga»?"
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:2001
+msgid ""
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
+msgstr ""
+"Como característica de seguridade, «icinga» na súa configuración "
+"predeterminada non busca ordes externas. Activar ordes externas daralle ao "
+"servidor web acceso e escritura sobre a orde de canalización de «nagios» se "
+"quere poder usar a interface de ordes CGI."
+
+#. Type: boolean
+#. Description
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
+msgstr "Se non está seguro, non active as ordes externas."

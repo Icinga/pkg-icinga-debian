@@ -6,13 +6,27 @@ Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
 Standards-Version: 3.9.3
 Vcs-Browser: http://git.debian.org/?p=pkg-nagios/icinga.git
 Vcs-Git: git://git.debian.org/pkg-nagios/icinga.git
-Build-Depends: debhelper (>= 7), dpatch (>= 2.0.10), po-debconf, libperl-dev,
- libpng-dev | libpng12-dev, libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1), iputils-ping,
- autotools-dev, dpkg-dev (>= 1.13.19), libdbi-dev | libdbi0-dev
+Build-Depends: autotools-dev,
+               debhelper (>= 7),
+               dpatch (>= 2.0.10),
+               dpkg-dev (>= 1.13.19),
+               libdbi-dev | libdbi0-dev,
+               libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1),
+               libperl-dev,
+               libpng-dev | libpng12-dev,
+               po-debconf
 
 Package: icinga-common
 Architecture: all
-Depends: nagios-plugins-basic, coreutils (>= 4.5.3), bsd-mailx | mailx, adduser, lsb-base (>= 3.0-6), ucf (>= 0.28), ${misc:Depends}, ${perl:Depends}, ${misc:Depends}
+Depends: adduser,
+         bsd-mailx | mailx,
+         coreutils (>= 4.5.3),
+         dpkg,
+         lsb-base (>= 3.0-6),
+         nagios-plugins-basic,
+         ucf (>= 0.28),
+         ${misc:Depends},
+         ${perl:Depends}
 Recommends: nagios-plugins
 Description: host and network monitoring system - support files
  Icinga is a modular monitoring framework for hosts, services, and
@@ -34,7 +48,15 @@ Description: host and network monitoring system - support files
 
 Package: icinga-cgi
 Architecture: any
-Depends: icinga-common (= ${source:Version}), coreutils (>= 4.5.3), ucf (>= 0.28), apache2-utils, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, adduser, libjs-jquery (>= 1.4.2-2~)
+Depends: adduser,
+         apache2-utils,
+         coreutils (>= 4.5.3),
+         icinga-common (= ${source:Version}),
+         libjs-jquery (>= 1.4.2-2~),
+         ucf (>= 0.28),
+         ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends}
 Recommends: apache2 | httpd, nagios-images (>> 0.1)
 Description: host and network monitoring system - CGI scripts
  Icinga is a modular monitoring framework for hosts, services, and
@@ -56,7 +78,14 @@ Description: host and network monitoring system - CGI scripts
 
 Package: icinga-idoutils
 Architecture: any
-Depends: icinga-common (= ${source:Version}), ucf, dbconfig-common, ${misc:Depends}, ${perl:Depends}, ${misc:Depends}, ${shlibs:Depends}, lsb-base (>= 3.0-6), libdbd-mysql | libdbd-pgsql
+Depends: dbconfig-common,
+         icinga-common (= ${source:Version}),
+         libdbd-mysql | libdbd-pgsql,
+         lsb-base (>= 3.0-6),
+         ucf,
+         ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends}
 Recommends: mysql-client | postgresql-client
 Description: host and network monitoring system - icinga-dataobjects support
  Icinga is a modular monitoring framework for hosts, services, and
@@ -79,7 +108,9 @@ Description: host and network monitoring system - icinga-dataobjects support
 
 Package: icinga
 Architecture: any
-Depends: icinga-core (= ${binary:Version}), icinga-cgi (= ${binary:Version}), ${misc:Depends}
+Depends: icinga-cgi (= ${binary:Version}),
+         icinga-core (= ${binary:Version}),
+         ${misc:Depends}
 Suggests: nagios-nrpe-plugin
 Description: host and network monitoring system - metapackage
  Icinga is a modular monitoring framework for hosts, services, and
@@ -102,7 +133,10 @@ Description: host and network monitoring system - metapackage
 
 Package: icinga-core
 Architecture: any
-Depends: ${shlibs:Depends}, icinga-common (= ${source:Version}), ${perl:Depends}, ${misc:Depends}
+Depends: icinga-common (= ${source:Version}),
+         ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends}
 Suggests: nagios-nrpe-plugin
 Replaces: icinga
 Description: host and network monitoring system - core files
@@ -126,7 +160,7 @@ Description: host and network monitoring system - core files
 Package: icinga-doc
 Architecture: all
 Section: doc
-Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
 Description: host and network monitoring system - documentation
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
@@ -149,7 +183,10 @@ Package: icinga-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: icinga-core (= ${binary:Version}), ${perl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Depends: icinga-core (= ${binary:Version}),
+         ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends}
 Description: host and network monitoring system - debug files
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to

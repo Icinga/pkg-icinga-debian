@@ -46,6 +46,15 @@ log()
   log_action_end_msg ${success:-0} "$*"
 }
 
+check_run () {
+	if [ ! -d '/var/run/icinga' ];
+	then
+		mkdir /var/run/icinga
+		chown nagios:nagios /var/run/icinga
+		chmod 0750 /var/run/icinga
+	fi
+}
+
 check_started () {
   if [ -e "$CGICFG" ]
   then
@@ -157,10 +166,8 @@ stop () {
                 break
             fi
             sleep 1
-            echo -n "."
         done
     fi
-    echo
     if ! check_named_pipe; then
       rm -f $icingapipe
     fi
@@ -206,6 +213,8 @@ reload () {
     exit 6
  fi
 }
+
+check_run
 
 case "$1" in
   start)

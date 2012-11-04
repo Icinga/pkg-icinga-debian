@@ -1,3 +1,76 @@
+icinga (1.8.1-2) experimental; urgency=low
+
+  * [4fb9f91] Fix broker filename in idoutils README.Debian.
+    Thanks to Michael Friedrich catching this error
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 04 Nov 2012 21:57:50 +0100
+
+icinga (1.8.1-1) experimental; urgency=low
+
+  * [5947e03] Remove useless echo in do_stop of icingas initscript
+  * [fb9c4cb] Imported Upstream version 1.8.1
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 25 Oct 2012 07:04:55 +0200
+
+icinga (1.8.0-1) experimental; urgency=low
+
+  * [5c6b2b6] Remove build-dep on iputils-ping and do a wrap-and-sort
+  * [3e31fec] Even more wrap-and-sort
+  * [0c39b06] Imported Upstream version 1.8.0
+    - Fix Conflicting declarations of variable highlight_table_rows
+      (Closes: #688459)
+    - Remove buggy sql creation script (never used by packages)
+      (Closes: #683320)
+  * [9752230] Remove obsolete patch 80_fix_dbd_handling.dpatch
+  * [74ea069] Remove obsolete patch 99_fix_epn.dpatch
+  * [ebc54b8] jquery was updated
+  * [c3c04db] contexthelp was removed from upstream
+  * [b876c8c] Fix jquery link
+  * [eec91d0] Don't ask question if there is no config (Closes: #689601)
+  * [ce7f089] Fix mainurl
+  * [7c8cb8d] Add indonesian translation (Closes: #677118)
+  * [c0ddb94] Update Polish translation (Closes: #678155)
+  * [7eccc2b] Make apache directory match more strict (Closes: #679476)
+  * [b0d4ee9] Handle /var/run/icinga on our own (Closes: #689551)
+  * [e604f8c] Install update sql files for idoutils
+
+ -- Alexander Wirt <alexander.wirt@credativ.de>  Fri, 19 Oct 2012 15:58:46 +0200
+
+icinga (1.7.2-1) experimental; urgency=low
+
+  * [4394714] Imported Upstream version 1.7.2
+    - Fix duplicated events (Closes: #686036)
+  * [683ca22] Cherrypick epn fix from git
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 29 Aug 2012 21:54:35 +0200
+
+icinga (1.7.1-2) unstable; urgency=low
+
+  [ Alexander Wirt ]
+  * [6dee566] Start after postgresql or mysql
+
+  [ Christian Perrier ]
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Closes: #674024
+  * [Debconf translation updates]
+  * Debconf templates and debian/control reviewed by the debian-l10n-
+    english team as part of the Smith review project. Closes: #674024
+  * [Debconf translation updates]
+  * Czech (Martin Sin).  Closes: #677033
+  * Swedish (Martin Bagge / brother).  Closes: #677064
+  * Russian (Yuri Kozlov).  Closes: #677178
+  * Slovak (Slavko).  Closes: #677240
+  * Portuguese (Américo Monteiro).  Closes: #677316
+  * Dutch; (Jeroen Schot).  Closes: #677357
+  * Danish (Joe Hansen).  Closes: #677808
+  * Italian (Luca Monducci).  Closes: #677841
+  * German (Holger Wansing).  Closes: #677914
+  * French (Steve Petruzzello).  Closes: #677952
+  * Galician ().  Closes: #678913
+  * Spanish; (Omar Campagne).  Closes: #678944
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 29 Jun 2012 23:02:35 +0200
+
 icinga (1.7.1-1) unstable; urgency=low
 
   * [b64d290] Imported Upstream version 1.7.1

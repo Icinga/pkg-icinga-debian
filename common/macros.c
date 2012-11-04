@@ -19,7 +19,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *****************************************************************************/
 
@@ -38,6 +38,7 @@
 #ifdef NSCORE
 extern int      use_large_installation_tweaks;
 extern int      enable_environment_macros;
+extern int	keep_unknown_macros;
 #endif
 
 int dummy;	/* reduce compiler warnings */
@@ -55,6 +56,15 @@ extern timeperiod       *timeperiod_list;
 
 char *macro_x_names[MACRO_X_COUNT]; /* the macro names */
 char *macro_user[MAX_USER_MACROS]; /* $USERx$ macros */
+
+struct macro_key_code {
+	char *name; /* macro key name */
+	int code;  /* numeric macro code, usable in case statements */
+	int clean_options;
+	char *value;
+};
+
+struct macro_key_code macro_keys[MACRO_X_COUNT];
 
 /**
  * These point to their corresponding pointer arrays in global_macros
@@ -83,6 +93,34 @@ icinga_macros *get_global_macros(void) {
 /************************ MACRO FUNCTIONS *************************/
 /******************************************************************/
 
+
+/*
+ * locate a macro key based on its name by using a binary search
+ * over all keys. O(log(n)) complexity and a vast improvement over
+ * the previous linear scan
+ */
+const struct macro_key_code *find_macro_key(const char *name) {
+	unsigned int high, low = 0;
+	int value;
+	struct macro_key_code *key;
+
+	high = MACRO_X_COUNT;
+	while (high - low > 0) {
+		unsigned int mid = low + ((high - low) / 2);
+		key = &macro_keys[mid];
+		value = strcmp(name, key->name);
+		if (value == 0) {
+			return key;
+		}
+		if (value > 0)
+			low = mid + 1;
+		else
+			high = mid;
+	}
+	return NULL;
+}
+
+
 /**
  * replace macros in notification commands with their values,
  * the thread-safe version
@@ -93,7 +131,6 @@ int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffe
 	char *buf_ptr = NULL;
 	char *delim_ptr = NULL;
 	int in_macro = FALSE;
-	int x = 0;
 	char *selected_macro = NULL;
 	char *original_macro = NULL;
 	char *cleaned_macro = NULL;
@@ -167,14 +204,14 @@ int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffe
 
 			/* an error occurred - we couldn't parse the macro, so continue on */
 			if (result == ERROR) {
-				log_debug_info(DEBUGL_MACROS, 0, " WARNING: An error occurred processing macro '%s'!\n", temp_buffer);
+				logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: An error occurred processing macro '%s'!\n", temp_buffer);
 				if (free_macro == TRUE)
 					my_free(selected_macro);
 			}
 
 			/* we already have a macro... */
 			if (result == OK)
-				x = 0;
+				; /* do nothing special if things worked out ok */
 
 			/* an escaped $ is done by specifying two $$ next to each other */
 			else if (!strcmp(temp_buffer, "")) {
@@ -190,12 +227,21 @@ int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffe
 
 				log_debug_info(DEBUGL_MACROS, 2, "  Non-macro.  Running output (%lu): '%s'\n", (unsigned long)strlen(*output_buffer), *output_buffer);
 
-				/* add the plain text to the end of the already processed buffer */
-				*output_buffer = (char *)realloc(*output_buffer, strlen(*output_buffer) + strlen(temp_buffer) + 3);
-				strcat(*output_buffer, "$");
-				strcat(*output_buffer, temp_buffer);
-				if (buf_ptr != NULL)
+#ifdef NSCORE
+				if (keep_unknown_macros == TRUE) {
+#endif
+					/* add the plain text to the end of the already processed buffer */
+					*output_buffer = (char *)realloc(*output_buffer, strlen(*output_buffer) + strlen(temp_buffer) + 3);
 					strcat(*output_buffer, "$");
+					strcat(*output_buffer, temp_buffer);
+					if (buf_ptr != NULL)
+						strcat(*output_buffer, "$");
+#ifdef NSCORE
+				} else {
+					/* do not process unknown macros */
+					logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Skipping unknown macro '$%s$', removing it from output! Fix your config, or set keep_unknown_macros accordingly...\n", temp_buffer);
+				}
+#endif
 			}
 
 			/* insert macro */
@@ -252,11 +298,11 @@ int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffe
 		}
 	}
 
+	/* free copy of input buffer */
+	my_free(save_buffer);
+
 	log_debug_info(DEBUGL_MACROS, 1, "  Done.  Final output: '%s'\n", *output_buffer);
 	log_debug_info(DEBUGL_MACROS, 1, "**** END MACRO PROCESSING *************\n");
-
-	if (save_buffer)
-		free(save_buffer);
 
 	return OK;
 }
@@ -446,8 +492,11 @@ int grab_macro_value_r(icinga_macros *mac, char *macro_buffer, char **output, in
 	contactsmember *temp_contactsmember = NULL;
 	char *temp_buffer = NULL;
 	int delimiter_len = 0;
-	register int x;
-	int result = OK;
+	int x, result = OK;
+	const struct macro_key_code *mkey;
+
+	/* for the early cases, this is the default */
+	*free_macro = FALSE;
 
 	if (output == NULL)
 		return ERROR;
@@ -457,6 +506,54 @@ int grab_macro_value_r(icinga_macros *mac, char *macro_buffer, char **output, in
 
 	if (macro_buffer == NULL || clean_options == NULL || free_macro == NULL)
 		return ERROR;
+
+	/*
+	 * Handle $ARGn$ and $USERn$ macros first, since those are the most
+	 * common accessed ones per check. Since none of them requires to be
+	 * copied from the original buffer, we can return early as well
+	 */
+	/***** ARGV MACROS *****/
+	if (strstr(macro_buffer, "ARG") == macro_buffer) {
+
+		/* which arg do we want? */
+		x = atoi(macro_buffer + 3);
+
+		if (x <= 0 || x > MAX_COMMAND_ARGUMENTS) {
+			return ERROR;
+		}
+
+		/* use a pre-computed macro value */
+		*output = mac->argv[x-1];
+		return OK;
+	}
+
+	/***** USER MACROS *****/
+	if (strstr(macro_buffer, "USER") == macro_buffer) {
+
+		/* which macro do we want? */
+		x = atoi(macro_buffer + 4);
+
+		if (x <= 0 || x > MAX_USER_MACROS) {
+			return ERROR;
+		}
+
+		/* use a pre-computed macro value */
+		*output = macro_user[x-1];
+		return OK;
+	}
+
+	/* most frequently used "x" macro gets a shortcut */
+	if (mac->host_ptr && !strcmp(macro_buffer, "HOSTADDRESS")) {
+		if (mac->host_ptr->address)
+			*output = mac->host_ptr->address;
+		return OK;
+	}
+
+	if (mac->host_ptr && !strcmp(macro_buffer, "HOSTADDRESS6")) {
+		if (mac->host_ptr->address6)
+			*output = mac->host_ptr->address6;
+		return OK;
+	}
 
 	/* work with a copy of the original buffer */
 	if ((buf = (char *)strdup(macro_buffer)) == NULL)
@@ -489,72 +586,15 @@ int grab_macro_value_r(icinga_macros *mac, char *macro_buffer, char **output, in
 	}
 
 	/***** X MACROS *****/
-	/* see if this is an x macro */
-	for (x = 0; x < MACRO_X_COUNT; x++) {
-
-		if (macro_x_names[x] == NULL)
-			continue;
-
-		if (!strcmp(macro_name, macro_x_names[x])) {
-
-			log_debug_info(DEBUGL_MACROS, 2, "  macros[%d] (%s) match.\n", x, macro_x_names[x]);
-
-			/* get the macro value */
-			result = grab_macrox_value_r(mac, x, arg[0], arg[1], output, free_macro);
-
-			/* post-processing */
-			/* host/service output/perfdata and author/comment macros should get cleaned */
-			if ((x >= 16 && x <= 19) || (x >= 49 && x <= 52) || (x >= 99 && x <= 100) || (x >= 124 && x <= 127)) {
-				*clean_options |= (STRIP_ILLEGAL_MACRO_CHARS | ESCAPE_MACRO_CHARS);
-				log_debug_info(DEBUGL_MACROS, 2, "  New clean options: %d\n", *clean_options);
-			}
-			/* url macros should get cleaned */
-			if ((x >= 125 && x <= 126) || (x >= 128 && x <= 129) || (x >= 77 && x <= 78) || (x >= 74 && x <= 75)) {
-				*clean_options |= URL_ENCODE_MACRO_CHARS;
-				log_debug_info(DEBUGL_MACROS, 2, "  New clean options: %d\n", *clean_options);
-			}
-
-
-
-
-			break;
-		}
-	}
-
-	/* we already found the macro... */
-	if (x < MACRO_X_COUNT)
-		x = x;
-
-	/***** ARGV MACROS *****/
-	else if (strstr(macro_name, "ARG") == macro_name) {
-
-		/* which arg do we want? */
-		x = atoi(macro_name + 3);
-
-		if (x <= 0 || x > MAX_COMMAND_ARGUMENTS) {
-			my_free(buf);
-			return ERROR;
+	if ((mkey = find_macro_key(macro_name))) {
+		log_debug_info(DEBUGL_MACROS, 2, "  macros[%d] (%s) match.\n", mkey->code, macro_x_names[mkey->code]);
+		if (mkey->clean_options) {
+			*clean_options |= mkey->clean_options;
+			log_debug_info(DEBUGL_MACROS, 2, "  New clean options: %d\n", *clean_options);
 		}
 
-		/* use a pre-computed macro value */
-		*output = mac->argv[x-1];
-		*free_macro = FALSE;
-	}
-
-	/***** USER MACROS *****/
-	else if (strstr(macro_name, "USER") == macro_name) {
-
-		/* which macro do we want? */
-		x = atoi(macro_name + 4);
-
-		if (x <= 0 || x > MAX_USER_MACROS) {
-			my_free(buf);
-			return ERROR;
-		}
-
-		/* use a pre-computed macro value */
-		*output = macro_user[x-1];
-		*free_macro = FALSE;
+		/* get the macro value */
+		result = grab_macrox_value_r(mac, mkey->code, arg[0], arg[1], output, free_macro);
 	}
 
 	/***** CONTACT ADDRESS MACROS *****/
@@ -1931,6 +1971,13 @@ int grab_standard_hostgroup_macro_r(icinga_macros *mac, int macro_type, hostgrou
 				temp_len += strlen(temp_hostsmember->host_name) + 2;
 			}
 		}
+
+		/* if there no hostgroups members, we need to malloc at least an empty string for future calls of this function */
+		if (!temp_len) {
+			*output = calloc(1, 1);
+			return OK;
+		}
+
 		/* allocate or reallocate the memory buffer */
 		if (*output == NULL) {
 			*output = (char *)malloc(temp_len);
@@ -2266,6 +2313,13 @@ int grab_standard_servicegroup_macro_r(icinga_macros *mac, int macro_type, servi
 				temp_len += strlen(temp_servicesmember->host_name) + strlen(temp_servicesmember->service_description) + 3;
 			}
 		}
+
+		/* if there no servicegroups members, we need to malloc at least an empty string for future calls of this function */
+		if (!temp_len) {
+			*output = calloc(1, 1);
+			return OK;
+		}
+
 		/* allocate or reallocate the memory buffer */
 		if (*output == NULL) {
 			*output = (char *)malloc(temp_len);
@@ -2602,6 +2656,12 @@ char *get_url_encoded_string(char *input) {
 }
 
 
+static int macro_key_cmp(const void *a_, const void *b_) {
+	struct macro_key_code *a = (struct macro_key_code *)a_;
+	struct macro_key_code *b = (struct macro_key_code *)b_;
+
+	return strcmp(a->name, b->name);
+}
 
 /******************************************************************/
 /***************** MACRO INITIALIZATION FUNCTIONS *****************/
@@ -2611,6 +2671,8 @@ char *get_url_encoded_string(char *input) {
  * initializes global macros
  */
 int init_macros(void) {
+
+	int x;
 
 	init_macrox_names();
 
@@ -2625,6 +2687,56 @@ int init_macros(void) {
 
 	/* backwards compatibility hack */
 	macro_x = global_macros.x;
+
+	/*
+	 * Now build an ordered list of X macro names so we can
+	 * do binary lookups later and avoid a ton of strcmp()'s
+	 * for each and every check that gets run. A hash table
+	 * is actually slower, since the most frequently used
+	 * keys are so long and a binary lookup is completed in
+	 * 7 steps for up to ~200 keys, worst case.
+	 */
+	for (x = 0; x < MACRO_X_COUNT; x++) {
+		macro_keys[x].code = x;
+		macro_keys[x].name = macro_x_names[x];
+
+		switch (x) {
+			/* host/service output/perfdata and author/comment macros should get cleaned */
+			case MACRO_HOSTOUTPUT:
+			case MACRO_SERVICEOUTPUT:
+			case MACRO_HOSTPERFDATA:
+			case MACRO_SERVICEPERFDATA:
+			case MACRO_HOSTACKAUTHOR:
+			case MACRO_HOSTACKCOMMENT:
+			case MACRO_SERVICEACKAUTHOR:
+			case MACRO_SERVICEACKCOMMENT:
+			case MACRO_LONGHOSTOUTPUT:
+			case MACRO_LONGSERVICEOUTPUT:
+			case MACRO_HOSTGROUPNOTES:
+			case MACRO_SERVICEGROUPNOTES:
+				macro_keys[x].clean_options = (STRIP_ILLEGAL_MACRO_CHARS | ESCAPE_MACRO_CHARS);
+				break;
+
+			/* url macros should get cleaned */
+			case MACRO_HOSTACTIONURL:
+			case MACRO_HOSTNOTESURL:
+			case MACRO_SERVICEACTIONURL:
+			case MACRO_SERVICENOTESURL:
+			case MACRO_HOSTGROUPNOTESURL:
+			case MACRO_HOSTGROUPACTIONURL:
+			case MACRO_SERVICEGROUPNOTESURL:
+			case MACRO_SERVICEGROUPACTIONURL:
+				macro_keys[x].clean_options = URL_ENCODE_MACRO_CHARS;
+				break;
+
+			/* by default, we do not clean anything */
+			default:
+				macro_keys[x].clean_options = 0;
+				break;
+		}
+	}
+
+	qsort(macro_keys, x, sizeof(struct macro_key_code), macro_key_cmp);
 
 	return OK;
 }
@@ -2968,13 +3080,13 @@ int clear_service_macros_r(icinga_macros *mac) {
 	my_free(mac->x[MACRO_SERVICEOUTPUT]);
 	my_free(mac->x[MACRO_LONGSERVICEOUTPUT]);
 	my_free(mac->x[MACRO_SERVICEPERFDATA]);
-	
+
 	/* recursive, but persistent */
 	my_free(mac->x[MACRO_SERVICECHECKCOMMAND]);
 	my_free(mac->x[MACRO_SERVICEACTIONURL]);
 	my_free(mac->x[MACRO_SERVICENOTESURL]);
 	my_free(mac->x[MACRO_SERVICENOTES]);
-	
+
 	/* numbers or necessarily autogenerated string */
 	my_free(mac->x[MACRO_SERVICECHECKTYPE]);
 	my_free(mac->x[MACRO_SERVICESTATETYPE]);
@@ -3107,7 +3219,7 @@ int clear_hostgroup_macros_r(icinga_macros *mac) {
 	/* these are strings */
 	my_free(mac->x[MACRO_HOSTGROUPNAME]);
 	my_free(mac->x[MACRO_HOSTGROUPALIAS]);
-	
+
 	/* generated */
 	my_free(mac->x[MACRO_HOSTGROUPMEMBERS]);
 

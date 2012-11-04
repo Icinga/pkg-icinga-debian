@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: icinga 1.6.1-2\n"
+"Project-Id-Version: icinga 1.7.0-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
-"PO-Revision-Date: 2012-02-09 15:56+0100\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"PO-Revision-Date: 2012-06-13 12:46+0200\n"
 "Last-Translator: Jeroen Schot <schot@a-eskwadraat.nl>\n"
 "Language-Team: Debian l10n Dutch <debian-l10n-dutch@lists.debian.org>\n"
 "Language: nl\n"
@@ -95,22 +95,26 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
+msgstr "Externe commando's gebruiken met Icinga?"
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
+#: ../icinga-common.templates:2001
 msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
 msgstr ""
+"Als een extra veiligheidsmaatregel kijkt de standaardconfiguratie van Icinga "
+"niet naar externe commando's. Wanneer u externe commando's activeert geeft u "
+"de webserver schrijftoegang tot de commandopijp van nagios, dit is een "
+"vereiste voor de CGI-commando-interface."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
+msgstr "Als u twijfelt, activeer externe commando's dan niet."

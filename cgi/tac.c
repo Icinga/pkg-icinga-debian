@@ -21,7 +21,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  ***********************************************************************/
 
 /** @file tac.c
@@ -70,6 +70,7 @@ extern int show_tac_header;
 extern int show_tac_header_pending;
 extern int embedded;
 extern int refresh;
+extern int refresh_type;
 extern int display_header;
 extern int daemon_check;
 extern int tac_header;
@@ -1204,7 +1205,7 @@ void display_tac_overview(void) {
 
 	if (tac_header == TRUE && show_tac_header == FALSE) { // we want the top header, but not the tac version
 
-		printf("	<div id='banner' align='center'><img src='%s%s' alt='%s' /></div>", url_images_path, TAC_HEADER_DEFAULT_LOGO, TAC_HEADER_DEFAULT_LOGO_ALT);
+		printf("	<div class='tac_banner' align='center'><img src='%s%s' alt='%s' /></div>", url_images_path, TAC_HEADER_DEFAULT_LOGO, TAC_HEADER_DEFAULT_LOGO_ALT);
 		return; //we're done here
 
 	} else if (tac_header == TRUE && show_tac_header == TRUE) { // we want the tac header
@@ -1216,7 +1217,7 @@ void display_tac_overview(void) {
 
 		printf("<tr>\n");
 		printf("<td nowrap='nowrap'><img src='%s%s' alt='Hosts' width='16' height='16' align='right' /></td>\n", url_images_path, TAC_HEADER_HOST_ICON);
-		printf("<td><table width='92%%' border='0'>\n");
+		printf("<td><table width='95%%' border='0'>\n");
 
 		/* 1. Row Hosts */
 		printf("<tr>\n");
@@ -1306,6 +1307,12 @@ void display_tac_overview(void) {
 		printf("<a target='main' href='%s?host=all&style=hostdetail' title='%s'> %d TOTAL </a></div>\n", STATUS_CGI, TAC_TITLE_HOST_ALL, total_hosts);
 		printf("</div>\n");
 		printf("</td>\n");
+
+		if (refresh_type == JAVASCRIPT_REFRESH) {
+			printf("<td nowrap align=center>\n");
+			printf("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href='#' onClick='icinga_do_refresh(); return false;' title=\"I'm so lonely up here. Where should I go?\"><img src='%s%s' border=0 style='margin-bottom:-2px;'></a>\n", url_images_path, RELOAD_ICON);
+			printf("</td>\n");
+		}
 
 		printf("</tr>\n");
 		printf("</table></td>\n");
@@ -1466,7 +1473,7 @@ void display_tac_overview(void) {
 		printf("</table></td>\n");
 
 		/* Monitor Performance */
-		printf("<td width='460px' style='background-image: url(%s%s)'><table width='280px' border='0' align='right' class='tacheader-monitor-performance-container'>\n", url_images_path, TAC_HEADER_LOGO);
+		printf("<td width='460px' height='70px' style='background-image: url(%s%s)'><table width='280px' border='0' align='right' class='tacheader-monitor-performance-container'>\n", url_images_path, TAC_HEADER_LOGO);
 		printf("<tr>\n");
 		printf("<td><img src='%s%s' width='16' height='16' alt='Hosts (active/passive)' /></td>\n", url_images_path, TAC_HEADER_HOST_ICON);
 		printf("<td>\n");
@@ -1796,10 +1803,6 @@ void display_tac_overview(void) {
 		printf("<tr>\n");
 
 		printf("<td valign=bottom align=right>\n");
-
-		/* display context-sensitive help */
-		display_context_help(CONTEXTHELP_TAC);
-
 		printf("</td>\n");
 
 		printf("<td>\n");

@@ -1,14 +1,14 @@
 # Italian (it) translation of debconf templates for icinga
 # COPYRIGHT (C) 2010 THE ICINGA'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the icinga package.
-# Luca Monducci <luca.mo@tiscali.it>, 2008-2010.
-# 
+# Luca Monducci <luca.mo@tiscali.it>, 2008-2012.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: icinga 1.0.1-3 italian debconf\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
-"PO-Revision-Date: 2010-05-08 14:12+0200\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"PO-Revision-Date: 2012-06-16 20:22+0200\n"
 "Last-Translator: Luca Monducci <luca.mo@tiscali.it>\n"
 "Language-Team: Italian <debian-l10n-italian@lists.debian.org>\n"
 "Language: it\n"
@@ -35,7 +35,7 @@ msgid ""
 "If you would prefer to perform configuration manually, leave all servers "
 "unselected."
 msgstr ""
-"Per effettuare una configurazione manuale, lasciare tutti i server non "
+"Per effettuare la configurazione manualmente, lasciare tutti i server non "
 "selezionati."
 
 #. Type: password
@@ -60,7 +60,7 @@ msgid ""
 "you will have to configure access to Icinga manually later on."
 msgstr ""
 "Questi sono il nome utente e la password per connettersi al server Icinga al "
-"termine della configurazione. Se non si specifica una password, in seguito "
+"termine della configurazione. Se non viene inserita una password, in seguito "
 "si dovrà configurare l'accesso a Icinga manualmente."
 
 #. Type: password
@@ -76,8 +76,8 @@ msgid ""
 "Please enter the same user password again to verify you have typed it "
 "correctly."
 msgstr ""
-"Specificare nuovamente la stessa password per verificare che sia stata "
-"inserita correttamente."
+"Inserire di nuovo la stessa password per verificare che sia stata scritta "
+"correttamente."
 
 #. Type: error
 #. Description
@@ -93,22 +93,26 @@ msgstr "Le due password sono diverse. Riprovare."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
+msgstr "Usare i comandi esterni con Icinga?"
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
+#: ../icinga-common.templates:2001
 msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
 msgstr ""
+"Come misura di sicurezza, con la configurazione predefinita Icinga non "
+"ricerca comandi esterni. Con l'abilitazione dei comandi esterni si concede "
+"al server web l'accesso in scrittura alla pipe di comando nagios, ciò è "
+"necessario per usare l'interfaccia CGI."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
+msgstr "Se in dubbio, non abilitare i comandi esterni."

@@ -3,21 +3,22 @@
 # Copyright (C) 2011 THE icinga'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the icinga package.
 # Automatically generated, 2011.
-# Slavko <linux@slavino.sk>, 2011.
+# Slavko <linux@slavino.sk>, 2011, 2012.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: icinga 1.5.1-1\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2010-05-06 08:46+0200\n"
-"PO-Revision-Date: 2011-09-18 13:24+0200\n"
+"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"PO-Revision-Date: 2012-06-12 17:05+0200\n"
 "Last-Translator: Slavko <linux@slavino.sk>\n"
-"Language-Team: Slovak <debian-l10n-slovak@lists.debian.org>\n"
+"Language-Team: slovenčina <debian-l10n-slovak@lists.debian.org>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-POFile-SpellExtra: Icinga icinga nagios pipe Apache icingaadmin\n"
 
 #. Type: multiselect
 #. Description
@@ -61,7 +62,7 @@ msgid ""
 "server after completing the configuration. If you do not provide a password, "
 "you will have to configure access to Icinga manually later on."
 msgstr ""
-"Toto používateľské meno a heslo slúži na prístup k serveru Icinga, po "
+"Toto používateľské meno a heslo slúži na prístup k serveru Icinga po "
 "dokončení nastavenia. Ak nezadáte heslo, budete musieť nastaviť prístup "
 "neskôr manuálne."
 
@@ -95,22 +96,26 @@ msgstr "Zadané dve heslá sa nezhodujú. Prosím, skúste znova."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "Icinga check external commands:"
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "Use external commands with Icinga?"
+msgstr "Má icinga použiť externé príkazy?"
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
+#: ../icinga-common.templates:2001
 msgid ""
-"Icinga is not configured to look for external commands in the default "
-"configuration as a security feature. Enabling external commands will give "
-"the web server write access to the nagios command pipe and is required if "
-"you want to be able to use the CGI command interface."
+"As a security feature, Icinga in its default configuration does not look for "
+"external commands. Enabling external commands will give the web server write "
+"access to the nagios command pipe and is required if you want to be able to "
+"use the CGI command interface."
 msgstr ""
+"S ohľadom na bezpečnosť, predvolená konfigurácia Icinga nepovoľuje externé "
+"príkazy. Povolenie externých príkazov poskytne webovému serveru právo na "
+"zápis do príkazovej rúry (pipe) nagios a je vyžadované, ak chcete používať "
+"príkazové rozhranie CGI."
 
 #. Type: boolean
 #. Description
-#: ../icinga-common.templates:1001
-msgid "If unsure, choose no."
-msgstr ""
+#: ../icinga-common.templates:2001
+msgid "If unsure, do not enable external commands."
+msgstr "Ak si nie ste istý, nepovoľujte externé príkazy."

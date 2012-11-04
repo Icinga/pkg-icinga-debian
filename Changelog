@@ -1,8 +1,241 @@
 #######################
-Icinga 1.7.x Change Log
+Icinga 1.8.x Change Log
 #######################
 
 Thanks to all contributers, testers and developers. Please read AUTHORS and THANKS for a detailed list :-)
+
+UPGRADE NOTES
+
+* for idoutils database upgrades, check the following for upgrade sql scripts
+	- module/idoutils/db/<yourrdbms>/upgrade/
+* for configuration file changes, check the following for added/removed config options
+	- core, classic ui: sample-config/updates/
+	- idoutils: module/idoutils/config/updates
+
+1.8.1 - 25/10/2012
+
+FIXES
+* core: fix faulty macro cleaning, replacing spaces with pluses where they shouldn't be cleaned #3397 - MF
+
+1.8.0 - 18/10/2012
+
+host object attributes 'vrml_image' and '3dcoords' are deprecated due to the removal of the 3d statusmap (statuswrl).
+
+ENHANCEMENTS
+
+* core: pass long_output to neb api for statechange data #2650 - MF
+* core/classic ui: make hashfunc more efficient by using sdbm #2761 - MF/GB
+* core: try the most common macros ($ARGn$, $USERn$) first (Andreas Ericsson) #2674 - MF
+* core: use binary search when looking up macro names, instead of insane strcmp() loops (Andreas Ericsson) #2675 - MF
+* core: add useful message to p1.pl when epn plugin does not call exit() (Sven Nierlein) #2431 -MF
+* core: re-enable state based escalation ranges, using cast tricks #2878 - MF
+	** livestatus and other neb modules not using the icinga headers won't see those
+* core: add a command to disable notifications program-wide with expire time as scheduled event #905 - MF
+	** DISABLE_NOTIFICATIONS_EXPIRE_TIME, works for global notifications
+* core: add hint on icinga.cfg package location, and tip to read Changelog CHANGES on upgrades #2879 - MF
+* core: add new callback NEBTYPE_CONTACTNOTIFICATIONMETHOD_EXECUTE to allow override of sending notifications #2041 - MF
+* core: only reap results when checkresult_list is not overloaded (max_check_result_list_items) (thx Thomas Gelf) #3099 - MF
+* core: log a message when reaper max time is reached #3159 - MF
+
+* classic ui: Dropped statuswml.cgi #2654 - RB
+* classic ui: Dropped statuswrl.cgi #2359 - RB
+* classic ui: Added action_url/notes_url to status.cgi for csvoutput and jsonoutput #2553 - RB
+* classic ui: Added pagination to various cgi's (thx to ideas and partly source from Nagios, Thruk, Icinga Web) #2725 - RB
+	** status.cgi for host & service status
+	** config.cgi
+	** extinfo.cgi for scheduling queue, comments and downtimes
+	** history.cgi
+	** notifications.cgi
+	** showlog.cgi
+	** icons sourced from "Silk icon set" (http://www.famfamfam.com/lab/icons/silk/) created by Mark James.
+* classic ui: Changed search in config.cgi to regex #2884 - RB
+* classic ui: Added config option to let read-only users see comments and downtimes #2699 - RB
+* classic ui: Added selection of timeperiod for notifications and history #2341 - RB
+* classic ui: add support for disable notifications with expire time to extinfo.cgi, Process Info #905 - MF
+* classic ui: Refactored reading of logfiles again #972 - RB
+* classic ui: Dropped context help entirely #2892 - RB
+* classic ui: Separate host_name/display_name and service_description/display_name in json output #2693 - RB
+* classic ui: Added date/time selection for all date/time input fields #2576 - RB
+* classic ui: Added 'All Problems' to 'Problems' group in menu #2645 - RB
+* classic ui: Added host/service selection for commands, leaving out passive only checks on check reschedule in cmd.cgi #2697 - RB
+* classic ui: add host_has_been_acknowledged and service_has_been_acknowledged to extinfo.cgi jsonoutput (Torsten Rehn) #3000 - MF
+* classic ui: Added host/service group filter to notifications.cgi & history.cgi #2679 - RB
+* classic ui: javascript refresh jumps to page top, not restoring previous scrolling position; add url param 'scroll=' #2855 - MF
+* classic ui: Cleaned up "linkBox" in all cgi's #3154 - RB
+* classic ui: add command to delete host downtime and all associated service downtimes (extinfo.cgi, status.cgi command drop down) #1572 - RD/MF
+* classic ui: Added config option to convert login username to lower case #3171 - AH
+* classic ui: Added a refresh button to tac.cgi in header mode #3164 - RB
+* classic ui: Added state type to JSON in status.cgi #3195 - RB
+
+* idoutils: do not pass host and port if not set in the config, letting mysql|pgsql drivers autoselect the socket #2698 - MF
+* idoutils: fix doubled quotes by skipping escaping data (Oracle only) #2534 - TD
+* idoutils: change hasfunc to use sdbm algorithm for hashing precached objects #2792i - MF/GB
+* idoutils: add disable_notif_expire_time to programstatus table - #905 - MF
+* idoutils: add socket_perm to set unix socket permissions (Lennart Betz) #2659 - MF
+* idoutils: upgradedb script for mysql installs all updates between $version and $currentrelease (Philipp Deneu) #2685 - MF
+* idoutils: add --with-libdbi-driver-dir to configure, libdbi_driver_dir to ido2db.cfg to pass the driver location instead of NULL by default #2691 - MF
+* idoutils: add experimental ido event to en/disable objects to ido2db (unusued in idomod!) #3068 - MF
+
+* install: add --with-mainurl to configure, allowing to set the main frame target url for index.html #2611 - MF
+
+* config: add config added/removed diffs between versions for better upgrading #2608 - MF
+	** sample-config/updates/ and module/idoutils/config/updates/
+
+* contrib: add nginx configuration for icinga classicui by Francisco Miguel Biete into contrib/nginx #2253 - MF
+
+* docs: add a new stylesheet and rework docbook.xsl #3046 - MF
+* docs: add tocs for all sections #3193 - WN
+* docs: add jquery toggle for toc #3193 - MF
+* docs: create a dedicated page for packages and their customizations #2905 - LB
+* docs: create a howto define a command, translate macros and testdrive plugins manually #2692 - WN
+* docs: add a hint to debian backports, ubuntu ppa and rhel repoforge and link to wiki url for quickstart guides #2803 - WN
+* docs: add new icinga-web-intro, icinga reporting for 1.8 #3218 #3264 - LB
+* docs: all other new config options due to 1.8 features, please check https://dev.icinga.org/projects/icinga-docs/versions/80
+
+* icinga.spec: use --with-mainurl to set the default to /icinga/cgi-bin/status.cgi?host=all&type=detail&servicestatustypes=29 #2611 - MF
+* icinga.spec: add devel package #2634 - MF
+
+FIXES
+
+* core: unify check scheduling replacement logic for new events (Andreas Ericsson) #2676 - MF
+* core: get rid of the instame macro usage while logging alerts and states (Andreas Ericsson) #2665 - MF
+* core: revamp the detection of embedded perl usage directive "# icinga: +epn" (Andreas Ericsson) #2197 - MF
+* core: fix whitespaces are not stripped using multiple templates ("use abc, def, ghi") #2701
+* core: make delete_downtime_by_hostname_service_description_start_time_comment threadsafe (Andreas Ericsson) #2899
+* core: bail out early with config error if resource.cfg macros contain NULL values #2879 - MF
+* core: fix logical bug on icinga.cfg detection on config read #2879 - MF
+* core: free raw_command immediately after processing the macros / not needing them anymore - MF
+* core: fsync() files before fclose() (Andreas Ericsson) #2949 - MF
+* ocre: remove weird switch() statement when scanning checkresult queue (Andreas Ericsson) #2950 - MF
+* core: fix deleting too old check result files (Andreas Ericsson) #2951 - MF
+* core: avoid duplicate events when scheduling forced host|service check (Imri Zvik) #2993 - MF
+* core: unknown macros are not replaced, and misleading to single dollar signs #2291 - MF
+	** you can revert to the old behaviour with keep_unknown_macros=1 in icinga.cfg
+* core: fix having empty host/servicegroups, $HOST|SERVICEGROUPMEMBERS$ on-demand macro returns garbage on realloc (thx roguelazer) #2913 - MF
+* core: allow multiple empty (host)groups chained with enabled allow_empty_hostgroup_assignment #2437 - MF
+* core: fixed when deleting an expiring ack the event to delete the ack doesn't get deleted #3084 - RB
+* core: fix error checking on subgroup expanding on host|service|contactgroup members #3088 - MF/RB
+* core: fix lockup on DEL_DOWNTIME_BY_HOST_NAME command #1572 - MF
+* core: fix next_check attribute not updated after scheduling new check #2265 - MF
+
+* classic ui: fix setting send_notification or sticky_ack as GET param has no effect on cmd.cgi acks #2926 - MF
+	** now you can finally disable checkboxes default ticked with these options
+* classic ui: Fixed clicking an (action|notes)url in a row automatically ticks the row for the commands #2809 - RB
+* classic ui: menu search can't handle umlauts in hostnames correctly (changed to utf8) #2999 - MF
+* classic ui: fix cmd.cgi does not read enviroment variable ICINGA_COMMAND_FILE (thx Dirk Goetz) #3106 - MF
+* classic ui: Fixed stylesheets for tac_header and menu not working well #3026 - RB
+
+* idoutils: set result handle explicitely to NULL after dbi_result_free() to prevent memory free'ing corruption #2612 - MF/GB
+* idoutils: fix ignoring mysql password in create_mysqldb.sh #2994 - MF
+* idoutils: fix sla_downtime_select query and result handle; scheduled downtime merge statement #2780 - MF
+* idoutils: fix insert on duplicate key with multiple unique keys marked unsafe in mysql >= 5.5.24; rewrite all queries #3008 - MF
+* idoutils: fix redundant indexes in MySQL schema (thx Michael Renner) #3018 - MF
+* idoutils: re-add missing indexes from #1110 resolving performance issues on all supported rdbms #2618 - MF
+* idoutils: fix IDOUtils on PostgreSQL, recreates service objects in icinga_objects (thx Torsten Fohrer) #3166 - MF
+
+* install: fix icinga.xml for solaris pkg not updated #2609 - CF
+
+* docs: fix wrong charset UTF-8 set in documentation #2091 - MF
+* docs: update the beginners page #3213 - WN
+* docs: update external command descriptions for DEL_DOWNTIME_BY_HOST_NAME, DEL_DOWNTIME_BY_START_TIME_COMMENT, DEL_DOWNTIME_BY_HOSTGROUP_NAME #3165 - WN
+* docs: add tar.gz urls to nsca and nrpe docs #2797 - WN
+* docs: fix cgi.conf - HTML and inline documentation mess and errors #2891 - WN
+* docs: cgiparams: cmd.cgi: send_notifications and sticky_ack now require 0|1 values, default is enabled #2927 - WN
+* docs: replace make db-doc2sql with location of plain schema sqls in etc/schema #2936 - WN
+* docs: fix icinga.conf and HTML documentation mess #2941 - LB
+* docs: fix an illegal_macro_output_char is missing from the sample config #2842 - WN
+* docs: fix Erronous example in Macros documentation #2966 - WN
+* docs: Names of config files irrelevant #3097 - WN
+* docs: fix idoutils db user grants miss EXECUTE #3192 - MF
+* docs: fix rong restart command in list of external commands #3214 - MF
+
+
+* icinga.spec: fix permissions on ido2db.cfg potentially world readable (Aaron Russo) #2897 - MF
+* icinga.spec: drop unsupported configure flags #3037 - MF
+
+CHANGES
+
+* core: neb struct statechange data += long_ouput #2650 - MF
+* core: new command
+	** DISABLE_NOTIFICATIONS_EXPIRE_TIME;<schedule_time>;<expire_time> (set schedule_time to now()) #905
+* core: unknown macros are not left on the output anymore, logging a warning instead
+	** either fix your config (i.e. wrong macros, escape dollar signs with another one)
+	** or set keep_unknown_macros=1 in icinga.cfg to revert to the old behaviour
+* core: max_check_result_list_items will set the max number of checkresults waiting for being processed #3099
+	** if checkresult_list is "full", the checkresult reaper will bail early
+	** leaving the core time to process the existing items on checkresult list
+	** max_check_result_list_items=0 is the default, disabling this feature
+	** max_check_result_list_items=1024 should work in larger distributed setups
+* core: new NEB callback NEBTYPE_CONTACTNOTIFICATIONMETHOD_EXECUTE (606) #2041
+
+* classic ui: changed "cgi_json_version" to 1.8 -> see Changelog_json for changes
+* classic ui: Changed cgi GET params
+	** Added "limit" and "start" for pagination to various cgi's - #2725
+	** Added "ts_start", "ts_end" and "order" to history.cgi and notifications.cgi - #2341
+	** Removed "archive" and "oldestfirst" from history.cgi and notifications.cgi - #2341
+	** Added "start_time", "end_time" and "timeperiod" to notifications.cgi - #2341
+	** "send_notification" and "sticky_ack" on cmd.cgi require 0|1 vars, if not set, default is 1 #2926
+	** add "scroll", interpreted by javascript reload to restore the scrolling position #2855
+	** Added "hostgroup" and "servicegroup" to history.cgi and notifications.cgi #2679
+	** Added "scroll", interpreted by javascript reload to restore the scrolling position #2855
+	** Added "search_string" and "item_name" to config.cgi #2884
+classic ui: Added/Changed cgi.cfg options
+	** authorized_for_comments_read_only - #2699
+	** authorized_for_downtimes_read_only - #2699
+	** authorized_contactgroup_for_comments_read_only - #2699
+	** authorized_contactgroup_for_downtimes_read_only - #2699
+	** "result_limit" (default: 50) - #2725
+	** "result_limit" replaces "default_num_displayed_log_entries" - #2725
+	** default_expiring_disabled_notifications_duration=86400 #905
+	** lowercase_user_name - #3171
+* classic ui: change strings in json output: !!!IMPORTANT!!!
+	** host -> host_name #2693
+	** service -> service_description #2693
+	** description -> service_description #2693
+	** added host_display_name #2693
+	** added service_display_name #2693
+	** added host_has_been_acknowledged and service_has_been_acknowledged to extinfo.cgi #3000
+	** added state_type to host and service status in status.cgi #3195
+* classic ui: added checkbox in cmd.cgi to deselect unintentional selected hosts/services #2697
+
+* idoutils: add disable_notif_expire_time to programstatus table #905
+* idoutils: ido2db.cfg new config options
+	** socket_perm (default 0755) #2659
+	** libdbi_driver_dir (default NULL) #2691
+* idoutils: add experimental IDO_API_{EN,DIS}ABLE_OBJECT in ido2db #3068
+
+* install: add --with-libdbi-driver-dir to configure #2691
+
+* docs: new stylesheet in html/docs/stylesheets/icinga-docs.css #3046
+* docs: add tocs for all sections #3193
+* docs: add toc toogle javascript in html/docs/js/{icinga-docs.js,jquery-min.js} #3193
+
+* icinga.spec: add devel package #2634
+* icinga.spec: forced update on icinga.cfg change package locations #2923
+
+
+
+1.7.2 - 27/08/2012
+
+FIXES
+* core: fix duplicated events on check scheduling logic for new events (Andreas Ericsson) #2676 #2993 - MF
+* core: avoid duplicate events when scheduling forced host|service check (Imri Zvik) #2993 - MF
+* core: get rid of the instame macro usage while logging alerts and states (Andreas Ericsson) #2665 - MF
+* core: revamp the detection of embedded perl usage directive "# icinga: +epn" (Andreas Ericsson) #2197 - MF
+* core: fix whitespaces are not stripped using multiple templates ("use abc, def, ghi") #2701 - MF
+* core: add hint on icinga.cfg package location, and tip to read Changelog CHANGES on upgrades #2879 - MF
+* core: bail out early with config error if resource.cfg macros contain NULL values #2879 - MF
+* core: fix logical bug on icinga.cfg detection on config read #2879 - MF
+* core: fsync() files before fclose() (Andreas Ericsson) #2948 - MF
+* core: remove weird switch() statement when scanning checkresult queue (Andreas Ericsson) #2950 - MF
+* core: fix deleting too old check result files (Andreas Ericsson) #2951 - MF
+
+* idoutils: fix icinga mysql db creation script grants access to all dbs #2917 - MF
+* idoutils: fix ignoring mysql password in create_mysqldb.sh #2994 - MF
+
+* icinga.spec: forced update on icinga.cfg change package locations #2923 -MF
+* icinga.spec: fix permissions on ido2db.cfg potentially world readable (Aaron Russo) #2897 - MF
+
 
 1.7.1 - 18/06/2012
 
@@ -22,6 +255,7 @@ FIXES
 
 * install: adapt lsb headers for icinga and ido2db #2637 - MF
 * install: fix typo in contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event (thanks uosiu) #2671 - MF
+
 
 
 1.7.0 - 15/05/2012

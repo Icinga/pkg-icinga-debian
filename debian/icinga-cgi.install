@@ -1,10 +1,9 @@
-debian/httpd.webapps-common /usr/share/icinga/debian
 debian-configs/cgi.cfg /etc/icinga
-usr/share/icinga/htdocs/*.html
-usr/share/icinga/htdocs/media
-usr/share/icinga/htdocs/contexthelp
-usr/share/icinga/htdocs/robots.txt
-usr/share/icinga/htdocs/images
+debian/httpd.webapps-common /usr/share/icinga/debian
 usr/lib/cgi-bin/*
+usr/share/icinga/htdocs/*.html
+usr/share/icinga/htdocs/images
+usr/share/icinga/htdocs/js/*
+usr/share/icinga/htdocs/media
+usr/share/icinga/htdocs/robots.txt
 usr/share/icinga/htdocs/stylesheets/* /etc/icinga/stylesheets/
-usr/share/icinga/htdocs/js/* 
