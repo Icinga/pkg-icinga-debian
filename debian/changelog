@@ -1,3 +1,10 @@
+icinga (1.8.1-2) experimental; urgency=low
+
+  * [4fb9f91] Fix broker filename in idoutils README.Debian.
+    Thanks to Michael Friedrich catching this error
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 04 Nov 2012 21:57:50 +0100
+
 icinga (1.8.1-1) experimental; urgency=low
 
   * [5947e03] Remove useless echo in do_stop of icingas initscript
