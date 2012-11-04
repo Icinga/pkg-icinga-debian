@@ -1,3 +1,11 @@
+icinga (1.8.1-2~ppa1~lucid1) lucid; urgency=low
+
+  * Update ppa to 1.8.1-2
+    - Replace s-s-d --status with --test and remove versioned
+      depends on dpkg
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 04 Nov 2012 22:37:18 +0100
+
 icinga (1.8.1-2) experimental; urgency=low
 
   * [4fb9f91] Fix broker filename in idoutils README.Debian.
