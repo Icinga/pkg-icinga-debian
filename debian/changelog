@@ -1,3 +1,9 @@
+icinga (1.8.2-1) experimental; urgency=low
+
+  * [868de52] Imported Upstream version 1.8.2
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 28 Nov 2012 17:25:15 +0100
+
 icinga (1.8.1-2) experimental; urgency=low
 
   * [4fb9f91] Fix broker filename in idoutils README.Debian.
