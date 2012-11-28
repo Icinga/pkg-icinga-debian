@@ -41,6 +41,7 @@ struct file_data {
     @{ **/
 extern char	log_file[MAX_FILENAME_LENGTH];		/**< the full file name of the main icinga log file */
 extern char	log_archive_path[MAX_FILENAME_LENGTH];	/**< the full path to the archived log files */
+extern int	log_rotation_method;			/**< time interval of log rotation */
 /** @} */
 
 
@@ -58,8 +59,12 @@ int sort_icinga_logfiles_by_name(const void *a_in, const void *b_in) {
 	struct file_data *a = (struct file_data *)a_in;
 	struct file_data *b = (struct file_data *)b_in;
 
-	if (a->file_name == NULL || b->file_name == NULL)
+	if (a->file_name == NULL && b->file_name == NULL)
 		return 0;
+	if (a->file_name != NULL && b->file_name == NULL)
+		return 1;
+	if (a->file_name == NULL && b->file_name != NULL)
+		return -1;
 
 	// year
 	date_a[0]  = a->file_name[13];
@@ -265,14 +270,15 @@ int get_log_entries(logentry **entry_list, logfilter **filter_list, char **error
 		while ((dptr=readdir(dirp)) != NULL) {
 
 			/* filter dir for icinga / nagios log files */
-			if ((strncmp("icinga-",dptr->d_name,7) == 0 || strncmp("nagios-",dptr->d_name,7) == 0 ) && strstr(dptr->d_name, ".log"))
+			if ((strncmp("icinga-",dptr->d_name,7) == 0 || strncmp("nagios-",dptr->d_name,7) == 0 ) &&
+			    strstr(dptr->d_name, ".log") && strlen(dptr->d_name) == 24)
 				files[file_num++].file_name = strdup(dptr->d_name);
 		}
 		closedir(dirp);
 	}
 
 	/* sort log files, newest first */
-	qsort(files, sizeof(files) / sizeof(struct file_data) , sizeof(struct file_data), sort_icinga_logfiles_by_name);
+	qsort((void *)files, file_num, sizeof(struct file_data), sort_icinga_logfiles_by_name);
 
 	/* define which log files to use */
 	for (i=0; i< file_num; i++) {
@@ -585,4 +591,25 @@ void free_log_entries(logentry **entry_list) {
 	*entry_list = NULL;
 
 	return;
+}
+
+/** @brief returns amount of backtrack_seconds to substract from start_time_stamp
+ *  @param [in] backtrack_archives number of backtrack_archives
+ *  @return amount of backtrack_seconds
+ *  @author Ricardo Bartels
+ *
+ * returns amount of backtrack_seconds to substract from start_time_stamp
+ * when reading logs, based on @log_rotation_method and @ backtrack_archives
+**/
+time_t get_backtrack_seconds(int backtrack_archives) {
+
+	if (log_rotation_method == LOG_ROTATION_MONTHLY)
+		return ( 60 * 60 * 24 * 31 * backtrack_archives);
+	else if (log_rotation_method == LOG_ROTATION_DAILY)
+		return ( 60 * 60 * 24  * backtrack_archives);
+	else if (log_rotation_method == LOG_ROTATION_HOURLY)
+		return ( 60 * 60 * backtrack_archives);
+	else	// LOG_ROTATION_WEEKLY
+		return ( 60 * 60 * 24 * 7 * backtrack_archives);
+
 }
