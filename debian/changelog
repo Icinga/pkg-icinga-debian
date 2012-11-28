@@ -1,4 +1,4 @@
-icinga (1.8.1-2~ppa1~lucid1) lucid; urgency=low
+icinga (1.8.1-2~ppa1~quantal2) quantal; urgency=low
 
   * Update ppa to 1.8.1-2
     - Replace s-s-d --status with --test and remove versioned
