@@ -1,14 +1,33 @@
+icinga (1.8.3-1~debmon70+1) debmon-wheezy; urgency=low
+
+  * Rebuild for debmon
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 13 Dec 2012 22:57:56 +0100
+
+icinga (1.8.3-1) experimental; urgency=low
+
+  * [5330072] Imported Upstream version 1.8.3
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 13 Dec 2012 21:41:33 +0100
+
 icinga (1.8.1-1~debmon70+2) debmon-wheezy; urgency=low
 
   * [01d95df] Fix sql of sql upgrade file to prevent doubled execution
 
  -- Alexander Wirt <formorer@debian.org>  Thu, 25 Oct 2012 17:11:56 +0200
 
-icinga (1.8.1-1~debmon70+1) debmon-wheezy; urgency=low
+icinga (1.8.2-1) experimental; urgency=low
 
-  * Rebuild for debmon
+  * [868de52] Imported Upstream version 1.8.2
 
- -- Alexander Wirt <formorer@debian.org>  Thu, 25 Oct 2012 07:41:19 +0200
+ -- Alexander Wirt <formorer@debian.org>  Wed, 28 Nov 2012 17:25:15 +0100
+
+icinga (1.8.1-2) experimental; urgency=low
+
+  * [4fb9f91] Fix broker filename in idoutils README.Debian.
+    Thanks to Michael Friedrich catching this error
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 04 Nov 2012 21:57:50 +0100
 
 icinga (1.8.1-1) experimental; urgency=low
 

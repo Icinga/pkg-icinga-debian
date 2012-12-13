@@ -89,22 +89,6 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 	} else {
 		es[0] = ido2db_db_escape_string(idi, name1);
 		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
 		case IDO2DB_DBSERVER_PGSQL:
 			/* Postgres does case sensitive compare  */
 			if (asprintf(&buf1, "name1=E'%s'", es[0]) == -1)
@@ -126,22 +110,6 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 	} else {
 		es[1] = ido2db_db_escape_string(idi, name2);
 		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
                 case IDO2DB_DBSERVER_PGSQL:
                         /* Postgres does case sensitive compare  */
                         if (asprintf(&buf2, "name2=E'%s'", es[1]) == -1)
@@ -171,6 +139,11 @@ int ido2db_get_object_id(ido2db_idi *idi, int object_type, char *n1, char *n2, u
 			idi->dbinfo.dbi_result = NULL;
 		}
 	}
+	else {
+		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
+	}
+
 
 	free(buf);
 	free(buf1);
@@ -364,22 +337,6 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_object_id_with_insert(%s=%lu) object_id\n", tmp, *object_id);
 			free(tmp);
 			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
 		default:
 			break;
 		}
@@ -516,13 +473,13 @@ int ido2db_get_cached_object_ids(ido2db_idi *idi) {
 	int result = IDO_OK;
 	unsigned long object_id = 0L;
 	int objecttype_id = 0;
+	char *tmp1 = NULL;
+	char *tmp2 = NULL;
 #ifdef USE_LIBDBI
 	char *buf = NULL;
 #endif
 
 #ifdef USE_ORACLE
-	char *tmp1 = NULL;
-	char *tmp2 = NULL;
 	void *data[1];
 #endif
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_get_cached_object_ids() start\n");
@@ -535,18 +492,28 @@ int ido2db_get_cached_object_ids(ido2db_idi *idi) {
 	if ((result = ido2db_db_query(idi, buf)) == IDO_OK) {
 		while (idi->dbinfo.dbi_result) {
 			if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-				object_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result,
-				                                     "object_id");
-				objecttype_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result,
-				                "objecttype_id");
-				ido2db_add_cached_object_id(idi, objecttype_id,
-				                            dbi_result_get_string_copy(idi->dbinfo.dbi_result,
-				                                    "name1"), dbi_result_get_string_copy(
-				                                idi->dbinfo.dbi_result, "name2"), object_id);
+				object_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "object_id");
+				objecttype_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "objecttype_id");
+
+				/* get string and free it later on */
+				if (asprintf(&tmp1, "%s", dbi_result_get_string_copy(idi->dbinfo.dbi_result, "name1")) == -1)
+					tmp1 = NULL;
+				if (asprintf(&tmp2, "%s", dbi_result_get_string_copy(idi->dbinfo.dbi_result, "name2")) == -1)
+					tmp2 = NULL;
+
+				ido2db_add_cached_object_id(idi, objecttype_id, tmp1, tmp2, object_id);
+
+				free(tmp1);
+				free(tmp2);
+
+			} else {
+				dbi_result_free(idi->dbinfo.dbi_result);
+				idi->dbinfo.dbi_result = NULL;
 			}
-			dbi_result_free(idi->dbinfo.dbi_result);
-			idi->dbinfo.dbi_result = NULL;
 		}
+	} else {
+		dbi_result_free(idi->dbinfo.dbi_result);
+		idi->dbinfo.dbi_result = NULL;
 	}
 
 	free(buf);
@@ -972,6 +939,7 @@ int ido2db_set_object_as_active(ido2db_idi *idi, int object_type,
 
 int ido2db_handle_object_enable_disable(ido2db_idi *idi, int enable) {
 	int result = IDO_OK;
+	int x = 0;
         char *name1 = NULL;
         char *name2 = NULL;
 #ifdef USE_LIBDBI
@@ -1102,6 +1070,10 @@ int ido2db_handle_object_enable_disable(ido2db_idi *idi, int enable) {
 
 #endif /* Oracle ocilib specific */
 
+	/* free memory */
+	for (x = 0; x < ICINGA_SIZEOF_ARRAY(es); x++) {
+		free(es[x]);
+	}
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_object_enable_disable() end\n");
 
@@ -1707,21 +1679,6 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 
 
 		result = ido2db_query_insert_or_update_timedevent_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-		/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
 	}
 
 	/* save a record of timed events that get executed.... */
@@ -1740,21 +1697,6 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 		data[8] = (void *) &run_time;
 
 		result = ido2db_query_insert_or_update_timedevents_execute_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-		/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
 	}
 
 	/* save a record of timed events that get removed.... */
@@ -1905,21 +1847,6 @@ int ido2db_handle_timedeventdata(ido2db_idi *idi) {
 
 
 		result = ido2db_query_insert_or_update_timedeventqueue_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-		/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
 	}
 
 	/* REMOVE QUEUED TIMED EVENTS */
@@ -2266,20 +2193,6 @@ int ido2db_handle_systemcommanddata(ido2db_idi *idi) {
 
 	result = ido2db_query_insert_or_update_systemcommanddata_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
 		free(ts[x]);
@@ -2372,21 +2285,6 @@ int ido2db_handle_eventhandlerdata(ido2db_idi *idi) {
 
 	result = ido2db_query_insert_or_update_eventhandlerdata_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
-
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
 		free(ts[x]);
@@ -2413,12 +2311,6 @@ int ido2db_handle_notificationdata(ido2db_idi *idi) {
 	char *ts[2];
 	char *es[2];
 	int x = 0;
-#ifdef USE_LIBDBI
-	char *buf = NULL;
-#endif
-#ifdef USE_ORACLE
-	char *seq_name = NULL;
-#endif
 
 	void *data[15];
 
@@ -2470,78 +2362,8 @@ int ido2db_handle_notificationdata(ido2db_idi *idi) {
 	data[13] = (void *) &start_time.tv_sec;
 	data[14] = (void *) &end_time.tv_sec;
 
-	result = ido2db_query_insert_or_update_notificationdata_add(idi, data);
-
-	/* save the notification id for later use... */
-	if (type == NEBTYPE_NOTIFICATION_START)
-		idi->dbinfo.last_notification_id = 0L;
-	if (result == IDO_OK && type == NEBTYPE_NOTIFICATION_START) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			idi->dbinfo.last_notification_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_notificationdata(%lu) last_notification_id\n", idi->dbinfo.last_notification_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_notification_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_NOTIFICATIONS]) == -1)
-				buf = NULL;
-
-			idi->dbinfo.last_notification_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_notificationdata(%s=%lu) last_notification_id\n", buf, idi->dbinfo.last_notification_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_notifications") == -1)
-			seq_name = NULL;
-		idi->dbinfo.last_notification_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_notificationdata(%lu) last_notification_id\n", idi->dbinfo.last_notification_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	/* idi->dbinfo.last_notification_id is fetched inside */
+	result = ido2db_query_insert_or_update_notificationdata_add(idi, data, type);
 
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
@@ -2563,12 +2385,6 @@ int ido2db_handle_contactnotificationdata(ido2db_idi *idi) {
 	int result = IDO_OK;
 	char *ts[2];
 	int x = 0;
-#ifdef USE_LIBDBI
-	char *buf = NULL;
-#endif
-#ifdef USE_ORACLE
-	char *seq_name = NULL;
-#endif
 	void *data[9];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactnotificationdata() start\n");
@@ -2606,77 +2422,7 @@ int ido2db_handle_contactnotificationdata(ido2db_idi *idi) {
 	data[7] = (void *) &start_time.tv_sec;
 	data[8] = (void *) &end_time.tv_sec;
 
-	result = ido2db_query_insert_or_update_contactnotificationdata_add(idi, data);
-
-	/* save the contact notification id for later use... */
-	if (type == NEBTYPE_CONTACTNOTIFICATION_START)
-		idi->dbinfo.last_contact_notification_id = 0L;
-	if (result == IDO_OK && type == NEBTYPE_CONTACTNOTIFICATION_START) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			idi->dbinfo.last_contact_notification_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactnotificationdata(%lu) contactnotification_id\n", idi->dbinfo.last_contact_notification_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_contactnotification_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONS]) == -1)
-				buf = NULL;
-
-			idi->dbinfo.last_contact_notification_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactnotificationdata(%s=%lu) contactnotification_id\n", buf, idi->dbinfo.last_contact_notification_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_contactnotifications") == -1)
-			seq_name = NULL;
-		idi->dbinfo.last_contact_notification_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactnotificationdata(%lu) \n", idi->dbinfo.last_contact_notification_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_contactnotificationdata_add(idi, data, type);
 
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
@@ -2736,20 +2482,6 @@ int ido2db_handle_contactnotificationmethoddata(ido2db_idi *idi) {
 	data[9] = (void *) &end_time.tv_sec;
 
 	result = ido2db_query_insert_or_update_contactnotificationmethoddata_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
 
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
@@ -2869,21 +2601,6 @@ int ido2db_handle_servicecheckdata(ido2db_idi *idi) {
 	data[23] = (void *) &end_time.tv_sec;
 
 	result = ido2db_query_insert_servicecheckdata_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-	/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
 
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
@@ -3005,21 +2722,6 @@ int ido2db_handle_hostcheckdata(ido2db_idi *idi) {
 
 	result = ido2db_query_insert_hostcheckdata_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-	/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
-
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
 		free(ts[x]);
@@ -3109,21 +2811,6 @@ int ido2db_handle_commentdata(ido2db_idi *idi) {
 		data[16] = &expire_time;
 
 		result = ido2db_query_insert_or_update_commentdata_history_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	}
 
 	/* UPDATE HISTORICAL COMMENTS */
@@ -3223,21 +2910,6 @@ int ido2db_handle_commentdata(ido2db_idi *idi) {
 		data[16] = &expire_time;
 
 		result = ido2db_query_insert_or_update_commentdata_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	}
 
 	/* REMOVE CURRENT COMMENTS */
@@ -3407,20 +3079,6 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
 
 
 		result = ido2db_query_insert_or_update_downtimedata_downtime_history_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
 
 		if (enable_sla)
 			sla_process_downtime_history(idi, object_id, start_time, end_time);
@@ -3665,21 +3323,6 @@ int ido2db_handle_downtimedata(ido2db_idi *idi) {
                 data[17] = (void *) &trigger_time;
 
 		result = ido2db_query_insert_or_update_downtimedata_scheduled_downtime_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	}
 
 	/* save a record of scheduled downtime that starts */
@@ -4124,31 +3767,16 @@ int ido2db_handle_programstatusdata(ido2db_idi *idi) {
 	/* save entry to db */
 	result = ido2db_query_insert_or_update_programstatusdata_add(idi, data);
 
-	if (result == IDO_ERROR) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_programstatusdata() error\n");
-		return result;
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-	/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
-
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(ts); x++)
 		free(ts[x]);
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(es); x++)
 		free(es[x]);
+
+	if (result == IDO_ERROR) {
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_programstatusdata() error\n");
+		return result;
+	}
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_programstatusdata() end\n");
 
@@ -4338,22 +3966,8 @@ int ido2db_handle_hoststatusdata(ido2db_idi *idi) {
 	data[55] = (void *) &next_notification;
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hoststatusdata() LongLen:%d\n", strlen(es[1]));
+
 	result = ido2db_query_insert_or_update_hoststatusdata_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-	/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
 
 	/* save custom variables to db */
 	result = ido2db_save_custom_variables(idi, IDO2DB_DBTABLE_CUSTOMVARIABLESTATUS, object_id, ts[0], tstamp.tv_sec);
@@ -4563,21 +4177,6 @@ int ido2db_handle_servicestatusdata(ido2db_idi *idi) {
 
 	result = ido2db_query_insert_or_update_servicestatusdata_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-	/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
-
 	/* free memory */
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(es); x++)
 		free(es[x]);
@@ -4656,20 +4255,6 @@ int ido2db_handle_contactstatusdata(ido2db_idi *idi) {
 	data [12] = (void *) &last_service_notification;
 
 	result = ido2db_query_insert_or_update_contactstatusdata_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
 
 	/* save custom variables to db */
 	result = ido2db_save_custom_variables(idi, IDO2DB_DBTABLE_CUSTOMVARIABLESTATUS, object_id, ts[0], tstamp.tv_sec);
@@ -4834,6 +4419,11 @@ int ido2db_handle_externalcommanddata(ido2db_idi *idi) {
 			return IDO_ERROR;
 		}
 	} else {
+		/* limit command_arg size #3324 */
+		if ( strlen(*(char **)data[4])  > OCI_COMMAND_ARG_SIZE ) {
+				(*(char **)data[4])[OCI_COMMAND_ARG_SIZE] = '\0';
+				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_external_commands() command_args shorted\n");
+		}
 		if (!OCI_BindString(idi->dbinfo.oci_statement_external_commands, MT(":X5"), *(char **) data[4], 0)) {
 			return IDO_ERROR;
 		}
@@ -5313,7 +4903,6 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 	char *varvalue = NULL;
 	ido2db_mbuf mbuf;
 #ifdef USE_ORACLE
-	char *seq_name = NULL;
 	int len = 0;
 	/* definitions for array binding */
 	const int CONFIG_VARNAME_SIZE = 64; /* table configfilevariables column varname length */
@@ -5355,77 +4944,8 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 	data[1] = (void *) &configfile_type;
 	data[2] = (void *) &es[0];
 
-	result = ido2db_query_insert_or_update_configfilevariables_add(idi, data);
+	result = ido2db_query_insert_or_update_configfilevariables_add(idi, data, &configfile_id);
 	free(es[0]);
-	if (result == IDO_OK) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables"
-		                      " preceeding ido2db_query_insert_or_update_configfilevariables_add OK \n");
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			configfile_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables(%lu) configfilevariables_id\n", configfile_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf1, "%s_configfile_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILES]) == -1)
-				buf1 = NULL;
-
-			configfile_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf1);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables(%s=%lu) configfilevariables_id\n", buf1, configfile_id);
-			free(buf1);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		/* retrieve last inserted configfile_id */
-		if (asprintf(&seq_name, "seq_configfiles") == -1)
-			seq_name = NULL;
-		configfile_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables(id %lu) \n", configfile_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables"
-		                      " preceeding ido2db_query_insert_or_update_configfilevariables_add ERROR \n");
-		return IDO_ERROR;
-	}
-
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
 
 	/* save config file variables to db */
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables_elements()  start\n");
@@ -5921,7 +5441,6 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 	char *cmdptr = NULL;
 	char *argptr = NULL;
 #ifdef USE_ORACLE
-	char *seq_name = NULL;
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
@@ -6083,84 +5602,16 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 	data[56] = (void *) &z_3d;
 	data[57] = (void *) &es[13]; /* HOSTADDRESS6 */
 
-	result = ido2db_query_insert_or_update_hostdefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			host_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostdefinitio(%lu) host_id\n", host_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_host_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTS]) == -1)
-				buf = NULL;
-
-			host_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostdefinitio(%s=%lu) host_id\n", buf, host_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_hosts") == -1)
-			seq_name = NULL;
-		host_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostdefinition(%lu) \n", host_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostdefinition() "
-		                      "preceeding ido2db_query_insert_or_update_hostdefinition_definition_add ERROR \n");
-		return IDO_ERROR;
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_hostdefinition_definition_add(idi, data, &host_id);
 
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(es); x++) {
 		free(es[x]);
 	}
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostdefinition() free es\n");
+
+	if (result == IDO_ERROR)
+		return IDO_ERROR;
 
 	/* save parent hosts to db */
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostdefinition() parent_hosts start\n");
@@ -6588,7 +6039,6 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 	char *buf1 = NULL;
 	ido2db_mbuf mbuf;
 #ifdef USE_ORACLE
-	char *seq_name = NULL;
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
@@ -6626,80 +6076,12 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 	data[2] = (void *) &object_id;
 	data[3] = (void *) &es[0];
 
-	result = ido2db_query_insert_or_update_hostgroupdefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			group_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostgroupdefinition(%lu) hostgroup_id\n", group_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_hostgroup_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTGROUPS]) == -1)
-				buf = NULL;
-
-			group_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostgroupdefinition(%s=%lu) hostgroup_id\n", buf, group_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_hostgroups") == -1)
-			seq_name = NULL;
-		group_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostgroupdefinition(%lu) hostgroup_id\n", group_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostgroupdefinition() "
-		                      "preeceding ido2db_query_insert_or_update_hostgroupdefinition_definition_add ERROR \n");
-		return IDO_ERROR;
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_hostgroupdefinition_definition_add(idi, data, &group_id);
 
 	free(es[0]);
+
+	if (result == IDO_ERROR)
+		return IDO_ERROR;
 
 	/* save hostgroup members to db */
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostgroupdefinition() members start\n");
@@ -6905,7 +6287,6 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 	char *cmdptr = NULL;
 	char *argptr = NULL;
 #ifdef USE_ORACLE
-	char *seq_name = NULL;
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
@@ -7056,82 +6437,14 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 	data[49] = (void *) &es[6];
 	data[50] = (void *) &es[7];
 
-	result = ido2db_query_insert_or_update_servicedefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			service_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicedefinition(%lu) service_id\n", service_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_service_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICES]) == -1)
-				buf = NULL;
-
-			service_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicedefinition(%s=%lu) service_id\n", buf, service_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_services") == -1)
-			seq_name = NULL;
-		service_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicedefinition(%lu) service_id\n", service_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicedefinition() "
-		                      "preceeding ido2db_query_insert_or_update_servicedefinition_definition_add ERROR \n");
-		return IDO_ERROR;
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_servicedefinition_definition_add(idi, data, &service_id);
 
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(es); x++) {
 		free(es[x]);
 	}
+
+	if (result == IDO_ERROR)
+		return IDO_ERROR;
 
 	/* save contact groups to db */
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicedefinition() contactgroups start\n");
@@ -7437,7 +6750,6 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 	char *hptr = NULL;
 	char *sptr = NULL;
 #ifdef USE_ORACLE
-	char *seq_name = NULL;
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
@@ -7475,80 +6787,12 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 	data[2] = (void *) &object_id;
 	data[3] = (void *) &es[0];
 
-	result = ido2db_query_insert_or_update_servicegroupdefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			group_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicegroupdefinition(%lu) group_id\n", group_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_servicegroup_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEGROUPS]) == -1)
-				buf = NULL;
-
-			group_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicegroupdefinition(%s=%lu) group_id\n", buf, group_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_servicegroups") == -1)
-			seq_name = NULL;
-		group_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicegroupdefinition(%lu) group_id\n", group_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicegroupdefinition() "
-		                      "preeceding ido2db_query_insert_or_update_servicegroupdefinition_definition_add ERROR \n");
-		return IDO_ERROR;
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_servicegroupdefinition_definition_add(idi, data, &group_id);
 
 	free(es[0]);
+
+	if (result == IDO_ERROR)
+		return IDO_ERROR;
 
 	/* save members to db */
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicegroupdefinition() "
@@ -7758,20 +7002,6 @@ int ido2db_handle_hostdependencydefinition(ido2db_idi *idi) {
 
 	result = ido2db_query_insert_or_update_hostdependencydefinition_definition_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostdependencydefinition() end\n");
 
 	return IDO_OK;
@@ -7833,20 +7063,6 @@ int ido2db_handle_servicedependencydefinition(ido2db_idi *idi) {
 
 	result = ido2db_query_insert_or_update_servicedependencydefinition_definition_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicedependencydefinition() end\n");
 
 	return IDO_OK;
@@ -7867,13 +7083,7 @@ int ido2db_handle_hostescalationdefinition(ido2db_idi *idi) {
 	int escalate_unreachable = 0;
 	int result = IDO_OK;
 	int x = 0;
-#ifdef USE_LIBDBI
-	char *buf = NULL;
-#endif
 	ido2db_mbuf mbuf;
-#ifdef USE_ORACLE
-	char *seq_name = NULL;
-#endif
 	void *data[10];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostescalationdefinition() start\n");
@@ -7915,74 +7125,7 @@ int ido2db_handle_hostescalationdefinition(ido2db_idi *idi) {
 	data[8] = (void *) &escalate_down;
 	data[9] = (void *) &escalate_unreachable;
 
-	result = ido2db_query_insert_or_update_hostescalationdefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			escalation_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostescalationdefinition(%lu) escalation_id\n", escalation_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_hostescalation_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTESCALATIONS]) == -1)
-				buf = NULL;
-
-			escalation_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostescalationdefinition(%s=%lu) escalation_id\n", buf, escalation_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_hostescalations") == -1)
-			seq_name = NULL;
-		escalation_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostescalationdefinition(%lu) escalation_id\n", escalation_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_hostescalationdefinition_definition_add(idi, data, &escalation_id);
 
 	/* save contact groups to db */
 	mbuf = idi->mbuf[IDO2DB_MBUF_CONTACTGROUP];
@@ -8002,21 +7145,6 @@ int ido2db_handle_hostescalationdefinition(ido2db_idi *idi) {
 		data[2] = (void *) &member_id;
 
 		result = ido2db_query_insert_or_update_hostescalationdefinition_contactgroups_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	}
 
 	/* save contacts to db */
@@ -8036,21 +7164,6 @@ int ido2db_handle_hostescalationdefinition(ido2db_idi *idi) {
 		data[2] = (void *) &member_id;
 
 		result = ido2db_query_insert_or_update_hostescalationdefinition_contacts_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	}
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hostescalationdefinition() end\n");
@@ -8074,13 +7187,7 @@ int ido2db_handle_serviceescalationdefinition(ido2db_idi *idi) {
 	int escalate_critical = 0;
 	int result = IDO_OK;
 	int x = 0;
-#ifdef USE_LIBDBI
-	char *buf = NULL;
-#endif
 	ido2db_mbuf mbuf;
-#ifdef USE_ORACLE
-	char *seq_name = NULL;
-#endif
 	void *data[11];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicetescalationdefinition() start\n");
@@ -8124,74 +7231,7 @@ int ido2db_handle_serviceescalationdefinition(ido2db_idi *idi) {
 	data[9] = (void *) &escalate_unknown;
 	data[10] = (void *) &escalate_critical;
 
-	result = ido2db_query_insert_or_update_serviceescalationdefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			escalation_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_serviceescalationdefinition(%lu) escalation_id\n", escalation_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_serviceescalation_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEESCALATIONS]) == -1)
-				buf = NULL;
-
-			escalation_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_serviceescalationdefinition(%s=%lu) escalation_id\n", buf, escalation_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_serviceescalations") == -1)
-			seq_name = NULL;
-		escalation_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_serviceescalationdefinition(%lu) escalation_id\n", escalation_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_serviceescalationdefinition_definition_add(idi, data, &escalation_id);
 
 	/* save contact groups to db */
 	mbuf = idi->mbuf[IDO2DB_MBUF_CONTACTGROUP];
@@ -8211,21 +7251,6 @@ int ido2db_handle_serviceescalationdefinition(ido2db_idi *idi) {
 		data[2] = (void *) &member_id;
 
 		result = ido2db_query_insert_or_update_serviceescalationdefinition_contactgroups_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	}
 
 	/* save contacts to db */
@@ -8245,21 +7270,6 @@ int ido2db_handle_serviceescalationdefinition(ido2db_idi *idi) {
 		data[2] = (void *) &member_id;
 
 		result = ido2db_query_insert_or_update_serviceescalationdefinition_contacts_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	}
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicetescalationdefinition() end\n");
@@ -8305,20 +7315,6 @@ int ido2db_handle_commanddefinition(ido2db_idi *idi) {
 
 	result = ido2db_query_insert_or_update_commanddefinition_definition_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(es); x++)
 		free(es[x]);
 
@@ -8345,7 +7341,6 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 	char *buf1 = NULL;
 	ido2db_mbuf mbuf;
 #ifdef USE_ORACLE
-	char *seq_name = NULL;
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
@@ -8385,84 +7380,11 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 	data[2] = (void *) &object_id;
 	data[3] = (void *) &es[0];
 
-	result = ido2db_query_insert_or_update_timeperiodefinition_definition_add(idi, data);
+	result = ido2db_query_insert_or_update_timeperiodefinition_definition_add(idi, data, &timeperiod_id);
 	free(es[0]);
-	if (result == IDO_OK) {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_timeperiodefinition() "
-		                      "preceeding do2db_query_insert_or_update_timeperiodefinition_definition_add OK \n");
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			timeperiod_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_timeperiodefinition(%lu) timeperiod_id\n", timeperiod_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_timeperiod_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_TIMEPERIODS]) == -1)
-				buf = NULL;
 
-			timeperiod_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_timeperiodefinition(%s=%lu) timeperiod_id\n", buf, timeperiod_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_timeperiods") == -1)
-			seq_name = NULL;
-		timeperiod_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_timeperiodefinition(%lu) "
-		                      "timeperiod_id\n", timeperiod_id);
-		free(seq_name);
-#endif /* Oracle ocilib specific */
-
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_timeperiodefinition() "
-		                      "preceeding do2db_query_insert_or_update_timeperiodefinition_definition_add "
-		                      "ERROR \n");
+	if (result == IDO_ERROR) 
 		return IDO_ERROR;
-	}
-
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
-
 
 	/* save timeranges to db */
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_timeperiodefinition() "
@@ -8656,18 +7578,12 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 	int result = IDO_OK;
 	char *es[3];
 	int x = 0;
-#ifdef USE_LIBDBI
-	char *buf = NULL;
-#endif
 	ido2db_mbuf mbuf;
 	char *numptr = NULL;
 	char *addressptr = NULL;
 	int address_number = 0;
 	char *cmdptr = NULL;
 	char *argptr = NULL;
-#ifdef USE_ORACLE
-	char *seq_name = NULL;
-#endif
 	void *data[22];
 
 	int tmp1 = HOST_NOTIFICATION;
@@ -8746,73 +7662,7 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 	data[20] = (void *) &notify_host_flapping;
 	data[21] = (void *) &notify_host_downtime;
 
-	result = ido2db_query_insert_or_update_contactdefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			contact_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactdefinition(ido2db_idi *idi)(%lu) contact_id\n", contact_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_contact_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTS]) == -1)
-				buf = NULL;
-
-			contact_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactdefinition(ido2db_idi *idi)(%s=%lu) contact_id\n", buf, contact_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		if (asprintf(&seq_name, "seq_contacts") == -1)
-			seq_name = NULL;
-		contact_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactdefinition(ido2db_idi *idi)(%lu) contact_id\n", contact_id);
-		free(seq_name);
-#endif /* Oracle ocilib specific */
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_contactdefinition_definition_add(idi, data, &contact_id);
 
 	for (x = 0; x < ICINGA_SIZEOF_ARRAY(es); x++)
 		free(es[x]);
@@ -8840,20 +7690,6 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 		data[3] = (void *) &es[0];
 
 		result = ido2db_query_insert_or_update_contactdefinition_addresses_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
 
 		free(es[0]);
 	}
@@ -8886,21 +7722,6 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 
 		result = ido2db_query_insert_or_update_contactdefinition_notificationcommands_add(idi, data);
 
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-		/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
-
 		free(es[0]);
 	}
 
@@ -8932,21 +7753,6 @@ int ido2db_handle_contactdefinition(ido2db_idi *idi) {
 		data[4] = (void *) &es[0];
 
 		result = ido2db_query_insert_or_update_contactdefinition_notificationcommands_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		dbi_result_free(idi->dbinfo.dbi_result);
-		idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-		/* do not free if prepared statement */
-
-#endif /* Oracle ocilib specific */
 
 		free(es[0]);
 	}
@@ -9012,21 +7818,6 @@ int ido2db_save_custom_variables(ido2db_idi *idi, int table_idx, unsigned long o
 			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_save_custom_variables() instance_id=%lu, object_id=%lu, config_type=%d, modified=%d, varname=%s, varvalue=%s\n", idi->dbinfo.instance_id, o_id, idi->current_object_config_type, has_been_modified, es[0], es[1]);
 
 			result = ido2db_query_insert_or_update_save_custom_variables_customvariables_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-			dbi_result_free(idi->dbinfo.dbi_result);
-			idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 		}
 		if (table_idx == IDO2DB_DBTABLE_CUSTOMVARIABLESTATUS) {
 
@@ -9043,21 +7834,6 @@ int ido2db_save_custom_variables(ido2db_idi *idi, int table_idx, unsigned long o
 			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_save_custom_variablestatus() instance_id=%lu, object_id=%lu, ts=%s, modified=%d, varname=%s, varvalue=%s\n", idi->dbinfo.instance_id, o_id, ts, has_been_modified, es[0], es[1]);
 
 			result = ido2db_query_insert_or_update_save_custom_variables_customvariablestatus_add(idi, data);
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-			dbi_result_free(idi->dbinfo.dbi_result);
-			idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
-
 		}
 
 		free(es[0]);
@@ -9083,7 +7859,6 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 	char *buf1 = NULL;
 	ido2db_mbuf mbuf;
 #ifdef USE_ORACLE
-	char *seq_name = NULL;
 	/* definitions for array binding */
 	int  arrsize = 0;
 	int count = 0;
@@ -9120,82 +7895,15 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 	data[2] = (void *) &object_id;
 	data[3] = (void *) &es[0];
 
-	result = ido2db_query_insert_or_update_contactgroupdefinition_definition_add(idi, data);
-
-	if (result == IDO_OK) {
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-		switch (idi->dbinfo.server_type) {
-		case IDO2DB_DBSERVER_MYSQL:
-			/* mysql doesn't use sequences */
-			group_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactgroupdefinition(%lu) group_id\n", group_id);
-			break;
-		case IDO2DB_DBSERVER_PGSQL:
-			/* depending on tableprefix/tablename a sequence will be used */
-			if (asprintf(&buf, "%s_contactgroup_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTGROUPS]) == -1)
-				buf = NULL;
-
-			group_id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, buf);
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactgroupdefinition(%s=%lu) group_id\n", buf, group_id);
-			free(buf);
-			break;
-		case IDO2DB_DBSERVER_DB2:
-			break;
-		case IDO2DB_DBSERVER_FIREBIRD:
-			break;
-		case IDO2DB_DBSERVER_FREETDS:
-			break;
-		case IDO2DB_DBSERVER_INGRES:
-			break;
-		case IDO2DB_DBSERVER_MSQL:
-			break;
-		case IDO2DB_DBSERVER_ORACLE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE:
-			break;
-		case IDO2DB_DBSERVER_SQLITE3:
-			break;
-		default:
-			break;
-		}
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-		dummy = asprintf(&seq_name, "seq_contactgroups");
-		group_id = ido2db_oci_sequence_lastid(idi, seq_name);
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactgroupdefinition(%lu) group_id\n", group_id);
-		free(seq_name);
-
-#endif /* Oracle ocilib specific */
-	} else {
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactroupdefinition() "
-		                      "preeceding ido2db_query_insert_or_update_contactgroupdefinition_definition_add ERROR \n");
-		return IDO_ERROR;
-	}
-
-#ifdef USE_LIBDBI /* everything else will be libdbi */
-	dbi_result_free(idi->dbinfo.dbi_result);
-	idi->dbinfo.dbi_result = NULL;
-#endif
-
-#ifdef USE_PGSQL /* pgsql */
-
-#endif
-
-#ifdef USE_ORACLE /* Oracle ocilib specific */
-
-
-#endif /* Oracle ocilib specific */
+	result = ido2db_query_insert_or_update_contactgroupdefinition_definition_add(idi, data, &group_id);
 
 	free(es[0]);
 
+	if (result == IDO_ERROR)
+		return IDO_ERROR;
+
 	/* save contact group members to db */
-	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_()  start\n");
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_contactgroupdefinition() members start\n");
 
 #ifdef USE_LIBDBI
 
