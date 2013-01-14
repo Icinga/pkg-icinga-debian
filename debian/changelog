@@ -1,3 +1,9 @@
+icinga (1.8.4-1~ppa1~lucid1) lucid; urgency=low
+
+  * Rebuild for my ubuntu ppa
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 22:10:43 +0100
+
 icinga (1.8.4-1) experimental; urgency=high
 
   * [a466a1e] Replace /etc/init.d with service
