@@ -1,4 +1,4 @@
-icinga (1.8.4-1) experimental; urgency=low
+icinga (1.8.4-1) experimental; urgency=high
 
   * [a466a1e] Replace /etc/init.d with service
   * [eb7a611] Imported Upstream version 1.8.4
