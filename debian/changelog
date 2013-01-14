@@ -1,4 +1,4 @@
-icinga (1.8.4-~debmon70+1) debmon-wheezy; urgency=low
+icinga (1.8.4-1~debmon70+1) debmon-wheezy; urgency=low
 
   * Rebuild for debmon
 
