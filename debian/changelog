@@ -1,8 +1,11 @@
-icinga (1.8.3-1~debmon60+1) debmon-squeeze; urgency=low
+icinga (1.8.4-1) experimental; urgency=high
 
-  * Rebuild for debmon
+  * [a466a1e] Replace /etc/init.d with service
+  * [eb7a611] Imported Upstream version 1.8.4
+    - This release fixes CVE-2012-6096 - buffer overflows
+      in cgis. (Closes: #697931)
 
- -- Alexander Wirt <formorer@debian.org>  Thu, 13 Dec 2012 22:36:58 +0100
+ -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 06:22:39 +0100
 
 icinga (1.8.3-1) experimental; urgency=low
 
