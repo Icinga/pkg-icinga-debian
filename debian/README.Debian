@@ -30,10 +30,10 @@ permission changes).  The following is the recommended approach:
 - perform the following commands to change directory permissions and
   to make the changes permanent:
 
-/etc/init.d/icinga stop
+service icinga stop
 dpkg-statoverride --update --add nagios www-data 2710 /var/lib/icinga/rw
 dpkg-statoverride --update --add nagios nagios 751 /var/lib/icinga
-/etc/init.d/icinga start
+service icinga start
 
 Manually Providing / Overriding Authentication Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
