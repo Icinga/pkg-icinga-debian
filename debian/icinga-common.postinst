@@ -67,8 +67,6 @@ case "$1" in
 			;;
 	esac
 
-	cp -a -f "$conffile" "$conffile".tmp
-
 	# If the admin deleted or commented some variables but then set
 	# them via debconf, (re-)add them to the config file.
 
@@ -76,11 +74,8 @@ case "$1" in
 	grep -Eq '^ *check_external_commands=' "$conffile" || \
 	echo "check_external_commands=" >> "$conffile"
 
-	sed -e "s|^ *check_external_commands=.*|check_external_commands=$check_external_commands|" \
-	< "$conffile" > "$conffile.tmp"
-
-	mv -f "$conffile".tmp "$conffile"
-
+	sed --follow-symlinks -i -e "s|^ *check_external_commands=.|check_external_commands=$check_external_commands|" \
+		"$conffile"
 	# Stop a not already stopped icinga instance,
 	# debhelper will start it again automatically at the bottom
 	status="$(/etc/init.d/icinga status >/dev/null 2>&1; echo $?)"
