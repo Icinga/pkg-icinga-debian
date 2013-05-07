@@ -118,4 +118,11 @@ case "$1" in
     ;;
 esac
 
+init_failed ()
+{
+    echo "Icinga was unable to start due to configuration errors.";
+    echo "Please fix them and manually restart the icinga daemon using";
+    echo " ´service start icinga´";
+}
+
 #DEBHELPER#
