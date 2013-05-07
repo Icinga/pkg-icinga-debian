@@ -112,6 +112,7 @@ Architecture: any
 Depends: icinga-cgi (= ${binary:Version}),
          icinga-core (= ${binary:Version}),
          ${misc:Depends}
+Recommends: icinga-docs
 Suggests: nagios-nrpe-plugin
 Description: host and network monitoring system - metapackage
  Icinga is a modular monitoring framework for hosts, services, and
