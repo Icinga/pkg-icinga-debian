@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.8 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.9 Documentation">
 <link rel="up" href="ch06.html" title="Chapter 6. User Interfaces">
 <link rel="prev" href="icinga-web-scratch.html" title="6.4. Installation of the Icinga-Web Frontend">
 <link rel="next" href="icinga-web-config.html" title="6.6. Configuration Overview of Icinga-Web">
@@ -58,6 +58,57 @@
 <th align="left">Note</th>
 </tr>
 <tr><td align="left" valign="top">
+      <p>Starting with 1.9, the tackle cronk in Icinga-Web is deprecated.</p>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Since 1.9 the file <code class="filename">.htaccess</code> has been removed and all Rewrite rules are now located in the main Apache
+      configuration.</p>
+      <p>Please update your Apache configuration <code class="code">icinga-web.conf</code> (etc/conf.d/icinga-web.conf in the source tarball) or
+      run <code class="code">make install-apache-config</code>.</p>
+      <p>When updating an existing installation the old <code class="code">.htaccess</code> files in <code class="code">/usr/local/icinga-web/pub/</code>
+      and <code class="code">/usr/local/icinga-web/pub/soap/</code> (or where you installed Icinga-Web) should be removed.</p>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Starting with 1.8.2, a new session cache was added which may cause irritations when upgrading icinga web / installing a new
+      cronk or module. If you experience a behaviour like "I cannot see my newly installed cronk?" or "after upgrade, I cannot access the
+      reporting cronk" the resolution is rather simple</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+          <p>clear the xml cache</p>
+        </li>
+<li class="listitem">
+          <p>reset the users application state (top right corner -&gt; preferences)</p>
+        </li>
+<li class="listitem">
+          <p>logout and re-login (top right corner)</p>
+
+          <p><span class="inlinemediaobject"><img src="../images/icinga-web-user-prefs-logout.png"></span></p>
+        </li>
+</ul></div>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
       <p>Please note that there were some major changes starting with Icinga 1.5 that may require some additional actions:</p>
 
       <div class="itemizedlist"><ul class="itemizedlist" type="disc">
@@ -75,7 +126,7 @@
         </li>
 <li class="listitem">
           <p>Commands are now sent through the internal console-handler (because the icinga-api has been removed)</p>
-  	</li>
+        </li>
 </ul></div>
 
       <p>If you are using Icinga-Web &lt;= 1.4x then we suggest to do a fresh installation instead of an upgrade. It's better to copy
@@ -90,8 +141,8 @@
 <th align="left">Note</th>
 </tr>
 <tr><td align="left" valign="top">
-	    <p>If you are using the PNP template extensions for Icinga Web, make sure to upgrade them as well (and clear the cache afterwards!)
-	    </p>
+      <p>If you are using the PNP template extensions for Icinga Web, make sure to upgrade them as well (and clear the cache
+      afterwards!)</p>
     </td></tr>
 </table></div>
   </div>
@@ -108,11 +159,11 @@
 
     <p>Unpack your tarball:</p>
 
-    <pre class="screen"> #&gt; tar xzvf icinga-web-1.8.0.tar.gz</pre>
+    <pre class="screen"> #&gt; tar xzvf icinga-web-1.9.0.tar.gz</pre>
 
     <p>Then change to the directory:</p>
 
-    <pre class="screen"> #&gt; cd icinga-web-1.8.0</pre>
+    <pre class="screen"> #&gt; cd icinga-web-1.9.0</pre>
 
     <p>Icinga-Web provides several configure options e.g.</p>
 
@@ -191,9 +242,10 @@
 <a name="upgradedatabase"></a>6.5.3. Upgrading the Icinga-Web Database</h3></div></div></div>
     
 
-    <p>This is optional, but there may be a bug within the database scheme which has been fixed. If you are upgrading from an older
-    Icinga-Web database version you also need to apply those fixes manually. If you are using rpm/deb packages please read the notes and/or
-    ask the maintainer if he has added those modifications to the install routine.</p>
+    <p>This is mandatory if there were upgrades to the schema. If there are no schema upgrade sqls to the current released version
+    shipped, there's nothing more to do. If you are upgrading from an older Icinga-Web database version you also need to apply those fixes
+    manually. If you are using rpm/deb packages please read the notes and/or ask the maintainer if he has added those modifications to the
+    install routine.</p>
 
     <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -256,13 +308,13 @@
 
     <p>That's all.</p>
 
-    <a class="indexterm" name="idp12150736"></a>
+    <a class="indexterm" name="idp12405456"></a>
 
-    <a class="indexterm" name="idp12153744"></a>
+    <a class="indexterm" name="idp12406880"></a>
 
-    <a class="indexterm" name="idp12155312"></a>
+    <a class="indexterm" name="idp12408160"></a>
 
-    <a class="indexterm" name="idp12156400"></a>
+    <a class="indexterm" name="idp12409552"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -282,6 +334,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2012 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

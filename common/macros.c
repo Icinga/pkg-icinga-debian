@@ -3,8 +3,8 @@
  * MACROS.C - Common macro functions for Icinga
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -44,6 +44,7 @@ extern int	keep_unknown_macros;
 int dummy;	/* reduce compiler warnings */
 
 extern char     *illegal_output_chars;
+extern char	illegal_output_char_map[256];
 
 extern contact		*contact_list;
 extern contactgroup	*contactgroup_list;
@@ -135,7 +136,6 @@ int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffe
 	char *original_macro = NULL;
 	char *cleaned_macro = NULL;
 	int clean_macro = FALSE;
-	int found_macro_x = FALSE;
 	int result = OK;
 	int clean_options = 0;
 	int free_macro = FALSE;
@@ -177,7 +177,6 @@ int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffe
 		log_debug_info(DEBUGL_MACROS, 2, "  Processing part: '%s'\n", temp_buffer);
 
 		selected_macro = NULL;
-		found_macro_x = FALSE;
 		clean_macro = FALSE;
 
 		/* we're in plain text... */
@@ -200,13 +199,20 @@ int process_macros_r(icinga_macros *mac, char *input_buffer, char **output_buffe
 
 			/* grab the macro value */
 			result = grab_macro_value_r(mac, temp_buffer, &selected_macro, &clean_options, &free_macro);
-			log_debug_info(DEBUGL_MACROS, 2, "  Processed '%s', Clean Options: %d, Free: %d\n", temp_buffer, clean_options, free_macro);
+			log_debug_info(DEBUGL_MACROS, 2, "  Processed '%s', Clean Options: %d, Free: %d\n, Value: '%s'", temp_buffer, clean_options, free_macro, selected_macro ? selected_macro : "");
 
 			/* an error occurred - we couldn't parse the macro, so continue on */
 			if (result == ERROR) {
 				/* empty string still could mean that we hit the escaped $, so log an error in all other cases */
-				if(strcmp(temp_buffer, ""))
-					logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: An error occurred processing macro '%s'!\n", temp_buffer);
+				/* the error tells the user that the macro is valid, but value fetching contained error*/
+				if(strcmp(temp_buffer, "")) {
+					log_debug_info(DEBUGL_MACROS, 2, " Warning: Error grabbing macro '%s' value '%s'! Maybe used in the wrong scope? Check the docs.\n", temp_buffer, selected_macro ? selected_macro : "" );
+#ifdef NSCORE
+					if (keep_unknown_macros == FALSE) {
+						logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Error grabbing macro '%s' value '%s'! Maybe used in the wrong scope? Check the docs.\n", temp_buffer, selected_macro ? selected_macro : "" );
+					}
+#endif
+				}
 
 				if (free_macro == TRUE)
 					my_free(selected_macro);
@@ -2558,10 +2564,8 @@ int grab_custom_object_macro(char *macro_name, customvariablesmember *vars, char
 char *clean_macro_chars(char *macro, int options) {
 	register int x = 0;
 	register int y = 0;
-	register int z = 0;
 	register int ch = 0;
 	register int len = 0;
-	register int illegal_char = 0;
 
 	if (macro == NULL)
 		return "";
@@ -2573,26 +2577,10 @@ char *clean_macro_chars(char *macro, int options) {
 
 		for (y = 0, x = 0; x < len; x++) {
 
-			/*ch=(int)macro[x];*/
-			/* allow non-ASCII characters (Japanese, etc) */
 			ch = macro[x] & 0xff;
 
-			/* illegal ASCII characters */
-			if (ch < 32 || ch == 127)
-				continue;
-
-			/* illegal user-specified characters */
-			illegal_char = FALSE;
-			if (illegal_output_chars != NULL) {
-				for (z = 0; illegal_output_chars[z] != '\x0'; z++) {
-					if (ch == (int)illegal_output_chars[z]) {
-						illegal_char = TRUE;
-						break;
-					}
-				}
-			}
-
-			if (illegal_char == FALSE)
+			/* illegal chars are skipped */
+			if (!illegal_output_char_map[ch])
 				macro[y++] = macro[x];
 		}
 
@@ -2678,6 +2666,11 @@ int init_macros(void) {
 	int x;
 
 	init_macrox_names();
+
+	for (x = 0; x < 32; x++)
+		illegal_output_char_map[x] = 1;
+
+	illegal_output_char_map[127] = 1;
 
 	/*
 	 * non-volatile macros are free()'d when they're set.
@@ -3390,24 +3383,32 @@ int set_all_macro_environment_vars(int set) {
 int set_macrox_environment_vars_r(icinga_macros *mac, int set) {
 	register int x = 0;
 	int free_macro = FALSE;
-	int generate_macro = TRUE;
 
 	/* set each of the macrox environment variables */
 	for (x = 0; x < MACRO_X_COUNT; x++) {
 
 		free_macro = FALSE;
 
+		if (use_large_installation_tweaks == TRUE) {
+
+			/* skip summary macro generation if large installation tweaks are enabled */
+			if (x >= MACRO_TOTALHOSTSUP && x <= MACRO_TOTALSERVICEPROBLEMSUNHANDLED)
+				continue;
+
+			/* skip groupmembers macro generation
+			 * if large installation tweaks are enabled
+			 * they may break environment macros, check
+			 * https://dev.icinga.org/issues/3859
+			 */
+			if (x == MACRO_HOSTGROUPMEMBERS || x == MACRO_SERVICEGROUPMEMBERS)
+				continue;
+		}
+
 		/* generate the macro value if it hasn't already been done */
 		/* THIS IS EXPENSIVE */
 		if (set == TRUE) {
 
-			generate_macro = TRUE;
-
-			/* skip summary macro generation if lage installation tweaks are enabled */
-			if ((x >= MACRO_TOTALHOSTSUP && x <= MACRO_TOTALSERVICEPROBLEMSUNHANDLED) && use_large_installation_tweaks == TRUE)
-				generate_macro = FALSE;
-
-			if (mac->x[x] == NULL && generate_macro == TRUE)
+			if (mac->x[x] == NULL)
 				grab_macrox_value_r(mac, x, NULL, NULL, &mac->x[x], &free_macro);
 		}
 

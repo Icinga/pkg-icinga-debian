@@ -1,7 +1,7 @@
 /***************************************************************
  * DBQUERIES.C - Data Query handler routines for IDO2DB daemon
  *
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
@@ -617,8 +617,10 @@ int ido2db_query_insert_or_update_systemcommanddata_add(ido2db_idi *idi, void **
         int mysql_update = FALSE;
 #endif
 #ifdef USE_ORACLE
-	OCI_Lob *lob_i;
-	OCI_Lob *lob_u;
+	OCI_Lob *lob_oi;
+	OCI_Lob *lob_ou;
+	OCI_Lob *lob_loi;
+	OCI_Lob *lob_lou;
 #endif
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_systemcommanddata_add() start\n");
@@ -826,28 +828,18 @@ int ido2db_query_insert_or_update_systemcommanddata_add(ido2db_idi *idi, void **
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_systemcommanddata, MT(":X10"), (int *) data[9])) {
 		return IDO_ERROR;
 	}
-	if (*(char **) data[10] == NULL) {
-		if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_systemcommanddata, ":X11") == IDO_ERROR) {
-			return IDO_ERROR;
-		}
-	} else {
-		/* limit output size #3325 */
-		if ( strlen(*(char **)data[10])  > OCI_PLUGIN_OUTPUT_SIZE ) {
-			(*(char **)data[10])[OCI_PLUGIN_OUTPUT_SIZE] = '\0';
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_systemcommand() output shorted\n");
-		}
-		if (!OCI_BindString(idi->dbinfo.oci_statement_systemcommanddata, MT(":X11"), *(char **) data[10], 0)) {
-			return IDO_ERROR;
-		}
-	}
 
 	//bind clob 2 times,once for update, once for insert to make oracle happy and avoid ora-600 because of double binding
-	lob_i = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
-	lob_u = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_oi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_ou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_loi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_lou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_systemcommanddata() bind clob\n");
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_systemcommanddata, ":X12i", *(char **)data[11], &lob_i);
-	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_systemcommanddata, ":X12u", *(char **)data[11], &lob_u);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_systemcommanddata, ":X11i", *(char **)data[10], &lob_oi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_systemcommanddata, ":X11u", *(char **)data[10], &lob_ou);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_systemcommanddata, ":X12i", *(char **)data[11], &lob_loi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_systemcommanddata, ":X12u", *(char **)data[11], &lob_lou);
 	if (result == IDO_OK) {
 		/* execute statement */
 		result = OCI_Execute(idi->dbinfo.oci_statement_systemcommanddata) ? IDO_OK : IDO_ERROR;
@@ -864,8 +856,10 @@ int ido2db_query_insert_or_update_systemcommanddata_add(ido2db_idi *idi, void **
 	}
 
 	//free lobs
-	if (lob_u) OCI_LobFree(lob_u);
-	if (lob_i) OCI_LobFree(lob_i);
+	if (lob_ou) OCI_LobFree(lob_ou);
+	if (lob_oi) OCI_LobFree(lob_oi);
+	if (lob_lou) OCI_LobFree(lob_lou);
+	if (lob_loi) OCI_LobFree(lob_loi);
 
 
 	/* do not free statement yet! */
@@ -890,8 +884,10 @@ int ido2db_query_insert_or_update_eventhandlerdata_add(ido2db_idi *idi, void **d
         int mysql_update = FALSE;
 #endif
 #ifdef USE_ORACLE
-	OCI_Lob *lob_i;
-	OCI_Lob *lob_u;
+	OCI_Lob *lob_oi;
+	OCI_Lob *lob_ou;
+	OCI_Lob *lob_loi;
+	OCI_Lob *lob_lou;
 #endif
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_eventhandlerdata_add() start\n");
@@ -1152,27 +1148,18 @@ int ido2db_query_insert_or_update_eventhandlerdata_add(ido2db_idi *idi, void **d
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_eventhandlerdata, MT(":X16"), (int *) data[15])) {
 		return IDO_ERROR;
 	}
-	if (*(char **) data[16] == NULL) {
-		if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_eventhandlerdata, ":X17") == IDO_ERROR) {
-			return IDO_ERROR;
-		}
-	} else {
-		/* limit output size #3325 */
-		if ( strlen(*(char **)data[16])  > OCI_PLUGIN_OUTPUT_SIZE ) {
-			(*(char **)data[16])[OCI_PLUGIN_OUTPUT_SIZE] = '\0';
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_eventhandler() output shorted\n");
-		}
-		if (!OCI_BindString(idi->dbinfo.oci_statement_eventhandlerdata, MT(":X17"), *(char **) data[16], 0)) {
-			return IDO_ERROR;
-		}
-	}
+
 	//bind clobs
-	lob_i = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
-	lob_u = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_oi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_ou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_loi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_lou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_eventhandlerdata() bind clob\n");
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_eventhandlerdata, ":X18i", *(char **)data[17], &lob_i);
-	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_eventhandlerdata, ":X18u", *(char **)data[17], &lob_u);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_eventhandlerdata, ":X17i",*(char **)data[16], &lob_oi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_eventhandlerdata, ":X17u",*(char **)data[16], &lob_ou);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_eventhandlerdata, ":X18i",*(char **)data[17], &lob_loi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_eventhandlerdata, ":X18u",*(char **)data[17], &lob_lou);
 	if (result == IDO_OK) {
 		/* execute statement */
 		result = OCI_Execute(idi->dbinfo.oci_statement_eventhandlerdata) ? IDO_OK : IDO_ERROR;
@@ -1188,9 +1175,11 @@ int ido2db_query_insert_or_update_eventhandlerdata_add(ido2db_idi *idi, void **d
 	} else {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_eventhandlerdata() bind clob error\n");
 	}
-
-	if (lob_i) OCI_LobFree(lob_i);
-	if (lob_u) OCI_LobFree(lob_u);
+	//free lobs
+	if (lob_oi !=NULL) OCI_LobFree(lob_loi);
+	if (lob_ou !=NULL) OCI_LobFree(lob_lou);
+	if (lob_loi !=NULL) OCI_LobFree(lob_loi);
+	if (lob_lou !=NULL) OCI_LobFree(lob_lou);
 
 	/* do not free statement yet! */
 #endif
@@ -1215,9 +1204,11 @@ int ido2db_query_insert_or_update_notificationdata_add(ido2db_idi *idi, void **d
         int mysql_update = FALSE;
 #endif
 #ifdef USE_ORACLE
-	OCI_Lob *lob_i;
-	OCI_Lob *lob_u;
 	char * seq_name = NULL;
+	OCI_Lob *lob_oi;
+	OCI_Lob *lob_ou;
+	OCI_Lob *lob_loi;
+	OCI_Lob *lob_lou;
 #endif
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_notificationdata_add() start\n");
 
@@ -1500,20 +1491,6 @@ int ido2db_query_insert_or_update_notificationdata_add(ido2db_idi *idi, void **d
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_notificationdata, MT(":X9"), (int *) data[8])) {
 		return IDO_ERROR;
 	}
-	if (*(char **) data[9] == NULL) {
-		if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_notificationdata, ":X10") == IDO_ERROR) {
-			return IDO_ERROR;
-		}
-	} else {
-		/* limit output size #3325 */
-		if ( strlen(*(char **)data[9])  > OCI_PLUGIN_OUTPUT_SIZE ) {
-			(*(char **)data[9])[OCI_PLUGIN_OUTPUT_SIZE] = '\0';
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_notificationdata_add() output shorted");
-		}
-		if (!OCI_BindString(idi->dbinfo.oci_statement_notificationdata, MT(":X10"), *(char **) data[9], 0)) {
-			return IDO_ERROR;
-		}
-	}
 
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_notificationdata, MT(":X12"), (int *) data[11])) {
 		return IDO_ERROR;
@@ -1521,13 +1498,18 @@ int ido2db_query_insert_or_update_notificationdata_add(ido2db_idi *idi, void **d
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_notificationdata, MT(":X13"), (int *) data[12])) {
 		return IDO_ERROR;
 	}
-	//bind clobs
-	lob_i = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
-	lob_u = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+
+	/* bind clobs */
+	lob_oi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_ou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_loi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_lou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_notificationdata() bind clob");
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_notificationdata, ":X11i", *(char **)data[10], &lob_i);
-	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_notificationdata, ":X11u", *(char **)data[10], &lob_u);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_notificationdata, ":X10i", *(char **)data[9], &lob_oi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_notificationdata, ":X11i", *(char **)data[10], &lob_loi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_notificationdata, ":X10u", *(char **)data[9], &lob_ou);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_notificationdata, ":X11u", *(char **)data[10], &lob_lou);
 	if (result == IDO_OK) {
 		/* execute statement */
 		result = OCI_Execute(idi->dbinfo.oci_statement_notificationdata) ? IDO_OK : IDO_ERROR;
@@ -1558,8 +1540,11 @@ int ido2db_query_insert_or_update_notificationdata_add(ido2db_idi *idi, void **d
                 free(seq_name);
 	}
 
-	if (lob_i) OCI_LobFree(lob_i);
-	if (lob_u) OCI_LobFree(lob_u);
+	/* free lobs */
+	if (lob_oi != NULL) OCI_LobFree(lob_oi);
+	if (lob_ou != NULL) OCI_LobFree(lob_ou);
+	if (lob_loi != NULL) OCI_LobFree(lob_loi);
+	if (lob_lou != NULL) OCI_LobFree(lob_lou);
 
 	/* do not free statement yet! */
 #endif
@@ -2072,6 +2057,7 @@ int ido2db_query_insert_servicecheckdata_add(ido2db_idi *idi, void **data) {
 	char * query1 = NULL;
 #endif
 #ifdef USE_ORACLE
+	OCI_Lob *lob_o;
 	OCI_Lob *lob_l;
 	OCI_Lob *lob_p;
 #endif
@@ -2235,23 +2221,8 @@ int ido2db_query_insert_servicecheckdata_add(ido2db_idi *idi, void **data) {
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_servicechecks, MT(":X16"), (int *) data[15])) {
 		return IDO_ERROR;
 	}
-
-	if (*(char **) data[16] == NULL) {
-		if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_servicechecks, ":X17") == IDO_ERROR) {
-			return IDO_ERROR;
-		}
-	} else {
-		/* limit output size #3325 */
-		if ( strlen(*(char **)data[16])  > OCI_PLUGIN_OUTPUT_SIZE ) {
-			(*(char **)data[16])[OCI_PLUGIN_OUTPUT_SIZE] = '\0';
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicechecks() output shorted\n");
-		}
-		if (!OCI_BindString(idi->dbinfo.oci_statement_servicechecks, MT(":X17"), *(char **) data[16], 0)) {
-			return IDO_ERROR;
-		}
-	}
 	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_servicechecks, MT(":X20"), (uint *) data[19])) {
-		return IDO_ERROR;
+			return IDO_ERROR;
 	}
 
 	if (*(char **) data[20] == NULL) {
@@ -2284,11 +2255,13 @@ int ido2db_query_insert_servicecheckdata_add(ido2db_idi *idi, void **data) {
 		}
 	}
 	//bind clob
+	lob_o = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_l = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_p = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicechecks() bind clob");
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicechecks, ":X18", *(char **)data[17], &lob_l);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicechecks, ":X17", *(char **)data[16], &lob_o);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicechecks, ":X18", *(char **)data[17], &lob_l);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicechecks, ":X19", *(char **)data[18], &lob_p);
 	if (result == IDO_OK) {
 		/* execute statement */
@@ -2306,8 +2279,9 @@ int ido2db_query_insert_servicecheckdata_add(ido2db_idi *idi, void **data) {
 	}
 
 	//free lobs
-	if (lob_l) OCI_LobFree(lob_l);
-	if (lob_p) OCI_LobFree(lob_p);
+	if (lob_o != NULL) OCI_LobFree(lob_o);
+	if (lob_l != NULL) OCI_LobFree(lob_l);
+	if (lob_p != NULL) OCI_LobFree(lob_p);
 	/* do not free statement yet! */
 #endif
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() end\n");
@@ -2326,6 +2300,7 @@ int ido2db_query_insert_hostcheckdata_add(ido2db_idi *idi, void **data) {
 	char * query1 = NULL;
 #endif
 #ifdef USE_ORACLE
+	OCI_Lob *lob_o;
 	OCI_Lob *lob_l;
 	OCI_Lob *lob_p;
 #endif
@@ -2524,27 +2499,16 @@ int ido2db_query_insert_hostcheckdata_add(ido2db_idi *idi, void **data) {
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_hostchecks, MT(":X20"), (int *) data[19])) {
 		return IDO_ERROR;
 	}
-	if (*(char **) data[20] == NULL) {
-		if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_hostchecks, ":X21") == IDO_ERROR) {
-			return IDO_ERROR;
-		}
-	} else {
-		/* limit output size #3325 */
-		if ( strlen(*(char **)data[20])  > OCI_PLUGIN_OUTPUT_SIZE ) {
-			(*(char **)data[20])[OCI_PLUGIN_OUTPUT_SIZE] = '\0';
-			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostchecks() output shorted\n");
-		}
-		if (!OCI_BindString(idi->dbinfo.oci_statement_hostchecks, MT(":X21"), *(char **) data[20], 0)) {
-			return IDO_ERROR;
-		}
-	}
+
 
 	//bind clob
+	lob_o = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_l = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_p = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostchecks() bind clobs");
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hostchecks, ":X22", *(char **)data[21], &lob_l);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hostchecks, ":X21", *(char **)data[20], &lob_o);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hostchecks, ":X22", *(char **)data[21], &lob_l);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hostchecks, ":X23", *(char **)data[22], &lob_p);
 	if (result == IDO_OK) {
 		/* execute statement */
@@ -2561,9 +2525,11 @@ int ido2db_query_insert_hostcheckdata_add(ido2db_idi *idi, void **data) {
 	} else {
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostchecks() bind clob error\n");
 	}
+
 	//free lobs
-	if (lob_l) OCI_LobFree(lob_l);
-	if (lob_p) OCI_LobFree(lob_p);
+	if (lob_o !=NULL) OCI_LobFree(lob_o);
+	if (lob_l !=NULL) OCI_LobFree(lob_l);
+	if (lob_p !=NULL) OCI_LobFree(lob_p);
 
 	/* do not free statement yet! */
 #endif
@@ -3953,8 +3919,10 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 	int mysql_update = FALSE;
 #endif
 #ifdef USE_ORACLE
-	OCI_Lob *lob_li;
-	OCI_Lob *lob_lu;
+	OCI_Lob *lob_oi;
+	OCI_Lob *lob_ou;
+	OCI_Lob *lob_loi;
+	OCI_Lob *lob_lou;
 	OCI_Lob *lob_pi;
 	OCI_Lob *lob_pu;
 #endif
@@ -4274,21 +4242,6 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_hoststatus, MT(":X3"), (uint *) data[46])) { /* unixtimestamp instead of time2sql */
 		return IDO_ERROR;
 	}
-	if (*(char **) data[3] == NULL) {
-		if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_hoststatus, ":X4") == IDO_ERROR) {
-			return IDO_ERROR;
-		}
-	} else {
-		 /* limit output size #3325 */
-		if ( strlen(*(char **)data[3])  > OCI_PLUGIN_OUTPUT_SIZE ) {
-				(*(char **)data[3])[OCI_PLUGIN_OUTPUT_SIZE] = '\0';
-				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() output shorted\n");
-		}
-
-		if (!OCI_BindString(idi->dbinfo.oci_statement_hoststatus, MT(":X4"), *(char **) data[3], 0)) {
-			return IDO_ERROR;
-		}
-	}
 
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_hoststatus, MT(":X7"), (int *) data[6])) {
 		return IDO_ERROR;
@@ -4424,13 +4377,17 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 	}
 	//bind clob 2 times,once for update, once for insert to make oracle happy and avoid ora-600 because of double binding
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatus() bind clob\n");
-	lob_li = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
-	lob_lu = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_oi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_ou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_loi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_lou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_pi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_pu = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5i", *(char **)data[4], &lob_li);
-	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5u", *(char **)data[4], &lob_lu);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X4i", *(char **)data[3], &lob_oi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X4u", *(char **)data[3], &lob_ou);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5i", *(char **)data[4], &lob_loi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X5u", *(char **)data[4], &lob_lou);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X6i", *(char **)data[5], &lob_pi);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_hoststatus, ":X6u", *(char **)data[5], &lob_pu);
 	if (result == IDO_OK) {
@@ -4449,10 +4406,12 @@ int ido2db_query_insert_or_update_hoststatusdata_add(ido2db_idi *idi, void **dat
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatus()  clob bind error\n");
 	}
 	//free lobs
-	if (lob_lu) OCI_LobFree(lob_lu);
-	if (lob_li) OCI_LobFree(lob_li);
-	if (lob_pu) OCI_LobFree(lob_pu);
-	if (lob_pi) OCI_LobFree(lob_pi);
+	if (lob_ou != NULL) OCI_LobFree(lob_ou);
+	if (lob_oi != NULL) OCI_LobFree(lob_oi);
+	if (lob_lou != NULL) OCI_LobFree(lob_lou);
+	if (lob_loi != NULL) OCI_LobFree(lob_loi);
+	if (lob_pu != NULL) OCI_LobFree(lob_pu);
+	if (lob_pi != NULL) OCI_LobFree(lob_pi);
 	/* do not free statement yet! */
 #endif
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() end\n");
@@ -4474,8 +4433,10 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 	int mysql_update = FALSE;
 #endif
 #ifdef USE_ORACLE
-	OCI_Lob *lob_li;
-	OCI_Lob *lob_lu;
+	OCI_Lob *lob_oi;
+	OCI_Lob *lob_ou;
+	OCI_Lob *lob_loi;
+	OCI_Lob *lob_lou;
 	OCI_Lob *lob_pi;
 	OCI_Lob *lob_pu;
 #endif
@@ -4801,19 +4762,6 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 	if (!OCI_BindUnsignedInt(idi->dbinfo.oci_statement_servicestatus, MT(":X3"), (uint *) data[47])) { /* unixtimestamp instead of time2sql */
 		return IDO_ERROR;
 	}
-	if (*(char **) data[3] == NULL) {
-		if (ido2db_oci_prepared_statement_bind_null_param(idi->dbinfo.oci_statement_servicestatus, ":X4") == IDO_ERROR) {
-			return IDO_ERROR;
-		}
-	} else {
-		/* limit output size #3325 */
-		if ( strlen(*(char **)data[3])  > OCI_PLUGIN_OUTPUT_SIZE ) {
-				(*(char **)data[3])[OCI_PLUGIN_OUTPUT_SIZE] = '\0';
-		}
-		if (!OCI_BindString(idi->dbinfo.oci_statement_servicestatus, MT(":X4"), *(char **) data[3], 0)) {
-			return IDO_ERROR;
-		}
-	}
 
 	if (!OCI_BindInt(idi->dbinfo.oci_statement_servicestatus, MT(":X7"), (int *) data[6])) {
 		return IDO_ERROR;
@@ -4951,14 +4899,18 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 		return IDO_ERROR;
 	}
 	//bind clob 2 times,once for update, once for insert to make oracle happy and avoid ora-600 because of double binding
-	lob_li = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
-	lob_lu = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_oi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_ou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_loi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
+	lob_lou = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_pi = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 	lob_pu = OCI_LobCreate(idi->dbinfo.oci_connection, OCI_CLOB);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatus() bind clobs\n");
-	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5i", *(char **)data[4], &lob_li);
-	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5u", *(char **)data[4], &lob_lu);
+	result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X4i", *(char **)data[3], &lob_oi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X4u", *(char **)data[3], &lob_ou);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5i", *(char **)data[4], &lob_loi);
+	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X5u", *(char **)data[4], &lob_lou);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X6i", *(char **)data[5], &lob_pi);
 	if (result == IDO_OK) result = ido2db_oci_bind_clob(idi->dbinfo.oci_statement_servicestatus, ":X6u", *(char **)data[5], &lob_pu);
 
@@ -4977,10 +4929,12 @@ int ido2db_query_insert_or_update_servicestatusdata_add(ido2db_idi *idi, void **
 		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatus() clob bind error\n");
 	}
 	//free lobs
-	if (lob_lu) OCI_LobFree(lob_lu);
-	if (lob_li) OCI_LobFree(lob_li);
-	if (lob_pu) OCI_LobFree(lob_pu);
-	if (lob_pi) OCI_LobFree(lob_pi);
+	if (lob_ou != NULL) OCI_LobFree(lob_ou);
+	if (lob_oi != NULL) OCI_LobFree(lob_oi);
+	if (lob_lou != NULL) OCI_LobFree(lob_lou);
+	if (lob_loi != NULL) OCI_LobFree(lob_loi);
+	if (lob_pu != NULL) OCI_LobFree(lob_pu);
+	if (lob_pi != NULL) OCI_LobFree(lob_pi);
 
 	/* do not free statement yet! */
 #endif
@@ -5259,7 +5213,12 @@ int ido2db_query_insert_or_update_configfilevariables_add(ido2db_idi *idi, void 
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                configfile_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "configfile_id");
+						/* this condition should never happen, as libdbi UPDATE and affected rows
+						 * should take care of it. it seems that newer mysql versions got problems
+						 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+						 * as fallback here
+						 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "configfile_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -5744,7 +5703,12 @@ int ido2db_query_insert_or_update_hostdefinition_definition_add(ido2db_idi *idi,
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                host_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "host_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "host_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -6711,7 +6675,12 @@ int ido2db_query_insert_or_update_hostgroupdefinition_definition_add(ido2db_idi 
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                hostgroup_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "hostgroup_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "hostgroup_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -7161,7 +7130,12 @@ int ido2db_query_insert_or_update_servicedefinition_definition_add(ido2db_idi *i
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                service_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "service_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "service_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -7917,7 +7891,12 @@ int ido2db_query_insert_or_update_servicegroupdefinition_definition_add(ido2db_i
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                servicegroup_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "servicegroup_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "servicegroup_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -8776,7 +8755,12 @@ int ido2db_query_insert_or_update_hostescalationdefinition_definition_add(ido2db
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                hostescalation_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "hostescalation_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "hostescalation_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -9396,7 +9380,12 @@ int ido2db_query_insert_or_update_serviceescalationdefinition_definition_add(ido
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                serviceescalation_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "serviceescalation_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "serviceescalation_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -10194,7 +10183,12 @@ int ido2db_query_insert_or_update_timeperiodefinition_definition_add(ido2db_idi 
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                timeperiod_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "timeperiod_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "timeperiod_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -10635,7 +10629,12 @@ int ido2db_query_insert_or_update_contactdefinition_definition_add(ido2db_idi *i
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                contact_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "contact_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "contact_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
@@ -11922,7 +11921,12 @@ int ido2db_query_insert_or_update_contactgroupdefinition_definition_add(ido2db_i
                         if ((result = ido2db_db_query(idi, query)) == IDO_OK) {
                                 if (idi->dbinfo.dbi_result != NULL) {
                                         if (dbi_result_next_row(idi->dbinfo.dbi_result)) {
-                                                contactgroup_id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "contactgroup_id");
+                                                /* this condition should never happen, as libdbi UPDATE and affected rows
+                                                 * should take care of it. it seems that newer mysql versions got problems
+                                                 * with libdbi (https://dev.icinga.org/issues/3728) so we return the selected id
+                                                 * as fallback here
+                                                 */
+                                                *id = dbi_result_get_ulonglong(idi->dbinfo.dbi_result, "contactgroup_id");
                                                 mysql_update = TRUE;
                                         } else {
                                                 mysql_update = FALSE;
