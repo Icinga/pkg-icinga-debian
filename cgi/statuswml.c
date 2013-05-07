@@ -3,7 +3,7 @@
  * STATUSWML.C -  Icinga Status CGI for WAP-enabled devices
  *
  * Copyright (c) 2001-2008 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -43,7 +43,6 @@ extern servicestatus *servicestatus_list;
 extern int	use_ssl_authentication;
 extern int      enable_notifications;
 extern int      execute_service_checks;
-extern int      nagios_process_state;
 
 extern char     *ping_syntax;
 
@@ -143,7 +142,7 @@ int main(void) {
 	}
 
 	/* read all status data */
-	result = read_all_status_data(get_cgi_config_location(), READ_ALL_STATUS_DATA);
+	result = read_all_status_data(main_config_file, READ_ALL_STATUS_DATA);
 	if (result == ERROR && daemon_check == TRUE) {
 		printf("<P>Error: Could not read host and service status information!</P>\n");
 		document_footer(CGI_ID);
@@ -447,11 +446,6 @@ void display_process(void) {
 		printf("</card>\n");
 		return;
 	}
-
-	if (nagios_process_state == STATE_OK)
-		printf("%s process is running<br/>\n", PROGRAM_NAME);
-	else
-		printf("<b>%s process may not be running</b><br/>\n", PROGRAM_NAME);
 
 	if (enable_notifications == TRUE)
 		printf("Notifications are enabled<br/>\n");

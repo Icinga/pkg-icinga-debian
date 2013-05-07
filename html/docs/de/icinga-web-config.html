@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.8 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.9 Dokumentation">
 <link rel="up" href="ch06.html" title="Kapitel 6. Die Benutzeroberflächen">
 <link rel="prev" href="icinga-web-scratch.html" title="6.4. Installation des Icinga-Web Frontend">
 <link rel="next" href="upgrading_icingaweb.html" title="6.6. Aktualisierung von Icinga-Web und Icinga-Web Datenbank">
@@ -34,7 +34,7 @@
 <dt><span class="section">6.5.2. <a href="icinga-web-config.html#configfileindex">Index</a></span></dt>
 <dt><span class="section">6.5.3. <a href="icinga-web-config.html#globalconfig">Globale Konfiguration</a></span></dt>
 <dt><span class="section">6.5.4. <a href="icinga-web-config.html#troubleshooting">Fehlersuche</a></span></dt>
-<dt><span class="section">6.5.5. <a href="icinga-web-config.html#moduleconfig">Moduli-Konfiguration:</a></span></dt>
+<dt><span class="section">6.5.5. <a href="icinga-web-config.html#moduleconfig">Modul-Konfiguration:</a></span></dt>
 <dt><span class="section">6.5.6. <a href="icinga-web-config.html#customconfig">Benutzerdefinierte Konfiguration</a></span></dt>
 </dl></div>
   
@@ -73,7 +73,7 @@
 <a name="configfileindex"></a>6.5.2. Index</h3></div></div></div>
     
 
-    <table border="1" id="idp12320160">
+    <table border="1" id="idp12551696">
       <caption>Tabelle 6.1. Konfigurationsdateien</caption>
 
       <tr>
@@ -203,6 +203,14 @@
 
         <td>Default language, date and time formats and settings</td>
       </tr>
+
+      <tr>
+        <td>module.xml</td>
+
+        <td>app/modules/Appkit/config/</td>
+
+        <td>Overwrite user preferences using userpreferences.xml (in etc/conf.d)</td>
+      </tr>
     </table>
 
     <div class="itemizedlist"><ul class="itemizedlist" type="disc">
@@ -238,16 +246,18 @@
         <p><a class="link" href="icinga-web-config.html#configweb-timezone">Default-Zeitzone ändern</a></p>
       </li>
 <li class="listitem">
+        <p><a class="link" href="icinga-web-config.html#configweb-userprefs">Benutzervorgaben ändern</a></p>
+      </li>
+<li class="listitem">
         <p><a class="link" href="icinga-web-config.html#configweb-module">Module-Konfiguration</a></p>
       </li>
 <li class="listitem">
         <p><a class="link" href="icinga-web-config.html#configweb-auth">Authentifizierung</a></p>
       </li>
 <li class="listitem">
-        <p><a class="link" href="icinga-web-config.html#customconfig" title="6.5.6. Benutzerdefinierte Konfiguration">Benutzerdefinitierte Konfiguration</a></p>
+        <p><a class="link" href="icinga-web-config.html#customconfig" title="6.5.6. Benutzerdefinierte Konfiguration">Benutzerdefinierte Konfiguration</a></p>
       </li>
 </ul></div>
-
   </div>
 
   <div class="section" title="6.5.3. Globale Konfiguration">
@@ -853,6 +863,8 @@
         <p>Stellen Sie sicher, dass der WebServer-Benutzer Schreibberechtigung auf die Icinga-Pipe besitzt und dass das
         "icinga_pipe"-Symbol im "readwrite"- oder "write"-Abschnitt Ihres Host (oder im default-Abschnitt) vorhanden ist. Stellen Sie
         sicher, dass der Pfad korrekt ist.</p>
+
+        <p></p>
       </li></ul></div>
 
     <p><a name="configweb-timezone"></a> <span class="bold"><strong>Icinga-Web-Zeitzone</strong></span></p>
@@ -865,12 +877,16 @@
     <pre class="programlisting">#&gt; vi app/modules/AppKit/config/module.xml
 &lt;ae:parameter name="date.timezone"&gt;GMT&lt;/ae:parameter&gt;</pre>
 
-  </div>
-  <div class="section" title="6.5.5. Moduli-Konfiguration:">
-<div class="titlepage"><div><div><h3 class="title">
-<a name="moduleconfig"></a>6.5.5. <a name="configweb-module"></a>Moduli-Konfiguration:</h3></div></div></div>
-    
+    <p><a name="configweb-userprefs"></a> <span class="bold"><strong>Benutzervorgaben ändern</strong></span></p>
 
+    <p>Die Datei <code class="filename">module.xml</code> enthält verschiedene Einstellungen, die durch eigene Werte überschrieben werden können,
+    die in der Datei <code class="filename">userpreferences.xml</code> (im Ordner <code class="filename">etc/config</code> einzutragen sind).</p>
+  </div>
+
+  <div class="section" title="6.5.5. Modul-Konfiguration:">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="moduleconfig"></a>6.5.5. <a name="configweb-module"></a>Modul-Konfiguration:</h3></div></div></div>
+    
 
     <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
@@ -913,7 +929,7 @@
 
         <p>Sie können die Anbieter duplizieren und so Ihre Authentifizierungs-Basis vergrößern.</p>
 
-        <p>Bitte speichern Sie Ihre Konfiguration in <code class="filename">auth.site.xml</code> !</p>
+        <p>Bitte speichern Sie Ihre Konfiguration in <code class="filename">auth.site.xml</code>!</p>
       </li>
 <li class="listitem">
         <p><span class="bold"><strong>app/modules/Cronks</strong></span></p>
@@ -945,13 +961,12 @@ autoload.xml  config_handlers.xml  cronks.xml  module.xml  validators.xml</pre>
         die Statusinformationen.</p>
       </li>
 </ul></div>
-
   </div>
 
   <div class="section" title="6.5.6. Benutzerdefinierte Konfiguration">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="customconfig"></a>6.5.6. Benutzerdefinierte Konfiguration</h3></div></div></div>
-      
+    
 
     <p><span class="bold"><strong>Bitte beachten:</strong></span></p>
 
@@ -984,17 +999,17 @@ autoload.xml  config_handlers.xml  cronks.xml  module.xml  validators.xml</pre>
 
     <p>Benötigen Sie weitere Informationen? Schauen Sie bitte in unserem<a class="link" href="https://dev.icinga.org/projects/icinga-development/wiki/" target="_top"> Development Wiki.</a></p>
 
-    <a class="indexterm" name="idp12530992"></a>
+    <a class="indexterm" name="idp12771248"></a>
 
-    <a class="indexterm" name="idp12531184"></a>
+    <a class="indexterm" name="idp12772448"></a>
 
-    <a class="indexterm" name="idp12534384"></a>
+    <a class="indexterm" name="idp12773696"></a>
 
-    <a class="indexterm" name="idp12533040"></a>
+    <a class="indexterm" name="idp12774880"></a>
 
-    <a class="indexterm" name="idp12536784"></a>
+    <a class="indexterm" name="idp12776128"></a>
 
-    <a class="indexterm" name="idp12538608"></a>
+    <a class="indexterm" name="idp12777696"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -1014,6 +1029,6 @@ autoload.xml  config_handlers.xml  cronks.xml  module.xml  validators.xml</pre>
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2012 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

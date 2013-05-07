@@ -3,7 +3,7 @@
  * CONFIG.C - Icinga Configuration CGI (View Only)
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * This CGI program will display various configuration information.
  *
@@ -120,6 +120,8 @@ extern int persistent_ack_comments;
 extern int refresh_rate;
 extern int refresh_type;
 extern int result_limit;
+extern int send_ack_notifications;
+extern int set_expire_ack_by_default;
 extern int show_all_services_host_is_authorized_for;
 extern int show_partial_hostgroups;
 extern int show_tac_header;
@@ -240,6 +242,8 @@ int org_persistent_ack_comments;
 int org_refresh_rate;
 int org_refresh_type;
 int org_result_limit;
+int org_send_ack_notifications;
+int org_set_expire_ack_by_default;
 int org_show_all_services_host_is_authorized_for;
 int org_show_partial_hostgroups;
 int org_show_tac_header;
@@ -281,7 +285,7 @@ int main(void) {
 	result = read_cgi_config_file(get_cgi_config_location());
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
+		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -290,7 +294,7 @@ int main(void) {
 	result = read_main_config_file(main_config_file);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(main_config_file, ERROR_CGI_MAIN_CFG);
+		print_error(main_config_file, ERROR_CGI_MAIN_CFG, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -299,7 +303,7 @@ int main(void) {
 	result = read_all_object_configuration_data(main_config_file, READ_ALL_OBJECT_DATA);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(NULL, ERROR_CGI_OBJECT_DATA);
+		print_error(NULL, ERROR_CGI_OBJECT_DATA, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -4113,6 +4117,8 @@ void display_cgiconfig(void) {
 	PRINT_CONFIG_LINE_STRING(service_critical_sound, org_service_critical_sound)
 	PRINT_CONFIG_LINE_STRING(service_unknown_sound, org_service_unknown_sound)
 	PRINT_CONFIG_LINE_STRING(service_warning_sound, org_service_warning_sound)
+	PRINT_CONFIG_LINE_INT(send_ack_notifications, org_send_ack_notifications, "bool")
+	PRINT_CONFIG_LINE_INT(set_expire_ack_by_default, org_set_expire_ack_by_default, "bool")
 	PRINT_CONFIG_LINE_INT(show_all_services_host_is_authorized_for, org_show_all_services_host_is_authorized_for, "bool")
 	PRINT_CONFIG_LINE_INT(show_partial_hostgroups, org_show_partial_hostgroups, "bool")
 	PRINT_CONFIG_LINE_INT(show_tac_header, org_show_tac_header, "bool")
@@ -4535,6 +4541,10 @@ void store_default_settings(void) {
 	org_refresh_rate = refresh_rate;
 	org_refresh_type = refresh_type;
 	org_result_limit = result_limit;
+	org_send_ack_notifications = send_ack_notifications;
+	org_set_expire_ack_by_default = set_expire_ack_by_default;
+	org_show_all_services_host_is_authorized_for = show_all_services_host_is_authorized_for;
+	org_show_partial_hostgroups = show_partial_hostgroups;
 	org_show_tac_header = show_tac_header;
 	org_show_tac_header_pending = show_tac_header_pending;
 	org_showlog_current_states = showlog_current_states;
@@ -4547,7 +4557,5 @@ void store_default_settings(void) {
 	org_use_authentication = use_authentication;
 	org_use_logging = use_logging;
 	org_use_ssl_authentication = use_ssl_authentication;
-	org_show_all_services_host_is_authorized_for = show_all_services_host_is_authorized_for;
-	org_show_partial_hostgroups = show_partial_hostgroups;
 	org_use_pending_states = use_pending_states;
 }

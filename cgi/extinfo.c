@@ -3,7 +3,7 @@
  * EXTINFO.C -  Icinga Extended Information CGI
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -43,7 +43,6 @@ static icinga_macros *mac;
 
 extern char             nagios_check_command[MAX_INPUT_BUFFER];
 extern char             nagios_process_info[MAX_INPUT_BUFFER];
-extern int              nagios_process_state;
 
 extern time_t		program_start;
 extern int              nagios_pid;
@@ -201,7 +200,7 @@ int main(void) {
 	result = read_cgi_config_file(get_cgi_config_location());
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
+		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -210,7 +209,7 @@ int main(void) {
 	result = read_main_config_file(main_config_file);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(main_config_file, ERROR_CGI_MAIN_CFG);
+		print_error(main_config_file, ERROR_CGI_MAIN_CFG, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -219,16 +218,16 @@ int main(void) {
 	result = read_all_object_configuration_data(main_config_file, READ_ALL_OBJECT_DATA);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(NULL, ERROR_CGI_OBJECT_DATA);
+		print_error(NULL, ERROR_CGI_OBJECT_DATA, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
 
 	/* read all status data */
-	result = read_all_status_data(get_cgi_config_location(), READ_ALL_STATUS_DATA);
+	result = read_all_status_data(main_config_file, READ_ALL_STATUS_DATA);
 	if (result == ERROR && daemon_check == TRUE) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(NULL, ERROR_CGI_STATUS_DATA);
+		print_error(NULL, ERROR_CGI_STATUS_DATA, FALSE);
 		document_footer(CGI_ID);
 		free_memory();
 		return ERROR;
@@ -1068,6 +1067,10 @@ void show_process_info(void) {
 
 		printf("\"icinga_pid\": %d,\n", nagios_pid);
 		printf("\"notifications_enabled\": %s,\n", (enable_notifications == TRUE) ? "true" : "false");
+		if (disable_notifications_expire_time == (time_t)0)
+			printf("\"disable_notifications_expire_time\": null,\n");
+		else
+			printf("\"disable_notifications_expire_time\": \"%s\",\n", disable_notif_expire_time);
 		printf("\"service_checks_being_executed\": %s,\n", (execute_service_checks == TRUE) ? "true" : "false");
 		printf("\"passive_service_checks_being_accepted\": %s,\n", (accept_passive_service_checks == TRUE) ? "true" : "false");
 		printf("\"host_checks_being_executed\": %s,\n", (execute_host_checks == TRUE) ? "true" : "false");
@@ -1093,6 +1096,7 @@ void show_process_info(void) {
 		printf("%sLAST_LOG_FILE_ROTATION%s%s", csv_data_enclosure, csv_data_enclosure, csv_delimiter);
 		printf("%sICINGA_PID%s%s", csv_data_enclosure, csv_data_enclosure, csv_delimiter);
 		printf("%sNOTIFICATIONS_ENABLED%s%s", csv_data_enclosure, csv_data_enclosure, csv_delimiter);
+		printf("%sNOTIFICATIONS_DISABLED_EXPIRE_TIME%s%s", csv_data_enclosure, csv_data_enclosure, csv_delimiter);
 		printf("%sSERVICE_CHECKS_BEING_EXECUTED%s%s", csv_data_enclosure, csv_data_enclosure, csv_delimiter);
 		printf("%sPASSIVE_SERVICE_CHECKS_BEING_ACCEPTED%s%s", csv_data_enclosure, csv_data_enclosure, csv_delimiter);
 		printf("%sHOST_CHECKS_BEING_EXECUTED%s%s", csv_data_enclosure, csv_data_enclosure, csv_delimiter);
@@ -1118,6 +1122,7 @@ void show_process_info(void) {
 		printf("%s%s%s%s", csv_data_enclosure, (last_log_rotation == (time_t)0) ? "N/A" : last_log_rotation_time, csv_data_enclosure, csv_delimiter);
 		printf("%s%d%s%s", csv_data_enclosure, nagios_pid, csv_data_enclosure, csv_delimiter);
 		printf("%s%s%s%s", csv_data_enclosure, (enable_notifications == TRUE) ? "YES" : "NO", csv_data_enclosure, csv_delimiter);
+		printf("%s%s%s%s", csv_data_enclosure, (disable_notifications_expire_time == (time_t)0) ? "N/A" : disable_notif_expire_time, csv_data_enclosure, csv_delimiter);
 		printf("%s%s%s%s", csv_data_enclosure, (execute_service_checks == TRUE) ? "YES" : "NO", csv_data_enclosure, csv_delimiter);
 		printf("%s%s%s%s", csv_data_enclosure, (accept_passive_service_checks == TRUE) ? "YES" : "NO", csv_data_enclosure, csv_delimiter);
 		printf("%s%s%s%s", csv_data_enclosure, (execute_host_checks == TRUE) ? "YES" : "NO", csv_data_enclosure, csv_delimiter);
@@ -1173,7 +1178,7 @@ void show_process_info(void) {
 
 		/* notifications enabled */
 		printf("<TR><TD CLASS='dataVar'>Notifications Enabled?</TD><TD CLASS='dataVal'><DIV CLASS='notifications%s'>&nbsp;&nbsp;%s&nbsp;&nbsp;</DIV></TD></TR>\n", (enable_notifications == TRUE) ? "ENABLED" : "DISABLED", (enable_notifications == TRUE) ? "YES" : "NO");
-		if (enable_notifications == FALSE)
+		if (enable_notifications == FALSE && disable_notifications_expire_time != 0)
 			printf("<TR><TD CLASS='dataVar'>Notifications Disabled Expire Time:</TD><TD CLASS='dataVal'>%s</TD></TR>\n", disable_notif_expire_time);
 		else
 			printf("<TR><TD CLASS='dataVar'>Notifications Disabled Expire Time:</TD><TD CLASS='dataVal'><DIV CLASS='notificationsUNKNOWN'>&nbsp;&nbsp;NOT SET&nbsp;&nbsp;</DIV></TD></TR>\n");
@@ -1233,80 +1238,70 @@ void show_process_info(void) {
 		printf("<TABLE BORDER=1 CELLPADDING=0 CELLSPACING=0 CLASS='command'>\n");
 		printf("<TR><TD>\n");
 
-		if (nagios_process_state == STATE_OK) {
-			printf("<TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 CLASS='command'>\n");
+		printf("<TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 CLASS='command'>\n");
 
 #ifndef DUMMY_INSTALL
-			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Shutdown the Icinga Process' TITLE='Shutdown the Icinga Process'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Shutdown the Icinga process</a></td></tr>\n", url_images_path, STOP_ICON, CMD_CGI, CMD_SHUTDOWN_PROCESS);
-			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Restart the Icinga Process' TITLE='Restart the Icinga Process'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Restart the Icinga process</a></td></tr>\n", url_images_path, RESTART_ICON, CMD_CGI, CMD_RESTART_PROCESS);
+		printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Shutdown the Icinga Process' TITLE='Shutdown the Icinga Process'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Shutdown the Icinga process</a></td></tr>\n", url_images_path, STOP_ICON, CMD_CGI, CMD_SHUTDOWN_PROCESS);
+		printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Restart the Icinga Process' TITLE='Restart the Icinga Process'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Restart the Icinga process</a></td></tr>\n", url_images_path, RESTART_ICON, CMD_CGI, CMD_RESTART_PROCESS);
 #endif
 
-			if (enable_notifications == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Notifications' TITLE='Disable Notifications'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable notifications</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_NOTIFICATIONS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Notifications' TITLE='Enable Notifications'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable notifications</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_NOTIFICATIONS);
+		if (enable_notifications == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Notifications' TITLE='Disable Notifications'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable notifications</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_NOTIFICATIONS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Notifications' TITLE='Enable Notifications'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable notifications</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_NOTIFICATIONS);
 
-			if (execute_service_checks == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Executing Service Checks' TITLE='Stop Executing Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop executing service checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_EXECUTING_SVC_CHECKS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Executing Service Checks' TITLE='Start Executing Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start executing service checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_EXECUTING_SVC_CHECKS);
+		if (execute_service_checks == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Executing Service Checks' TITLE='Stop Executing Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop executing service checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_EXECUTING_SVC_CHECKS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Executing Service Checks' TITLE='Start Executing Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start executing service checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_EXECUTING_SVC_CHECKS);
 
-			if (accept_passive_service_checks == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Accepting Passive Service Checks' TITLE='Stop Accepting Passive Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop accepting passive service checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_ACCEPTING_PASSIVE_SVC_CHECKS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Accepting Passive Service Checks' TITLE='Start Accepting Passive Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start accepting passive service checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_ACCEPTING_PASSIVE_SVC_CHECKS);
+		if (accept_passive_service_checks == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Accepting Passive Service Checks' TITLE='Stop Accepting Passive Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop accepting passive service checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_ACCEPTING_PASSIVE_SVC_CHECKS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Accepting Passive Service Checks' TITLE='Start Accepting Passive Service Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start accepting passive service checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_ACCEPTING_PASSIVE_SVC_CHECKS);
 
-			if (execute_host_checks == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Executing Host Checks' TITLE='Stop Executing Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop executing host checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_EXECUTING_HOST_CHECKS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Executing Host Checks' TITLE='Start Executing Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start executing host checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_EXECUTING_HOST_CHECKS);
+		if (execute_host_checks == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Executing Host Checks' TITLE='Stop Executing Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop executing host checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_EXECUTING_HOST_CHECKS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Executing Host Checks' TITLE='Start Executing Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start executing host checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_EXECUTING_HOST_CHECKS);
 
-			if (accept_passive_host_checks == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Accepting Passive Host Checks' TITLE='Stop Accepting Passive Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop accepting passive host checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_ACCEPTING_PASSIVE_HOST_CHECKS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Accepting Passive Host Checks' TITLE='Start Accepting Passive Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start accepting passive host checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_ACCEPTING_PASSIVE_HOST_CHECKS);
+		if (accept_passive_host_checks == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Accepting Passive Host Checks' TITLE='Stop Accepting Passive Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop accepting passive host checks</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_ACCEPTING_PASSIVE_HOST_CHECKS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Accepting Passive Host Checks' TITLE='Start Accepting Passive Host Checks'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start accepting passive host checks</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_ACCEPTING_PASSIVE_HOST_CHECKS);
 
-			if (enable_event_handlers == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Event Handlers' TITLE='Disable Event Handlers'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable event handlers</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_EVENT_HANDLERS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Event Handlers' TITLE='Enable Event Handlers'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable event handlers</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_EVENT_HANDLERS);
+		if (enable_event_handlers == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Event Handlers' TITLE='Disable Event Handlers'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable event handlers</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_EVENT_HANDLERS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Event Handlers' TITLE='Enable Event Handlers'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable event handlers</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_EVENT_HANDLERS);
 
-			if (obsess_over_services == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Obsessing Over Services' TITLE='Stop Obsessing Over Services'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop obsessing over services</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_OBSESSING_OVER_SVC_CHECKS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Obsessing Over Services' TITLE='Start Obsessing Over Services'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start obsessing over services</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_OBSESSING_OVER_SVC_CHECKS);
+		if (obsess_over_services == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Obsessing Over Services' TITLE='Stop Obsessing Over Services'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop obsessing over services</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_OBSESSING_OVER_SVC_CHECKS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Obsessing Over Services' TITLE='Start Obsessing Over Services'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start obsessing over services</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_OBSESSING_OVER_SVC_CHECKS);
 
-			if (obsess_over_hosts == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Obsessing Over Hosts' TITLE='Stop Obsessing Over Hosts'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop obsessing over hosts</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_OBSESSING_OVER_HOST_CHECKS);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Obsessing Over Hosts' TITLE='Start Obsessing Over Hosts'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start obsessing over hosts</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_OBSESSING_OVER_HOST_CHECKS);
+		if (obsess_over_hosts == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Stop Obsessing Over Hosts' TITLE='Stop Obsessing Over Hosts'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Stop obsessing over hosts</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_STOP_OBSESSING_OVER_HOST_CHECKS);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Start Obsessing Over Hosts' TITLE='Start Obsessing Over Hosts'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Start obsessing over hosts</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_START_OBSESSING_OVER_HOST_CHECKS);
 
-			if (enable_flap_detection == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Flap Detection' TITLE='Disable Flap Detection'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable flap detection</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_FLAP_DETECTION);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Flap Detection' TITLE='Enable Flap Detection'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable flap detection</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_FLAP_DETECTION);
+		if (enable_flap_detection == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Flap Detection' TITLE='Disable Flap Detection'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable flap detection</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_FLAP_DETECTION);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Flap Detection' TITLE='Enable Flap Detection'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable flap detection</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_FLAP_DETECTION);
 
 #ifdef PREDICT_FAILURES
-			if (enable_failure_prediction == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Failure Prediction' TITLE='Disable Failure Prediction'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable failure prediction</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_FAILURE_PREDICTION);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Failure Prediction' TITLE='Enable Failure Prediction'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable failure prediction</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_FAILURE_PREDICTION);
+		if (enable_failure_prediction == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Failure Prediction' TITLE='Disable Failure Prediction'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable failure prediction</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_FAILURE_PREDICTION);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Failure Prediction' TITLE='Enable Failure Prediction'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable failure prediction</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_FAILURE_PREDICTION);
 #endif
-			if (process_performance_data == TRUE)
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Performance Data' TITLE='Disable Performance Data'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable performance data</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_PERFORMANCE_DATA);
-			else
-				printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Performance Data' TITLE='Enable Performance Data'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable performance data</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_PERFORMANCE_DATA);
+		if (process_performance_data == TRUE)
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Disable Performance Data' TITLE='Disable Performance Data'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Disable performance data</a></td></tr>\n", url_images_path, DISABLED_ICON, CMD_CGI, CMD_DISABLE_PERFORMANCE_DATA);
+		else
+			printf("<TR CLASS='command'><TD><img src='%s%s' border=0 ALT='Enable Performance Data' TITLE='Enable Performance Data'></td><td CLASS='command'><a href='%s?cmd_typ=%d'>Enable performance data</a></td></tr>\n", url_images_path, ENABLED_ICON, CMD_CGI, CMD_ENABLE_PERFORMANCE_DATA);
 
-			printf("</TABLE>\n");
-		} else {
-			printf("<DIV ALIGN=CENTER CLASS='infoMessage'>It appears as though Icinga is not running, so commands are temporarily unavailable...\n");
-			if (!strcmp(nagios_check_command, "")) {
-				printf("<BR><BR>\n");
-				printf("Hint: It looks as though you have not defined a command for checking the process state by supplying a value for the <b>nagios_check_command</b> option in the CGI configuration file.<BR>\n");
-				printf("Read the documentation for more information on checking the status of the Icinga process in the CGIs.\n");
-			}
-			printf("</DIV>\n");
-		}
+		printf("</TABLE>\n");
 
 		printf("</TD></TR>\n");
 		printf("</TABLE>\n");
@@ -1558,7 +1553,7 @@ void show_host_info(void) {
 			printf("<TR><TD CLASS='dataVar'>Last Check Time:</td><td CLASS='dataVal'>%s</td></tr>\n", date_time);
 
 			if (temp_hoststatus->checks_enabled == TRUE)
-				printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'><A HREF='%s?type=command&host=%s&expand=%s'>ACTIVE</A></TD></TR>\n", CONFIG_CGI, host_name, url_encode(temp_host->host_check_command));
+				printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'><A HREF='%s?type=command&host=%s&expand=%s'>ACTIVE</A></TD></TR>\n", CONFIG_CGI, url_encode(host_name), url_encode(temp_host->host_check_command));
 			else if (temp_hoststatus->accept_passive_host_checks == TRUE)
 				printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'>PASSIVE</TD></TR>\n");
 			else
@@ -1597,6 +1592,8 @@ void show_host_info(void) {
 			printf("<TR><TD CLASS='dataVar'>Modified Attributes:</td><td CLASS='dataVal'>");
 			print_modified_attributes(HTML_CONTENT, EXTINFO_CGI, temp_hoststatus->modified_attributes);
 			printf("</td></tr>\n");
+
+			printf("<TR><TD CLASS='dataVar'>Executed Command:</TD><TD CLASS='dataVal'><A HREF='%s?type=command&host=%s&expand=%s'>Command Expander</A></TD></TR>\n", CONFIG_CGI, url_encode(host_name), url_encode(temp_host->host_check_command));
 
 			printf("</TABLE>\n");
 			printf("</TD></TR>\n");
@@ -1645,7 +1642,7 @@ void show_host_info(void) {
 
 		printf("<TABLE BORDER='1' CELLPADDING=0 CELLSPACING=0><TR><TD>\n");
 
-		if (nagios_process_state == STATE_OK && is_authorized_for_read_only(&current_authdata) == FALSE) {
+		if (is_authorized_for_read_only(&current_authdata) == FALSE) {
 
 			printf("<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 CLASS='command'>\n");
 #ifdef USE_STATUSMAP
@@ -1718,11 +1715,8 @@ void show_host_info(void) {
 			printf("Reset Modified Attributes</a></td>");
 
 			printf("</TABLE>\n");
-		} else if (is_authorized_for_read_only(&current_authdata) == TRUE) {
-			printf("<DIV ALIGN=CENTER CLASS='infoMessage'>Your account does not have permissions to execute commands.<br>\n");
 		} else {
-			printf("<DIV ALIGN=CENTER CLASS='infoMessage'>It appears as though Icinga is not running, so commands are temporarily unavailable...<br>\n");
-			printf("Click <a href='%s?type=%d'>here</a> to view Icinga process information</DIV>\n", EXTINFO_CGI, DISPLAY_PROCESS_INFO);
+			print_generic_error_message("Your account does not have permissions to execute commands.", NULL, 0);
 		}
 		printf("</TD></TR></TABLE>\n");
 
@@ -1995,7 +1989,7 @@ void show_service_info(void) {
 
 			if (temp_svcstatus->checks_enabled == TRUE)
 				printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'><A HREF='%s?type=command&host=%s&service=%s&expand=%s'>ACTIVE</A></TD></TR>\n",
-				       CONFIG_CGI, host_name, service_desc, url_encode(temp_service->service_check_command));
+				       CONFIG_CGI, url_encode(host_name), url_encode(service_desc), url_encode(temp_service->service_check_command));
 			else if (temp_svcstatus->accept_passive_service_checks == TRUE)
 				printf("<TR><TD CLASS='dataVar'>Check Type:</TD><TD CLASS='dataVal'>PASSIVE</TD></TR>\n");
 			else
@@ -2034,6 +2028,8 @@ void show_service_info(void) {
 			printf("<TR><TD CLASS='dataVar'>Modified Attributes:</td><td CLASS='dataVal'>");
 			print_modified_attributes(HTML_CONTENT, EXTINFO_CGI, temp_svcstatus->modified_attributes);
 			printf("</td></tr>\n");
+
+			printf("<TR><TD CLASS='dataVar'>Executed Command:</TD><TD CLASS='dataVal'><A HREF='%s?type=command&host=%s&service=%s&expand=%s'>Command Expander</A></TD></TR>\n", CONFIG_CGI, url_encode(host_name), url_encode(service_desc), url_encode(temp_service->service_check_command));
 
 			printf("</TABLE>\n");
 			printf("</TD></TR>\n");
@@ -2086,7 +2082,7 @@ void show_service_info(void) {
 		printf("<TABLE BORDER='1' CELLSPACING=0 CELLPADDING=0>\n");
 		printf("<TR><TD>\n");
 
-		if (nagios_process_state == STATE_OK &&  is_authorized_for_read_only(&current_authdata) == FALSE) {
+		if (is_authorized_for_read_only(&current_authdata) == FALSE) {
 			printf("<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0 CLASS='command'>\n");
 
 			if (temp_svcstatus->checks_enabled) {
@@ -2178,11 +2174,8 @@ void show_service_info(void) {
 
 
 			printf("</table>\n");
-		} else if (is_authorized_for_read_only(&current_authdata) == TRUE) {
-			printf("<DIV ALIGN=CENTER CLASS='infoMessage'>Your account does not have permissions to execute commands.<br>\n");
 		} else {
-			printf("<DIV CLASS='infoMessage'>It appears as though Icinga is not running, so commands are temporarily unavailable...<br>\n");
-			printf("Click <a href='%s?type=%d'>here</a> to view Icinga process information</DIV>\n", EXTINFO_CGI, DISPLAY_PROCESS_INFO);
+			print_generic_error_message("Your account does not have permissions to execute commands.", NULL, 0);
 		}
 
 		printf("</td></tr>\n");
@@ -2234,7 +2227,7 @@ void show_hostgroup_info(void) {
 
 	printf("<DIV CLASS='dataTitle'>Hostgroup Commands</DIV>\n");
 
-	if (nagios_process_state == STATE_OK && is_authorized_for_read_only(&current_authdata) == FALSE) {
+	if (is_authorized_for_read_only(&current_authdata) == FALSE) {
 
 		printf("<TABLE border=0 CELLSPACING=0 CELLPADDING=0 CLASS='command' align='center'>\n");
 
@@ -2256,11 +2249,8 @@ void show_hostgroup_info(void) {
 
 		printf("</table>\n");
 
-	} else if (is_authorized_for_read_only(&current_authdata) == TRUE) {
-		print_generic_error_message("Your account does not have permissions to execute commands.", NULL, 0);
 	} else {
-		printf("<DIV CLASS='infoMessage' align='center'>It appears as though Icinga is not running, so commands are temporarily unavailable...<br>\n");
-		printf("Click <a href='%s?type=%d'>here</a> to view Icinga process information</DIV>\n", EXTINFO_CGI, DISPLAY_PROCESS_INFO);
+		print_generic_error_message("Your account does not have permissions to execute commands.", NULL, 0);
 	}
 
 	return;
@@ -2286,7 +2276,7 @@ void show_servicegroup_info() {
 
 	printf("<DIV CLASS='dataTitle'>Servicegroup Commands</DIV>\n");
 
-	if (nagios_process_state == STATE_OK) {
+	if (is_authorized_for_read_only(&current_authdata) == FALSE) {
 
 		printf("<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=0 CLASS='command' align='center'>\n");
 
@@ -2308,11 +2298,8 @@ void show_servicegroup_info() {
 
 		printf("</table>\n");
 
-	} else if (is_authorized_for_read_only(&current_authdata) == TRUE) {
-		print_generic_error_message("Your account does not have permissions to execute commands.", NULL, 0);
 	} else {
-		printf("<DIV CLASS='infoMessage'>It appears as though Icinga is not running, so commands are temporarily unavailable...<br>\n");
-		printf("Click <a href='%s?type=%d'>here</a> to view Icinga process information</DIV>\n", EXTINFO_CGI, DISPLAY_PROCESS_INFO);
+		print_generic_error_message("Your account does not have permissions to execute commands.", NULL, 0);
 	}
 
 	return;
@@ -3350,11 +3337,14 @@ void show_downtime(int type) {
 
 		get_time_string(&temp_downtime->trigger_time, date_time, (int)sizeof(date_time), SHORT_DATE_TIME);
 		if (content_type == JSON_CONTENT) {
-			printf("\"trigger_time\": \"%s\", ", date_time);
+			if (temp_downtime->trigger_time != 0)
+				printf("\"trigger_time\": \"%s\", ", date_time);
+			else
+				printf("\"trigger_time\": null, ");
 		} else if (content_type == CSV_CONTENT) {
-			printf("%s%s%s%s", csv_data_enclosure, date_time, csv_data_enclosure, csv_delimiter);
+			printf("%s%s%s%s", csv_data_enclosure, (temp_downtime->trigger_time != 0) ? date_time : "N/A", csv_data_enclosure, csv_delimiter);
 		} else {
-			printf("<td CLASS='%s'>%s</td>", bg_class, date_time);
+			printf("<td CLASS='%s'>%s</td>", bg_class, (temp_downtime->trigger_time != 0) ? date_time : "N/A");
 		}
 
 		get_time_breakdown(temp_downtime->duration, &days, &hours, &minutes, &seconds);
@@ -3518,11 +3508,11 @@ void show_scheduling_queue(void) {
 			temp_url[sizeof(temp_url) - 1] = '\x0';
 		}
 
-		printf("<TH CLASS='queue'>Host&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by host name (ascending)' TITLE='Sort by host name (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by host name (descending)' TITLE='Sort by host name (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_HOSTNAME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_HOSTNAME, url_images_path, DOWN_ARROW_ICON);
-		printf("<TH CLASS='queue'>Service&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by service name (ascending)' TITLE='Sort by service name (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by service name (descending)' TITLE='Sort by service name (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_SERVICENAME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_SERVICENAME, url_images_path, DOWN_ARROW_ICON);
-		printf("<TH CLASS='queue'>Last Check&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by last check time (ascending)' TITLE='Sort by last check time (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by last check time (descending)' TITLE='Sort by last check time (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_LASTCHECKTIME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_LASTCHECKTIME, url_images_path, DOWN_ARROW_ICON);
-		printf("<TH CLASS='queue'>Next Check&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by next check time (ascending)' TITLE='Sort by next check time (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by next check time (descending)' TITLE='Sort by next check time (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_NEXTCHECKTIME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_NEXTCHECKTIME, url_images_path, DOWN_ARROW_ICON);
-		printf("<TH CLASS='queue'>Type</TH><TH CLASS='queue'>Active Checks</TH><TH CLASS='queue'>Actions</TH></TR>\n");
+		printf("<TH CLASS='queue' nowrap>Host&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by host name (ascending)' TITLE='Sort by host name (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by host name (descending)' TITLE='Sort by host name (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_HOSTNAME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_HOSTNAME, url_images_path, DOWN_ARROW_ICON);
+		printf("<TH CLASS='queue' nowrap>Service&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by service name (ascending)' TITLE='Sort by service name (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by service name (descending)' TITLE='Sort by service name (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_SERVICENAME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_SERVICENAME, url_images_path, DOWN_ARROW_ICON);
+		printf("<TH CLASS='queue' nowrap>Last Check&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by last check time (ascending)' TITLE='Sort by last check time (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by last check time (descending)' TITLE='Sort by last check time (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_LASTCHECKTIME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_LASTCHECKTIME, url_images_path, DOWN_ARROW_ICON);
+		printf("<TH CLASS='queue' nowrap>Next Check&nbsp;<A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by next check time (ascending)' TITLE='Sort by next check time (ascending)'></A><A HREF='%s&sorttype=%d&sortoption=%d'><IMG SRC='%s%s' BORDER=0 ALT='Sort by next check time (descending)' TITLE='Sort by next check time (descending)'></A></TH>", temp_url, SORT_ASCENDING, SORT_NEXTCHECKTIME, url_images_path, UP_ARROW_ICON, temp_url, SORT_DESCENDING, SORT_NEXTCHECKTIME, url_images_path, DOWN_ARROW_ICON);
+		printf("<TH CLASS='queue' nowrap>Type</TH><TH CLASS='queue'>Active Checks</TH><TH CLASS='queue'>Actions</TH></TR>\n");
 	}
 
 	/* display all services and hosts */

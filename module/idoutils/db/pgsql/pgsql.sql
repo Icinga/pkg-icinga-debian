@@ -2,7 +2,7 @@
 -- pgsql.sql
 -- DB definition for Postgresql
 --
--- Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+-- Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
 --
 -- initial version: 2009-05-13 Markus Manzke
 -- current version: 2012-04-19 Michael Friedrich <michael.friedrich@univie.ac.at>
@@ -1625,9 +1625,15 @@ CREATE INDEX sgmbrs_sgid_soid ON icinga_servicegroup_members (servicegroup_id,se
 CREATE INDEX scgrps_sid_cgoid ON icinga_service_contactgroups (service_id,contactgroup_object_id);
 CREATE INDEX tperiod_tid_d_ss_es ON icinga_timeperiod_timeranges (timeperiod_id,day,start_sec,end_sec);
 
+-- #3649
+CREATE INDEX sla_idx_sthist ON icinga_statehistory (object_id, state_time DESC);
+CREATE INDEX sla_idx_dohist ON icinga_downtimehistory (object_id, actual_start_time, actual_end_time);
+CREATE INDEX sla_idx_obj ON icinga_objects (objecttype_id, is_active, name1);
+
+
 -- -----------------------------------------
 -- set dbversion
 -- -----------------------------------------
 
-SELECT updatedbversion('1.8.0');
+SELECT updatedbversion('1.9.0');
 
