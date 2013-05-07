@@ -2,7 +2,7 @@
  *
  * DB.H - IDO Database Include File
  * Copyright (c) 2005-2006 Ethan Galstad
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  ************************************************************************/
 
@@ -161,6 +161,9 @@ int ido2db_db_clear_table(ido2db_idi *,char *);
 int ido2db_db_get_latest_data_time(ido2db_idi *,char *,char *,unsigned long *);
 int ido2db_db_perform_maintenance(ido2db_idi *);
 int ido2db_db_trim_data_table(ido2db_idi *,char *,char *,unsigned long);
+
+int ido2db_db_tx_begin(ido2db_idi *idi);
+int ido2db_db_tx_commit(ido2db_idi *idi);
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 #define OCI_VARCHAR_SIZE 4096 /* max allowed string size for varchar2 (+1) */

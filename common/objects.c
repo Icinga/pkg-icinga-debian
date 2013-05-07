@@ -3,8 +3,8 @@
  * OBJECTS.C - Object addition and search functions for Icinga
  *
  * Copyright (c) 1999-2008 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -64,6 +64,7 @@ hostescalation  *hostescalation_list = NULL, *hostescalation_list_tail = NULL;
 module		*module_list = NULL, *module_list_tail = NULL;
 
 skiplist *object_skiplists[NUM_OBJECT_SKIPLISTS];
+static int object_skiplists_valid = 0;
 
 
 #ifdef NSCORE
@@ -106,10 +107,8 @@ int read_object_config_data(char *main_config_file, int options, int cache, int 
 /******************************************************************/
 
 int init_object_skiplists(void) {
-	int x = 0;
-
-	for (x = 0; x < NUM_OBJECT_SKIPLISTS; x++)
-		object_skiplists[x] = NULL;
+	if (object_skiplists_valid)
+		free_object_skiplists();
 
 	object_skiplists[HOST_SKIPLIST] = skiplist_new(15, 0.5, FALSE, FALSE, skiplist_compare_host);
 	object_skiplists[SERVICE_SKIPLIST] = skiplist_new(15, 0.5, FALSE, FALSE, skiplist_compare_service);
@@ -128,6 +127,8 @@ int init_object_skiplists(void) {
 
 	object_skiplists[MODULE_SKIPLIST] = skiplist_new(10, 0.5, FALSE, FALSE, skiplist_compare_module);
 
+	object_skiplists_valid = 1;
+
 	return OK;
 }
 
@@ -138,6 +139,8 @@ int free_object_skiplists(void) {
 
 	for (x = 0; x < NUM_OBJECT_SKIPLISTS; x++)
 		skiplist_free(&object_skiplists[x]);
+
+	object_skiplists_valid = 0;
 
 	return OK;
 }
@@ -664,6 +667,9 @@ host *add_host(char *name, char *display_name, char *alias, char *address, char 
 	/* duplicate string vars */
 	if ((new_host->name = (char *)strdup(name)) == NULL)
 		result = ERROR;
+
+	FILL_HASH(new_host->name);
+
 	if ((new_host->display_name = (char *)strdup((display_name == NULL) ? name : display_name)) == NULL)
 		result = ERROR;
 	if ((new_host->alias = (char *)strdup((alias == NULL) ? name : alias)) == NULL)
@@ -902,6 +908,8 @@ hostsmember *add_parent_host_to_host(host *hst, char *host_name) {
 	if ((new_hostsmember->host_name = (char *)strdup(host_name)) == NULL)
 		result = ERROR;
 
+	FILL_HASH(new_hostsmember->host_name);
+
 	/* handle errors */
 	if (result == ERROR) {
 		my_free(new_hostsmember->host_name);
@@ -958,6 +966,11 @@ servicesmember *add_service_link_to_host(host *hst, service *service_ptr) {
 	/* initialize values */
 #ifdef NSCORE
 	new_servicesmember->service_ptr = service_ptr;
+
+	/* increment host->service counter for later processing */
+	hst->total_services++;
+	/* calculate check interval total for flapping */
+	hst->total_service_check_interval += service_ptr->check_interval;
 #endif
 
 	/* add the child entry to the host definition */
@@ -1113,6 +1126,8 @@ hostsmember *add_host_to_hostgroup(hostgroup *temp_hostgroup, char *host_name) {
 	if ((new_member->host_name = (char *)strdup(host_name)) == NULL)
 		result = ERROR;
 
+	FILL_HASH(new_member->host_name);
+
 	/* handle errors */
 	if (result == ERROR) {
 		my_free(new_member->host_name);
@@ -1123,7 +1138,7 @@ hostsmember *add_host_to_hostgroup(hostgroup *temp_hostgroup, char *host_name) {
 	/* add the new member to the member list, sorted by host name */
 	last_member = temp_hostgroup->members;
 	for (temp_member = temp_hostgroup->members; temp_member != NULL; temp_member = temp_member->next) {
-		if (strcmp(new_member->host_name, temp_member->host_name) < 0) {
+		if (CMP_HASH(new_member->host_name, temp_member->host_name) < 0) {
 			new_member->next = temp_member;
 			if (temp_member == temp_hostgroup->members)
 				temp_hostgroup->members = new_member;
@@ -1237,8 +1252,13 @@ servicesmember *add_service_to_servicegroup(servicegroup *temp_servicegroup, cha
 	/* duplicate vars */
 	if ((new_member->host_name = (char *)strdup(host_name)) == NULL)
 		result = ERROR;
+
+	FILL_HASH(new_member->host_name);
+
 	if ((new_member->service_description = (char *)strdup(svc_description)) == NULL)
 		result = ERROR;
+
+	FILL_HASH(new_member->service_description);
 
 	/* handle errors */
 	if (result == ERROR) {
@@ -1251,8 +1271,8 @@ servicesmember *add_service_to_servicegroup(servicegroup *temp_servicegroup, cha
 	/* add new member to member list, sorted by host name then service description */
 	last_member = temp_servicegroup->members;
 	for (temp_member = temp_servicegroup->members; temp_member != NULL; temp_member = temp_member->next) {
-
-		if (strcmp(new_member->host_name, temp_member->host_name) < 0) {
+		int host_name_cmp = CMP_HASH(new_member->host_name, temp_member->host_name);
+		if (host_name_cmp < 0) {
 			new_member->next = temp_member;
 			if (temp_member == temp_servicegroup->members)
 				temp_servicegroup->members = new_member;
@@ -1261,7 +1281,7 @@ servicesmember *add_service_to_servicegroup(servicegroup *temp_servicegroup, cha
 			break;
 		}
 
-		else if (strcmp(new_member->host_name, temp_member->host_name) == 0 && strcmp(new_member->service_description, temp_member->service_description) < 0) {
+		else if (host_name_cmp == 0 && CMP_HASH(new_member->service_description, temp_member->service_description) < 0) {
 			new_member->next = temp_member;
 			if (temp_member == temp_servicegroup->members)
 				temp_servicegroup->members = new_member;
@@ -1611,8 +1631,14 @@ service *add_service(char *host_name, char *description, char *display_name, cha
 	/* duplicate vars */
 	if ((new_service->host_name = (char *)strdup(host_name)) == NULL)
 		result = ERROR;
+
+	FILL_HASH(new_service->host_name);
+
 	if ((new_service->description = (char *)strdup(description)) == NULL)
 		result = ERROR;
+
+	FILL_HASH(new_service->description);
+
 	if ((new_service->display_name = (char *)strdup((display_name == NULL) ? description : display_name)) == NULL)
 		result = ERROR;
 	if ((new_service->service_check_command = (char *)strdup(check_command)) == NULL)
@@ -2875,7 +2901,7 @@ int is_host_immediate_child_of_host(host *parent_host, host *child_host) {
 			if (temp_hostsmember->host_ptr == parent_host)
 				return TRUE;
 #else
-			if (!strcmp(temp_hostsmember->host_name, parent_host->name))
+			if (!CMP_HASH(temp_hostsmember->host_name, parent_host->name))
 				return TRUE;
 #endif
 		}
@@ -2970,7 +2996,7 @@ int is_host_member_of_hostgroup(hostgroup *group, host *hst) {
 		if (temp_hostsmember->host_ptr == hst)
 			return TRUE;
 #else
-		if (!strcmp(temp_hostsmember->host_name, hst->name))
+		if (!CMP_HASH(temp_hostsmember->host_name, hst->name))
 			return TRUE;
 #endif
 	}
@@ -2992,7 +3018,7 @@ int is_host_member_of_servicegroup(servicegroup *group, host *hst) {
 		if (temp_servicesmember->service_ptr != NULL && temp_servicesmember->service_ptr->host_ptr == hst)
 			return TRUE;
 #else
-		if (!strcmp(temp_servicesmember->host_name, hst->name))
+		if (!CMP_HASH(temp_servicesmember->host_name, hst->name))
 			return TRUE;
 #endif
 	}
@@ -3014,7 +3040,7 @@ int is_service_member_of_servicegroup(servicegroup *group, service *svc) {
 		if (temp_servicesmember->service_ptr == svc)
 			return TRUE;
 #else
-		if (!strcmp(temp_servicesmember->host_name, svc->host_name) && !strcmp(temp_servicesmember->service_description, svc->description))
+		if (!CMP_HASH(temp_servicesmember->host_name, svc->host_name) && !CMP_HASH(temp_servicesmember->service_description, svc->description))
 			return TRUE;
 #endif
 	}

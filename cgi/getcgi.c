@@ -3,7 +3,7 @@
  * GETCGI.C -  Icinga CGI Input Routines
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -109,15 +109,27 @@ void unescape_cgi_input(char *input) {
 	len = strlen(input);
 	for (x = 0, y = 0; x < len; x++, y++) {
 
-		if (input[x] == '\x0')
+		if (input[x] == '\x0') {
 			break;
-		else if (input[x] == '%') {
+
+		// RB 2013-04-07
+		// only allow hex conversion if '%' is follow by a valid character
+		} else if (input[x] == '%' && (
+			// 0 - 9
+			(input[x+1] >= 48 && input[x+1] <= 57) ||
+			// A - F
+			(input[x+1] >= 65 && input[x+1] <= 70) ||
+			// a - f
+			(input[x+1] >= 97 && input[x+1] <= 102))
+			) {
+
 			input[y] = hex_to_char(&input[x+1]);
 			x += 2;
+
 		// RB 2011-09-08
 		// convert plus as well that it can bu used in service and host names
 		} else if (input[x] == '+') {
-				input[y] = ' ';
+			input[y] = ' ';
 		} else
 			input[y] = input[x];
 	}
@@ -160,12 +172,13 @@ char **getcgivars(void) {
 			if (cgiinput != NULL) {
 				cgiinput[0] = '\x0';
 			}
-		} else
+		} else {
 			cgiinput = strdup(getenv("QUERY_STRING"));
 			if (cgiinput == NULL) {
 				printf("getcgivars(): Could not allocate memory for CGI input.\n");
 				exit(1);
 			}
+		}
 	}
 
 	else if (!strcmp(request_method, "POST") || !strcmp(request_method, "PUT")) {
@@ -205,6 +218,7 @@ char **getcgivars(void) {
 			exit(1);
 		}
 		cgiinput[content_length] = '\0';
+
 	} else {
 
 		printf("getcgivars(): Unsupported REQUEST_METHOD -> '%s'\n", request_method);
@@ -260,6 +274,7 @@ char **getcgivars(void) {
 		printf("getcgivars(): Could not allocate memory for name-value list.\n");
 		exit(1);
 	}
+
 	for (i = 0; i < paircount; i++) {
 
 		/* get the variable name preceding the equal (=) sign */
@@ -271,13 +286,14 @@ char **getcgivars(void) {
 				exit(1);
 			}
 			unescape_cgi_input(cgivars[i*2+1]);
-		} else
+
+		} else {
 			cgivars[i*2+1] = strdup("");
 			if(cgivars[i*2+1] == NULL) {
 				printf("getcgivars(): Could not allocate memory for empty cgi param value #%d.\n", i);
 				exit(1);
 			}
-			unescape_cgi_input(cgivars[i*2+1]);
+		}
 
 		/* get the variable value (or name/value of there was no real "pair" in the first place) */
 		cgivars[i*2] = strdup(pairlist[i]);

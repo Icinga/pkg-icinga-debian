@@ -3,7 +3,7 @@
  * SUMMARY.C -  Icinga Alert Summary CGI
  *
  * Copyright (c) 2002-2008 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
 	result = read_cgi_config_file(get_cgi_config_location());
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
+		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
 	result = read_main_config_file(main_config_file);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(main_config_file, ERROR_CGI_MAIN_CFG);
+		print_error(main_config_file, ERROR_CGI_MAIN_CFG, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
 	result = read_all_object_configuration_data(main_config_file, READ_ALL_OBJECT_DATA);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(NULL, ERROR_CGI_OBJECT_DATA);
+		print_error(NULL, ERROR_CGI_OBJECT_DATA, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -1682,10 +1682,12 @@ void display_recent_alerts(void) {
 			odd = 1;
 
 		/* find the host */
-		temp_host = find_host(temp_event->host_name);
+		if ((temp_host = find_host(temp_event->host_name)) == NULL)
+			continue;
 
 		/* find the service */
-		temp_service = find_service(temp_event->host_name, temp_event->service_description);
+		if ((temp_service = find_service(temp_event->host_name, temp_event->service_description)) == NULL)
+			continue;
 
 		get_time_string(&temp_event->time_stamp, date_time, (int)sizeof(date_time), SHORT_DATE_TIME);
 
@@ -1991,7 +1993,7 @@ void display_top_alerts(void) {
 			printf(" \"host_name\": \"%s\", ", json_encode(temp_producer->host_name));
 
 			temp_host = find_host(temp_producer->host_name);
-			printf("\"host_display_name\": \"%s\", ", (temp_host != NULL && temp_host->display_name != NULL) ? json_encode(temp_host->display_name) : json_encode(temp_host->name));
+			printf("\"host_display_name\": \"%s\", ", (temp_host != NULL && temp_host->display_name != NULL) ? json_encode(temp_host->display_name) : json_encode(temp_producer->host_name));
 			if (temp_producer->producer_type == AE_HOST_PRODUCER) {
 				printf(" \"service_description\": null, ");
 				printf(" \"service_display_name\": null, ");
@@ -1999,7 +2001,7 @@ void display_top_alerts(void) {
 				printf(" \"service_description\": \"%s\", ", json_encode(temp_producer->service_description));
 
 				temp_service = find_service(temp_producer->host_name, temp_producer->service_description);
-				printf("\"service_display_name\": \"%s\", ", (temp_service != NULL && temp_service->display_name != NULL) ? json_encode(temp_service->display_name) : json_encode(temp_service->description));
+				printf("\"service_display_name\": \"%s\", ", (temp_service != NULL && temp_service->display_name != NULL) ? json_encode(temp_service->display_name) : json_encode(temp_producer->service_description));
 			}
 			printf(" \"total_alerts\": %d}", temp_producer->total_alerts);
 		} else if (content_type == CSV_CONTENT) {

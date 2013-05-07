@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.8 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.9 Dokumentation">
 <link rel="up" href="ch03.html" title="Kapitel 3. Icinga konfigurieren">
 <link rel="prev" href="customobjectvars.html" title="3.5. Maßgeschneiderte Objektvariablen">
 <link rel="next" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">
@@ -1958,7 +1958,7 @@
   aktive Prüfungen dargestellt werden.</p>
 
   <div class="figure">
-<a name="idp6699984"></a><p class="title"><b>Abbildung 3.1. Beispiel des neuen Headers</b></p>
+<a name="idp6873312"></a><p class="title"><b>Abbildung 3.1. Beispiel des neuen Headers</b></p>
 <div class="figure-contents">
     
 
@@ -2451,137 +2451,255 @@
   </td></tr>
 </table></div>
 
-  <a class="indexterm" name="idp6865072"></a>
+  <p><a name="configcgi-send_ack_notifications"></a><span class="bold"><strong>Initialwert für "send notifications"-Checkbox
+  setzen</strong></span></p>
+
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td align="left" valign="top"><p>Format:</p></td>
+<td><p><span class="bold"><strong>send_ack_notifications=0|1</strong></span></p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p>Example:</p></td>
+<td><p><span class="color"><font color="red"><span class="bold"><strong>send_ack_notifications=1</strong></span></font></span></p></td>
+</tr>
+</tbody>
+</table>
+  </div>
+
+  <p>Diese Option legt den Initialwert der "send notification"-Checkbox fest, wenn ein Problem bestätigt wird. Setzen Sie den Wert auf 1,
+  um standardmäßig Benachrichtigungen zu versenden bzw. auf 0, damit das nicht passiert. Dieser Standardwert kann ggf. durch den CGI-Dialog
+  übersteuert werden. Der Standard ist 1 (Benachrichtigungen bei Problembestätigungen versenden).</p>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.9</p>
+  </td></tr>
+</table></div>
+
+  <p><a name="configcgi-set_expire_ack_by_default"></a><span class="bold"><strong>Initialwert für "set expire time"-Checkbox
+  setzen</strong></span></p>
+
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td align="left" valign="top"><p>Format:</p></td>
+<td><p><span class="bold"><strong>set_expire_ack_by_default=0|1</strong></span></p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p>Example:</p></td>
+<td><p><span class="color"><font color="red"><span class="bold"><strong>set_expire_ack_by_default=1</strong></span></font></span></p></td>
+</tr>
+</tbody>
+</table>
+  </div>
+
+  <p>Diese Option legt den Initialwert der "set expire time"-Checkbox fest, wenn ein Problem bestätigt wird. Setzen Sie den Wert auf 1,
+  um Bestätigungen automatisch verfallen zu lassen bzw. auf 0, damit das nicht passiert. Dieser Standardwert kann ggf. durch den CGI-Dialog
+  übersteuert werden. Der Standard ist 0 (Bestätigungen nicht automatisch verfallen zu lassen).</p>
+
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.9</p>
+  </td></tr>
+</table></div>
+
+  <p><a name="configcgi-standalone_installation"></a><span class="bold"><strong>Classic UI Standalone Installation
+  </strong></span></p>
+  
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td align="left" valign="top"><p>Format:</p></td>
+<td><p><span class="bold"><strong>standalone_installation=0|1</strong></span></p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p>Example:</p></td>
+<td><p><span class="color"><font color="red"><span class="bold"><strong>standalone_installation=1</strong></span></font></span></p></td>
+</tr>
+</tbody>
+</table>
+  </div>
 
-  <a class="indexterm" name="idp6866464"></a>
+  <p>Diese Option legt fest, ob die Classic UI "standalone" installiert und verwendet wird. Diese Option wurde mehrheitlich für Icinga 2 und dessen Compat
+  Layer implementiert, kann aber auch in anderen Installationen verwendet werden, beispielsweise als zusätzliches Dashboard.
+  Wenn Sie diese Option aktivieren, wird die Classic UI die Option main_config_file ignorieren, und stattdessen alle benötigten Einstellungen in
+  der cgi.cfg suchen. Sie finden diese in der Beispielkonfiguration in der Sektion "Standalone (Icinga 2)".
+  </p>
 
-  <a class="indexterm" name="idp6867888"></a>
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>This option is available starting with Icinga 1.9</p>
+  </td></tr>
+</table></div>
 
-  <a class="indexterm" name="idp6869648"></a>
 
-  <a class="indexterm" name="idp6871248"></a>
+  <a class="indexterm" name="idp7076624"></a>
 
-  <a class="indexterm" name="idp6872880"></a>
+  <a class="indexterm" name="idp7078256"></a>
 
-  <a class="indexterm" name="idp6874512"></a>
+  <a class="indexterm" name="idp7079888"></a>
 
-  <a class="indexterm" name="idp6876160"></a>
+  <a class="indexterm" name="idp7081456"></a>
 
-  <a class="indexterm" name="idp6877888"></a>
+  <a class="indexterm" name="idp7083120"></a>
 
-  <a class="indexterm" name="idp6879568"></a>
+  <a class="indexterm" name="idp7084752"></a>
 
-  <a class="indexterm" name="idp6881328"></a>
+  <a class="indexterm" name="idp7086320"></a>
 
-  <a class="indexterm" name="idp6883008"></a>
+  <a class="indexterm" name="idp7087952"></a>
 
-  <a class="indexterm" name="idp6884768"></a>
+  <a class="indexterm" name="idp7089648"></a>
 
-  <a class="indexterm" name="idp6886528"></a>
+  <a class="indexterm" name="idp7091408"></a>
 
-  <a class="indexterm" name="idp6888256"></a>
+  <a class="indexterm" name="idp7093104"></a>
 
-  <a class="indexterm" name="idp6889776"></a>
+  <a class="indexterm" name="idp7094864"></a>
 
-  <a class="indexterm" name="idp6890912"></a>
+  <a class="indexterm" name="idp7096624"></a>
 
-  <a class="indexterm" name="idp6893104"></a>
+  <a class="indexterm" name="idp7098192"></a>
 
-  <a class="indexterm" name="idp6894304"></a>
+  <a class="indexterm" name="idp7032480"></a>
 
-  <a class="indexterm" name="idp6896560"></a>
+  <a class="indexterm" name="idp7100848"></a>
 
-  <a class="indexterm" name="idp6898352"></a>
+  <a class="indexterm" name="idp7102384"></a>
 
-  <a class="indexterm" name="idp6900112"></a>
+  <a class="indexterm" name="idp7104240"></a>
 
-  <a class="indexterm" name="idp6901744"></a>
+  <a class="indexterm" name="idp7105872"></a>
 
-  <a class="indexterm" name="idp6903376"></a>
+  <a class="indexterm" name="idp7107520"></a>
 
-  <a class="indexterm" name="idp6905072"></a>
+  <a class="indexterm" name="idp7108688"></a>
 
-  <a class="indexterm" name="idp6906768"></a>
+  <a class="indexterm" name="idp7110704"></a>
 
-  <a class="indexterm" name="idp6908448"></a>
+  <a class="indexterm" name="idp7111984"></a>
 
-  <a class="indexterm" name="idp6910128"></a>
+  <a class="indexterm" name="idp7114144"></a>
 
-  <a class="indexterm" name="idp6911760"></a>
+  <a class="indexterm" name="idp7115232"></a>
 
-  <a class="indexterm" name="idp6913424"></a>
+  <a class="indexterm" name="idp7116896"></a>
 
-  <a class="indexterm" name="idp6915088"></a>
+  <a class="indexterm" name="idp7119152"></a>
 
-  <a class="indexterm" name="idp6916688"></a>
+  <a class="indexterm" name="idp7120912"></a>
 
-  <a class="indexterm" name="idp6918352"></a>
+  <a class="indexterm" name="idp7122576"></a>
 
-  <a class="indexterm" name="idp6920016"></a>
+  <a class="indexterm" name="idp7124224"></a>
 
-  <a class="indexterm" name="idp6921648"></a>
+  <a class="indexterm" name="idp7125888"></a>
 
-  <a class="indexterm" name="idp6923280"></a>
+  <a class="indexterm" name="idp7127520"></a>
 
-  <a class="indexterm" name="idp6924912"></a>
+  <a class="indexterm" name="idp7129216"></a>
 
-  <a class="indexterm" name="idp6926544"></a>
+  <a class="indexterm" name="idp7130912"></a>
 
-  <a class="indexterm" name="idp6928160"></a>
+  <a class="indexterm" name="idp7132496"></a>
 
-  <a class="indexterm" name="idp6929760"></a>
+  <a class="indexterm" name="idp7134096"></a>
 
-  <a class="indexterm" name="idp6931440"></a>
+  <a class="indexterm" name="idp7135728"></a>
 
-  <a class="indexterm" name="idp6933040"></a>
+  <a class="indexterm" name="idp7137360"></a>
 
-  <a class="indexterm" name="idp6934736"></a>
+  <a class="indexterm" name="idp7138368"></a>
 
-  <a class="indexterm" name="idp6936384"></a>
+  <a class="indexterm" name="idp7140576"></a>
 
-  <a class="indexterm" name="idp6938032"></a>
+  <a class="indexterm" name="idp7142144"></a>
 
-  <a class="indexterm" name="idp6939680"></a>
+  <a class="indexterm" name="idp7143888"></a>
 
-  <a class="indexterm" name="idp6941312"></a>
+  <a class="indexterm" name="idp7145568"></a>
 
-  <a class="indexterm" name="idp6943024"></a>
+  <a class="indexterm" name="idp7147232"></a>
 
-  <a class="indexterm" name="idp6944352"></a>
+  <a class="indexterm" name="idp7148864"></a>
 
-  <a class="indexterm" name="idp6945984"></a>
+  <a class="indexterm" name="idp7150512"></a>
 
-  <a class="indexterm" name="idp6947504"></a>
+  <a class="indexterm" name="idp7152144"></a>
 
-  <a class="indexterm" name="idp6949136"></a>
+  <a class="indexterm" name="idp7153872"></a>
 
-  <a class="indexterm" name="idp6950736"></a>
+  <a class="indexterm" name="idp7155152"></a>
 
-  <a class="indexterm" name="idp6952400"></a>
+  <a class="indexterm" name="idp7156672"></a>
 
-  <a class="indexterm" name="idp6954048"></a>
+  <a class="indexterm" name="idp7158304"></a>
 
-  <a class="indexterm" name="idp6955712"></a>
+  <a class="indexterm" name="idp7159936"></a>
 
-  <a class="indexterm" name="idp6957360"></a>
+  <a class="indexterm" name="idp7160992"></a>
 
-  <a class="indexterm" name="idp6959040"></a>
+  <a class="indexterm" name="idp7163264"></a>
 
-  <a class="indexterm" name="idp6960704"></a>
+  <a class="indexterm" name="idp7164320"></a>
 
-  <a class="indexterm" name="idp6962368"></a>
+  <a class="indexterm" name="idp7166592"></a>
 
-  <a class="indexterm" name="idp6963984"></a>
+  <a class="indexterm" name="idp7168240"></a>
 
-  <a class="indexterm" name="idp6965680"></a>
+  <a class="indexterm" name="idp7170000"></a>
 
-  <a class="indexterm" name="idp6966800"></a>
+  <a class="indexterm" name="idp7171664"></a>
 
-  <a class="indexterm" name="idp6968512"></a>
+  <a class="indexterm" name="idp7173328"></a>
 
-  <a class="indexterm" name="idp6970832"></a>
+  <a class="indexterm" name="idp7174976"></a>
 
-  <a class="indexterm" name="idp6972496"></a>
+  <a class="indexterm" name="idp7176608"></a>
+
+  <a class="indexterm" name="idp7178368"></a>
+
+  <a class="indexterm" name="idp7180064"></a>
+
+  <a class="indexterm" name="idp7181760"></a>
+
+  <a class="indexterm" name="idp7183584"></a>
+
+  <a class="indexterm" name="idp7185248"></a>
+
+  <a class="indexterm" name="idp7187008"></a>
+
+  <a class="indexterm" name="idp7188640"></a>
+
 </div>
 <div class="navfooter">
 <hr>
@@ -2600,6 +2718,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2012 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>
