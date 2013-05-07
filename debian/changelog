@@ -1,8 +1,26 @@
-icinga (1.8.4-1~debmon60+1) debmon-squeeze; urgency=low
+icinga (1.9.0-1~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 21:19:09 +0100
+
+icinga (1.9.0-1) unstable; urgency=low
+
+  * [006e77b] Allow www-data to read those archived logs
+  * [c732717] Don't destroy symlinked icinga configs with sed (Closes: #698137)
+  * [4a63fdf] install jquery-ui
+  * [d905069] Use bundled jquery-ui version
+  * [8110db1] Imported Upstream version 1.9.0
+    - Event profiling is now deprecated (Closes: #614356)
+  * [91e3d0b] Install 1.9.0 sql files
+  * [7d35822] Move stylesheets to cgi (Closes: #682334)
+  * [914bc33] Use debians jquery-ui and fix timepicker locations
+  * [51e1d00] Improve errorhandling in initscript (Closes: #698139)
+  * [0ed174a] Add indonesian debconf translation.
+    Thanks to Mahyuddin Susanto (Closes: #695651)
+  * [bbaa9f6] Recommend icinga-docs in the icinga metapackage (Closes: #682359)
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 07 May 2013 16:18:34 +0200
 
 icinga (1.8.4-1) experimental; urgency=high
 

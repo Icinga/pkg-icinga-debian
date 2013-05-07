@@ -1,15 +1,23 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# icinga Debconf translations for Indonesian.
+# Copyright (C) 2007 Software in the Public Interest, SPI Inc.
+# This file is distributed under the same license as the postfix package.
+# proyek penerjemahan Bahasa Indonesia.
+#
+# Sebelum menerjemahkan silakan melihat-lihat ke:
+# - /usr/share/doc/po-debconf/README-trans atau
+#   http://www.debian.org/intl/l10n/po-debconf/README-trans
+# - http://www.debian.org/international/l10n/po-debconf/id
+# Silakan menghubungi tim penerjemah Debian Indonesia bila ada pertanyaan,
+# kritik, dan saran ke debian-l10n-indonesian@lists.debian.org
+# Mahyuddin Susanto <udienz@gmail.com>, 2012
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: icinga 1.6.1-1\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
 "POT-Creation-Date: 2012-06-11 08:15+0200\n"
-"PO-Revision-Date: 2012-06-12 00:27+0700\n"
-"Last-Translator: T. Surya Fajri <kilelme@gmail.com>\n"
+"PO-Revision-Date: 2012-12-11 14:56+0700\n"
+"Last-Translator: Mahyuddin Susanto <udienz@gmail.com>\n"
 "Language-Team: Debian Indonesia Translator <debian-l10n-indonesian@lists.debian.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -22,49 +30,49 @@ msgstr ""
 #. Description
 #: ../icinga-cgi.templates:2001
 msgid "Apache servers to configure for icinga:"
-msgstr "Server Apache untuk mengatur icinga"
+msgstr "Server Apache untuk mengatur icinga:"
 
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:2001
 msgid "Please select which Apache servers should be configured for icinga."
-msgstr "Silakan pilih server Apache yang akan ada atur untuk icinga"
+msgstr "Silakan pilih server Apache yang akan ada atur untuk icinga."
 
 #. Type: multiselect
 #. Description
 #: ../icinga-cgi.templates:2001
 msgid "If you would prefer to perform configuration manually, leave all servers unselected."
-msgstr "Jika anda menginginkan pengaturan secara manual, biarkan semua servertidak diubah"
+msgstr "Jika anda menginginkan pengaturan secara manual, biarkan semua server tidak diubah."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
 msgid "Icinga web administration password:"
-msgstr "Kata sandi administrasi web icinga"
+msgstr "Kata sandi administrasi web icinga:"
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
 msgid "Please provide the password to be created with the \"icingaadmin\" user."
-msgstr "Mohon menyediakan kata sandi yang dibuat untuk pengguna \"icingaadmin\""
+msgstr "Mohon menyediakan kata sandi yang dibuat untuk pengguna \"icingaadmin\"."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:3001
 msgid "This is the username and password to use when connecting to the Icinga server after completing the configuration. If you do not provide a password, you will have to configure access to Icinga manually later on."
-msgstr "Ini adalah nama pengguna dan kata sandi yang digunakan untuk tersambung dengan servericinga setelah pegaturan selesai. Jika anda tidak menyediakan kata sandi,setelah itu anda akan mengatur manual akses ke Icinga manual."
+msgstr "Ini adalah nama pengguna dan kata sandi yang digunakan untuk tersambung dengan server icinga setelah pegaturan selesai. Jika anda tidak menyediakan kata sandi,setelah itu anda akan mengatur manual akses ke Icinga manual."
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:4001
 msgid "Re-enter password to verify:"
-msgstr "Masukkan kata sandi untuk verifikasi"
+msgstr "Masukkan kata sandi untuk verifikasi:"
 
 #. Type: password
 #. Description
 #: ../icinga-cgi.templates:4001
 msgid "Please enter the same user password again to verify you have typed it correctly."
-msgstr "Silakan masukkan nama pengguna dan kata sandi lagi untuk memverifikasibahwa anda mengetikkan itu"
+msgstr "Silakan masukkan nama pengguna dan kata sandi lagi untuk memverifikasi bahwa anda mengetikkan itu."
 
 #. Type: error
 #. Description
@@ -76,23 +84,23 @@ msgstr "Masukan kata sandi tidak benar"
 #. Description
 #: ../icinga-cgi.templates:5001
 msgid "The two passwords you entered were not the same. Please try again."
-msgstr "Kata sandi yang anda masukkan tidak sama. Silakan coba lagi"
+msgstr "Kata sandi yang anda masukkan tidak sama. Silakan coba lagi."
 
 #. Type: boolean
 #. Description
 #: ../icinga-common.templates:2001
 msgid "Use external commands with Icinga?"
-msgstr "Gunakan perintah eksternal dengan Icinga?"
+msgstr "Gunakan perintah external dengan Icinga?"
 
 #. Type: boolean
 #. Description
 #: ../icinga-common.templates:2001
 msgid "As a security feature, Icinga in its default configuration does not look for external commands. Enabling external commands will give the web server write access to the nagios command pipe and is required if you want to be able to use the CGI command interface."
-msgstr "Sebagai sebuah fitur keamanan, Icinga dalam konfigurasi default tidak terlihat untuk perintah eksternal. Mengaktifkan perintah eksternal akan memberikan web server akses tulis pada perintah pipe nagios dan diperlukan jika anda ingin mengaktifkan untuk digunakan pada perintah antarmuka CGI."
+msgstr "Sebagai fitur keamanan, Icinga secara bawaan tidak akan menggunakan perintah external. Mengaktifkan perintah external akan memberikan server web untuk hak akses menulis keperintah pipe nagios dan ini dibutuhkan jika anda menghendaki untuk menggunakanantar muka perintah CGI."
 
 #. Type: boolean
 #. Description
 #: ../icinga-common.templates:2001
 msgid "If unsure, do not enable external commands."
-msgstr "Jika tidak yakin, jangan mengaktifkan perintah eksternal."
+msgstr "Jika tidak yakin, jangan mengaktifkan perintah external."
 

@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2012 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -45,6 +45,7 @@ char            url_logo_images_path[MAX_FILENAME_LENGTH];
 char            url_stylesheets_path[MAX_FILENAME_LENGTH];
 char            url_js_path[MAX_FILENAME_LENGTH];
 char            url_jquiryui_path[MAX_FILENAME_LENGTH];
+char            url_jquiryui_addon_path[MAX_FILENAME_LENGTH];
 char            url_media_path[MAX_FILENAME_LENGTH];
 
 char            *service_critical_sound = NULL;
@@ -56,6 +57,7 @@ char            *normal_sound = NULL;
 char            *statusmap_background_image = NULL;
 
 char            *illegal_output_chars = NULL;
+char		illegal_output_char_map[] = CHAR_MAP_INIT(0);
 
 char            *http_charset = NULL;
 
@@ -69,7 +71,6 @@ int		highlight_table_rows = TRUE;
 
 char            nagios_check_command[MAX_INPUT_BUFFER] = "";
 char            nagios_process_info[MAX_INPUT_BUFFER] = "";
-int             nagios_process_state = STATE_OK;
 
 int             enable_splunk_integration = FALSE;
 char            *splunk_url = NULL;
@@ -106,10 +107,17 @@ extern int      daemon_mode;
 extern int      enable_notifications;
 extern int      execute_service_checks;
 extern int      accept_passive_service_checks;
+extern int      execute_host_checks;
+extern int      accept_passive_host_checks;
+extern int      obsess_over_hosts;
+extern int      enable_flap_detection;
 extern int      enable_event_handlers;
 extern int      obsess_over_services;
 extern int      enable_failure_prediction;
 extern int      process_performance_data;
+extern int      check_service_freshness;
+extern int      check_host_freshness;
+extern time_t   disable_notifications_expire_time;
 extern time_t   last_command_check;
 extern time_t   last_log_rotation;
 extern time_t	status_file_creation_time;
@@ -146,6 +154,7 @@ int             refresh_type = JAVASCRIPT_REFRESH;
 int             escape_html_tags = FALSE;
 
 int             persistent_ack_comments = FALSE;
+int		send_ack_notifications = TRUE;
 
 int             use_ssl_authentication = FALSE;
 
@@ -174,6 +183,7 @@ int		week_starts_on_monday = FALSE;
 int		show_partial_hostgroups = FALSE;
 int		default_downtime_duration = 7200;
 int		default_expiring_acknowledgement_duration = 86400;
+int		set_expire_ack_by_default = FALSE;
 int		default_expiring_disabled_notifications_duration = 86400;
 
 int		result_limit = 50;
@@ -259,7 +269,6 @@ void reset_cgi_vars(void) {
 
 	strcpy(nagios_check_command, "");
 	strcpy(nagios_process_info, "");
-	nagios_process_state = STATE_OK;
 
 	log_rotation_method = LOG_ROTATION_NONE;
 	cgi_log_rotation_method = LOG_ROTATION_NONE;
@@ -359,6 +368,8 @@ int read_cgi_config_file(char *filename) {
 	mmapfile *thefile;
 	char *var = NULL;
 	char *val = NULL;
+	char *p = NULL;
+	int standalone_installation = 0;
 
 
 	if ((thefile = mmap_fopen(filename)) == NULL)
@@ -386,6 +397,9 @@ int read_cgi_config_file(char *filename) {
 			main_config_file[sizeof(main_config_file) - 1] = '\x0';
 			strip(main_config_file);
 		}
+
+		else if (!strcmp(var, "standalone_installation"))
+			standalone_installation = (atoi(val) > 0) ? TRUE : FALSE;
 
 		else if (!strcmp(var, "show_all_services_host_is_authorized_for"))
 			show_all_services_host_is_authorized_for = (atoi(val) > 0) ? TRUE : FALSE;
@@ -443,16 +457,14 @@ int read_cgi_config_file(char *filename) {
 			snprintf(url_logo_images_path, sizeof(url_logo_images_path), "%slogos/", url_images_path);
 			url_logo_images_path[sizeof(url_logo_images_path) - 1] = '\x0';
 
-			/*
-			snprintf(url_stylesheets_path,sizeof(url_stylesheets_path),"%sstylesheets/",url_html_path);
-			url_stylesheets_path[sizeof(url_stylesheets_path)-1]='\x0';
-			*/
-
 			snprintf(url_js_path, sizeof(url_js_path), "%sjs/", url_html_path);
 			url_js_path[sizeof(url_js_path) - 1] = '\x0';
 
 			snprintf(url_jquiryui_path, sizeof(url_jquiryui_path), "%sjquery-ui/", url_html_path);
 			url_jquiryui_path[sizeof(url_jquiryui_path) - 1] = '\x0';
+
+			snprintf(url_jquiryui_addon_path, sizeof(url_jquiryui_addon_path), "%sjquery-ui-addon/", url_html_path);
+			url_jquiryui_addon_path[sizeof(url_jquiryui_addon_path) - 1] = '\x0';
 
 			snprintf(url_media_path, sizeof(url_media_path), "%smedia/", url_html_path);
 			url_media_path[sizeof(url_media_path) - 1] = '\x0';
@@ -557,8 +569,14 @@ int read_cgi_config_file(char *filename) {
 		else if (!strcmp(var, "persistent_ack_comments"))
 			persistent_ack_comments = (atoi(val) > 0) ? TRUE : FALSE;
 
+		else if (!strcmp(var, "send_ack_notifications"))
+			send_ack_notifications = (atoi(val) > 0) ? TRUE : FALSE;
+
 		else if (!strcmp(var, "default_expiring_acknowledgement_duration"))
 			default_expiring_acknowledgement_duration = atoi(val);
+
+		else if (!strcmp(var, "set_expire_ack_by_default"))
+			set_expire_ack_by_default = (atoi(val) > 0) ? TRUE : FALSE;
 
 		else if (!strcmp(var, "default_expiring_disabled_notifications_duration"))
 			default_expiring_disabled_notifications_duration = atoi(val);
@@ -723,6 +741,9 @@ int read_cgi_config_file(char *filename) {
 		}
 	}
 
+	for (p = illegal_output_chars; p && *p; p++)
+		illegal_output_char_map[(int)*p] = 1;
+
 	/* free memory and close the file */
 	free(input);
 	mmap_fclose(thefile);
@@ -733,10 +754,33 @@ int read_cgi_config_file(char *filename) {
 		url_stylesheets_path[sizeof(url_stylesheets_path) - 1] = '\x0';
 	}
 
-	if (!strcmp(main_config_file, ""))
-		return ERROR;
-	else
-		return OK;
+	if (!strcmp(main_config_file, "")) {
+
+		if (standalone_installation == TRUE) {
+			/*
+			 * if standalone_installation is switched on, we assume that
+			 * all vars are defined in cgi.cfg
+			 */
+			strncpy(main_config_file, filename, sizeof(main_config_file));
+			main_config_file[sizeof(main_config_file) - 1] = '\x0';
+
+			/*
+			 * If not, we assume default location for main_config_file
+			 */
+		} else {
+			strncpy(main_config_file, DEFAULT_CONFIG_FILE, sizeof(main_config_file));
+			main_config_file[sizeof(main_config_file) - 1] = '\x0';
+		}
+	}
+
+	/* if we are standalone install, we force to use cgi.cfg instead of icinga.cfg! */
+	if (standalone_installation == TRUE) {
+		strncpy(main_config_file, filename, sizeof(main_config_file));
+		main_config_file[sizeof(main_config_file) - 1] = '\x0';
+	}
+
+
+	return OK;
 }
 
 /* read the main configuration file */
@@ -748,6 +792,12 @@ int read_main_config_file(char *filename) {
 
 	if ((thefile = mmap_fopen(filename)) == NULL)
 		return ERROR;
+
+	/*
+		Icinga 2 compat layer:
+		when adding config lines to this function,
+		DON'T forget to add them to cgi.cfg.in as well
+	*/
 
 	while (1) {
 
@@ -982,11 +1032,19 @@ int read_icinga_resource_file(char *resource_file) {
 
 void document_header(int cgi_id, int use_stylesheet, char *cgi_title) {
 	char date_time[MAX_DATETIME_LENGTH];
+	char run_time_string[24];
 	char *cgi_name = NULL;
 	char *cgi_css = NULL;
 	char *cgi_body_class = NULL;
+	char *timezone = "";
 	time_t expire_time;
 	time_t current_time;
+	int result = 0;
+	int days = 0;
+	int hours = 0;
+	int minutes = 0;
+	int seconds = 0;
+	struct tm *tm_ptr = NULL;
 
 	switch (cgi_id) {
 	case STATUS_CGI_ID:
@@ -1070,34 +1128,30 @@ void document_header(int cgi_id, int use_stylesheet, char *cgi_title) {
 		cgi_body_class  = "trends";
 		refresh         = FALSE;
 		break;
-	case ERROR_CGI_ID:
-		cgi_name        = "";
-		cgi_css         = CMD_CSS;
-		cgi_body_class  = "error";
-		break;
 	}
 
+	if (!strcmp(cgi_title, "Error"))
+		cgi_body_class = "error";
 
 	// don't refresh non html output
 	if (content_type == JSON_CONTENT || content_type == CSV_CONTENT)
 		refresh = FALSE;
 
+	time(&current_time);
+
 	// send top http header
-	if (cgi_id != ERROR_CGI_ID) {
-		printf("Cache-Control: no-store\r\n");
-		printf("Pragma: no-cache\r\n");
+	printf("Cache-Control: no-store\r\n");
+	printf("Pragma: no-cache\r\n");
 
-		if (refresh_type == HTTPHEADER_REFRESH && refresh == TRUE)
-			printf("Refresh: %d\r\n", refresh_rate);
+	if (refresh_type == HTTPHEADER_REFRESH && refresh == TRUE)
+		printf("Refresh: %d\r\n", refresh_rate);
 
-		time(&current_time);
-		get_time_string(&current_time, date_time, (int)sizeof(date_time), HTTP_DATE_TIME);
-		printf("Last-Modified: %s\r\n", date_time);
+	get_time_string(&current_time, date_time, (int)sizeof(date_time), HTTP_DATE_TIME);
+	printf("Last-Modified: %s\r\n", date_time);
 
-		expire_time = (time_t)0L;
-		get_time_string(&expire_time, date_time, (int)sizeof(date_time), HTTP_DATE_TIME);
-		printf("Expires: %s\r\n", date_time);
-	}
+	expire_time = (time_t)0L;
+	get_time_string(&expire_time, date_time, (int)sizeof(date_time), HTTP_DATE_TIME);
+	printf("Expires: %s\r\n", date_time);
 
 	if (content_type == IMAGE_CONTENT) {
 		printf("Content-Type: image/png\r\n\r\n");
@@ -1110,8 +1164,68 @@ void document_header(int cgi_id, int use_stylesheet, char *cgi_title) {
 	}
 
 	if (content_type == JSON_CONTENT) {
+
+		/* read program status */
+		result = read_all_status_data(main_config_file, READ_PROGRAM_STATUS);
+
+		/* total running time */
+		if ( program_start != 0L) {
+			get_time_breakdown(current_time - program_start, &days, &hours, &minutes, &seconds);
+			sprintf(run_time_string, "%dd %dh %dm %ds", days, hours, minutes, seconds);
+		} else {
+			run_time_string[0] = '0';
+			run_time_string[1] = '\0';
+		}
+
+		tm_ptr = localtime(&current_time);
+
+#ifdef HAVE_TM_ZONE
+		timezone = (char *)tm_ptr->tm_zone;
+#else
+		timezone = (tm_ptr->tm_isdst) ? tzname[1] : tzname[0];
+#endif
+
 		printf("Content-type: text/json; charset=\"%s\"\r\n\r\n", http_charset);
 		printf("{ \"cgi_json_version\": \"%s\",\n", JSON_OUTPUT_VERSION);
+		printf("\"icinga_status\": {\n");
+
+		printf("\"status_data_age\": %lu,\n", current_time - status_file_creation_time);
+		printf("\"status_update_interval\": %d,\n", status_update_interval);
+		printf("\"reading_status_data_ok\": %s,\n", (result == ERROR && daemon_check == TRUE) ? "false" : "true");
+		printf("\"program_version\": \"%s\",\n", PROGRAM_VERSION);
+		printf("\"icinga_pid\": %d,\n", nagios_pid);
+#ifdef USE_OLDCRUD
+		printf(",\"running_as_a_daemon\": %s\n", (daemon_mode == TRUE) ? "true" : "false");
+#endif
+		printf("\"timezone\": \"%s\",\n", timezone);
+		if (date_format == DATE_FORMAT_EURO)
+			printf("\"date_format\": \"euro\",\n");
+		else if (date_format == DATE_FORMAT_ISO8601 || date_format == DATE_FORMAT_STRICT_ISO8601)
+			printf("\"date_format\": \"%siso8601\",\n", (date_format == DATE_FORMAT_STRICT_ISO8601) ? "strict-" : "");
+		else
+			printf("\"date_format\": \"us\",\n");
+		printf("\"program_start\": %lu,\n", program_start);
+		printf("\"total_running_time\": \"%s\",\n", run_time_string);
+		printf("\"last_external_command_check\": %lu,\n", last_command_check);
+		printf("\"last_log_file_rotation\": %lu,\n", last_log_rotation);
+		printf("\"notifications_enabled\": %s,\n", (enable_notifications == TRUE) ? "true" : "false");
+		printf("\"disable_notifications_expire_time\": %lu,\n", disable_notifications_expire_time);
+		printf("\"service_checks_being_executed\": %s,\n", (execute_service_checks == TRUE) ? "true" : "false");
+		printf("\"passive_service_checks_being_accepted\": %s,\n", (accept_passive_service_checks == TRUE) ? "true" : "false");
+		printf("\"host_checks_being_executed\": %s,\n", (execute_host_checks == TRUE) ? "true" : "false");
+		printf("\"passive_host_checks_being_accepted\": %s,\n", (accept_passive_host_checks == TRUE) ? "true" : "false");
+		printf("\"obsessing_over_services\": %s,\n", (obsess_over_services == TRUE) ? "true" : "false");
+		printf("\"obsessing_over_hosts\": %s,\n", (obsess_over_hosts == TRUE) ? "true" : "false");
+		printf("\"check_service_freshness\": %s,\n", (check_service_freshness == TRUE) ? "true" : "false");
+		printf("\"check_host_freshness\": %s,\n", (check_host_freshness == TRUE) ? "true" : "false");
+		printf("\"event_handlers_enabled\": %s,\n", (enable_event_handlers == TRUE) ? "true" : "false");
+		printf("\"flap_detection_enabled\": %s,\n", (enable_flap_detection == TRUE) ? "true" : "false");
+		printf("\"performance_data_being_processed\": %s\n", (process_performance_data == TRUE) ? "true" : "false");
+#ifdef PREDICT_FAILURES
+		printf(",\"failure_prediction_enabled\": %s\n", (enable_failure_prediction == TRUE) ? "true" : "false");
+#endif
+
+		printf("}, \n");
 		printf("\"%s\": {\n", cgi_body_class);
 		return;
 	}
@@ -1122,21 +1236,38 @@ void document_header(int cgi_id, int use_stylesheet, char *cgi_title) {
 		return;
 	}
 
-	if (cgi_id != ERROR_CGI_ID) {
-		// send HTML CONTENT
-		printf("Content-type: text/html; charset=\"%s\"\r\n\r\n", http_charset);
-	}
+	printf("Content-type: text/html; charset=\"%s\"\r\n\r\n", http_charset);
 
 	if (embedded == TRUE)
 		return;
 
-	printf("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n");
+	if (cgi_id != STATUSMAP_CGI_ID)
+		printf("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n");
+
 	printf("<html>\n");
 	printf("<head>\n");
 	printf("<link rel=\"shortcut icon\" href=\"%sfavicon.ico\" type=\"image/ico\">\n", url_images_path);
 	printf("<META HTTP-EQUIV='Pragma' CONTENT='no-cache'>\n");
 	printf("<meta http-equiv=\"content-type\" content=\"text/html; charset=%s\">\n", http_charset);
 	printf("<title>%s</title>\n", cgi_title);
+
+	// static style sheet for error messages.
+	if (!strcmp(cgi_title, "Error")) {
+		printf("<style type=\"text/css\">\n");
+		printf(".errorBox {\n");
+		printf("\tborder:1px red solid;\n");
+		printf("\tbackground-color: #FFE5E5;\n");
+		printf("\twidth: 600px;\n");
+		printf("}\n\n");
+		printf(".errorMessage {\n");
+		printf("\tfont-family: arial, verdana, serif;\n");
+		printf("\tcolor: #000;\n");
+		printf("\tfont-size: 10pt;\n");
+		printf("\ttext-align:left;\n");
+		printf("\tmargin:1em;\n");
+		printf("}\n");
+		printf("</style>\n");
+	}
 
 	if (cgi_id == TAC_CGI_ID && tac_header == TRUE) {
 		printf("<LINK REL='stylesheet' TYPE='text/css' HREF='%s%s'>\n", url_stylesheets_path, (show_tac_header == TRUE) ? TAC_HEADER_CSS : COMMON_CSS);
@@ -1159,19 +1290,19 @@ void document_header(int cgi_id, int use_stylesheet, char *cgi_title) {
 	printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, JQUERY_MAIN_JS);
 
 	/* datetimepicker libs and css */
-	if (cgi_id == CMD_CGI_ID || cgi_id == NOTIFICATIONS_CGI_ID || cgi_id == SHOWLOG_CGI_ID) {
+	if (cgi_id == CMD_CGI_ID || cgi_id == NOTIFICATIONS_CGI_ID || cgi_id == SHOWLOG_CGI_ID || cgi_id == HISTORY_CGI_ID) {
 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_CORE_JS);
 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_WIDGET_JS);
 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_MOUSE_JS);
 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_SLIDER_JS);
 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_DATEPICKER_JS);
-		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_TIMEPICKER_JS);
+		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_addon_path, JQ_UI_TIMEPICKER_JS);
 
 		printf("<link rel='stylesheet' type='text/css' href='%s%s'>\n", url_jquiryui_path, JQ_UI_ALL_CSS);
-		printf("<link rel='stylesheet' type='text/css' href='%s%s'>\n", url_jquiryui_path, JQ_UI_TIMEPICKER_CSS);
+		printf("<link rel='stylesheet' type='text/css' href='%s%s'>\n", url_jquiryui_addon_path, JQ_UI_TIMEPICKER_CSS);
 
 		printf("<script type=\"text/javascript\">\n");
-		printf("$(function() {\n");
+		printf("$(document).ready(function() {\n");
 		printf("\t$( \".timepicker\" ).datetimepicker({\n");
 		printf("\t\tfirstDay: %d,\n", week_starts_on_monday);
 
@@ -1187,6 +1318,52 @@ void document_header(int cgi_id, int use_stylesheet, char *cgi_title) {
 		printf("\t\tchangeMonth: true,\n");
 		printf("\t\tchangeYear: true\n");
 		printf("\t});\n");
+
+		printf("\t$(\"#history-datepicker\").datepicker({\n");
+		printf("\t\tfirstDay: %d,\n", week_starts_on_monday);
+		printf("\t\tdateFormat: '@',\n");
+		printf("\t\tmaxDate: '+0d',\n");
+		printf("\t\tshowWeek: true,\n");
+		printf("\t\tchangeMonth: true,\n");
+		printf("\t\tchangeYear: true,\n");
+		printf("\t\tbeforeShow: function (input, instance) {\n");
+		printf("\t\t\tinstance.dpDiv.css({\n");
+		printf("\t\t\t\tmarginTop: '15px',\n");
+		printf("\t\t\t\tmarginLeft: '-67px'\n");
+		printf("\t\t\t});\n");
+		printf("\t\t},\n");
+		printf("\t\tonSelect: function (date) {\n");
+		printf("\t\t\tif (date == '' || date < 0) { return false;}\n");
+		printf("\t\t\tts_start = date.substring(0,date.length-3);\n");
+		printf("\t\t\tts_end = parseInt(ts_start,10) + parseInt(86399,10);\n");
+		printf("\t\t\turl = window.location.href;\n");
+		printf("\t\t\toptions = '';\n");
+		printf("\t\t\tnewoptionsArray = new Array();\n");
+		printf("\t\t\tif (url.indexOf('?') === -1) {\n");
+		printf("\t\t\t\tbase_url = url;\n");
+		printf("\t\t\t} else {\n");
+		printf("\t\t\t\tbase_url = url.substring(0,url.indexOf('?'));\n");
+		printf("\t\t\t\toptions = url.substring(url.indexOf('?')+1);\n");
+		printf("\t\t\t\toptionsArray = options.split('&');\n");
+		printf("\t\t\t\tfor (var i=0; i<optionsArray.length; i++) {\n");
+		printf("\t\t\t\t\tswitch (optionsArray[i].substring(0,optionsArray[i].indexOf('='))) {\n");
+		printf("\t\t\t\t\t\tcase 'ts_start':\n");
+		printf("\t\t\t\t\t\tcase 'ts_end':\n");
+		printf("\t\t\t\t\t\tcase 'start':\n");
+		printf("\t\t\t\t\t\tcase 'start_time':\n");
+		printf("\t\t\t\t\t\tcase 'end_time':\n");
+		printf("\t\t\t\t\t\tcase '':\n");
+		printf("\t\t\t\t\t\t\tbreak;\n");
+		printf("\t\t\t\t\t\tdefault:\n");
+		printf("\t\t\t\t\t\t\tnewoptionsArray.push(optionsArray[i]);\n");
+		printf("\t\t\t\t\t}\n");
+		printf("\t\t\t\t}\n");
+		printf("\t\t\t}\n");
+		printf("\t\t\tnewoptionsArray.push('ts_start=' + ts_start, 'ts_end=' + ts_end);\n");
+		printf("\t\t\twindow.location.href = base_url + '?' + newoptionsArray.join('&');\n");
+		printf("\t\t}\n");
+		printf("\t});\n");
+
 		printf("});\n");
 		printf("</script>\n");
 	}
@@ -1861,13 +2038,14 @@ char * escape_string(char *input) {
 
 void display_info_table(char *title, authdata *current_authdata, int daemon_check) {
 	char date_time[MAX_DATETIME_LENGTH];
+	char disable_notif_expire_time[MAX_DATETIME_LENGTH];
 	char *dir_to_check = NULL;
 	time_t current_time;
 	int result;
 	int x, last = 0, dummy;
 
 	/* read program status */
-	result = read_all_status_data(get_cgi_config_location(), READ_PROGRAM_STATUS);
+	result = read_all_status_data(main_config_file, READ_PROGRAM_STATUS);
 
 	printf("<TABLE CLASS='infoBox' BORDER=1 CELLSPACING=0 CELLPADDING=0>\n");
 	printf("<TR><TD CLASS='infoBox' nowrap>\n");
@@ -1875,6 +2053,9 @@ void display_info_table(char *title, authdata *current_authdata, int daemon_chec
 
 	time(&current_time);
 	get_time_string(&current_time, date_time, (int)sizeof(date_time), LONG_DATE_TIME);
+
+	/* disabled notifications expire time */
+	get_time_string(&disable_notifications_expire_time, disable_notif_expire_time, (int)sizeof(disable_notif_expire_time), SHORT_DATE_TIME);
 
 	printf("Last Updated: %s ", date_time);
 
@@ -1927,15 +2108,16 @@ void display_info_table(char *title, authdata *current_authdata, int daemon_chec
 		free(dir_to_check);
 	}
 
-	if (nagios_process_state != STATE_OK)
-		printf("<DIV CLASS='infoBoxBadProcStatus'>Warning: Monitoring process may not be running!<BR>Click <A HREF='%s?type=%d'>here</A> for more info.</DIV>", EXTINFO_CGI, DISPLAY_PROCESS_INFO);
-
 	if (result == ERROR && daemon_check == TRUE)
 		printf("<DIV CLASS='infoBoxBadProcStatus'>Warning: Could not read program status information!</DIV>");
 
 	else {
-		if (enable_notifications == FALSE)
-			printf("<DIV CLASS='infoBoxBadProcStatus'>- Notifications are disabled</DIV>");
+		if (enable_notifications == FALSE) {
+			printf("<DIV CLASS='infoBoxBadProcStatus'>- Notifications are disabled");
+			if (disable_notifications_expire_time != 0)
+				printf(" until %s", disable_notif_expire_time);
+			printf("</DIV>");
+		}
 
 		if (execute_service_checks == FALSE)
 			printf("<DIV CLASS='infoBoxBadProcStatus'>- Service checks are disabled</DIV>");
@@ -1981,7 +2163,7 @@ void display_nav_table(time_t ts_start, time_t ts_end) {
 		break;
 	}
 
-	/* get url options but filter out "limit" and "status" */
+	/* get url options but filter out "ts_end", "ts_start" and "start" */
 	if (getenv("QUERY_STRING") != NULL && strcmp(getenv("QUERY_STRING"), "")) {
 		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER) {
 			printf("display_nav_table(): Could not allocate memory for stripped_query_string\n");
@@ -2059,7 +2241,15 @@ void display_nav_table(time_t ts_start, time_t ts_end) {
 
 	printf("</tr>\n");
 
+	printf("<tr><td colspan=2></td><td align=center valign=center><input id='history-datepicker' type='hidden'><a href='#' onclick=\"$.datepicker._showDatepicker($('#history-datepicker')[0]); return false;\">Select a day ...</a></td><td colspan=2></td></tr>\n");
+
 	printf("</table>\n");
+
+	printf("<script type=\"text/javascript\">\n");
+	printf("$(function() {\n");
+	printf("\t$(\"#history-datepicker\").datepicker( \"setDate\", \"%lu000\" );\n",ts_start);
+	printf("});\n");
+	printf("</script>\n");
 
 	return;
 }
@@ -2173,13 +2363,13 @@ void include_ssi_files(char *cgi_name, int type) {
 	cgi_ssi_file[sizeof(cgi_ssi_file) - 1] = '\x0';
 
 	if (type == SSI_HEADER) {
-		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2012 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
+		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2013 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
 		include_ssi_file(common_ssi_file);
 		include_ssi_file(cgi_ssi_file);
 	} else {
 		include_ssi_file(cgi_ssi_file);
 		include_ssi_file(common_ssi_file);
-		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2012 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
+		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2013 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
 	}
 
 	return;
@@ -2247,7 +2437,26 @@ void include_ssi_file(char *filename) {
 }
 
 /* displays an error if CGI config file could not be read */
-void cgi_config_file_error(char *config_file) {
+void cgi_config_file_error(char *config_file, int tac_header) {
+
+	if (content_type == CSV_CONTENT) {
+		printf("Error: Could not open CGI config file '%s' for reading!\n", config_file);
+		return;
+	}
+
+	if (content_type == JSON_CONTENT) {
+		printf("\"title\": \"Could not open CGI config file '%s' for reading!\"\n,", config_file);
+		printf("\"text\": \"");
+		printf("Make sure you've installed a CGI config file in its proper location. A sample CGI configuration file (named cgi.cfg) can be found in the 'sample-config' subdirectory of the %s source code distribution. ", PROGRAM_NAME);
+		printf("Also make sure the user your web server is running as has permission to read the CGI config file.");
+		printf("\"\n");
+		return;
+	}
+
+	if (tac_header == TRUE) {
+		printf("<P><STRONG><FONT COLOR='RED'>Error: Could not open CGI config file '%s' for reading!</FONT></STRONG></P>\n", config_file);
+		return;
+	}
 
 	printf("<H1>Whoops!</H1>\n");
 
@@ -2257,14 +2466,10 @@ void cgi_config_file_error(char *config_file) {
 	printf("Here are some things you should check in order to resolve this error:\n");
 	printf("</P>\n");
 
-	printf("<P>\n");
 	printf("<OL>\n");
-
-	printf("<LI>Make sure you've installed a CGI config file in its proper location.  A sample CGI configuration file (named <b>cgi.cfg</b>) can be found in the <b>sample-config/</b> subdirectory of the %s source code distribution.\n", PROGRAM_NAME);
+	printf("<LI>Make sure you've installed a CGI config file in its proper location. A sample CGI configuration file (named <b>cgi.cfg</b>) can be found in the <b>sample-config/</b> subdirectory of the %s source code distribution.\n", PROGRAM_NAME);
 	printf("<LI>Make sure the user your web server is running as has permission to read the CGI config file.\n");
-
 	printf("</OL>\n");
-	printf("</P>\n");
 
 	printf("<P>\n");
 	printf("Make sure you read the documentation on installing and configuring %s thoroughly before continuing.  If everything else fails, try sending a message to one of the mailing lists.  More information can be found at <a href='http://www.icinga.org'>http://www.icinga.org</a>.\n", PROGRAM_NAME);
@@ -2274,7 +2479,26 @@ void cgi_config_file_error(char *config_file) {
 }
 
 /* displays an error if main config file could not be read */
-void main_config_file_error(char *config_file) {
+void main_config_file_error(char *config_file, int tac_header) {
+
+	if (content_type == CSV_CONTENT) {
+		printf("Error: Could not open main config file '%s' for reading!\n", config_file);
+		return;
+	}
+
+	if (content_type == JSON_CONTENT) {
+		printf("\"title\": \"Could not open main config file '%s' for reading!\"\n,", config_file);
+		printf("\"text\": \"");
+		printf("Make sure you've installed a main config file in its proper location. A sample main configuration file (named icinga.cfg) can be found in the 'sample-config' subdirectory of the %s source code distribution. ", PROGRAM_NAME);
+		printf("Also make sure the user your web server is running as has permission to read the main config file.");
+		printf("\"\n");
+		return;
+	}
+
+	if (tac_header == TRUE) {
+		printf("<P><STRONG><FONT COLOR='RED'>Error: Could not open main config file '%s' for reading!</FONT></STRONG></P>\n", config_file);
+		return;
+	}
 
 	printf("<H1>Whoops!</H1>\n");
 
@@ -2284,14 +2508,10 @@ void main_config_file_error(char *config_file) {
 	printf("Here are some things you should check in order to resolve this error:\n");
 	printf("</P>\n");
 
-	printf("<P>\n");
 	printf("<OL>\n");
-
 	printf("<LI>Make sure you've installed a main config file in its proper location. A sample main configuration file (named <b>icinga.cfg</b>) can be found in the <b>sample-config/</b> subdirectory of the %s source code distribution.\n", PROGRAM_NAME);
-	printf("<LI>Make sure the user your web server is running as has permission to read the main config file.\n");
-
+	printf("<LI>Make sure the user your web server has permission to read the main config file.\n");
 	printf("</OL>\n");
-	printf("</P>\n");
 
 	printf("<P>\n");
 	printf("Make sure you read the documentation on installing and configuring %s thoroughly before continuing.  If everything else fails, try sending a message to one of the mailing lists.  More information can be found at <a href='http://www.icinga.org'>http://www.icinga.org</a>.\n", PROGRAM_NAME);
@@ -2300,37 +2520,28 @@ void main_config_file_error(char *config_file) {
 	return;
 }
 
-/* displays an error if resource file could not be read */
-void icinga_resource_file_error(char *config_file) {
-
-	printf("<H1>Whoops!</H1>\n");
-
-	printf("<P><STRONG><FONT COLOR='RED'>Error: Could not open resource file '%s' for reading!</FONT></STRONG></P>\n", config_file);
-
-	printf("<P>\n");
-	printf("It seems that you enabled the cgis to read your local resource file (verify that in your cgi.cfg)\n");
-	printf("Here are some things you should check in order to resolve this error:\n");
-	printf("</P>\n");
-
-	printf("<P>\n");
-	printf("<OL>\n");
-
-	printf("<LI>Make sure you've installed the resource file in its proper location, defined in main config. A sample resource file (named <b>resource.cfg</b>) can be found in the <b>sample-config/</b> subdirectory of the %s source code distribution.\n", PROGRAM_NAME);
-	printf("<LI>Make sure the user your web server is running as has permission to read the resource file.\n");
-	printf("<LI>If you don't want to read your resource file (used e.g. for command expander in config.cgi) then disable it in cgi.cfg.\n");
-
-	printf("</OL>\n");
-	printf("</P>\n");
-
-	printf("<P>\n");
-	printf("Make sure you read the documentation on installing and configuring %s thoroughly before continuing.  If everything else fails, try sending a message to one of the mailing lists.  More information can be found at <a href='http://www.icinga.org'>http://www.icinga.org</a>.\n", PROGRAM_NAME);
-	printf("</P>\n");
-
-	return;
-}
 
 /* displays an error if object data could not be read */
-void object_data_error(void) {
+void object_data_error(int tac_header) {
+
+	if (content_type == CSV_CONTENT) {
+		printf("Error: Could not read object configuration data!\n");
+		return;
+	}
+
+	if (content_type == JSON_CONTENT) {
+		printf("\"title\": \"Could not read object configuration data!\"\n,");
+		printf("\"text\": \"");
+		printf("Verify configuration options using the '-v' command-line option to check for errors. ");
+		printf("Check the %s log file for messages relating to startup or status data errors.", PROGRAM_NAME);
+		printf("\"\n");
+		return;
+	}
+
+	if (tac_header == TRUE) {
+		printf("<P><STRONG><FONT COLOR='RED'>Error: Could not read object configuration data!</FONT></STRONG></P>\n");
+		return;
+	}
 
 	printf("<H1>Whoops!</H1>\n");
 
@@ -2340,14 +2551,11 @@ void object_data_error(void) {
 	printf("Here are some things you should check in order to resolve this error:\n");
 	printf("</P>\n");
 
-	printf("<P>\n");
 	printf("<OL>\n");
-
+	printf("<LI>Make sure you set option <b>\"object_cache_file\"</b> in <b>\"%s\"</b> properly.\n", main_config_file);
 	printf("<LI>Verify configuration options using the <b>-v</b> command-line option to check for errors.\n");
 	printf("<LI>Check the %s log file for messages relating to startup or status data errors.\n", PROGRAM_NAME);
-
 	printf("</OL>\n");
-	printf("</P>\n");
 
 	printf("<P>\n");
 	printf("Make sure you read the documentation on installing, configuring and running %s thoroughly before continuing.  If everything else fails, try sending a message to one of the mailing lists.  More information can be found at <a href='http://www.icinga.org'>http://www.icinga.org</a>.\n", PROGRAM_NAME);
@@ -2357,7 +2565,26 @@ void object_data_error(void) {
 }
 
 /* displays an error if status data could not be read */
-void status_data_error(void) {
+void status_data_error(int tac_header) {
+
+	if (content_type == CSV_CONTENT) {
+		printf("Error: Could not read host and service status information!\n");
+		return;
+	}
+
+	if (content_type == JSON_CONTENT) {
+		printf("\"title\": \"Could not read host and service status information!\"\n,");
+		printf("\"text\": \"");
+		printf("It seems that %s is not running or has not yet finished the startup procedure and then creating the status data file. If %s is indeed not running, this is a normal error message. ", PROGRAM_NAME, PROGRAM_NAME);
+		printf("Please note that event broker modules and/or rdbms backends may slow down the overall (re)start and the cgis cannot retrieve any status information.");
+		printf("\"\n");
+		return;
+	}
+
+	if (tac_header == TRUE) {
+		printf("<P><STRONG><FONT COLOR='RED'>Error: Could not read host and service status information!</FONT></STRONG></P>\n");
+		return;
+	}
 
 	printf("<H1>Whoops!</H1>\n");
 
@@ -2372,15 +2599,12 @@ void status_data_error(void) {
 	printf("Things to check in order to resolve this error include:\n");
 	printf("</P>\n");
 
-	printf("<P>\n");
 	printf("<OL>\n");
-
+	printf("<LI>Make sure you set option <b>\"status_file\"</b> in <b>\"%s\"</b> properly.\n", main_config_file);
 	printf("<LI>Check the %s log file for messages relating to startup or status data errors.\n", PROGRAM_NAME);
 	printf("<LI>Always verify configuration options using the <b>-v</b> command-line option before starting or restarting %s!\n", PROGRAM_NAME);
 	printf("<LI>If using any event broker module for %s, look into their respective logs and/or on their behavior!\n", PROGRAM_NAME);
-
 	printf("</OL>\n");
-	printf("</P>\n");
 
 	printf("<P>\n");
 	printf("Make sure you read the documentation on installing, configuring and running %s thoroughly before continuing.  If everything else fails, try sending a message to one of the mailing lists.  More information can be found at <a href='http://www.icinga.org'>http://www.icinga.org</a>.\n", PROGRAM_NAME);
@@ -2390,45 +2614,46 @@ void status_data_error(void) {
 }
 
 /** print an error depending on error_type */
-void print_error(char *config_file, int error_type) {
-
-	/* if cgi.cfg is missing, we don't know which fancy style to use, take our own */
-	if (error_type != ERROR_CGI_CFG_FILE) {
-		document_header(ERROR_CGI_ID, TRUE, "Error");
-	}
+void print_error(char *config_file, int error_type, int tac_header) {
 
 	/* Giving credits to stop.png image source */
-	printf("\n<!-- Image \"stop.png\" has been taken from \"http://fedoraproject.org/wiki/Template:Admon/caution\" -->\n\n");
+	if (content_type == HTML_CONTENT) {
 
-	printf("<BR><DIV align='center'><DIV CLASS='errorBox'>\n");
-	if (error_type == ERROR_CGI_CFG_FILE) {
-		printf("<DIV style='font-family:  Helvetica, serif; background-color: #fff; color: #000; font-size: 8pt; text-align:left; font-weight: bold; margin:1em; border:1px red solid; background-color: #FFE5E5;' CLASS='errorMessage'><table cellspacing=0 cellpadding=0 border=0><tr><td width=55 valign=top></td>");
-	} else {
-		printf("<DIV CLASS='errorMessage'><table cellspacing=0 cellpadding=0 border=0><tr><td width=55 valign=top><img src=\"%s%s\" border=0></td>", url_images_path, CMD_STOP_ICON);
+		if (tac_header == TRUE) {
+			printf("<DIV align='center'><DIV CLASS='errorBox' style='margin-top:0.7em;'>\n");
+			printf("<DIV CLASS='errorMessage' style=\"margin:0.1em\"><table width=100%% cellspacing=0 cellpadding=0 border=0><tr>");
+			printf("<td class='errorDescription' align=\"center\">");
+		} else {
+			printf("\n<!-- Image \"stop.png\" has been taken from \"http://fedoraproject.org/wiki/Template:Admon/caution\" -->\n\n");
+
+			printf("<BR><DIV align='center'><DIV CLASS='errorBox'>\n");
+			printf("<DIV CLASS='errorMessage'><table cellspacing=0 cellpadding=0 border=0><tr><td width=55 valign=top>");
+			if (error_type != ERROR_CGI_CFG_FILE)
+				printf("<img src=\"%s%s\" border=0>", url_images_path, CMD_STOP_ICON);
+
+			printf("</td><td class='errorDescription'>");
+		}
 	}
-	printf("<td class='errorDescription'>");
 
 	switch (error_type) {
 	case ERROR_CGI_STATUS_DATA:
-		status_data_error();
+		status_data_error(tac_header);
 		break;
 	case ERROR_CGI_OBJECT_DATA:
-		object_data_error();
+		object_data_error(tac_header);
 		break;
 	case ERROR_CGI_CFG_FILE:
-		cgi_config_file_error(config_file);
+		cgi_config_file_error(config_file, tac_header);
 		break;
 	case ERROR_CGI_MAIN_CFG:
-		main_config_file_error(config_file);
-		break;
-	case ERROR_CGI_RESOURCE_CFG:
-		icinga_resource_file_error(config_file);
+		main_config_file_error(config_file, tac_header);
 		break;
 	}
 
-	printf("</td></tr></table></DIV>\n");
-	printf("</DIV>\n");
-
+	if (content_type == HTML_CONTENT) {
+		printf("</td></tr></table></DIV>\n");
+		printf("</DIV>\n");
+	}
 	return;
 }
 
@@ -3059,15 +3284,19 @@ char *json_encode(char *input) {
 
 	for (i = 0, j = 0; i < len; i++) {
 
-		/* escape quotes */
-		if ((char)input[i] == (char)'"') {
+		/* escape quotes and backslashes */
+		if ((char)input[i] == (char)'"' || (char)input[i] == (char)'\\') {
 			encoded_string[j++] = '\\';
 			encoded_string[j++] = input[i];
 
-			/* escape newlines */
+		/* escape newlines */
 		} else if ((char)input[i] == (char)'\n') {
 			encoded_string[j++] = '\\';
 			encoded_string[j++] = 'n';
+
+		/* ignore control caracters */
+		} else if (input[i] < 32 || input[i] == 127) {
+			continue;
 
 		} else
 			encoded_string[j++] = input[i];

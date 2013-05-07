@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.8 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.9 Dokumentation">
 <link rel="up" href="ch06.html" title="Kapitel 6. Die Benutzeroberflächen">
 <link rel="prev" href="icinga-web-config.html" title="6.5. Konfigurationsübersicht Icinga-Web">
 <link rel="next" href="icinga-web-introduction.html" title="6.7. Einführung in Icinga-Web">
@@ -59,6 +59,56 @@
 <th align="left">Anmerkung</th>
 </tr>
 <tr><td align="left" valign="top">
+      <p>Seit 1.9 ist der Tackle-Cronk in Icinga-Web veraltet.</p>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Mit 1.9 wurde die Datei <code class="filename">.htaccess</code> enfernt und alle Rewrite Regeln in die Apacheconfiguration übernommen.</p>
+      <p>Bitte aktualisieren Sie ihre Apache Konfiguration <code class="code">icinga-web.conf</code> (<code class="code">etc/conf.d/icinga-web.conf</code> im Quell
+      Tarball) oder führen Sie <code class="code">make install-apache-config</code> aus.</p>
+      <p>Beim Update einer vorhandenen Installation sollten die <code class="code">.htaccess</code> Dateien in <code class="code">/usr/local/icinga-web/pub/</code>
+      und <code class="code">/usr/local/icinga-web/pub/soap/</code> (oder wo Sie Icinga-Web installiert haben) entfernt werden.</p>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Beginnend mit 1.8.2 gibt es einen neuen Session-Cache, der beim Update von Icinga-Web bzw. der Installation eines neuen Cronks
+      oder Moduls ggf. zu Irritationen führen kann. Wenn Sie ein Verhalten feststellen wie "Ich kann meinen neu installierten Cronk nicht
+      sehen" oder "nach einem Update kann ich nicht auf das Reporting-Cronk zugreifen", dann ist die Lösung recht einfach</p>
+
+      <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+          <p>Löschen Sie den xml-Cache</p>
+        </li>
+<li class="listitem">
+          <p>Zurücksetzen des Applikationszustands des Benutzers (rechte obere Ecke -&gt; Preferences)</p>
+        </li>
+<li class="listitem">
+          <p>Abmelden und neu anmelden (rechte obere Ecke)</p>
+
+          <p><span class="inlinemediaobject"><img src="../images/icinga-web-user-prefs-logout.png"></span></p>
+        </li>
+</ul></div>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
       <p>Bitte beachten Sie, dass es einige wesentliche Änderungen mit Icinga 1.5 gab, die ggf. zusätzliche Aktionen erfordern
       könnten:</p>
 
@@ -86,19 +136,17 @@
       bei einer Aktualisierung ggf. nicht kümmern.</p>
     </td></tr>
 </table></div>
-   
+
     <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
 <td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
 <th align="left">Anmerkung</th>
 </tr>
-<tr><td align="left" valign="top"> 
-            <p>Falls Sie die PNP Template Extensions für Icinga Web installiert haben, müssen Sie diese ebenfalls aktualisieren (sowie
-	    den Cache leeren!).
-            </p>
+<tr><td align="left" valign="top">
+      <p>Falls Sie die PNP Template Extensions für Icinga Web installiert haben, müssen Sie diese ebenfalls aktualisieren (sowie den
+      Cache leeren!).</p>
     </td></tr>
 </table></div>
- 
   </div>
 
   <div class="section" title="6.6.2. Die Aktualisierung von Icinga-Web">
@@ -113,11 +161,11 @@
 
     <p>Entpacken Sie das Archiv (tarball):</p>
 
-    <pre class="programlisting"> #&gt; tar xzvf icinga-web-1.8.0.tar.gz</pre>
+    <pre class="programlisting"> #&gt; tar xzvf icinga-web-1.9.0.tar.gz</pre>
 
     <p>Wechseln Sie in das Verzeichnis</p>
 
-    <pre class="programlisting"> #&gt; cd icinga-web-1.8.0</pre>
+    <pre class="programlisting"> #&gt; cd icinga-web-1.9.0</pre>
 
     <p>Icinga-Web bietet diverse Konfigurationsoptionen an:</p>
 
@@ -197,10 +245,10 @@
 <a name="upgradedatabase"></a>6.6.3. Aktualisieren der Icinga-Web Datenbank</h3></div></div></div>
     
 
-    <p>Die Aktualisierung Ihrer Icinga-Web Datenbank ist optional, aber es mag einen Bug im Datenbankschema geben, der behoben wurde.
-    Wenn Sie eine ältere Icinga-Web Datenbank-Version aktualisieren, dann müssen Sie außerdem diese Anpassungen manuell ausführen. Wenn Sie
-    rpm/deb-Pakete benutzen, lesen Sie bitte die Hinweise und/oder fragen Sie den Maintainer, der diese Anpassungen in der
-    Installationsroutine hinzugefügt hat.</p>
+    <p>Die Aktualisierung Ihrer Icinga-Web Datenbank ist zwingend erforderlich sofern es Änderungen am Schema gegeben hat. Sollten Sie
+    kein Update SQL Script auf das aktuelle Release vorfinden, müssen Sie nichts tun. Wenn Sie eine ältere Icinga-Web Datenbank-Version
+    aktualisieren, dann müssen Sie außerdem diese Anpassungen manuell ausführen. Wenn Sie rpm/deb-Pakete benutzen, lesen Sie bitte die
+    Hinweise und/oder fragen Sie den Maintainer, der diese Anpassungen in der Installationsroutine hinzugefügt hat.</p>
 
     <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -264,13 +312,13 @@
       </li>
 </ul></div>
 
-    <a class="indexterm" name="idp12585776"></a>
+    <a class="indexterm" name="idp12836816"></a>
 
-    <a class="indexterm" name="idp12586992"></a>
+    <a class="indexterm" name="idp12835152"></a>
 
-    <a class="indexterm" name="idp12588512"></a>
+    <a class="indexterm" name="idp12839360"></a>
 
-    <a class="indexterm" name="idp12589792"></a>
+    <a class="indexterm" name="idp12840608"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -290,6 +338,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2012 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

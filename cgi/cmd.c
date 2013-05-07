@@ -3,7 +3,7 @@
  * CMD.C - Icinga Command CGI
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * Last Modified: 08-08-2010
  *
@@ -53,7 +53,9 @@ extern int  check_external_commands;
 extern int  use_authentication;
 extern int  lock_author_names;
 extern int  persistent_ack_comments;
+extern int  send_ack_notifications;
 extern int  default_expiring_acknowledgement_duration;
+extern int  set_expire_ack_by_default;
 extern int  default_expiring_disabled_notifications_duration;
 
 extern int  display_header;
@@ -143,7 +145,7 @@ int schedule_delay = 0;				/**< delay for sheduled actions in minutes (Icinga re
 							!not implemented in GUI! */
 int persistent_comment = FALSE;			/**< bool if omment should survive Icinga restart */
 int sticky_ack = TRUE;				/**< bool to disable notifications until recover */
-int send_notification = TRUE;			/**< bool sends a notification if service gets acknowledged */
+int send_notification = FALSE;			/**< bool sends a notification if service gets acknowledged */
 int use_ack_end_time = FALSE;			/**< bool if expire acknowledgement is selected or not */
 int use_disabled_notif_end_time = FALSE;	/**< bool if expire disabled notifications is selected or not */
 int force_check = FALSE;			/**< bool if check should be forced */
@@ -296,7 +298,7 @@ int main(void) {
 	result = read_cgi_config_file(get_cgi_config_location());
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE);
+		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -305,7 +307,7 @@ int main(void) {
 	result = read_main_config_file(main_config_file);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(main_config_file, ERROR_CGI_MAIN_CFG);
+		print_error(main_config_file, ERROR_CGI_MAIN_CFG, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
@@ -325,16 +327,16 @@ int main(void) {
 	result = read_all_object_configuration_data(main_config_file, READ_ALL_OBJECT_DATA);
 	if (result == ERROR) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(NULL, ERROR_CGI_OBJECT_DATA);
+		print_error(NULL, ERROR_CGI_OBJECT_DATA, FALSE);
 		document_footer(CGI_ID);
 		return ERROR;
 	}
 
 	/* read all status data */
-	result = read_all_status_data(get_cgi_config_location(), READ_ALL_STATUS_DATA);
+	result = read_all_status_data(main_config_file, READ_ALL_STATUS_DATA);
 	if (result == ERROR && daemon_check == TRUE) {
 		document_header(CGI_ID, FALSE, "Error");
-		print_error(NULL, ERROR_CGI_STATUS_DATA);
+		print_error(NULL, ERROR_CGI_STATUS_DATA, FALSE);
 		document_footer(CGI_ID);
 		free_memory();
 		return ERROR;
@@ -407,7 +409,6 @@ int process_cgivars(void) {
 	int x;
 	int z = 0;
 	int sticky_ack_set = FALSE;		/* default is TRUE */
-	int send_notification_set = FALSE;	/* default is TRUE */
 
 	variables = getcgivars();
 
@@ -608,7 +609,7 @@ int process_cgivars(void) {
 
 		/* we got the notification option for an acknowledgement */
 		else if (!strcmp(variables[x], "send_notification"))
-			send_notification_set = TRUE;
+			send_notification = TRUE;
 
 		/* we got the acknowledgement type */
 		else if (!strcmp(variables[x], "sticky_ack"))
@@ -785,7 +786,6 @@ int process_cgivars(void) {
 	}
 
 	if (command_mode == CMDMODE_COMMIT) {
-		send_notification = send_notification_set;
 		sticky_ack = sticky_ack_set;
 	}
 
@@ -1011,7 +1011,7 @@ void print_form_element(int element, int cmd) {
 		printf("<tr><td class=\"objectDescription descriptionleft\">Send Notification:");
 		print_help_box(help_text);
 		printf("</td><td align=\"left\">");
-		printf("<INPUT TYPE='checkbox' NAME='send_notification' %s></td></tr>\n", (send_notification == TRUE) ? "CHECKED" : "");
+		printf("<INPUT TYPE='checkbox' NAME='send_notification' %s></td></tr>\n", (send_ack_notifications == TRUE) ? "CHECKED" : "");
 		break;
 
 	case PRINT_PERSISTENT:
@@ -1106,7 +1106,7 @@ void print_form_element(int element, int cmd) {
 		printf("<tr><td class=\"objectDescription descriptionleft\">Use Expire Time:");
 		print_help_box(help_text);
 		printf("</td><td align=\"left\">");
-		printf("<INPUT TYPE='checkbox' ID='expire_checkbox' NAME='use_ack_end_time' onClick=\"if (document.getElementById('expire_checkbox').checked == true) document.getElementById('expired_date_row').style.display = ''; else document.getElementById('expired_date_row').style.display = 'none';\"></td></tr>\n");
+		printf("<INPUT TYPE='checkbox' ID='expire_checkbox' NAME='use_ack_end_time' onClick=\"if (document.getElementById('expire_checkbox').checked == true) document.getElementById('expired_date_row').style.display = ''; else document.getElementById('expired_date_row').style.display = 'none';\" %s></td></tr>\n", (set_expire_ack_by_default == TRUE) ? "CHECKED" : "");
 
 		snprintf(help_text, sizeof(help_text), "Enter here the expire date/time for this acknowledgement. %s will automatically delete the acknowledgement after this time expired.", PROGRAM_NAME);
 		help_text[sizeof(help_text)-1] = '\x0';
@@ -1115,7 +1115,7 @@ void print_form_element(int element, int cmd) {
 		t += (unsigned long)default_expiring_acknowledgement_duration;
 		get_time_string(&t, buffer, sizeof(buffer) - 1, SHORT_DATE_TIME);
 
-		printf("<tr id=\"expired_date_row\" style=\"display:none;\"><td class=\"objectDescription descriptionleft\">Expire Time:");
+		printf("<tr id=\"expired_date_row\" style=\"display:%s;\"><td class=\"objectDescription descriptionleft\">Expire Time:", (set_expire_ack_by_default == TRUE) ? "" : "none");
 		print_help_box(help_text);
 		printf("</td><td align=\"left\"><INPUT TYPE='TEXT' class='timepicker' NAME='end_time' VALUE='%s' SIZE=\"25\"></td></tr>\n", buffer);
 		break;

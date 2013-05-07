@@ -52,6 +52,7 @@ Depends: adduser,
          coreutils (>= 4.5.3),
          icinga-common (= ${source:Version}),
          libjs-jquery (>= 1.4.2-2~),
+         libjs-jquery-ui,
          ucf (>= 0.28),
          ${misc:Depends},
          ${perl:Depends},
@@ -110,6 +111,7 @@ Architecture: any
 Depends: icinga-cgi (= ${binary:Version}),
          icinga-core (= ${binary:Version}),
          ${misc:Depends}
+Recommends: icinga-docs
 Suggests: nagios-nrpe-plugin
 Description: host and network monitoring system - metapackage
  Icinga is a modular monitoring framework for hosts, services, and
