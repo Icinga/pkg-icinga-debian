@@ -86,13 +86,18 @@ check_started () {
 #	this a nice generalized way to get requested settings.
 #
 get_config () {
+  CFG=$ICINGACFG
+  test "$2" && CFG="$2"
   if [ "$2" ]; then
     set -- `grep ^$1 $2 | sed 's@=@ @'`
   else
     set -- `grep ^$1 $ICINGACFG | sed 's@=@ @'`
   fi
-  shift
-  echo $*
+  if [ -n "$1" ]
+  then
+      shift
+      echo $*
+  fi
 }
 
 check_config () {

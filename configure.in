@@ -9,9 +9,9 @@ AC_CONFIG_HEADER(include/config.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.8.4"
+PKG_VERSION="1.9.0"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="01-13-2013"
+PKG_REL_DATE="05-07-2013"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -29,7 +29,7 @@ dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(arpa/inet.h ctype.h dirent.h errno.h fcntl.h getopt.h grp.h libgen.h limits.h math.h netdb.h netinet/in.h pthread.h pthreads.h pwd.h regex.h signal.h socket.h stdarg.h string.h strings.h sys/mman.h sys/types.h sys/time.h sys/resource.h sys/wait.h sys/socket.h sys/stat.h sys/timeb.h sys/un.h sys/ipc.h sys/msg.h sys/poll.h syslog.h uio.h unistd.h)
+AC_CHECK_HEADERS(arpa/inet.h ctype.h dirent.h errno.h fcntl.h getopt.h grp.h libgen.h limits.h math.h netdb.h netinet/in.h pthread.h pthreads.h pwd.h regex.h signal.h socket.h stdarg.h string.h strings.h sys/mman.h sys/types.h sys/time.h sys/resource.h sys/wait.h sys/socket.h sys/stat.h sys/timeb.h sys/un.h sys/ipc.h sys/msg.h sys/poll.h syslog.h uio.h unistd.h sys/select.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -342,6 +342,14 @@ if test x$HTTPAUTHFILE = xno; then
                 HTTPAUTHFILE="$sysconfdir/htpasswd.users"
         fi
 AC_SUBST(HTTPAUTHFILE)
+
+dnl Location of apache conf file
+HTTPDCONFFILE=no
+AC_ARG_WITH(httpd-conf-file,AC_HELP_STRING([--with-httpd-conf-file=<filepath>],[sets path to Icinga HTTPD config file]),HTTPDCONFFILE=$withval,HTTPDCONFFILE=no)
+if test x$HTTPDCONFFILE = xno; then
+                HTTPDCONFFILE="$HTTPD_CONF/icinga.conf"
+        fi
+AC_SUBST(HTTPDCONFFILE)
 
 
 dnl Location of plugin path
@@ -768,7 +776,7 @@ if test x$USE_EVENTBROKER = xyes; then
 	# Otherwise we assume that if the linker accepts the flag, it is needed.
 	AC_MSG_CHECKING(for extra flags needed to export symbols)
 	case $host_os in
-		aix4*|aix5*)
+		aix4*|aix5*|aix6*|aix7*)
 			BROKER_LDFLAGS="$BROKER_LDFLAGS -Wl,-bexpall,-brtl"
 		;;
 		bsdi*)
@@ -799,7 +807,7 @@ if test x$USE_EVENTBROKER = xyes; then
 			INIT_OPTS="-o root -g root"
 			SNPRINTF_BROKEN="yes"
 		;;
-		aix4*|aix5*)
+		aix4*|aix5*|aix6*|aix7*)
 			#MOD_LDFLAGS="-G -bnoentry -bexpall"
 			MOD_LDFLAGS="-G -bM:SRE -bnoentry -bexpall"
 			INIT_OPTS="-o root -g root"
@@ -859,9 +867,9 @@ dnl Configure IDOUtils
 dnl set dummy for ocilib
 OCILIB_LIB=""
 
-USE_IDOUTILS=no
+USE_IDOUTILS=yes
 USE_IDOUTILS_ORACLE=no
-AC_ARG_ENABLE(idoutils,AC_HELP_STRING([--enable-idoutils],[enables database connectivity using idoutils]),USE_IDOUTILS=$enableval,USE_IDOUTILS=no)
+AC_ARG_ENABLE(idoutils,AC_HELP_STRING([--enable-idoutils],[enables database connectivity using idoutils (default: enabled)]),USE_IDOUTILS=$enableval,USE_IDOUTILS=yes)
 if test x$USE_IDOUTILS = xyes; then
 	if test x$USE_EVENTBROKER = xno; then
 		AC_MSG_ERROR([--enable-idoutils needs also --enable-event-broker])
@@ -996,6 +1004,17 @@ if test x$USE_IDOUTILS = xyes; then
 
 	fi
 fi
+
+dnl Classic UI Standalone
+CLASSICUI_STANDALONE=no
+AC_ARG_ENABLE(classicui-standalone,AC_HELP_STRING([--enable-classicui-standalone],[enables standalone Classic UI (default: disabled)]),CLASSICUI_STANDALONE=$enableval,CLASSICUI_STANDALONE=no)
+if test x$CLASSICUI_STANDALONE = xyes; then
+	CLASSICUI_STANDALONE_FLAG="1"
+fi
+if test x$CLASSICUI_STANDALONE = xno; then
+	CLASSICUI_STANDALONE_FLAG="0"
+fi
+AC_SUBST(CLASSICUI_STANDALONE_FLAG)
 
 dnl Location of temp path
 LIBDBIDRIVERDIR=no
@@ -1294,7 +1313,7 @@ AC_MSG_CHECKING(for -Wall based on os/compiler)
         case $host_os in
                 solaris2*|sysv4*)
                 ;;
-                aix4*|aix5*)
+                aix4*|aix5*|aix6*|aix7*)
 			CFLAGS="-Wall $CFLAGS"
                 ;;
                 freebsd2*)
@@ -1419,6 +1438,7 @@ AC_MSG_RESULT([          State directory:  $STATEDIR])
 AC_MSG_RESULT([   Ext Cmd file directory:  $EXTCMDFILEDIR])
 AC_MSG_RESULT([           Init directory:  $init_dir])
 AC_MSG_RESULT([  Apache conf.d directory:  $HTTPD_CONF])
+AC_MSG_RESULT([       Apache config file:  $HTTPDCONFFILE])
 AC_MSG_RESULT([             Mail program:  $MAIL_PROG])
 AC_MSG_RESULT([                  Host OS:  $host_os])
 AC_MSG_RESULT([       Environment Prefix:  $env_prefix])

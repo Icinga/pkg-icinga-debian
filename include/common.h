@@ -3,8 +3,8 @@
  * Icinga Common Header File
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-2012 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2012 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
+ * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -27,8 +27,8 @@
 #define PROGRAM_NAME "Icinga"
 #define PROGRAM_NAME_UC "ICINGA"
 #define PROGRAM_NAME_LC "icinga"
-#define PROGRAM_VERSION "1.8.4"
-#define PROGRAM_MODIFICATION_DATE "01-13-2013"
+#define PROGRAM_VERSION "1.9.0"
+#define PROGRAM_MODIFICATION_DATE "05-07-2013"
 
 /*#define DEBUG_CHECK_IPC 1 */
 /*#define DEBUG_CHECK_IPC2 1*/
@@ -437,6 +437,25 @@
 #define FALSE				0
 #endif
 
+/** character map initialization for .bss-allocated char maps */
+#define CHAR_MAP_INIT(k) { \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, k, \
+        }
 
 /****************** HOST CONFIG FILE READING OPTIONS ********************/
 
