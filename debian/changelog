@@ -21,7 +21,6 @@ icinga (1.9.0-1) unstable; urgency=low
   * [bbaa9f6] Recommend icinga-docs in the icinga metapackage (Closes: #682359)
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 07 May 2013 16:18:34 +0200
->>>>>>> master
 
 icinga (1.8.4-1) experimental; urgency=high
 
