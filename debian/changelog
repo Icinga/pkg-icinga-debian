@@ -1,3 +1,10 @@
+icinga (1.9.1-1) unstable; urgency=low
+
+  * [fe88365] Fix dependency on on icinga-doc
+  * [e07a105] Imported Upstream version 1.9.1
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 22 May 2013 21:07:42 +0200
+
 icinga (1.9.0-1) unstable; urgency=low
 
   * [006e77b] Allow www-data to read those archived logs
