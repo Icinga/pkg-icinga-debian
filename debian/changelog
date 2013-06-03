@@ -1,3 +1,9 @@
+icinga (1.9.1-2) unstable; urgency=low
+
+  * [9c53a84] Fix dependency on libgd3 (Closes: #710839)
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 03 Jun 2013 08:08:21 +0200
+
 icinga (1.9.1-1) unstable; urgency=low
 
   * [fe88365] Fix dependency on on icinga-doc
