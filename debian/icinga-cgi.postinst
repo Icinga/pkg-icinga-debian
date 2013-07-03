@@ -59,7 +59,7 @@ case "$1" in
 	done
 
 
-	ucf --debconf-ok /usr/share/doc/icinga-cgi/examples/apache2.conf $apacheconf
+	ucf --debconf-ok /usr/share/icinga/apache2.conf $apacheconf
 
 	# configure the web servers, if it is desired
 	if [ "$servers" ]; then
