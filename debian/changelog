@@ -1,3 +1,13 @@
+icinga (1.9.3-1) unstable; urgency=low
+
+  * [d031d94] Fix path to idoutils example config (Closes: #714240)
+  * [940f7de] Move apache config to /usr/share
+  * [7b2ec2a] Imported Upstream version 1.9.2
+    - Don't crash with fuzzy input (Closes: #716027)
+  * [e188314] Imported Upstream version 1.9.3
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 10 Jul 2013 23:33:15 +0200
+
 icinga (1.9.1-2) unstable; urgency=low
 
   * [9c53a84] Fix dependency on libgd3 (Closes: #710839)

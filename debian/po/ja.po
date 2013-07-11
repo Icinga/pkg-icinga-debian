@@ -5,10 +5,10 @@
 # Hideki Yamane <henrich@debian.org>, 2010
 msgid ""
 msgstr ""
-"Project-Id-Version: icinga (debconf) 1.0.2-1\n"
+"Project-Id-Version: icinga (debconf) 1.9.1-2\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
 "POT-Creation-Date: 2012-06-11 08:15+0200\n"
-"PO-Revision-Date: 2010-09-16 01:10+0900\n"
+"PO-Revision-Date: 2012-06-11 15:15+0900\n"
 "Last-Translator: Hideki Yamane <henrich@debian.org>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
 "Language: ja\n"
@@ -93,7 +93,7 @@ msgstr "入力された 2 つのパスワードが一致しません。もう一
 #. Description
 #: ../icinga-common.templates:2001
 msgid "Use external commands with Icinga?"
-msgstr ""
+msgstr "外部 コマンドを Icinga で利用しますか?"
 
 #. Type: boolean
 #. Description
@@ -104,9 +104,13 @@ msgid ""
 "access to the nagios command pipe and is required if you want to be able to "
 "use the CGI command interface."
 msgstr ""
+"セキュリティを考慮して、Icinga のデフォルト設定では外部コマンドを使わないよう"
+"になっています。外部コマンドを有効にするとウェブサーバが nagios コマンドパイプ"
+"に書き込むことができるようになります。CGI コマンドインターフェイスを使えるよう"
+"にしたい場合は必要となります。"
 
 #. Type: boolean
 #. Description
 #: ../icinga-common.templates:2001
 msgid "If unsure, do not enable external commands."
-msgstr ""
+msgstr "よくわからない場合は外部コマンドを有効にしないでください。"
