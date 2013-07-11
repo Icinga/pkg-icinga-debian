@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: icinga 1.0.1-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"POT-Creation-Date: 2013-07-11 22:37+0200\n"
 "PO-Revision-Date: 2010-05-13 23:02+0930\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
@@ -17,43 +17,22 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: LocFactoryEditor 1.8\n"
 
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Apache servers to configure for icinga:"
-msgstr "Trình phục vụ Apache cần cấu hình cho icinga:"
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Please select which Apache servers should be configured for icinga."
-msgstr "Hãy chọn những trình phục vụ Apache nào cần cấu hình cho icinga."
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid ""
-"If you would prefer to perform configuration manually, leave all servers "
-"unselected."
-msgstr ""
-"Nếu bạn muốn tự cấu hình thì để lại tất cả các trình phục vụ bị bỏ chọn."
-
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid "Icinga web administration password:"
 msgstr "Mật khẩu quản trị Web Icinga:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "Please provide the password to be created with the \"icingaadmin\" user."
 msgstr "Hãy cung cấp mật khẩu cần tạo với người dùng quản trị « icingaadmin »."
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "This is the username and password to use when connecting to the Icinga "
 "server after completing the configuration. If you do not provide a password, "
@@ -65,13 +44,13 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid "Re-enter password to verify:"
 msgstr "Gõ lại mật khẩu để thẩm tra:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid ""
 "Please enter the same user password again to verify you have typed it "
 "correctly."
@@ -79,13 +58,13 @@ msgstr "Hãy nhập lại mật khầu người dùng mới nhập, để xác n
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "Password input error"
 msgstr "Lỗi nhập mật khẩu"
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr "Bạn đã nhập hai mật khẩu không trùng nhau. Hãy thử lại."
 
@@ -110,3 +89,15 @@ msgstr ""
 #: ../icinga-common.templates:2001
 msgid "If unsure, do not enable external commands."
 msgstr ""
+
+#~ msgid "Apache servers to configure for icinga:"
+#~ msgstr "Trình phục vụ Apache cần cấu hình cho icinga:"
+
+#~ msgid "Please select which Apache servers should be configured for icinga."
+#~ msgstr "Hãy chọn những trình phục vụ Apache nào cần cấu hình cho icinga."
+
+#~ msgid ""
+#~ "If you would prefer to perform configuration manually, leave all servers "
+#~ "unselected."
+#~ msgstr ""
+#~ "Nếu bạn muốn tự cấu hình thì để lại tất cả các trình phục vụ bị bỏ chọn."

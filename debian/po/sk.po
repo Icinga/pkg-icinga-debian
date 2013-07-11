@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: icinga 1.5.1-1\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"POT-Creation-Date: 2013-07-11 22:37+0200\n"
 "PO-Revision-Date: 2012-06-12 17:05+0200\n"
 "Last-Translator: Slavko <linux@slavino.sk>\n"
 "Language-Team: slovenčina <debian-l10n-slovak@lists.debian.org>\n"
@@ -20,35 +20,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-POFile-SpellExtra: Icinga icinga nagios pipe Apache icingaadmin\n"
 
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Apache servers to configure for icinga:"
-msgstr "Servery Apache, ktoré majú byť nastavené pre icinga:"
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Please select which Apache servers should be configured for icinga."
-msgstr "Prosím, vyberte servery Apache, ktoré majú byť nastavené pre icinga."
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid ""
-"If you would prefer to perform configuration manually, leave all servers "
-"unselected."
-msgstr "Ak dávate prednosť manuálnemu nastaveniu, nevyberte žiadny server."
-
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid "Icinga web administration password:"
 msgstr "Heslo webovej administrácie Icinga:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "Please provide the password to be created with the \"icingaadmin\" user."
 msgstr ""
@@ -56,7 +36,7 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "This is the username and password to use when connecting to the Icinga "
 "server after completing the configuration. If you do not provide a password, "
@@ -68,13 +48,13 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid "Re-enter password to verify:"
 msgstr "Zopakujte heslo, na overenie:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid ""
 "Please enter the same user password again to verify you have typed it "
 "correctly."
@@ -84,13 +64,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "Password input error"
 msgstr "Chyba zadania hesla"
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr "Zadané dve heslá sa nezhodujú. Prosím, skúste znova."
 
@@ -119,3 +99,15 @@ msgstr ""
 #: ../icinga-common.templates:2001
 msgid "If unsure, do not enable external commands."
 msgstr "Ak si nie ste istý, nepovoľujte externé príkazy."
+
+#~ msgid "Apache servers to configure for icinga:"
+#~ msgstr "Servery Apache, ktoré majú byť nastavené pre icinga:"
+
+#~ msgid "Please select which Apache servers should be configured for icinga."
+#~ msgstr ""
+#~ "Prosím, vyberte servery Apache, ktoré majú byť nastavené pre icinga."
+
+#~ msgid ""
+#~ "If you would prefer to perform configuration manually, leave all servers "
+#~ "unselected."
+#~ msgstr "Ak dávate prednosť manuálnemu nastaveniu, nevyberte žiadny server."

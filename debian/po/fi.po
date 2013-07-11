@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: icinga\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"POT-Creation-Date: 2013-07-11 22:37+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Esko Arajärvi <edu@iki.fi>\n"
 "Language-Team: Finnish <debian-l10n-finnish@lists.debian.org>\n"
@@ -13,35 +13,9 @@ msgstr ""
 "X-Poedit-Language: Finnish\n"
 "X-Poedit-Country: FINLAND\n"
 
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-#, fuzzy
-#| msgid "Apache servers to configure for icinga:"
-msgid "Apache servers to configure for icinga:"
-msgstr "Apache-palvelimet, joiden asetuksia muokataan icinga:a varten:"
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-#, fuzzy
-#| msgid "Please select which apache servers should be configured for icinga."
-msgid "Please select which Apache servers should be configured for icinga."
-msgstr ""
-"Valitse minkä Apache-palvelimien asetuksia tulisi muokata icinga:n "
-"käyttöönottamiseksi."
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid ""
-"If you would prefer to perform configuration manually, leave all servers "
-"unselected."
-msgstr "Jos haluat tehdä asetukset käsin, älä valitse mitään palvelinta."
-
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 #, fuzzy
 #| msgid "Nagios web administration password:"
 msgid "Icinga web administration password:"
@@ -49,7 +23,7 @@ msgstr "Nagios-verkkoylläpidon salasana:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 #, fuzzy
 #| msgid ""
 #| "Please provide the password to be created with the \"nagiosadmin\" user."
@@ -59,7 +33,7 @@ msgstr "Anna salasana käyttäjätunnukselle ”nagiosadmin”."
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 #, fuzzy
 #| msgid ""
 #| "This is the username and password you will use to log in to your nagios "
@@ -76,13 +50,13 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid "Re-enter password to verify:"
 msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid ""
 "Please enter the same user password again to verify you have typed it "
 "correctly."
@@ -90,13 +64,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "Password input error"
 msgstr ""
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr ""
 
@@ -121,6 +95,23 @@ msgstr ""
 #: ../icinga-common.templates:2001
 msgid "If unsure, do not enable external commands."
 msgstr ""
+
+#, fuzzy
+#~| msgid "Apache servers to configure for icinga:"
+#~ msgid "Apache servers to configure for icinga:"
+#~ msgstr "Apache-palvelimet, joiden asetuksia muokataan icinga:a varten:"
+
+#, fuzzy
+#~| msgid "Please select which apache servers should be configured for icinga."
+#~ msgid "Please select which Apache servers should be configured for icinga."
+#~ msgstr ""
+#~ "Valitse minkä Apache-palvelimien asetuksia tulisi muokata icinga:n "
+#~ "käyttöönottamiseksi."
+
+#~ msgid ""
+#~ "If you would prefer to perform configuration manually, leave all servers "
+#~ "unselected."
+#~ msgstr "Jos haluat tehdä asetukset käsin, älä valitse mitään palvelinta."
 
 #~ msgid "Password confirmation:"
 #~ msgstr "Salasanan vahvistus:"
