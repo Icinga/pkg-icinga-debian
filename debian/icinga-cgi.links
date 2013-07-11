@@ -1,3 +1,4 @@
 usr/share/javascript/jquery/jquery.min.js usr/share/icinga/htdocs/js/jquery-1.8.0.min.js
 usr/share/javascript/jquery-ui usr/share/icinga/htdocs/jquery-ui
 etc/icinga/stylesheets usr/share/icinga/stylesheets
+etc/icinga/apache2.conf etc/apache2/conf-available/icinga.conf

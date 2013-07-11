@@ -8,8 +8,6 @@ enc="/etc/icinga/objects/"
 usn="/usr/share/icinga"
 
 . /usr/share/debconf/confmodule
-. $usn/debian/httpd.webapps-common
-
 if [ -n "$ICINGADEBUG" ]; then
   echo "now debugging $0 $@"
   set -x
@@ -41,50 +39,32 @@ case "$1" in
               --disabled-login --force-badname nagios > /dev/null
     fi
 
-	# get the list of selected servers
-	db_get icinga/httpd
-	servers=$(echo $RET | sed -e 's/,/ /g')
 	db_get icinga/adminpassword
 	admpass="$RET"
 
-	unwanted_servers=""
+    # register apache2.conf via ucf:
+    ucf --debconf-ok /usr/share/icinga/apache2.conf $apacheconf
 
-	#check which servers to uninclude
-	for s in $wc_httpd_supported
-	do
-		if ! echo $servers | grep -q $s
-		then
-			unwanted_servers="$s $unwanted_servers"
-		fi
-	done
+    COMMON_STATE=$(dpkg-query -f '${Status}' -W 'apache2.2-common' 2>/dev/null | awk '{print $3}' || true)
 
+    # NEW method for Apache >= 2.4
+    if [ -e /usr/share/apache2/apache2-maintscript-helper ]; then
+        . /usr/share/apache2/apache2-maintscript-helper
 
-	ucf --debconf-ok /usr/share/icinga/apache2.conf $apacheconf
+        apache2_invoke enconf icinga
 
-	# configure the web servers, if it is desired
-	if [ "$servers" ]; then
-		if wc_httpd_apache_include $apacheconf icinga $servers; then
-			# reload the selected servers if they are running 
-			running_servers="$(wc_httpd_running $servers)"
-			if [ "$running_servers" ]; then
-				wc_httpd_invoke "reload" $running_servers
-			fi
-		fi	
-	fi
+        # remove OLD Apache 2.2 link
+        [ -L /etc/apache2/conf.d/icinga.conf ] && rm /etc/apache2/conf.d/icinga.conf
 
-	if [ "$unwanted_servers" ]; then
-		servers_to_deconf="$(wc_httpd_apache_configured $apacheconf icinga $unwanted_servers)"
-		if [ "$servers_to_deconf" ]; then
-			if wc_httpd_apache_uninclude $apacheconf icinga $servers_to_deconf; then
-				# reload the selected servers if they are running
-				running_servers="$(wc_httpd_running $unwanted_servers)"
-				if [ "$running_servers" ]; then
-					wc_httpd_invoke "reload" $running_servers
-				fi
-			fi
-		fi
-	fi
+        # OLD methods for Apache < 2.4
+    elif [ "$COMMON_STATE" = "installed" ] || [ "$COMMON_STATE" = "unpacked" ] ; then
 
+        # create symlink if not existing
+        [ -f /etc/apache2/conf.d/icinga.conf ] || ln -vs $apacheconf /etc/apache2/conf.d/icinga.conf
+
+        # reload webserver
+        [ -x $(which invoke-rc.d) ] && invoke-rc.d apache2 reload
+    fi  
 
 	# we reset the password every run, so if it exists we're running
 	# after being specifically given a password and can unconditionally set it.
