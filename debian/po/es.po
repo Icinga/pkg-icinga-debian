@@ -31,7 +31,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: icinga 1.7.0-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"POT-Creation-Date: 2013-07-11 22:37+0200\n"
 "PO-Revision-Date: 2012-06-17 18:27+0200\n"
 "Last-Translator: Omar Campagne <ocampagne@gmail.com>\n"
 "Language-Team: Debian l10n Spanish <debian-l10n-spanish@lists.debian.org>\n"
@@ -42,45 +42,22 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtaal 0.7.1\n"
 
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Apache servers to configure for icinga:"
-msgstr "Servidores apache a configurar para icinga:"
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Please select which Apache servers should be configured for icinga."
-msgstr ""
-"Seleccione los servidores apache que se deberían configurar para icinga."
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid ""
-"If you would prefer to perform configuration manually, leave all servers "
-"unselected."
-msgstr ""
-"No elija ningún servidor si prefiere realizar la configuración de forma "
-"manual."
-
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid "Icinga web administration password:"
 msgstr "Contraseña para la administración web de icinga:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "Please provide the password to be created with the \"icingaadmin\" user."
 msgstr "Introduzca la contraseña para el nuevo usuario «icingaadmin»."
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "This is the username and password to use when connecting to the Icinga "
 "server after completing the configuration. If you do not provide a password, "
@@ -92,13 +69,13 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid "Re-enter password to verify:"
 msgstr "Introduzca la contraseña otra vez para su comprobación:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid ""
 "Please enter the same user password again to verify you have typed it "
 "correctly."
@@ -108,13 +85,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "Password input error"
 msgstr "Se ha detectado un fallo al introducir la contraseña"
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr ""
 "Las dos contraseñas que ha introducido no son idénticas. Inténtelo otra vez."
@@ -144,3 +121,17 @@ msgstr ""
 #: ../icinga-common.templates:2001
 msgid "If unsure, do not enable external commands."
 msgstr "Si no está seguro, no active el uso de órdenes externas."
+
+#~ msgid "Apache servers to configure for icinga:"
+#~ msgstr "Servidores apache a configurar para icinga:"
+
+#~ msgid "Please select which Apache servers should be configured for icinga."
+#~ msgstr ""
+#~ "Seleccione los servidores apache que se deberían configurar para icinga."
+
+#~ msgid ""
+#~ "If you would prefer to perform configuration manually, leave all servers "
+#~ "unselected."
+#~ msgstr ""
+#~ "No elija ningún servidor si prefiere realizar la configuración de forma "
+#~ "manual."

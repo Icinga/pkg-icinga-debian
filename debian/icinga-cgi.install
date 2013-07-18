@@ -1,5 +1,4 @@
 debian-configs/cgi.cfg /etc/icinga
-debian/httpd.webapps-common /usr/share/icinga/debian
 usr/lib/cgi-bin/*
 usr/share/icinga/htdocs/*.html
 usr/share/icinga/htdocs/jquery-ui-addon
@@ -8,3 +7,4 @@ usr/share/icinga/htdocs/js/*
 usr/share/icinga/htdocs/media
 usr/share/icinga/htdocs/robots.txt
 usr/share/icinga/htdocs/stylesheets/* /etc/icinga/stylesheets/
+debian/apache2.conf /usr/share/icinga
