@@ -1,8 +1,26 @@
-icinga (1.9.1-1~debmon70+1) debmon-wheezy; urgency=low
+icinga (1.9.3-1~debmon70+1) debmon-wheezy; urgency=low
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 21:55:21 +0100
+
+icinga (1.9.3-1) unstable; urgency=low
+
+  * [db397b3] Remove obsolete debconf po templates
+  * [de82eae] Don't give the htpasswd password on the commandline
+  * [d031d94] Fix path to idoutils example config (Closes: #714240)
+  * [940f7de] Move apache config to /usr/share
+  * [7b2ec2a] Imported Upstream version 1.9.2
+    - Don't crash with fuzzy input (Closes: #716027)
+  * [e188314] Imported Upstream version 1.9.3
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 19 Jul 2013 21:31:19 +0200
+
+icinga (1.9.1-2) unstable; urgency=low
+
+  * [9c53a84] Fix dependency on libgd3 (Closes: #710839)
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 03 Jun 2013 08:08:21 +0200
 
 icinga (1.9.1-1) unstable; urgency=low
 
@@ -29,7 +47,6 @@ icinga (1.9.0-1) unstable; urgency=low
   * [bbaa9f6] Recommend icinga-docs in the icinga metapackage (Closes: #682359)
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 07 May 2013 16:18:34 +0200
->>>>>>> master
 
 icinga (1.8.4-1) experimental; urgency=high
 
