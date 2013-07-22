@@ -71,7 +71,12 @@ case "$1" in
 	# XXX there's no way of setting the pw w/out giving it on the cmdline? wtf?
 	if [ -n "$admpass" ]; then
 		touch "$htpw"
-		echo "$admpass" | htpasswd -i "$htpw" icingaadmin
+        #unfortunatly that method only works with 2.4
+        if [ -e /usr/share/apache2/apache2-maintscript-helper ]; then
+    		echo "$admpass" | htpasswd -i "$htpw" icingaadmin
+        else
+            htpasswd -b "$htpw" icingaadmin "$admpass"
+        fi
 	fi
 
 	# everything went well, so now let's reset the password
