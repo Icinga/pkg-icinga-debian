@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: icinga 3.0.3-3\n"
 "Report-Msgid-Bugs-To: icinga@packages.debian.org\n"
-"POT-Creation-Date: 2012-06-11 08:15+0200\n"
+"POT-Creation-Date: 2013-07-11 22:37+0200\n"
 "PO-Revision-Date: 2012-06-14 19:39+0200\n"
 "Last-Translator: Michał Kułach <michal.kulach@gmail.com>\n"
 "Language-Team: Polish <debian-l10n-polish@lists.debian.org>\n"
@@ -21,44 +21,22 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
 
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Apache servers to configure for icinga:"
-msgstr "Konfiguracja serwerów Apache do icinga:"
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid "Please select which Apache servers should be configured for icinga."
-msgstr ""
-"Proszę wybrać, które serwery Apache powinny zostać skonfigurowane dla icinga."
-
-#. Type: multiselect
-#. Description
-#: ../icinga-cgi.templates:2001
-msgid ""
-"If you would prefer to perform configuration manually, leave all servers "
-"unselected."
-msgstr ""
-"Proszę nie zaznaczać żadnego serwera, aby przeprowadzić konfigurację ręcznie."
-
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid "Icinga web administration password:"
 msgstr "Hasło administratora Icinga:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "Please provide the password to be created with the \"icingaadmin\" user."
 msgstr "Proszę podać hasło dla użytkownika \"icingaadmin\"."
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:3001
+#: ../icinga-cgi.templates:2001
 msgid ""
 "This is the username and password to use when connecting to the Icinga "
 "server after completing the configuration. If you do not provide a password, "
@@ -70,13 +48,13 @@ msgstr ""
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid "Re-enter password to verify:"
 msgstr "Proszę wprowadzić hasło ponownie:"
 
 #. Type: password
 #. Description
-#: ../icinga-cgi.templates:4001
+#: ../icinga-cgi.templates:3001
 msgid ""
 "Please enter the same user password again to verify you have typed it "
 "correctly."
@@ -86,13 +64,13 @@ msgstr ""
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "Password input error"
 msgstr "Błąd wprowadzania hasła"
 
 #. Type: error
 #. Description
-#: ../icinga-cgi.templates:5001
+#: ../icinga-cgi.templates:4001
 msgid "The two passwords you entered were not the same. Please try again."
 msgstr ""
 "Dwa hasła, które zostały wprowadzone, nie są identyczne. Proszę spróbować "
@@ -113,8 +91,8 @@ msgid ""
 "access to the nagios command pipe and is required if you want to be able to "
 "use the CGI command interface."
 msgstr ""
-"W celu zwiększenia bezpieczeństwa, Icinga nie szuka zewnętrznych poleń w swej "
-"domyślnej konfiguracji. Włączenie poleceń zewnętrznych da serwerowi WWW "
+"W celu zwiększenia bezpieczeństwa, Icinga nie szuka zewnętrznych poleń w "
+"swej domyślnej konfiguracji. Włączenie poleceń zewnętrznych da serwerowi WWW "
 "dostęp, w trybie do zapisu, do potoku polecenia nagios i jest wymagany aby "
 "móc używać interfejsu wiersza poleceń."
 
@@ -124,3 +102,17 @@ msgstr ""
 msgid "If unsure, do not enable external commands."
 msgstr "W przypadku wątpliwości, proszę wybrać \"nie\"."
 
+#~ msgid "Apache servers to configure for icinga:"
+#~ msgstr "Konfiguracja serwerów Apache do icinga:"
+
+#~ msgid "Please select which Apache servers should be configured for icinga."
+#~ msgstr ""
+#~ "Proszę wybrać, które serwery Apache powinny zostać skonfigurowane dla "
+#~ "icinga."
+
+#~ msgid ""
+#~ "If you would prefer to perform configuration manually, leave all servers "
+#~ "unselected."
+#~ msgstr ""
+#~ "Proszę nie zaznaczać żadnego serwera, aby przeprowadzić konfigurację "
+#~ "ręcznie."
