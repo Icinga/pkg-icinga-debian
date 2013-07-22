@@ -1,3 +1,9 @@
+icinga (1.9.3-1~debmon70+2) debmon-wheezy; urgency=low
+
+  * Rebuild against clewan wheezy environment 
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 22 Jul 2013 10:29:17 +0200
+
 icinga (1.9.3-1~debmon70+1) debmon-wheezy; urgency=low
 
   * Rebuild for debmon
