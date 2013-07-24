@@ -1,3 +1,10 @@
+icinga (1.9.3-2) unstable; urgency=low
+
+  * [7e2d81e] Update README.Debian
+  * [35c5ef6] Fix htpasswd handling on apache < 2.4
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 24 Jul 2013 19:47:41 +0200
+
 icinga (1.9.3-1) unstable; urgency=low
 
   * [db397b3] Remove obsolete debconf po templates
