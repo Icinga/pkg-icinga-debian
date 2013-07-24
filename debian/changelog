@@ -1,8 +1,15 @@
-icinga (1.9.3-1~debmon70+1) debmon-wheezy; urgency=low
+icinga (1.9.3-2~debmon70+1) debmon-wheezy; urgency=low
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 21:55:21 +0100
+
+icinga (1.9.3-2) unstable; urgency=low
+
+  * [7e2d81e] Update README.Debian
+  * [35c5ef6] Fix htpasswd handling on apache < 2.4
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 24 Jul 2013 19:47:41 +0200
 
 icinga (1.9.3-1) unstable; urgency=low
 

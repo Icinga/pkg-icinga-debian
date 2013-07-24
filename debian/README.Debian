@@ -43,5 +43,5 @@ an htpasswd style file in /etc/icinga/htpasswd.users.  if you
 choose not to (or otherwise didn't) provide a password during package
 configuration, we assume that you know what you're doing and will
 not get in your way.  however, if you don't know what you're doing,
-you should either dpkg-reconfigure icinga-common and provide
+you should either dpkg-reconfigure icinga-cgi and provide
 a password, or read the fine manual for htpasswd(1).
