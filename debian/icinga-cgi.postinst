@@ -72,10 +72,10 @@ case "$1" in
 	if [ -n "$admpass" ]; then
 		touch "$htpw"
         #unfortunatly that method only works with 2.4
-        if [ -e /usr/share/apache2/apache2-maintscript-helper ]; then
-    		echo "$admpass" | htpasswd -i "$htpw" icingaadmin
-        else
+        if htpasswd 2>&1 | grep -q ' -i'; then
             htpasswd -b "$htpw" icingaadmin "$admpass"
+        else
+    		echo "$admpass" | htpasswd -i "$htpw" icingaadmin
         fi
 	fi
 
