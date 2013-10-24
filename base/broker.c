@@ -119,6 +119,10 @@ void broker_timed_event(int type, int flags, int attr, timed_event *event, struc
 
 /* send log data to broker */
 void broker_log_data(int type, int flags, int attr, char *data, unsigned long data_type, time_t entry_time, struct timeval *timestamp) {
+	broker_log_data_with_host_service(type, flags, attr, data, data_type, entry_time, timestamp, NULL, NULL);
+}
+
+void broker_log_data_with_host_service(int type, int flags, int attr, char *data, unsigned long data_type, time_t entry_time, struct timeval *timestamp, host *hst, service *svc) {
 	nebstruct_log_data ds;
 
 	if (!(event_broker_options & BROKER_LOGGED_DATA))
@@ -133,6 +137,19 @@ void broker_log_data(int type, int flags, int attr, char *data, unsigned long da
 	ds.entry_time = entry_time;
 	ds.data_type = data_type;
 	ds.data = data;
+
+	if (hst != NULL && svc == NULL) {
+		ds.host_name = hst->name;
+		ds.service_description = NULL;
+	}
+	else if (hst != NULL && svc != NULL) {
+		ds.host_name = svc->host_name;
+		ds.service_description = svc->description;
+	}
+	else {
+		ds.host_name = NULL;
+		ds.service_description = NULL;
+	}
 
 	/* make callbacks */
 	neb_make_callbacks(NEBCALLBACK_LOG_DATA, (void *)&ds);
@@ -241,7 +258,7 @@ int broker_event_handler(int type, int flags, int attr, int eventhandler_type, v
 
 
 /* send host check data to broker */
-int broker_host_check(int type, int flags, int attr, host *hst, int check_type, int state, int state_type, struct timeval start_time, struct timeval end_time, char *cmd, double latency, double exectime, int timeout, int early_timeout, int retcode, char *cmdline, char *output, char *long_output, char *perfdata, struct timeval *timestamp) {
+int broker_host_check(int type, int flags, int attr, host *hst, int check_type, int state, int state_type, struct timeval start_time, struct timeval end_time, char *cmd, double latency, double exectime, int timeout, int early_timeout, int retcode, char *cmdline, char *output, char *long_output, char *perfdata, struct timeval *timestamp, char *check_source) {
 	char *command_buf = NULL;
 	char *command_name = NULL;
 	char *command_args = NULL;
@@ -300,7 +317,7 @@ int broker_host_check(int type, int flags, int attr, host *hst, int check_type, 
 
 
 /* send service check data to broker */
-int broker_service_check(int type, int flags, int attr, service *svc, int check_type, struct timeval start_time, struct timeval end_time, char *cmd, double latency, double exectime, int timeout, int early_timeout, int retcode, char *cmdline, struct timeval *timestamp) {
+int broker_service_check(int type, int flags, int attr, service *svc, int check_type, struct timeval start_time, struct timeval end_time, char *cmd, double latency, double exectime, int timeout, int early_timeout, int retcode, char *cmdline, struct timeval *timestamp, char *check_source) {
 	char *command_buf = NULL;
 	char *command_name = NULL;
 	char *command_args = NULL;

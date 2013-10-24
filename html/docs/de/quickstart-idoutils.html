@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.9 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.10 Dokumentation">
 <link rel="up" href="ch02.html" title="Kapitel 2. Los geht's">
 <link rel="prev" href="quickstart-icinga-freebsd.html" title="2.4. Icinga-Schnellstart auf FreeBSD">
 <link rel="next" href="quickstart-idoutils-freebsd.html" title="2.6. Icinga-Schnellstart mit IDOUtils auf FreeBSD">
@@ -571,8 +571,8 @@
     <p>Entpacken Sie das Icinga-Archiv</p>
 
     <pre class="programlisting"> #&gt; cd /usr/src/ 
- #&gt; tar xvzf icinga-1.9.tar.gz 
- #&gt; cd icinga-1.9</pre>
+ #&gt; tar xvzf icinga-1.10.tar.gz 
+ #&gt; cd icinga-1.10</pre>
 
     <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -598,6 +598,19 @@
 </table></div>
 
     <pre class="programlisting"> #&gt; ./configure --with-command-group=icinga-cmd</pre>
+
+    <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Beginnend mit Apache 2.4 hat sich der Standard-Konfigurationsordner von <code class="filename">/etc/apache2/conf.d</code> in
+      <code class="filename">/etc/apache2/conf-available</code> geändert, so dass Sie abhängig von Ihrer Distribution (testing-Versionen von
+      Debian / Ubuntu) dem Aufruf von configure diese Option hinzufügen müssen </p>
+<pre class="screen">#&gt; ./configure --with-httpd-conf=/etc/apache2/conf-available</pre>
+    </td></tr>
+</table></div>
 
     <div class="important" title="Wichtig" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important">
 <tr>
@@ -960,7 +973,7 @@
  #&gt; make install-cgis
  #&gt; make install-html</pre>
 
-    <p>Wenn Sie (zusätzlich) das neue Icinga-Web installieren wollen, lesen Sie bitte <a class="link" href="icinga-web-scratch.html" title="6.4. Installation des Icinga-Web Frontend">Installation des
+    <p>Wenn Sie (zusätzlich) das neue Icinga-Web installieren wollen, lesen Sie bitte <a class="link" href="icinga-web-scratch.html" title="6.4. Installation des Icinga Web Frontend">Installation des
     Web-Interface</a>.</p>
 
     <p>Installieren Sie die Icinga-Web-Konfigurationsdatei im Apache conf.d-Verzeichnis.</p>
@@ -977,6 +990,17 @@
       <p>Ab Icinga 1.9 installiert der Befehl 'make install-webconf-auth' zusätzlich die Datei
       <code class="filename">htpasswd.users</code>, die Anmeldeinformationen für den Benutzer <span class="emphasis"><em>icingaadmin</em></span> enthält, so dass Sie
       den nächsten Schritt überspringen können. Das Passwort lautet <span class="emphasis"><em>icingaadmin</em></span>.</p>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Beginnend mit Apache 2.4 (testing-Versionen von Debian / Ubuntu) müssen Sie die Konfiguration aktivieren</p>
+<pre class="screen">#&gt; a2enconf icinga</pre>
     </td></tr>
 </table></div>
 
@@ -1039,8 +1063,8 @@
     <p>Entpacken Sie die Nagios-Plugins-Quellcode-Archivdatei.</p>
 
     <pre class="screen"> #&gt; cd /usr/src
- #&gt; tar xzf nagios-plugins-1.4.16.tar.gz
- #&gt; cd nagios-plugins-1.4.16</pre>
+ #&gt; tar xzf nagios-plugins-1.5.tar.gz
+ #&gt; cd nagios-plugins-1.5</pre>
 
     <p>Kompilieren und installieren Sie die Plugins.</p>
 
@@ -1212,9 +1236,9 @@
     Zweifel mehr als nur Ihre lokale Maschine überwachen wollen, so dass Sie u.a. das folgende <a class="link" href="ch02.html" title="Kapitel 2. Los geht's">Kapitel </a> lesen
     sollten...</p>
 
-    <a class="indexterm" name="idp815696"></a>
+    <a class="indexterm" name="idp177084256"></a>
 
-    <a class="indexterm" name="idp817392"></a>
+    <a class="indexterm" name="idp177085984"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -1234,6 +1258,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

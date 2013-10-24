@@ -54,8 +54,6 @@ extern int		enable_state_based_escalation_ranges;
 
 int check_escalation_condition(escalation_condition*);
 
-int dummy;	/* reduce compiler warnings */
-
 const char *notification_reason_name (unsigned int reason_type) {
 	static const char *names[] = {
 		"NORMAL", "ACKNOWLEDGEMENT",
@@ -96,7 +94,8 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 	time(&current_time);
 	gettimeofday(&start_time, NULL);
 
-	log_debug_info(DEBUGL_NOTIFICATIONS, 0, "** Service Notification Attempt ** Host: '%s', Service: '%s', Type: %s, Options: %d, Current State: %d, Last Notification: %s", svc->host_name, svc->description, notification_reason_name(type), options, svc->current_state, ctime(&svc->last_notification));
+	if (log_level(DEBUGL_NOTIFICATIONS, 0))
+		log_debug_info(DEBUGL_NOTIFICATIONS, 0, "** Service Notification Attempt ** Host: '%s', Service: '%s', Type: %s, Options: %d, Current State: %d, Last Notification: %s", svc->host_name, svc->description, notification_reason_name(type), options, svc->current_state, ctime(&svc->last_notification));
 
 	/* if we couldn't find the host, return an error */
 	if ((temp_host = svc->host_ptr) == NULL) {
@@ -250,13 +249,13 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 			mac.x[MACRO_NOTIFICATIONTYPE] = (char *)strdup("PROBLEM");
 
 		/* set the notification number macro */
-		dummy = asprintf(&mac.x[MACRO_SERVICENOTIFICATIONNUMBER], "%d", svc->current_notification_number);
+		asprintf(&mac.x[MACRO_SERVICENOTIFICATIONNUMBER], "%d", svc->current_notification_number);
 
 		/* the $NOTIFICATIONNUMBER$ macro is maintained for backward compatability */
 		mac.x[MACRO_NOTIFICATIONNUMBER] = (char *)strdup((mac.x[MACRO_SERVICENOTIFICATIONNUMBER] == NULL) ? "" : mac.x[MACRO_SERVICENOTIFICATIONNUMBER]);
 
 		/* set the notification id macro */
-		dummy = asprintf(&mac.x[MACRO_SERVICENOTIFICATIONID], "%lu", svc->current_notification_id);
+		asprintf(&mac.x[MACRO_SERVICENOTIFICATIONID], "%lu", svc->current_notification_id);
 
 		/* notify each contact (duplicates have been removed) */
 		for (temp_notification = notification_list; temp_notification != NULL; temp_notification = temp_notification->next) {
@@ -318,7 +317,8 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 				/* calculate the next acceptable re-notification time */
 				svc->next_notification = get_next_service_notification_time(svc, current_time);
 
-				log_debug_info(DEBUGL_NOTIFICATIONS, 0, "%d contacts were notified.  Next possible notification time: %s", contacts_notified, ctime(&svc->next_notification));
+				if (log_level(DEBUGL_NOTIFICATIONS, 0))
+					log_debug_info(DEBUGL_NOTIFICATIONS, 0, "%d contacts were notified.  Next possible notification time: %s", contacts_notified, ctime(&svc->next_notification));
 
 				/* update the last notification time for this service (this is needed for rescheduling later notifications) */
 				svc->last_notification = current_time;
@@ -349,7 +349,8 @@ int service_notification(service *svc, int type, char *not_author, char *not_dat
 					svc->current_unknown_notification_number--;
 				}
 
-				log_debug_info(DEBUGL_NOTIFICATIONS, 0, "No contacts were notified.  Next possible notification time: %s", ctime(&svc->next_notification));
+				if (log_level(DEBUGL_NOTIFICATIONS, 0))
+					log_debug_info(DEBUGL_NOTIFICATIONS, 0, "No contacts were notified.  Next possible notification time: %s", ctime(&svc->next_notification));
 			}
 
 		}
@@ -454,7 +455,8 @@ int check_service_notification_viability(service *svc, int type, int options) {
 			else
 				svc->next_notification = timeperiod_start;
 
-			log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next possible notification time: %s\n", ctime(&svc->next_notification));
+			if (log_level(DEBUGL_NOTIFICATIONS, 1))
+				log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next possible notification time: %s\n", ctime(&svc->next_notification));
 		}
 
 		return ERROR;
@@ -650,7 +652,8 @@ int check_service_notification_viability(service *svc, int type, int options) {
 	if ((current_time < svc->next_notification)) {
 		if (svc->is_volatile == FALSE || svc->is_volatile == VOLATILE_WITH_RENOTIFICATION_INTERVAL) {
 			log_debug_info(DEBUGL_NOTIFICATIONS, 1, "We haven't waited long enough to re-notify contacts about this service.\n");
-			log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next valid notification time: %s", ctime(&svc->next_notification));
+			if (log_level(DEBUGL_NOTIFICATIONS, 1))
+				log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next valid notification time: %s", ctime(&svc->next_notification));
 			return ERROR;
 		}
 	}
@@ -859,31 +862,31 @@ int notify_contact_of_service(icinga_macros *mac, contact *cntct, service *svc, 
 		if (log_notifications == TRUE) {
 			switch (type) {
 			case NOTIFICATION_CUSTOM:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;CUSTOM ($SERVICESTATE$);%s;$SERVICEOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;CUSTOM ($SERVICESTATE$);%s;$SERVICEOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			case NOTIFICATION_ACKNOWLEDGEMENT:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;ACKNOWLEDGEMENT ($SERVICESTATE$);%s;$SERVICEOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;ACKNOWLEDGEMENT ($SERVICESTATE$);%s;$SERVICEOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			case NOTIFICATION_FLAPPINGSTART:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;FLAPPINGSTART ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;FLAPPINGSTART ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			case NOTIFICATION_FLAPPINGSTOP:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;FLAPPINGSTOP ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;FLAPPINGSTOP ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			case NOTIFICATION_FLAPPINGDISABLED:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;FLAPPINGDISABLED ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;FLAPPINGDISABLED ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			case NOTIFICATION_DOWNTIMESTART:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;DOWNTIMESTART ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;DOWNTIMESTART ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			case NOTIFICATION_DOWNTIMEEND:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;DOWNTIMEEND ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;DOWNTIMEEND ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			case NOTIFICATION_DOWNTIMECANCELLED:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;DOWNTIMECANCELLED ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;DOWNTIMECANCELLED ($SERVICESTATE$);%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			default:
-				dummy = asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;$SERVICESTATE$;%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
+				asprintf(&temp_buffer, "SERVICE NOTIFICATION: %s;%s;%s;$SERVICESTATE$;%s;$SERVICEOUTPUT$\n", cntct->name, svc->host_name, svc->description, command_name_ptr);
 				break;
 			}
 
@@ -1179,7 +1182,7 @@ int create_notification_list_from_service(icinga_macros *mac, service *svc, int 
 
 	/* set the escalation macro */
 	my_free(mac->x[MACRO_NOTIFICATIONISESCALATED]);
-	dummy = asprintf(&mac->x[MACRO_NOTIFICATIONISESCALATED], "%d", escalate_notification);
+	asprintf(&mac->x[MACRO_NOTIFICATIONISESCALATED], "%d", escalate_notification);
 
 	if (options & NOTIFICATION_OPTION_BROADCAST)
 		log_debug_info(DEBUGL_NOTIFICATIONS, 1, "This notification will be BROADCAST to all (escalated and normal) contacts...\n");
@@ -1293,7 +1296,8 @@ int host_notification(host *hst, int type, char *not_author, char *not_data, int
 	time(&current_time);
 	gettimeofday(&start_time, NULL);
 
-	log_debug_info(DEBUGL_NOTIFICATIONS, 0, "** Host Notification Attempt ** Host: '%s', Type: %s, Options: %d, Current State: %d, Last Notification: %s", hst->name, notification_reason_name(type), options, hst->current_state, ctime(&hst->last_host_notification));
+	if (log_level(DEBUGL_NOTIFICATIONS, 0))
+		log_debug_info(DEBUGL_NOTIFICATIONS, 0, "** Host Notification Attempt ** Host: '%s', Type: %s, Options: %d, Current State: %d, Last Notification: %s", hst->name, notification_reason_name(type), options, hst->current_state, ctime(&hst->last_host_notification));
 
 
 	/* check viability of sending out a host notification */
@@ -1433,13 +1437,13 @@ int host_notification(host *hst, int type, char *not_author, char *not_data, int
 			mac.x[MACRO_NOTIFICATIONTYPE] = (char *)strdup("PROBLEM");
 
 		/* set the notification number macro */
-		dummy = asprintf(&mac.x[MACRO_HOSTNOTIFICATIONNUMBER], "%d", hst->current_notification_number);
+		asprintf(&mac.x[MACRO_HOSTNOTIFICATIONNUMBER], "%d", hst->current_notification_number);
 
 		/* the $NOTIFICATIONNUMBER$ macro is maintained for backward compatability */
 		mac.x[MACRO_NOTIFICATIONNUMBER] = (char *)strdup((mac.x[MACRO_HOSTNOTIFICATIONNUMBER] == NULL) ? "" : mac.x[MACRO_HOSTNOTIFICATIONNUMBER]);
 
 		/* set the notification id macro */
-		dummy = asprintf(&mac.x[MACRO_HOSTNOTIFICATIONID], "%lu", hst->current_notification_id);
+		asprintf(&mac.x[MACRO_HOSTNOTIFICATIONID], "%lu", hst->current_notification_id);
 
 		/* notify each contact (duplicates have been removed) */
 		for (temp_notification = notification_list; temp_notification != NULL; temp_notification = temp_notification->next) {
@@ -1509,7 +1513,8 @@ int host_notification(host *hst, int type, char *not_author, char *not_data, int
 				else if (hst->current_state == HOST_UNREACHABLE)
 					hst->notified_on_unreachable = TRUE;
 
-				log_debug_info(DEBUGL_NOTIFICATIONS, 0, "%d contacts were notified.  Next possible notification time: %s", contacts_notified, ctime(&hst->next_host_notification));
+				if (log_level(DEBUGL_NOTIFICATIONS, 0))
+					log_debug_info(DEBUGL_NOTIFICATIONS, 0, "%d contacts were notified.  Next possible notification time: %s", contacts_notified, ctime(&hst->next_host_notification));
 			}
 
 			/* we didn't end up notifying anyone */
@@ -1527,7 +1532,8 @@ int host_notification(host *hst, int type, char *not_author, char *not_data, int
 				}
 
 
-				log_debug_info(DEBUGL_NOTIFICATIONS, 0, "No contacts were notified.  Next possible notification time: %s", ctime(&hst->next_host_notification));
+				if (log_level(DEBUGL_NOTIFICATIONS, 0))
+					log_debug_info(DEBUGL_NOTIFICATIONS, 0, "No contacts were notified.  Next possible notification time: %s", ctime(&hst->next_host_notification));
 			}
 		}
 
@@ -1610,7 +1616,8 @@ int check_host_notification_viability(host *hst, int type, int options) {
 			else
 				hst->next_host_notification = timeperiod_start;
 
-			log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next possible notification time: %s\n", ctime(&hst->next_host_notification));
+			if (log_level(DEBUGL_NOTIFICATIONS, 1))
+				log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next possible notification time: %s\n", ctime(&hst->next_host_notification));
 		}
 
 		return ERROR;
@@ -1784,7 +1791,8 @@ int check_host_notification_viability(host *hst, int type, int options) {
 	/* check if its time to re-notify the contacts about the host... */
 	if (current_time < hst->next_host_notification) {
 		log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Its not yet time to re-notify the contacts about this host problem...\n");
-		log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next acceptable notification time: %s", ctime(&hst->next_host_notification));
+		if (log_level(DEBUGL_NOTIFICATIONS, 1))
+			log_debug_info(DEBUGL_NOTIFICATIONS, 1, "Next acceptable notification time: %s", ctime(&hst->next_host_notification));
 		return ERROR;
 	}
 
@@ -1972,31 +1980,31 @@ int notify_contact_of_host(icinga_macros *mac, contact *cntct, host *hst, int ty
 		if (log_notifications == TRUE) {
 			switch (type) {
 			case NOTIFICATION_CUSTOM:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;CUSTOM ($HOSTSTATE$);%s;$HOSTOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;CUSTOM ($HOSTSTATE$);%s;$HOSTOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			case NOTIFICATION_ACKNOWLEDGEMENT:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;ACKNOWLEDGEMENT ($HOSTSTATE$);%s;$HOSTOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;ACKNOWLEDGEMENT ($HOSTSTATE$);%s;$HOSTOUTPUT$;$NOTIFICATIONAUTHOR$;$NOTIFICATIONCOMMENT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			case NOTIFICATION_FLAPPINGSTART:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;FLAPPINGSTART ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;FLAPPINGSTART ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			case NOTIFICATION_FLAPPINGSTOP:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;FLAPPINGSTOP ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;FLAPPINGSTOP ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			case NOTIFICATION_FLAPPINGDISABLED:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;FLAPPINGDISABLED ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;FLAPPINGDISABLED ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			case NOTIFICATION_DOWNTIMESTART:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;DOWNTIMESTART ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;DOWNTIMESTART ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			case NOTIFICATION_DOWNTIMEEND:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;DOWNTIMEEND ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;DOWNTIMEEND ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			case NOTIFICATION_DOWNTIMECANCELLED:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;DOWNTIMECANCELLED ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;DOWNTIMECANCELLED ($HOSTSTATE$);%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			default:
-				dummy = asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;$HOSTSTATE$;%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
+				asprintf(&temp_buffer, "HOST NOTIFICATION: %s;%s;$HOSTSTATE$;%s;$HOSTOUTPUT$\n", cntct->name, hst->name, command_name_ptr);
 				break;
 			}
 
@@ -2207,7 +2215,7 @@ int create_notification_list_from_host(icinga_macros *mac, host *hst, int option
 
 	/* set the escalation macro */
 	my_free(mac->x[MACRO_NOTIFICATIONISESCALATED]);
-	dummy = asprintf(&mac->x[MACRO_NOTIFICATIONISESCALATED], "%d", escalate_notification);
+	asprintf(&mac->x[MACRO_NOTIFICATIONISESCALATED], "%d", escalate_notification);
 
 	if (options & NOTIFICATION_OPTION_BROADCAST)
 		log_debug_info(DEBUGL_NOTIFICATIONS, 1, "This notification will be BROADCAST to all (escalated and normal) contacts...\n");

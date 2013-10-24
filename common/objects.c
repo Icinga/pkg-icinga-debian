@@ -530,11 +530,11 @@ timerange *add_timerange_to_timeperiod(timeperiod *period, int day, unsigned lon
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Day %d is not valid for timeperiod '%s'\n", day, period->name);
 		return NULL;
 	}
-	if (start_time < 0 || start_time > 86400) {
+	if (start_time > 86400) {
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Start time %lu on day %d is not valid for timeperiod '%s'\n", start_time, day, period->name);
 		return NULL;
 	}
-	if (end_time < 0 || end_time > 86400) {
+	if (end_time > 86400) {
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: End time %lu on day %d is not value for timeperiod '%s'\n", end_time, day, period->name);
 		return NULL;
 	}
@@ -599,11 +599,11 @@ timerange *add_timerange_to_daterange(daterange *drange, unsigned long start_tim
 	if (drange == NULL)
 		return NULL;
 
-	if (start_time < 0 || start_time > 86400) {
+	if (start_time > 86400) {
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Start time %lu is not valid for timeperiod\n", start_time);
 		return NULL;
 	}
-	if (end_time < 0 || end_time > 86400) {
+	if (end_time > 86400) {
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: End time %lu is not value for timeperiod\n", end_time);
 		return NULL;
 	}
@@ -848,6 +848,7 @@ host *add_host(char *name, char *display_name, char *alias, char *address, char 
 		my_free(new_host->plugin_output);
 		my_free(new_host->long_plugin_output);
 		my_free(new_host->perf_data);
+		my_free(new_host->check_source);
 #endif
 		my_free(new_host->statusmap_image);
 		my_free(new_host->vrml_image);
@@ -886,7 +887,6 @@ host *add_host(char *name, char *display_name, char *alias, char *address, char 
 
 hostsmember *add_parent_host_to_host(host *hst, char *host_name) {
 	hostsmember *new_hostsmember = NULL;
-	int result = OK;
 
 	/* make sure we have the data we need */
 	if (hst == NULL || host_name == NULL || !strcmp(host_name, "")) {
@@ -905,17 +905,13 @@ hostsmember *add_parent_host_to_host(host *hst, char *host_name) {
 		return NULL;
 
 	/* duplicate string vars */
-	if ((new_hostsmember->host_name = (char *)strdup(host_name)) == NULL)
-		result = ERROR;
-
-	FILL_HASH(new_hostsmember->host_name);
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_hostsmember->host_name = (char *)strdup(host_name)) == NULL) {
 		my_free(new_hostsmember->host_name);
 		my_free(new_hostsmember);
 		return NULL;
 	}
+
+	FILL_HASH(new_hostsmember->host_name);
 
 	/* add the parent host entry to the host definition */
 	new_hostsmember->next = hst->parent_hosts;
@@ -985,7 +981,6 @@ servicesmember *add_service_link_to_host(host *hst, service *service_ptr) {
 /* add a new contactgroup to a host */
 contactgroupsmember *add_contactgroup_to_host(host *hst, char *group_name) {
 	contactgroupsmember *new_contactgroupsmember = NULL;
-	int result = OK;
 
 	/* make sure we have the data we need */
 	if (hst == NULL || (group_name == NULL || !strcmp(group_name, ""))) {
@@ -998,11 +993,7 @@ contactgroupsmember *add_contactgroup_to_host(host *hst, char *group_name) {
 		return NULL;
 
 	/* duplicate string vars */
-	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL)
-		result = ERROR;
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL) {
 		my_free(new_contactgroupsmember->group_name);
 		my_free(new_contactgroupsmember);
 		return NULL;
@@ -1110,7 +1101,6 @@ hostsmember *add_host_to_hostgroup(hostgroup *temp_hostgroup, char *host_name) {
 	hostsmember *new_member = NULL;
 	hostsmember *last_member = NULL;
 	hostsmember *temp_member = NULL;
-	int result = OK;
 
 	/* make sure we have the data we need */
 	if (temp_hostgroup == NULL || (host_name == NULL || !strcmp(host_name, ""))) {
@@ -1123,22 +1113,18 @@ hostsmember *add_host_to_hostgroup(hostgroup *temp_hostgroup, char *host_name) {
 		return NULL;
 
 	/* duplicate vars */
-	if ((new_member->host_name = (char *)strdup(host_name)) == NULL)
-		result = ERROR;
-
-	FILL_HASH(new_member->host_name);
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_member->host_name = (char *)strdup(host_name)) == NULL) {
 		my_free(new_member->host_name);
 		my_free(new_member);
 		return NULL;
 	}
 
+	FILL_HASH(new_member->host_name);
+
 	/* add the new member to the member list, sorted by host name */
 	last_member = temp_hostgroup->members;
 	for (temp_member = temp_hostgroup->members; temp_member != NULL; temp_member = temp_member->next) {
-		if (CMP_HASH(new_member->host_name, temp_member->host_name) < 0) {
+		if (strcmp(new_member->host_name, temp_member->host_name) < 0) {
 			new_member->next = temp_member;
 			if (temp_member == temp_hostgroup->members)
 				temp_hostgroup->members = new_member;
@@ -1253,12 +1239,9 @@ servicesmember *add_service_to_servicegroup(servicegroup *temp_servicegroup, cha
 	if ((new_member->host_name = (char *)strdup(host_name)) == NULL)
 		result = ERROR;
 
-	FILL_HASH(new_member->host_name);
 
 	if ((new_member->service_description = (char *)strdup(svc_description)) == NULL)
 		result = ERROR;
-
-	FILL_HASH(new_member->service_description);
 
 	/* handle errors */
 	if (result == ERROR) {
@@ -1268,10 +1251,13 @@ servicesmember *add_service_to_servicegroup(servicegroup *temp_servicegroup, cha
 		return NULL;
 	}
 
+	FILL_HASH(new_member->host_name);
+	FILL_HASH(new_member->service_description);
+
 	/* add new member to member list, sorted by host name then service description */
 	last_member = temp_servicegroup->members;
 	for (temp_member = temp_servicegroup->members; temp_member != NULL; temp_member = temp_member->next) {
-		int host_name_cmp = CMP_HASH(new_member->host_name, temp_member->host_name);
+		int host_name_cmp = strcmp(new_member->host_name, temp_member->host_name);
 		if (host_name_cmp < 0) {
 			new_member->next = temp_member;
 			if (temp_member == temp_servicegroup->members)
@@ -1281,7 +1267,7 @@ servicesmember *add_service_to_servicegroup(servicegroup *temp_servicegroup, cha
 			break;
 		}
 
-		else if (host_name_cmp == 0 && CMP_HASH(new_member->service_description, temp_member->service_description) < 0) {
+		else if (host_name_cmp == 0 && strcmp(new_member->service_description, temp_member->service_description) < 0) {
 			new_member->next = temp_member;
 			if (temp_member == temp_servicegroup->members)
 				temp_servicegroup->members = new_member;
@@ -1428,7 +1414,6 @@ contact *add_contact(char *name, char *alias, char *email, char *pager, char **a
 /* adds a host notification command to a contact definition */
 commandsmember *add_host_notification_command_to_contact(contact *cntct, char *command_name) {
 	commandsmember *new_commandsmember = NULL;
-	int result = OK;
 
 	/* make sure we have the data we need */
 	if (cntct == NULL || (command_name == NULL || !strcmp(command_name, ""))) {
@@ -1441,11 +1426,7 @@ commandsmember *add_host_notification_command_to_contact(contact *cntct, char *c
 		return NULL;
 
 	/* duplicate vars */
-	if ((new_commandsmember->command = (char *)strdup(command_name)) == NULL)
-		result = ERROR;
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_commandsmember->command = (char *)strdup(command_name)) == NULL) {
 		my_free(new_commandsmember->command);
 		my_free(new_commandsmember);
 		return NULL;
@@ -1463,7 +1444,6 @@ commandsmember *add_host_notification_command_to_contact(contact *cntct, char *c
 /* adds a service notification command to a contact definition */
 commandsmember *add_service_notification_command_to_contact(contact *cntct, char *command_name) {
 	commandsmember *new_commandsmember = NULL;
-	int result = OK;
 
 	/* make sure we have the data we need */
 	if (cntct == NULL || (command_name == NULL || !strcmp(command_name, ""))) {
@@ -1476,11 +1456,7 @@ commandsmember *add_service_notification_command_to_contact(contact *cntct, char
 		return NULL;
 
 	/* duplicate vars */
-	if ((new_commandsmember->command = (char *)strdup(command_name)) == NULL)
-		result = ERROR;
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_commandsmember->command = (char *)strdup(command_name)) == NULL) {
 		my_free(new_commandsmember->command);
 		my_free(new_commandsmember);
 		return NULL;
@@ -1567,7 +1543,6 @@ contactgroup *add_contactgroup(char *name, char *alias) {
 /* add a new member to a contact group */
 contactsmember *add_contact_to_contactgroup(contactgroup *grp, char *contact_name) {
 	contactsmember *new_contactsmember = NULL;
-	int result = OK;
 
 	/* make sure we have the data we need */
 	if (grp == NULL || (contact_name == NULL || !strcmp(contact_name, ""))) {
@@ -1580,11 +1555,7 @@ contactsmember *add_contact_to_contactgroup(contactgroup *grp, char *contact_nam
 		return NULL;
 
 	/* duplicate vars */
-	if ((new_contactsmember->contact_name = (char *)strdup(contact_name)) == NULL)
-		result = ERROR;
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_contactsmember->contact_name = (char *)strdup(contact_name)) == NULL) {
 		my_free(new_contactsmember->contact_name);
 		my_free(new_contactsmember);
 		return NULL;
@@ -1795,6 +1766,7 @@ service *add_service(char *host_name, char *description, char *display_name, cha
 		my_free(new_service->perf_data);
 		my_free(new_service->plugin_output);
 		my_free(new_service->long_plugin_output);
+		my_free(new_service->check_source);
 #endif
 		my_free(new_service->failure_prediction_options);
 		my_free(new_service->notification_period);
@@ -1824,7 +1796,6 @@ service *add_service(char *host_name, char *description, char *display_name, cha
 /* adds a contact group to a service */
 contactgroupsmember *add_contactgroup_to_service(service *svc, char *group_name) {
 	contactgroupsmember *new_contactgroupsmember = NULL;
-	int result = OK;
 
 	/* bail out if we weren't given the data we need */
 	if (svc == NULL || (group_name == NULL || !strcmp(group_name, ""))) {
@@ -1837,11 +1808,8 @@ contactgroupsmember *add_contactgroup_to_service(service *svc, char *group_name)
 		return NULL;
 
 	/* duplicate vars */
-	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL)
-		result = ERROR;
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL) {
+		my_free(new_contactgroupsmember->group_name);
 		my_free(new_contactgroupsmember);
 		return NULL;
 	}
@@ -2017,7 +1985,6 @@ serviceescalation *add_serviceescalation(char *host_name, char *description, int
 /* adds a contact group to a service escalation */
 contactgroupsmember *add_contactgroup_to_serviceescalation(serviceescalation *se, char *group_name) {
 	contactgroupsmember *new_contactgroupsmember = NULL;
-	int result = OK;
 
 	/* bail out if we weren't given the data we need */
 	if (se == NULL || (group_name == NULL || !strcmp(group_name, ""))) {
@@ -2030,11 +1997,7 @@ contactgroupsmember *add_contactgroup_to_serviceescalation(serviceescalation *se
 		return NULL;
 
 	/* duplicate vars */
-	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL)
-		result = ERROR;
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL) {
 		my_free(new_contactgroupsmember->group_name);
 		my_free(new_contactgroupsmember);
 		return NULL;
@@ -2380,7 +2343,6 @@ escalation_condition *add_serviceescalation_condition(serviceescalation *my_serv
 /* adds a contact group to a host escalation */
 contactgroupsmember *add_contactgroup_to_hostescalation(hostescalation *he, char *group_name) {
 	contactgroupsmember *new_contactgroupsmember = NULL;
-	int result = OK;
 
 	/* bail out if we weren't given the data we need */
 	if (he == NULL || (group_name == NULL || !strcmp(group_name, ""))) {
@@ -2393,11 +2355,7 @@ contactgroupsmember *add_contactgroup_to_hostescalation(hostescalation *he, char
 		return NULL;
 
 	/* duplicate vars */
-	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL)
-		result = ERROR;
-
-	/* handle errors */
-	if (result == ERROR) {
+	if ((new_contactgroupsmember->group_name = (char *)strdup(group_name)) == NULL) {
 		my_free(new_contactgroupsmember->group_name);
 		my_free(new_contactgroupsmember);
 		return NULL;
@@ -3531,6 +3489,7 @@ int free_object_data(void) {
 		my_free(this_host->long_plugin_output);
 		my_free(this_host->perf_data);
 		my_free(this_host->processed_command);
+		my_free(this_host->check_source);
 
 		free_objectlist(&this_host->hostgroups_ptr);
 #endif
@@ -3732,6 +3691,7 @@ int free_object_data(void) {
 		my_free(this_service->long_plugin_output);
 		my_free(this_service->perf_data);
 		my_free(this_service->processed_command);
+		my_free(this_service->check_source);
 
 		my_free(this_service->event_handler_args);
 		my_free(this_service->check_command_args);

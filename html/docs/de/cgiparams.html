@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.9 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.10 Dokumentation">
 <link rel="up" href="ch06.html" title="Kapitel 6. Die Benutzeroberflächen">
 <link rel="prev" href="cgis.html" title="6.1. Icinga Classic UI: Informationen über die CGIs">
 <link rel="next" href="cgicmd.html" title="6.3. Ausführen von CGIs auf der Kommandozeile">
@@ -38,6 +38,7 @@
 <dt><span class="section">6.2.6. <a href="cgiparams.html#cgiparams_abbrev">Abkürzungen, CGIs, Verweise</a></span></dt>
 <dt><span class="section">6.2.7. <a href="cgiparams.html#cgiparams-filter">Host und Service Filter Properties</a></span></dt>
 <dt><span class="section">6.2.8. <a href="cgiparams.html#cgiparams-statustypes">Host und Service Statustypen</a></span></dt>
+<dt><span class="section">6.2.9. <a href="cgiparams.html#idp188095600">Commands</a></span></dt>
 </dl></div>
   
 
@@ -2058,13 +2059,12 @@
 </tbody>
 </table>
     </div>
+  </div>
 
-    </div>
-
-    <div class="section" title="6.2.5. Einzelheiten zu den Parametern">
+  <div class="section" title="6.2.5. Einzelheiten zu den Parametern">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="cgiparams_expl"></a>6.2.5. Einzelheiten zu den Parametern</h3></div></div></div>
-	    
+    
 
     <p>Mehr Informationen zu den einzelnen Parametern finden Sie nachfolgend. Für ein tiefergehendes Verständnis sollten Sie einen Blick
     auf den Source-Code werfen.</p>
@@ -2169,7 +2169,8 @@
 <td>Command type</td>
 <td>0 - 169, 999</td>
 <td>cmd_typ=160</td>
-<td>Einzelheiten siehe .../include/common.h</td>
+<td>Einzelheiten siehe <a class="link" href="cgiparams.html#cgiparams-commands">hier</a>
+</td>
 </tr>
 <tr>
 <td><a class="link" href="cgiparams.html#cgiparams-columns">columns</a></td>
@@ -2866,14 +2867,12 @@
     <p>[6] Entfällt ab Icinga 1.8.</p>
 
     <p>[7] Undokumentiert seit Icinga 1.2.</p>
+  </div>
 
-
-    </div>
-
-    <div class="section" title="6.2.6. Abkürzungen, CGIs, Verweise">
+  <div class="section" title="6.2.6. Abkürzungen, CGIs, Verweise">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="cgiparams_abbrev"></a>6.2.6. Abkürzungen, CGIs, Verweise</h3></div></div></div>
-	    
+    
 
     <p>Abkürzungen, die in der ersten Tabelle benutzt werden, Beziehungen zu CGIs- und Menüeintragen sowie Verweise auf den Source-Code
     in &lt;icinga-core&gt;/cgis.</p>
@@ -2980,13 +2979,12 @@
 </tbody>
 </table>
     </div>
+  </div>
 
-    </div>
-
-    <div class="section" title="6.2.7. Host und Service Filter Properties">
+  <div class="section" title="6.2.7. Host und Service Filter Properties">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="cgiparams-filter"></a>6.2.7. Host und Service Filter Properties</h3></div></div></div>
-	
+    
 
     <p><span class="bold"><strong>Ausschnitt aus include/cgiutils.h</strong></span></p>
 
@@ -3037,15 +3035,14 @@
 #define SERVICE_SOFT_STATE              524288
 #define SERVICE_STATE_HANDLED           1048576
 #define SERVICE_NOT_ALL_CHECKS_DISABLED 2097152</pre>
+  </div>
 
-    </div>
-
-    <div class="section" title="6.2.8. Host und Service Statustypen">
+  <div class="section" title="6.2.8. Host und Service Statustypen">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="cgiparams-statustypes"></a>6.2.8. Host und Service Statustypen</h3></div></div></div>
-	
+    
 
-    <p><span class="bold"><strong>Excerpt from include/statusdata.h</strong></span></p>
+    <p><span class="bold"><strong>Ausschnitt aus include/statusdata.h</strong></span></p>
 
     <pre class="programlisting">/*************************** SERVICE STATES ***************************/
 #define SERVICE_PENDING  1
@@ -3059,230 +3056,477 @@
 #define HOST_UP          2
 #define HOST_DOWN        4
 #define HOST_UNREACHABLE 8</pre>
+  </div>
+
+  <div class="section" title="6.2.9. Commands">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idp188095600"></a>6.2.9. <a name="cgiparams-commands"></a>Commands</h3></div></div></div>
+    
+
+    <p><span class="bold"><strong>Ausschnitt aus include/common.h</strong></span></p>
+
+    <pre class="programlisting">/***************************** COMMANDS *********************************/
+
+#define CMD_NONE                                           0
 
-    <a class="indexterm" name="idp12168496"></a>
+#define CMD_ADD_HOST_COMMENT                               1
+#define CMD_DEL_HOST_COMMENT                               2
+#define CMD_ADD_SVC_COMMENT                                3
+#define CMD_DEL_SVC_COMMENT                                4
+
+#define CMD_ENABLE_SVC_CHECK                               5
+#define CMD_DISABLE_SVC_CHECK                              6
+#define CMD_SCHEDULE_SVC_CHECK                             7
+
+#define CMD_DELAY_SVC_NOTIFICATION                         9
+#define CMD_DELAY_HOST_NOTIFICATION                        10
+#define CMD_DISABLE_NOTIFICATIONS                          11
+#define CMD_ENABLE_NOTIFICATIONS                           12
 
-    <a class="indexterm" name="idp12170192"></a>
+#define CMD_RESTART_PROCESS                                13
+#define CMD_SHUTDOWN_PROCESS                               14
+
+#define CMD_ENABLE_HOST_SVC_CHECKS                         15
+#define CMD_DISABLE_HOST_SVC_CHECKS                        16
+#define CMD_SCHEDULE_HOST_SVC_CHECKS                       17
+
+#define CMD_DEL_ALL_HOST_COMMENTS                          20
+#define CMD_DEL_ALL_SVC_COMMENTS                           21
 
-    <a class="indexterm" name="idp12171808"></a>
+#define CMD_ENABLE_SVC_NOTIFICATIONS                       22
+#define CMD_DISABLE_SVC_NOTIFICATIONS                      23
+#define CMD_ENABLE_HOST_NOTIFICATIONS                      24
+#define CMD_DISABLE_HOST_NOTIFICATIONS                     25
+#define CMD_ENABLE_ALL_NOTIFICATIONS_BEYOND_HOST           26
+#define CMD_DISABLE_ALL_NOTIFICATIONS_BEYOND_HOST          27
+#define CMD_ENABLE_HOST_SVC_NOTIFICATIONS                  28
+#define CMD_DISABLE_HOST_SVC_NOTIFICATIONS                 29
+
+#define CMD_PROCESS_SERVICE_CHECK_RESULT                   30
+
+#define CMD_SAVE_STATE_INFORMATION                         31
+#define CMD_READ_STATE_INFORMATION                         32
+
+#define CMD_ACKNOWLEDGE_HOST_PROBLEM                       33
+#define CMD_ACKNOWLEDGE_SVC_PROBLEM                        34
+
+#define CMD_START_EXECUTING_SVC_CHECKS                     35
+#define CMD_STOP_EXECUTING_SVC_CHECKS                      36
+#define CMD_START_ACCEPTING_PASSIVE_SVC_CHECKS             37
+#define CMD_STOP_ACCEPTING_PASSIVE_SVC_CHECKS              38
+#define CMD_ENABLE_PASSIVE_SVC_CHECKS                      39
+#define CMD_DISABLE_PASSIVE_SVC_CHECKS                     40
+
+#define CMD_ENABLE_EVENT_HANDLERS                          41
+#define CMD_DISABLE_EVENT_HANDLERS                         42
+#define CMD_ENABLE_HOST_EVENT_HANDLER                      43
+#define CMD_DISABLE_HOST_EVENT_HANDLER                     44
+#define CMD_ENABLE_SVC_EVENT_HANDLER                       45
+#define CMD_DISABLE_SVC_EVENT_HANDLER                      46
+
+#define CMD_ENABLE_HOST_CHECK                              47
+#define CMD_DISABLE_HOST_CHECK                             48
+
+#define CMD_START_OBSESSING_OVER_SVC_CHECKS                49
+#define CMD_STOP_OBSESSING_OVER_SVC_CHECKS                 50
+
+#define CMD_REMOVE_HOST_ACKNOWLEDGEMENT                    51
+#define CMD_REMOVE_SVC_ACKNOWLEDGEMENT                     52
+
+#define CMD_SCHEDULE_FORCED_HOST_SVC_CHECKS                53
+#define CMD_SCHEDULE_FORCED_SVC_CHECK                      54
+
+#define CMD_SCHEDULE_HOST_DOWNTIME                         55
+#define CMD_SCHEDULE_SVC_DOWNTIME                          56
+
+#define CMD_ENABLE_HOST_FLAP_DETECTION                     57
+#define CMD_DISABLE_HOST_FLAP_DETECTION                    58
+#define CMD_ENABLE_SVC_FLAP_DETECTION                      59
+#define CMD_DISABLE_SVC_FLAP_DETECTION                     60
+#define CMD_ENABLE_FLAP_DETECTION                          61
+#define CMD_DISABLE_FLAP_DETECTION                         62
+
+#define CMD_ENABLE_HOSTGROUP_SVC_NOTIFICATIONS             63
+#define CMD_DISABLE_HOSTGROUP_SVC_NOTIFICATIONS            64
+#define CMD_ENABLE_HOSTGROUP_HOST_NOTIFICATIONS            65
+#define CMD_DISABLE_HOSTGROUP_HOST_NOTIFICATIONS           66
+
+#define CMD_ENABLE_HOSTGROUP_SVC_CHECKS                    67
+#define CMD_DISABLE_HOSTGROUP_SVC_CHECKS                   68
+
+#define CMD_CANCEL_HOST_DOWNTIME                           69 /* not internally implemented */
+#define CMD_CANCEL_SVC_DOWNTIME                            70 /* not internally implemented */
+#define CMD_CANCEL_ACTIVE_HOST_DOWNTIME                    71 /* old - no longer used */
+#define CMD_CANCEL_PENDING_HOST_DOWNTIME                   72 /* old - no longer used */
+#define CMD_CANCEL_ACTIVE_SVC_DOWNTIME                     73 /* old - no longer used */
+#define CMD_CANCEL_PENDING_SVC_DOWNTIME                    74 /* old - no longer used */
+#define CMD_CANCEL_ACTIVE_HOST_SVC_DOWNTIME                75 /* unimplemented */
+#define CMD_CANCEL_PENDING_HOST_SVC_DOWNTIME               76 /* unimplemented */
 
-    <a class="indexterm" name="idp12173008"></a>
+#define CMD_FLUSH_PENDING_COMMANDS                         77
 
-    <a class="indexterm" name="idp12174016"></a>
+#define CMD_DEL_HOST_DOWNTIME                              78
+#define CMD_DEL_SVC_DOWNTIME                               79
 
-    <a class="indexterm" name="idp12175792"></a>
+#define CMD_ENABLE_FAILURE_PREDICTION                      80
+#define CMD_DISABLE_FAILURE_PREDICTION                     81
+
+#define CMD_ENABLE_PERFORMANCE_DATA                        82
+#define CMD_DISABLE_PERFORMANCE_DATA                       83
 
-    <a class="indexterm" name="idp12176928"></a>
+#define CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME               84
+#define CMD_SCHEDULE_HOSTGROUP_SVC_DOWNTIME                85
+#define CMD_SCHEDULE_HOST_SVC_DOWNTIME                     86
 
-    <a class="indexterm" name="idp12178112"></a>
+#define CMD_PROCESS_HOST_CHECK_RESULT                      87
 
-    <a class="indexterm" name="idp12179680"></a>
+#define CMD_START_EXECUTING_HOST_CHECKS                    88
+#define CMD_STOP_EXECUTING_HOST_CHECKS                     89
+#define CMD_START_ACCEPTING_PASSIVE_HOST_CHECKS            90
+#define CMD_STOP_ACCEPTING_PASSIVE_HOST_CHECKS             91
+#define CMD_ENABLE_PASSIVE_HOST_CHECKS                     92
+#define CMD_DISABLE_PASSIVE_HOST_CHECKS                    93
+#define CMD_START_OBSESSING_OVER_HOST_CHECKS               94
+#define CMD_STOP_OBSESSING_OVER_HOST_CHECKS                95
 
-    <a class="indexterm" name="idp12181376"></a>
+#define CMD_SCHEDULE_HOST_CHECK                            96
+#define CMD_SCHEDULE_FORCED_HOST_CHECK                     98
 
-    <a class="indexterm" name="idp12182944"></a>
+#define CMD_START_OBSESSING_OVER_SVC                       99
+#define CMD_STOP_OBSESSING_OVER_SVC                        100
+#define CMD_START_OBSESSING_OVER_HOST                      101
+#define CMD_STOP_OBSESSING_OVER_HOST                       102
 
-    <a class="indexterm" name="idp12184576"></a>
+#define CMD_ENABLE_HOSTGROUP_HOST_CHECKS                   103
+#define CMD_DISABLE_HOSTGROUP_HOST_CHECKS                  104
+#define CMD_ENABLE_HOSTGROUP_PASSIVE_SVC_CHECKS            105
+#define CMD_DISABLE_HOSTGROUP_PASSIVE_SVC_CHECKS           106
+#define CMD_ENABLE_HOSTGROUP_PASSIVE_HOST_CHECKS           107
+#define CMD_DISABLE_HOSTGROUP_PASSIVE_HOST_CHECKS          108
 
-    <a class="indexterm" name="idp12186208"></a>
+#define CMD_ENABLE_SERVICEGROUP_SVC_NOTIFICATIONS          109
+#define CMD_DISABLE_SERVICEGROUP_SVC_NOTIFICATIONS         110
+#define CMD_ENABLE_SERVICEGROUP_HOST_NOTIFICATIONS         111
+#define CMD_DISABLE_SERVICEGROUP_HOST_NOTIFICATIONS        112
 
-    <a class="indexterm" name="idp12187840"></a>
+#define CMD_ENABLE_SERVICEGROUP_SVC_CHECKS                 113
+#define CMD_DISABLE_SERVICEGROUP_SVC_CHECKS                114
+#define CMD_ENABLE_SERVICEGROUP_HOST_CHECKS                115
+#define CMD_DISABLE_SERVICEGROUP_HOST_CHECKS               116
 
-    <a class="indexterm" name="idp12189536"></a>
+#define CMD_ENABLE_SERVICEGROUP_PASSIVE_SVC_CHECKS         117
+#define CMD_DISABLE_SERVICEGROUP_PASSIVE_SVC_CHECKS        118
+#define CMD_ENABLE_SERVICEGROUP_PASSIVE_HOST_CHECKS        119
+#define CMD_DISABLE_SERVICEGROUP_PASSIVE_HOST_CHECKS       120
 
-    <a class="indexterm" name="idp12191168"></a>
+#define CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME            121
+#define CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME             122
 
-    <a class="indexterm" name="idp12192768"></a>
+#define CMD_CHANGE_GLOBAL_HOST_EVENT_HANDLER               123
+#define CMD_CHANGE_GLOBAL_SVC_EVENT_HANDLER                124
+#define CMD_CHANGE_HOST_EVENT_HANDLER                      125
+#define CMD_CHANGE_SVC_EVENT_HANDLER                       126
 
-    <a class="indexterm" name="idp12194464"></a>
+#define CMD_CHANGE_HOST_CHECK_COMMAND                      127
+#define CMD_CHANGE_SVC_CHECK_COMMAND                       128
 
-    <a class="indexterm" name="idp12196080"></a>
+#define CMD_CHANGE_NORMAL_HOST_CHECK_INTERVAL              129
+#define CMD_CHANGE_NORMAL_SVC_CHECK_INTERVAL               130
+#define CMD_CHANGE_RETRY_SVC_CHECK_INTERVAL                131
 
-    <a class="indexterm" name="idp12197696"></a>
+#define CMD_CHANGE_MAX_HOST_CHECK_ATTEMPTS                 132
+#define CMD_CHANGE_MAX_SVC_CHECK_ATTEMPTS                  133
 
-    <a class="indexterm" name="idp12199312"></a>
+#define CMD_SCHEDULE_AND_PROPAGATE_TRIGGERED_HOST_DOWNTIME 134
 
-    <a class="indexterm" name="idp12200928"></a>
+#define CMD_ENABLE_HOST_AND_CHILD_NOTIFICATIONS            135
+#define CMD_DISABLE_HOST_AND_CHILD_NOTIFICATIONS           136
 
-    <a class="indexterm" name="idp12202544"></a>
+#define CMD_SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME           137
 
-    <a class="indexterm" name="idp12204160"></a>
+#define CMD_ENABLE_SERVICE_FRESHNESS_CHECKS                138
+#define CMD_DISABLE_SERVICE_FRESHNESS_CHECKS               139
+#define CMD_ENABLE_HOST_FRESHNESS_CHECKS                   140
+#define CMD_DISABLE_HOST_FRESHNESS_CHECKS                  141
 
-    <a class="indexterm" name="idp12205776"></a>
+#define CMD_SET_HOST_NOTIFICATION_NUMBER                   142
+#define CMD_SET_SVC_NOTIFICATION_NUMBER                    143
 
-    <a class="indexterm" name="idp12207392"></a>
+#define CMD_CHANGE_HOST_CHECK_TIMEPERIOD                   144  
+#define CMD_CHANGE_SVC_CHECK_TIMEPERIOD                    145
 
-    <a class="indexterm" name="idp12209008"></a>
+#define CMD_PROCESS_FILE                                   146
 
-    <a class="indexterm" name="idp12210624"></a>
+#define CMD_CHANGE_CUSTOM_HOST_VAR                         147
+#define CMD_CHANGE_CUSTOM_SVC_VAR                          148
+#define CMD_CHANGE_CUSTOM_CONTACT_VAR                      149
 
-    <a class="indexterm" name="idp12212240"></a>
+#define CMD_ENABLE_CONTACT_HOST_NOTIFICATIONS              150
+#define CMD_DISABLE_CONTACT_HOST_NOTIFICATIONS             151
+#define CMD_ENABLE_CONTACT_SVC_NOTIFICATIONS               152
+#define CMD_DISABLE_CONTACT_SVC_NOTIFICATIONS              153
 
-    <a class="indexterm" name="idp12213856"></a>
+#define CMD_ENABLE_CONTACTGROUP_HOST_NOTIFICATIONS         154
+#define CMD_DISABLE_CONTACTGROUP_HOST_NOTIFICATIONS        155
+#define CMD_ENABLE_CONTACTGROUP_SVC_NOTIFICATIONS          156
+#define CMD_DISABLE_CONTACTGROUP_SVC_NOTIFICATIONS         157
 
-    <a class="indexterm" name="idp12215472"></a>
+#define CMD_CHANGE_RETRY_HOST_CHECK_INTERVAL               158
 
-    <a class="indexterm" name="idp12217088"></a>
+#define CMD_SEND_CUSTOM_HOST_NOTIFICATION                  159
+#define CMD_SEND_CUSTOM_SVC_NOTIFICATION                   160
 
-    <a class="indexterm" name="idp12218704"></a>
+#define CMD_CHANGE_HOST_NOTIFICATION_TIMEPERIOD            161
+#define CMD_CHANGE_SVC_NOTIFICATION_TIMEPERIOD             162
+#define CMD_CHANGE_CONTACT_HOST_NOTIFICATION_TIMEPERIOD    163
+#define CMD_CHANGE_CONTACT_SVC_NOTIFICATION_TIMEPERIOD     164
 
-    <a class="indexterm" name="idp12220320"></a>
+#define CMD_CHANGE_HOST_MODATTR                            165
+#define CMD_CHANGE_SVC_MODATTR                             166
+#define CMD_CHANGE_CONTACT_MODATTR                         167
+#define CMD_CHANGE_CONTACT_MODHATTR                        168
+#define CMD_CHANGE_CONTACT_MODSATTR                        169
 
-    <a class="indexterm" name="idp12221936"></a>
+#define CMD_SYNC_STATE_INFORMATION                         170
 
-    <a class="indexterm" name="idp12223552"></a>
+#define CMD_DEL_DOWNTIME_BY_HOST_NAME                      171
+#define CMD_DEL_DOWNTIME_BY_HOSTGROUP_NAME                 172
+#define CMD_DEL_DOWNTIME_BY_START_TIME_COMMENT             173
 
-    <a class="indexterm" name="idp12225168"></a>
+#define CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE                174
+#define CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE                 175
 
-    <a class="indexterm" name="idp12226784"></a>
+#define CMD_DISABLE_NOTIFICATIONS_EXPIRE_TIME              176
 
-    <a class="indexterm" name="idp12228400"></a>
+#define CMD_CUSTOM_COMMAND                                 999
+#define CMD_INTERNAL_CHANGE_HOST_CHECK_RETRY_INTERVAL     1001
+#define CMD_INTERNAL_CHANGE_SVC_CHECK_RETRY_INTERVAL      1002</pre>
 
-    <a class="indexterm" name="idp12229984"></a>
+    <a class="indexterm" name="idp188112192"></a>
 
-    <a class="indexterm" name="idp12231552"></a>
+    <a class="indexterm" name="idp188113584"></a>
 
-    <a class="indexterm" name="idp12233184"></a>
+    <a class="indexterm" name="idp188115376"></a>
 
-    <a class="indexterm" name="idp12234880"></a>
+    <a class="indexterm" name="idp188116384"></a>
 
-    <a class="indexterm" name="idp12236448"></a>
+    <a class="indexterm" name="idp188117472"></a>
 
-    <a class="indexterm" name="idp12238144"></a>
+    <a class="indexterm" name="idp188119200"></a>
 
-    <a class="indexterm" name="idp12239776"></a>
+    <a class="indexterm" name="idp188120288"></a>
 
-    <a class="indexterm" name="idp12241440"></a>
+    <a class="indexterm" name="idp188121376"></a>
 
-    <a class="indexterm" name="idp12243072"></a>
+    <a class="indexterm" name="idp188123168"></a>
 
-    <a class="indexterm" name="idp12244768"></a>
+    <a class="indexterm" name="idp188124784"></a>
 
-    <a class="indexterm" name="idp12246320"></a>
+    <a class="indexterm" name="idp188126464"></a>
 
-    <a class="indexterm" name="idp12248016"></a>
+    <a class="indexterm" name="idp188127952"></a>
 
-    <a class="indexterm" name="idp12249504"></a>
+    <a class="indexterm" name="idp188129584"></a>
 
-    <a class="indexterm" name="idp12251136"></a>
+    <a class="indexterm" name="idp188131168"></a>
 
-    <a class="indexterm" name="idp12252768"></a>
+    <a class="indexterm" name="idp188132928"></a>
 
-    <a class="indexterm" name="idp12254432"></a>
+    <a class="indexterm" name="idp188134448"></a>
 
-    <a class="indexterm" name="idp12256064"></a>
+    <a class="indexterm" name="idp188136032"></a>
 
-    <a class="indexterm" name="idp12257728"></a>
+    <a class="indexterm" name="idp188137792"></a>
 
-    <a class="indexterm" name="idp12259360"></a>
+    <a class="indexterm" name="idp188139312"></a>
 
-    <a class="indexterm" name="idp12260992"></a>
+    <a class="indexterm" name="idp188140928"></a>
 
-    <a class="indexterm" name="idp12262624"></a>
+    <a class="indexterm" name="idp188142544"></a>
 
-    <a class="indexterm" name="idp12264256"></a>
+    <a class="indexterm" name="idp188144160"></a>
 
-    <a class="indexterm" name="idp12265888"></a>
+    <a class="indexterm" name="idp188145776"></a>
 
-    <a class="indexterm" name="idp12267520"></a>
+    <a class="indexterm" name="idp188147392"></a>
 
-    <a class="indexterm" name="idp12269152"></a>
+    <a class="indexterm" name="idp188149008"></a>
 
-    <a class="indexterm" name="idp12270784"></a>
+    <a class="indexterm" name="idp188150624"></a>
 
-    <a class="indexterm" name="idp12272416"></a>
+    <a class="indexterm" name="idp188152240"></a>
 
-    <a class="indexterm" name="idp12274048"></a>
+    <a class="indexterm" name="idp188153856"></a>
 
-    <a class="indexterm" name="idp12275680"></a>
+    <a class="indexterm" name="idp188155472"></a>
 
-    <a class="indexterm" name="idp12277312"></a>
+    <a class="indexterm" name="idp188157088"></a>
 
-    <a class="indexterm" name="idp12278944"></a>
+    <a class="indexterm" name="idp188158704"></a>
 
-    <a class="indexterm" name="idp12280576"></a>
+    <a class="indexterm" name="idp188160320"></a>
 
-    <a class="indexterm" name="idp12282272"></a>
+    <a class="indexterm" name="idp188161936"></a>
 
-    <a class="indexterm" name="idp12283824"></a>
+    <a class="indexterm" name="idp188163552"></a>
 
-    <a class="indexterm" name="idp12285456"></a>
+    <a class="indexterm" name="idp188165168"></a>
 
-    <a class="indexterm" name="idp12287088"></a>
+    <a class="indexterm" name="idp188166784"></a>
 
-    <a class="indexterm" name="idp12288720"></a>
+    <a class="indexterm" name="idp188168400"></a>
 
-    <a class="indexterm" name="idp12290352"></a>
+    <a class="indexterm" name="idp188170016"></a>
 
-    <a class="indexterm" name="idp12291984"></a>
+    <a class="indexterm" name="idp188171632"></a>
 
-    <a class="indexterm" name="idp12293616"></a>
+    <a class="indexterm" name="idp188173216"></a>
 
-    <a class="indexterm" name="idp12295248"></a>
+    <a class="indexterm" name="idp188174848"></a>
 
-    <a class="indexterm" name="idp12296880"></a>
+    <a class="indexterm" name="idp188176480"></a>
 
-    <a class="indexterm" name="idp12298512"></a>
+    <a class="indexterm" name="idp188178240"></a>
 
-    <a class="indexterm" name="idp12300208"></a>
+    <a class="indexterm" name="idp188179728"></a>
 
-    <a class="indexterm" name="idp12301760"></a>
+    <a class="indexterm" name="idp188181488"></a>
 
-    <a class="indexterm" name="idp12303392"></a>
+    <a class="indexterm" name="idp188183008"></a>
 
-    <a class="indexterm" name="idp12305024"></a>
+    <a class="indexterm" name="idp188184624"></a>
 
-    <a class="indexterm" name="idp12306656"></a>
+    <a class="indexterm" name="idp188186240"></a>
 
-    <a class="indexterm" name="idp12308288"></a>
+    <a class="indexterm" name="idp188187824"></a>
 
-    <a class="indexterm" name="idp12309984"></a>
+    <a class="indexterm" name="idp188189584"></a>
 
-    <a class="indexterm" name="idp12311472"></a>
+    <a class="indexterm" name="idp188191072"></a>
 
-    <a class="indexterm" name="idp12313168"></a>
+    <a class="indexterm" name="idp188192704"></a>
 
-    <a class="indexterm" name="idp12314752"></a>
+    <a class="indexterm" name="idp188194336"></a>
 
-    <a class="indexterm" name="idp12316320"></a>
+    <a class="indexterm" name="idp188195984"></a>
 
-    <a class="indexterm" name="idp12318016"></a>
+    <a class="indexterm" name="idp188197744"></a>
 
-    <a class="indexterm" name="idp12319648"></a>
+    <a class="indexterm" name="idp188199264"></a>
 
-    <a class="indexterm" name="idp12321312"></a>
+    <a class="indexterm" name="idp188200880"></a>
 
-    <a class="indexterm" name="idp12322944"></a>
+    <a class="indexterm" name="idp188202496"></a>
 
-    <a class="indexterm" name="idp12324576"></a>
+    <a class="indexterm" name="idp188204112"></a>
 
-    <a class="indexterm" name="idp12326272"></a>
+    <a class="indexterm" name="idp188205728"></a>
 
-    <a class="indexterm" name="idp12327824"></a>
+    <a class="indexterm" name="idp188207344"></a>
 
-    <a class="indexterm" name="idp12329456"></a>
+    <a class="indexterm" name="idp188208960"></a>
 
-    <a class="indexterm" name="idp12331088"></a>
+    <a class="indexterm" name="idp188210576"></a>
 
-    <a class="indexterm" name="idp12332720"></a>
+    <a class="indexterm" name="idp188212192"></a>
 
-    <a class="indexterm" name="idp12334352"></a>
+    <a class="indexterm" name="idp188213808"></a>
 
-    <a class="indexterm" name="idp12335984"></a>
+    <a class="indexterm" name="idp188215424"></a>
 
-    <a class="indexterm" name="idp12337616"></a>
+    <a class="indexterm" name="idp188217040"></a>
 
-    <a class="indexterm" name="idp12339248"></a>
+    <a class="indexterm" name="idp188218656"></a>
 
-    <a class="indexterm" name="idp12340880"></a>
+    <a class="indexterm" name="idp188220272"></a>
 
-    <a class="indexterm" name="idp12342512"></a>
+    <a class="indexterm" name="idp188221888"></a>
 
-    <a class="indexterm" name="idp12344144"></a>
+    <a class="indexterm" name="idp188223504"></a>
 
-    <a class="indexterm" name="idp12345776"></a>
+    <a class="indexterm" name="idp188225088"></a>
 
-    <a class="indexterm" name="idp12347408"></a>
+    <a class="indexterm" name="idp188226848"></a>
+
+    <a class="indexterm" name="idp188228368"></a>
+
+    <a class="indexterm" name="idp188229984"></a>
+
+    <a class="indexterm" name="idp188231600"></a>
+
+    <a class="indexterm" name="idp188233216"></a>
+
+    <a class="indexterm" name="idp188234832"></a>
+
+    <a class="indexterm" name="idp188236448"></a>
+
+    <a class="indexterm" name="idp188238064"></a>
+
+    <a class="indexterm" name="idp188239680"></a>
+
+    <a class="indexterm" name="idp188241296"></a>
+
+    <a class="indexterm" name="idp188242880"></a>
+
+    <a class="indexterm" name="idp188244640"></a>
+
+    <a class="indexterm" name="idp188246160"></a>
+
+    <a class="indexterm" name="idp188247776"></a>
+
+    <a class="indexterm" name="idp188249392"></a>
+
+    <a class="indexterm" name="idp188251008"></a>
+
+    <a class="indexterm" name="idp188252592"></a>
+
+    <a class="indexterm" name="idp188254224"></a>
+
+    <a class="indexterm" name="idp188255984"></a>
+
+    <a class="indexterm" name="idp188257472"></a>
+
+    <a class="indexterm" name="idp188259104"></a>
+
+    <a class="indexterm" name="idp188260864"></a>
+
+    <a class="indexterm" name="idp188262384"></a>
+
+    <a class="indexterm" name="idp188264000"></a>
+
+    <a class="indexterm" name="idp188265616"></a>
+
+    <a class="indexterm" name="idp188267232"></a>
+
+    <a class="indexterm" name="idp188268816"></a>
+
+    <a class="indexterm" name="idp188270576"></a>
+
+    <a class="indexterm" name="idp188272096"></a>
+
+    <a class="indexterm" name="idp188273712"></a>
+
+    <a class="indexterm" name="idp188275328"></a>
+
+    <a class="indexterm" name="idp188276944"></a>
+
+    <a class="indexterm" name="idp188278560"></a>
+
+    <a class="indexterm" name="idp188280176"></a>
+
+    <a class="indexterm" name="idp188281792"></a>
+
+    <a class="indexterm" name="idp188283408"></a>
+
+    <a class="indexterm" name="idp188285024"></a>
+
+    <a class="indexterm" name="idp188286640"></a>
+
+    <a class="indexterm" name="idp188288256"></a>
+
+    <a class="indexterm" name="idp188289872"></a>
+
+    <a class="indexterm" name="idp188291488"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -3302,6 +3546,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>
