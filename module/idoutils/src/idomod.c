@@ -56,6 +56,8 @@ int idomod_config_output_options = IDOMOD_CONFIG_DUMP_ALL;
 unsigned long idomod_sink_buffer_slots = 5000;
 idomod_sink_buffer sinkbuf;
 
+int dump_customvar_status = IDO_FALSE;
+
 char *idomod_debug_file = NULL;
 int idomod_debug_level = IDOMOD_DEBUGL_NONE;
 int idomod_debug_verbosity = IDOMOD_DEBUGV_BASIC;
@@ -482,6 +484,10 @@ int idomod_process_config_var(char *arg) {
 			else
 				use_ssl = 0;
 		}
+	}
+
+	else if (!strcmp(var, "dump_customvar_status")) {
+		dump_customvar_status = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
 	}
 
 	else {
@@ -1159,8 +1165,6 @@ int idomod_register_callbacks(void) {
 	if (result == IDO_OK)
 		result = neb_register_callback(NEBCALLBACK_PROCESS_DATA, idomod_module_handle, priority, idomod_broker_data);
 	if (result == IDO_OK)
-		result = neb_register_callback(NEBCALLBACK_TIMED_EVENT_DATA, idomod_module_handle, priority, idomod_broker_data);
-	if (result == IDO_OK)
 		result = neb_register_callback(NEBCALLBACK_LOG_DATA, idomod_module_handle, priority, idomod_broker_data);
 	if (result == IDO_OK)
 		result = neb_register_callback(NEBCALLBACK_SYSTEM_COMMAND_DATA, idomod_module_handle, priority, idomod_broker_data);
@@ -1221,7 +1225,6 @@ int idomod_deregister_callbacks(void) {
 	idomod_log_debug_info(IDOMOD_DEBUGL_PROCESSINFO, 2, "idomod_deregister_callbacks() start\n");
 
 	neb_deregister_callback(NEBCALLBACK_PROCESS_DATA, idomod_broker_data);
-	neb_deregister_callback(NEBCALLBACK_TIMED_EVENT_DATA, idomod_broker_data);
 	neb_deregister_callback(NEBCALLBACK_LOG_DATA, idomod_broker_data);
 	neb_deregister_callback(NEBCALLBACK_SYSTEM_COMMAND_DATA, idomod_broker_data);
 	neb_deregister_callback(NEBCALLBACK_EVENT_HANDLER_DATA, idomod_broker_data);
@@ -1317,10 +1320,6 @@ int idomod_broker_data(int event_type, void *data) {
 
 	case NEBCALLBACK_PROCESS_DATA:
 		if (!(idomod_process_options & IDOMOD_PROCESS_PROCESS_DATA))
-			return 0;
-		break;
-	case NEBCALLBACK_TIMED_EVENT_DATA:
-		if (!(idomod_process_options & IDOMOD_PROCESS_TIMED_EVENT_DATA))
 			return 0;
 		break;
 	case NEBCALLBACK_LOG_DATA:
@@ -1467,145 +1466,15 @@ int idomod_broker_data(int event_type, void *data) {
 
 		break;
 
-	case NEBCALLBACK_TIMED_EVENT_DATA:
-
-		eventdata = (nebstruct_timed_event_data *)data;
-
-		switch (eventdata->event_type) {
-
-		case EVENT_SERVICE_CHECK:
-			temp_service = (service *)eventdata->event_data;
-
-			es[0] = ido_escape_buffer(temp_service->host_name);
-			es[1] = ido_escape_buffer(temp_service->description);
-
-			snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-			         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%d\n%d=%lu\n%d=%s\n%d=%s\n%d\n\n"
-			         , IDO_API_TIMEDEVENTDATA
-			         , IDO_DATA_TYPE
-			         , eventdata->type
-			         , IDO_DATA_FLAGS
-			         , eventdata->flags
-			         , IDO_DATA_ATTRIBUTES
-			         , eventdata->attr
-			         , IDO_DATA_TIMESTAMP
-			         , eventdata->timestamp.tv_sec
-			         , eventdata->timestamp.tv_usec
-			         , IDO_DATA_EVENTTYPE
-			         , eventdata->event_type
-			         , IDO_DATA_RECURRING
-			         , eventdata->recurring
-			         , IDO_DATA_RUNTIME
-			         , (unsigned long)eventdata->run_time
-			         , IDO_DATA_HOST
-			         , (es[0] == NULL) ? "" : es[0]
-			         , IDO_DATA_SERVICE
-			         , (es[1] == NULL) ? "" : es[1]
-			         , IDO_API_ENDDATA
-			        );
-
-			break;
-
-		case EVENT_HOST_CHECK:
-			temp_host = (host *)eventdata->event_data;
-
-			es[0] = ido_escape_buffer(temp_host->name);
-
-			snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-			         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%d\n%d=%lu\n%d=%s\n%d\n\n"
-			         , IDO_API_TIMEDEVENTDATA
-			         , IDO_DATA_TYPE
-			         , eventdata->type
-			         , IDO_DATA_FLAGS
-			         , eventdata->flags
-			         , IDO_DATA_ATTRIBUTES
-			         , eventdata->attr
-			         , IDO_DATA_TIMESTAMP
-			         , eventdata->timestamp.tv_sec
-			         , eventdata->timestamp.tv_usec
-			         , IDO_DATA_EVENTTYPE
-			         , eventdata->event_type
-			         , IDO_DATA_RECURRING
-			         , eventdata->recurring
-			         , IDO_DATA_RUNTIME
-			         , (unsigned long)eventdata->run_time
-			         , IDO_DATA_HOST
-			         , (es[0] == NULL) ? "" : es[0]
-			         , IDO_API_ENDDATA
-			        );
-
-			break;
-
-		case EVENT_SCHEDULED_DOWNTIME:
-			temp_downtime = find_downtime(ANY_DOWNTIME, (unsigned long)eventdata->event_data);
-
-			if (temp_downtime != NULL) {
-				es[0] = ido_escape_buffer(temp_downtime->host_name);
-				es[1] = ido_escape_buffer(temp_downtime->service_description);
-			}
-
-			snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-			         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%d\n%d=%lu\n%d=%s\n%d=%s\n%d\n\n"
-			         , IDO_API_TIMEDEVENTDATA
-			         , IDO_DATA_TYPE
-			         , eventdata->type
-			         , IDO_DATA_FLAGS
-			         , eventdata->flags
-			         , IDO_DATA_ATTRIBUTES
-			         , eventdata->attr
-			         , IDO_DATA_TIMESTAMP
-			         , eventdata->timestamp.tv_sec
-			         , eventdata->timestamp.tv_usec
-			         , IDO_DATA_EVENTTYPE
-			         , eventdata->event_type
-			         , IDO_DATA_RECURRING
-			         , eventdata->recurring
-			         , IDO_DATA_RUNTIME
-			         , (unsigned long)eventdata->run_time
-			         , IDO_DATA_HOST
-			         , (es[0] == NULL) ? "" : es[0]
-			         , IDO_DATA_SERVICE
-			         , (es[1] == NULL) ? "" : es[1]
-			         , IDO_API_ENDDATA
-			        );
-
-			break;
-
-		default:
-			snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-			         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%d\n%d=%d\n%d=%lu\n%d\n\n"
-			         , IDO_API_TIMEDEVENTDATA
-			         , IDO_DATA_TYPE
-			         , eventdata->type
-			         , IDO_DATA_FLAGS
-			         , eventdata->flags
-			         , IDO_DATA_ATTRIBUTES
-			         , eventdata->attr
-			         , IDO_DATA_TIMESTAMP
-			         , eventdata->timestamp.tv_sec
-			         , eventdata->timestamp.tv_usec
-			         , IDO_DATA_EVENTTYPE
-			         , eventdata->event_type
-			         , IDO_DATA_RECURRING
-			         , eventdata->recurring
-			         , IDO_DATA_RUNTIME
-			         , (unsigned long)eventdata->run_time
-			         , IDO_API_ENDDATA
-			        );
-			break;
-		}
-
-		temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
-		ido_dbuf_strcat(&dbuf, temp_buffer);
-
-		break;
-
 	case NEBCALLBACK_LOG_DATA:
 
 		logdata = (nebstruct_log_data *)data;
 
+		es[0] = ido_escape_buffer(logdata->host_name);
+		es[1] = ido_escape_buffer(logdata->service_description);
+
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%lu\n%d=%d\n%d=%s\n%d\n\n"
+		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%lu\n%d=%d\n%d=%s\n%d=%s\n%d=%s\n%d\n\n"
 		         , IDO_API_LOGDATA
 		         , IDO_DATA_TYPE
 		         , logdata->type
@@ -1622,6 +1491,10 @@ int idomod_broker_data(int event_type, void *data) {
 		         , logdata->data_type
 		         , IDO_DATA_LOGENTRY
 		         , logdata->data
+		         , IDO_DATA_HOST
+		         , (es[0] == NULL) ? "" : es[0]
+		         , IDO_DATA_SERVICE
+		         , (es[1] == NULL) ? "" : es[1]
 		         , IDO_API_ENDDATA
 		        );
 
@@ -2225,6 +2098,7 @@ int idomod_broker_data(int event_type, void *data) {
 		es[4] = ido_escape_buffer(temp_host->event_handler);
 		es[5] = ido_escape_buffer(temp_host->host_check_command);
 		es[6] = ido_escape_buffer(temp_host->check_period);
+		es[7] = ido_escape_buffer(temp_host->check_source);
 
 		if(es[2] != NULL) {
 			if(strlen(es[2]) > IDOMOD_MAX_TEXT_LEN) {
@@ -2241,7 +2115,7 @@ int idomod_broker_data(int event_type, void *data) {
 		retry_interval = temp_host->retry_interval;
 
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%.5lf\n%d=%.5lf\n%d=%.5lf\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%s\n%d=%s\n%d=%lf\n%d=%lf\n%d=%s\n"
+		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%.5lf\n%d=%.5lf\n%d=%.5lf\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%s\n%d=%s\n%d=%lf\n%d=%lf\n%d=%s\n%d=%s\n"
 		         , IDO_API_HOSTSTATUSDATA
 		         , IDO_DATA_TYPE
 		         , hsdata->type
@@ -2341,32 +2215,36 @@ int idomod_broker_data(int event_type, void *data) {
 		         , (double)retry_interval
 		         , IDO_DATA_HOSTCHECKPERIOD
 		         , (es[6] == NULL) ? "" : es[6]
+			 , IDO_DATA_CHECKSOURCE
+		         , (es[7] == NULL) ? "" : es[7]
 		        );
 
 		temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
 		ido_dbuf_strcat(&dbuf, temp_buffer);
 
-		/* dump customvars */
-		for (temp_customvar = temp_host->custom_variables; temp_customvar != NULL; temp_customvar = temp_customvar->next) {
+		/* dump customvars status */
+		if (dump_customvar_status == IDO_TRUE) {
+			for (temp_customvar = temp_host->custom_variables; temp_customvar != NULL; temp_customvar = temp_customvar->next) {
 
-			for (x = 0; x < 2; x++) {
-				free(es[x]);
-				es[x] = NULL;
+				for (x = 0; x < 2; x++) {
+					free(es[x]);
+					es[x] = NULL;
+				}
+
+				es[0] = ido_escape_buffer(temp_customvar->variable_name);
+				es[1] = ido_escape_buffer(temp_customvar->variable_value);
+
+				snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
+				         , "%d=%s:%d:%s\n"
+				         , IDO_DATA_CUSTOMVARIABLESTATUS
+				         , (es[0] == NULL) ? "" : es[0]
+				         , temp_customvar->has_been_modified
+				         , (es[1] == NULL) ? "" : es[1]
+				        );
+
+				temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
+				ido_dbuf_strcat(&dbuf, temp_buffer);
 			}
-
-			es[0] = ido_escape_buffer(temp_customvar->variable_name);
-			es[1] = ido_escape_buffer(temp_customvar->variable_value);
-
-			snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-			         , "%d=%s:%d:%s\n"
-			         , IDO_DATA_CUSTOMVARIABLE
-			         , (es[0] == NULL) ? "" : es[0]
-			         , temp_customvar->has_been_modified
-			         , (es[1] == NULL) ? "" : es[1]
-			        );
-
-			temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
-			ido_dbuf_strcat(&dbuf, temp_buffer);
 		}
 
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
@@ -2396,6 +2274,7 @@ int idomod_broker_data(int event_type, void *data) {
 		es[5] = ido_escape_buffer(temp_service->event_handler);
 		es[6] = ido_escape_buffer(temp_service->service_check_command);
 		es[7] = ido_escape_buffer(temp_service->check_period);
+		es[8] = ido_escape_buffer(temp_service->check_source);
 
 		if(es[3] != NULL) {
 			if(strlen(es[3]) > IDOMOD_MAX_TEXT_LEN) {
@@ -2410,7 +2289,7 @@ int idomod_broker_data(int event_type, void *data) {
 		}
 
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%.5lf\n%d=%.5lf\n%d=%.5lf\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%s\n%d=%s\n%d=%lf\n%d=%lf\n%d=%s\n"
+		         , "\n%d:\n%d=%d\n%d=%d\n%d=%d\n%d=%ld.%ld\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%s\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%lu\n%d=%lu\n%d=%d\n%d=%lu\n%d=%lu\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%.5lf\n%d=%.5lf\n%d=%.5lf\n%d=%d\n%d=%d\n%d=%d\n%d=%d\n%d=%lu\n%d=%s\n%d=%s\n%d=%lf\n%d=%lf\n%d=%s\n%d=%s\n"
 		         , IDO_API_SERVICESTATUSDATA
 		         , IDO_DATA_TYPE
 		         , ssdata->type
@@ -2514,32 +2393,36 @@ int idomod_broker_data(int event_type, void *data) {
 		         , (double)temp_service->retry_interval
 		         , IDO_DATA_SERVICECHECKPERIOD
 		         , (es[7] == NULL) ? "" : es[7]
+			 , IDO_DATA_CHECKSOURCE
+		         , (es[8] == NULL) ? "" : es[8]
 		        );
 
 		temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
 		ido_dbuf_strcat(&dbuf, temp_buffer);
 
-		/* dump customvars */
-		for (temp_customvar = temp_service->custom_variables; temp_customvar != NULL; temp_customvar = temp_customvar->next) {
+		/* dump customvars status */
+		if (dump_customvar_status == IDO_TRUE) {
+			for (temp_customvar = temp_service->custom_variables; temp_customvar != NULL; temp_customvar = temp_customvar->next) {
 
-			for (x = 0; x < 2; x++) {
-				free(es[x]);
-				es[x] = NULL;
+				for (x = 0; x < 2; x++) {
+					free(es[x]);
+					es[x] = NULL;
+				}
+
+				es[0] = ido_escape_buffer(temp_customvar->variable_name);
+				es[1] = ido_escape_buffer(temp_customvar->variable_value);
+
+				snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
+				         , "%d=%s:%d:%s\n"
+				         , IDO_DATA_CUSTOMVARIABLESTATUS
+				         , (es[0] == NULL) ? "" : es[0]
+			        	 , temp_customvar->has_been_modified
+				         , (es[1] == NULL) ? "" : es[1]
+				        );
+
+				temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
+				ido_dbuf_strcat(&dbuf, temp_buffer);
 			}
-
-			es[0] = ido_escape_buffer(temp_customvar->variable_name);
-			es[1] = ido_escape_buffer(temp_customvar->variable_value);
-
-			snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-			         , "%d=%s:%d:%s\n"
-			         , IDO_DATA_CUSTOMVARIABLE
-			         , (es[0] == NULL) ? "" : es[0]
-			         , temp_customvar->has_been_modified
-			         , (es[1] == NULL) ? "" : es[1]
-			        );
-
-			temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
-			ido_dbuf_strcat(&dbuf, temp_buffer);
 		}
 
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
@@ -2597,27 +2480,29 @@ int idomod_broker_data(int event_type, void *data) {
 		temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
 		ido_dbuf_strcat(&dbuf, temp_buffer);
 
-		/* dump customvars */
-		for (temp_customvar = temp_contact->custom_variables; temp_customvar != NULL; temp_customvar = temp_customvar->next) {
+		/* dump customvars status */
+		if (dump_customvar_status == IDO_TRUE) {
+			for (temp_customvar = temp_contact->custom_variables; temp_customvar != NULL; temp_customvar = temp_customvar->next) {
 
-			for (x = 0; x < 2; x++) {
-				free(es[x]);
-				es[x] = NULL;
+				for (x = 0; x < 2; x++) {
+					free(es[x]);
+					es[x] = NULL;
+				}
+
+				es[0] = ido_escape_buffer(temp_customvar->variable_name);
+				es[1] = ido_escape_buffer(temp_customvar->variable_value);
+
+				snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
+				         , "%d=%s:%d:%s\n"
+				         , IDO_DATA_CUSTOMVARIABLESTATUS
+				         , (es[0] == NULL) ? "" : es[0]
+				         , temp_customvar->has_been_modified
+				         , (es[1] == NULL) ? "" : es[1]
+				        );
+
+				temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
+				ido_dbuf_strcat(&dbuf, temp_buffer);
 			}
-
-			es[0] = ido_escape_buffer(temp_customvar->variable_name);
-			es[1] = ido_escape_buffer(temp_customvar->variable_value);
-
-			snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1
-			         , "%d=%s:%d:%s\n"
-			         , IDO_DATA_CUSTOMVARIABLE
-			         , (es[0] == NULL) ? "" : es[0]
-			         , temp_customvar->has_been_modified
-			         , (es[1] == NULL) ? "" : es[1]
-			        );
-
-			temp_buffer[IDOMOD_MAX_BUFLEN-1] = '\x0';
-			ido_dbuf_strcat(&dbuf, temp_buffer);
 		}
 
 		snprintf(temp_buffer, IDOMOD_MAX_BUFLEN - 1

@@ -73,6 +73,7 @@ cfg_dir=@sysconfdir@/modules
 # when the config files are modified after Icinga starts.
 # If you explicitely set it to /dev/null the core will skip writing
 # the objects cache file entirely.
+# Note: This is a mandatory output for Icinga Classic UI to work properly.
 # Tip: Use that file to debug your configuration with fully resolved
 # objects like the core sees them.
 
@@ -117,6 +118,7 @@ resource_file=@sysconfdir@/resource.cfg
 # If you explicitely set it to /dev/null the core will skip writing
 # the status file entirely. This becomes handy when using other methods
 # for data retrieval (e.g. IDOUtils DB)
+# Note: This is a mandatory output for Icinga Classic UI to work properly.
 
 status_file=@STATEDIR@/status.dat
 
@@ -789,10 +791,11 @@ use_retained_program_state=1
 # DUMP RETAINED HOST SERVICE STATES TO NEB
 # This setting determines wether or not Icinga will dump host
 # and service states based on the values saved in the retention
-# file to the neb modules. If you don't want that, use at your
-# own risk and disable it
+# file to the neb modules. It will already do that on event loop
+# initialization.
+# Changed in Icinga 1.10 to disabled - re-enable if you require it.
 
-dump_retained_host_service_states_to_neb=1
+dump_retained_host_service_states_to_neb=0
 
 
 
@@ -949,7 +952,7 @@ enable_event_handlers=1
 # performance data.
 # Values: 1 = process performance data, 0 = do not process performance data
 
-process_performance_data=0
+process_performance_data=@ENABLEPERFDATA@
 
 
 
@@ -1334,7 +1337,7 @@ stalking_notifications_for_services=0
 # be used in host names, service descriptions, or names of other
 # object types.
 
-illegal_object_name_chars=`~!$%^&*|'"<>?,()=
+illegal_object_name_chars=`~!$%^&*|'"<>?,()=:
 
 
 

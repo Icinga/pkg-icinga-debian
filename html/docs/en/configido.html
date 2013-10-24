@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.9 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.10 Documentation">
 <link rel="up" href="ch12.html" title="Chapter 12. IDOUtils">
 <link rel="prev" href="db_components.html" title="12.2. Components">
 <link rel="next" href="db_example-configs.html" title="12.4. Example Configurations">
@@ -226,12 +226,12 @@
       the data processing options). Keep in mind that a reload is just a SIGHUP restart, not dropping memory and values. Internally IDOMOD
       will handle this the same way fetching the data from the NEB API.</p>
 
-      <p>Using Icinga-Web, the default is currently "2" (retained config data), which requires to have retention data to be enabled (by
+      <p>Using Icinga Web, the default is currently "2" (retained config data), which requires to have retention data to be enabled (by
       default) and at least being able to read the data once (so start, and reload then, dumping the configs at this stage). This won't take
       as long as the original config dump because the config is already compiled/assembled into its respective resulting object data.</p>
 
       <p>Taking the original configs, this will add a hook to the core config parser and add each single directive to IDOMOD too,
-      acquiring cpu cycles and generating much data upon (re)start. Icinga-Web can be set to use that data too.</p>
+      acquiring cpu cycles and generating much data upon (re)start. Icinga Web can be set to use that data too.</p>
 
       <p>Within the database itself, the icinga_hosts and icinga_services table defines the config_type column, where</p>
 
@@ -244,7 +244,7 @@
         </li>
 </ul></div>
 
-      <p>config_type itself can be used for Icinga-Web config as XML attribute.</p>
+      <p>config_type itself can be used for Icinga Web config as XML attribute.</p>
 
       <p>See <a class="link" href="configido.html#configido-config_output_options">"config_output_options"</a> for details.</p>
     </li>
@@ -285,9 +285,6 @@
  # intervals may interfere with insert/update data from Icinga.
 
  # ***DEFAULT***
-
- # Keep timed events for 1 hour
- max_timedevents_age=60
 
  # Keep system commands for 1 day
  max_systemcommands_age=1440
@@ -924,6 +921,44 @@
     <p>This option determines the maximum size (in bytes) of the debug file. If the file grows larger than this size, it will be renamed
     with a .old extension. If a file already exists with a .old extension it will be deleted automatically. This helps to ensure that your
     disk space usage doesn't get out of control when debugging.</p>
+
+    <p><a name="configido-dump_customvar_status"></a> <span class="bold"><strong>Dump status of custom variables</strong></span></p>
+
+    <div class="informaltable">
+      <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p>Format:</p></td>
+<td><p><span class="bold"><strong>dump_customvar_status=0|1</strong></span></p></td>
+</tr>
+<tr>
+<td><p>Example:</p></td>
+<td><p><span class="color"><font color="red"><span class="bold"><strong>dump_customvar_status=1</strong></span>
+            </font></span></p></td>
+</tr>
+</tbody>
+</table>
+    </div>
+
+    <p>Custom variables are dumped as required configuration on core startup but also during runtime (there may be modifications via
+    external commands). Since these updates happen on each host/service/contact status update without any possibility to filter via
+    data_processing_options, this is made a separate config option. In most scenarios, those updates are not required, therefore the default
+    option is disabled.</p>
+
+    <p>Possible values are:</p>
+
+    <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+        <p>0 = disabled (default)</p>
+      </li>
+<li class="listitem">
+        <p>1 = enabled</p>
+      </li>
+</ul></div>
   </div>
 
   <div class="section" title="12.3.2. IDO2DB config options">
@@ -1636,252 +1671,195 @@
         </li>
 </ul></div>
 
-    <p><a name="configido-enable_sla"></a> <span class="bold"><strong>Enable SLA data collection (deprecated since Icinga
-    1.9)</strong></span></p>
+    <a class="indexterm" name="idp193486784"></a>
 
-    <div class="informaltable">
-      <table border="0">
-<colgroup>
-<col>
-<col>
-</colgroup>
-<tbody>
-<tr>
-<td><p>Format:</p></td>
-<td><p><span class="bold"><strong>enable_sla=&lt;0|1&gt;</strong></span></p></td>
-</tr>
-<tr>
-<td><p>Example:</p></td>
-<td><p><span class="color"><font color="red"><span class="bold"><strong>enable_sla=0</strong></span> </font></span></p></td>
-</tr>
-</tbody>
-</table>
-    </div>
+    <a class="indexterm" name="idp193488480"></a>
 
-    <p>This setting enables collection of SLA data in the slahistory table</p>
+    <a class="indexterm" name="idp193490096"></a>
 
-    <p>Possible values are:</p>
-<div class="itemizedlist"><ul class="itemizedlist" type="disc">
-<li class="listitem">
-          <p>0 = disabled</p>
-        </li>
-<li class="listitem">
-          <p>1 = enabled</p>
-        </li>
-</ul></div>
+    <a class="indexterm" name="idp193491712"></a>
 
-    <div class="important" title="Important" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Important">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Important]" src="../images/important.png"></td>
-<th align="left">Important</th>
-</tr>
-<tr><td align="left" valign="top">
-      <p>This setting is highly experimental and may harm your systems performance. Enable at your own risk, and if any problems occur,
-      remark that you are explicitly using it. <span class="bold"><strong>You've been warned</strong></span><span class="bold"><strong>.</strong></span></p>
-    </td></tr>
-</table></div>
+    <a class="indexterm" name="idp193493328"></a>
 
-    <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
-<th align="left">Note</th>
-</tr>
-<tr><td align="left" valign="top">
-      <p>This option was available starting with Icinga 1.6 and is deprecated since Icinga 1.9.</p>
-    </td></tr>
-</table></div>
+    <a class="indexterm" name="idp193494848"></a>
 
-    <a class="indexterm" name="idp17339200"></a>
+    <a class="indexterm" name="idp193496416"></a>
 
-    <a class="indexterm" name="idp17340976"></a>
+    <a class="indexterm" name="idp193498112"></a>
 
-    <a class="indexterm" name="idp17342560"></a>
+    <a class="indexterm" name="idp193499824"></a>
 
-    <a class="indexterm" name="idp17344192"></a>
+    <a class="indexterm" name="idp193501440"></a>
 
-    <a class="indexterm" name="idp17345824"></a>
+    <a class="indexterm" name="idp193502960"></a>
 
-    <a class="indexterm" name="idp17347456"></a>
+    <a class="indexterm" name="idp193504576"></a>
 
-    <a class="indexterm" name="idp17349056"></a>
+    <a class="indexterm" name="idp193506192"></a>
 
-    <a class="indexterm" name="idp17350704"></a>
+    <a class="indexterm" name="idp193507808"></a>
 
-    <a class="indexterm" name="idp17352528"></a>
+    <a class="indexterm" name="idp193509424"></a>
 
-    <a class="indexterm" name="idp17354096"></a>
+    <a class="indexterm" name="idp193510976"></a>
 
-    <a class="indexterm" name="idp17355920"></a>
+    <a class="indexterm" name="idp193512736"></a>
 
-    <a class="indexterm" name="idp17357536"></a>
+    <a class="indexterm" name="idp193514224"></a>
 
-    <a class="indexterm" name="idp17359056"></a>
+    <a class="indexterm" name="idp193515856"></a>
 
-    <a class="indexterm" name="idp17360528"></a>
+    <a class="indexterm" name="idp193517488"></a>
 
-    <a class="indexterm" name="idp17360656"></a>
+    <a class="indexterm" name="idp193519120"></a>
 
-    <a class="indexterm" name="idp17363696"></a>
+    <a class="indexterm" name="idp193520752"></a>
 
-    <a class="indexterm" name="idp17363824"></a>
+    <a class="indexterm" name="idp193522400"></a>
 
-    <a class="indexterm" name="idp17367120"></a>
+    <a class="indexterm" name="idp193524032"></a>
 
-    <a class="indexterm" name="idp17367248"></a>
+    <a class="indexterm" name="idp193525792"></a>
 
-    <a class="indexterm" name="idp17370416"></a>
+    <a class="indexterm" name="idp193527344"></a>
 
-    <a class="indexterm" name="idp17371888"></a>
+    <a class="indexterm" name="idp193528928"></a>
 
-    <a class="indexterm" name="idp17373696"></a>
+    <a class="indexterm" name="idp193530576"></a>
 
-    <a class="indexterm" name="idp17375232"></a>
+    <a class="indexterm" name="idp193532224"></a>
 
-    <a class="indexterm" name="idp17376864"></a>
+    <a class="indexterm" name="idp193533984"></a>
 
-    <a class="indexterm" name="idp17378560"></a>
+    <a class="indexterm" name="idp193535504"></a>
 
-    <a class="indexterm" name="idp17380080"></a>
+    <a class="indexterm" name="idp193537120"></a>
 
-    <a class="indexterm" name="idp17381712"></a>
+    <a class="indexterm" name="idp193538736"></a>
 
-    <a class="indexterm" name="idp17383344"></a>
+    <a class="indexterm" name="idp193540352"></a>
 
-    <a class="indexterm" name="idp17384992"></a>
+    <a class="indexterm" name="idp193541968"></a>
 
-    <a class="indexterm" name="idp17386656"></a>
+    <a class="indexterm" name="idp193543584"></a>
 
-    <a class="indexterm" name="idp17388256"></a>
+    <a class="indexterm" name="idp193545168"></a>
 
-    <a class="indexterm" name="idp17389888"></a>
+    <a class="indexterm" name="idp193546928"></a>
 
-    <a class="indexterm" name="idp17391584"></a>
+    <a class="indexterm" name="idp193548448"></a>
 
-    <a class="indexterm" name="idp17393200"></a>
+    <a class="indexterm" name="idp193550064"></a>
 
-    <a class="indexterm" name="idp17394816"></a>
+    <a class="indexterm" name="idp193551680"></a>
 
-    <a class="indexterm" name="idp17396432"></a>
+    <a class="indexterm" name="idp193553296"></a>
 
-    <a class="indexterm" name="idp17398016"></a>
+    <a class="indexterm" name="idp193554912"></a>
 
-    <a class="indexterm" name="idp17399648"></a>
+    <a class="indexterm" name="idp193556528"></a>
 
-    <a class="indexterm" name="idp17401312"></a>
+    <a class="indexterm" name="idp193558144"></a>
 
-    <a class="indexterm" name="idp17402944"></a>
+    <a class="indexterm" name="idp193559792"></a>
 
-    <a class="indexterm" name="idp17404576"></a>
+    <a class="indexterm" name="idp193561408"></a>
 
-    <a class="indexterm" name="idp17406208"></a>
+    <a class="indexterm" name="idp193563056"></a>
 
-    <a class="indexterm" name="idp17407840"></a>
+    <a class="indexterm" name="idp193564704"></a>
 
-    <a class="indexterm" name="idp17409472"></a>
+    <a class="indexterm" name="idp193566352"></a>
 
-    <a class="indexterm" name="idp17411104"></a>
+    <a class="indexterm" name="idp193567936"></a>
 
-    <a class="indexterm" name="idp17412672"></a>
+    <a class="indexterm" name="idp193569696"></a>
 
-    <a class="indexterm" name="idp17414368"></a>
+    <a class="indexterm" name="idp193571216"></a>
 
-    <a class="indexterm" name="idp17415888"></a>
+    <a class="indexterm" name="idp193572832"></a>
 
-    <a class="indexterm" name="idp17417520"></a>
+    <a class="indexterm" name="idp193574448"></a>
 
-    <a class="indexterm" name="idp17419168"></a>
+    <a class="indexterm" name="idp193576064"></a>
 
-    <a class="indexterm" name="idp17420832"></a>
+    <a class="indexterm" name="idp193577648"></a>
 
-    <a class="indexterm" name="idp17422528"></a>
+    <a class="indexterm" name="idp193579408"></a>
 
-    <a class="indexterm" name="idp17424112"></a>
+    <a class="indexterm" name="idp193580896"></a>
 
-    <a class="indexterm" name="idp17425776"></a>
+    <a class="indexterm" name="idp193582528"></a>
 
-    <a class="indexterm" name="idp17427408"></a>
+    <a class="indexterm" name="idp193584160"></a>
 
-    <a class="indexterm" name="idp17429072"></a>
+    <a class="indexterm" name="idp193585792"></a>
 
-    <a class="indexterm" name="idp17430704"></a>
+    <a class="indexterm" name="idp193587424"></a>
 
-    <a class="indexterm" name="idp17432400"></a>
+    <a class="indexterm" name="idp193589072"></a>
 
-    <a class="indexterm" name="idp17433952"></a>
+    <a class="indexterm" name="idp193590720"></a>
 
-    <a class="indexterm" name="idp17435648"></a>
+    <a class="indexterm" name="idp193592480"></a>
 
-    <a class="indexterm" name="idp17437136"></a>
+    <a class="indexterm" name="idp193593968"></a>
 
-    <a class="indexterm" name="idp17438768"></a>
+    <a class="indexterm" name="idp193595728"></a>
 
-    <a class="indexterm" name="idp17440400"></a>
+    <a class="indexterm" name="idp193597216"></a>
 
-    <a class="indexterm" name="idp17442032"></a>
+    <a class="indexterm" name="idp193598848"></a>
 
-    <a class="indexterm" name="idp17443632"></a>
+    <a class="indexterm" name="idp193600608"></a>
 
-    <a class="indexterm" name="idp17445024"></a>
+    <a class="indexterm" name="idp193602128"></a>
 
-    <a class="indexterm" name="idp17445152"></a>
+    <a class="indexterm" name="idp193603744"></a>
 
-    <a class="indexterm" name="idp17448560"></a>
+    <a class="indexterm" name="idp193605360"></a>
 
-    <a class="indexterm" name="idp17450224"></a>
+    <a class="indexterm" name="idp193606976"></a>
 
-    <a class="indexterm" name="idp17451824"></a>
+    <a class="indexterm" name="idp193608592"></a>
 
-    <a class="indexterm" name="idp17453520"></a>
+    <a class="indexterm" name="idp193610208"></a>
 
-    <a class="indexterm" name="idp17455120"></a>
+    <a class="indexterm" name="idp193611824"></a>
 
-    <a class="indexterm" name="idp17456736"></a>
+    <a class="indexterm" name="idp193613408"></a>
 
-    <a class="indexterm" name="idp17458352"></a>
+    <a class="indexterm" name="idp193615040"></a>
 
-    <a class="indexterm" name="idp17459968"></a>
+    <a class="indexterm" name="idp193616800"></a>
 
-    <a class="indexterm" name="idp17461584"></a>
+    <a class="indexterm" name="idp193618320"></a>
 
-    <a class="indexterm" name="idp17463200"></a>
+    <a class="indexterm" name="idp193619936"></a>
 
-    <a class="indexterm" name="idp17464816"></a>
+    <a class="indexterm" name="idp193621552"></a>
 
-    <a class="indexterm" name="idp17466272"></a>
+    <a class="indexterm" name="idp193623168"></a>
 
-    <a class="indexterm" name="idp17468048"></a>
+    <a class="indexterm" name="idp193624784"></a>
 
-    <a class="indexterm" name="idp17469680"></a>
+    <a class="indexterm" name="idp193626400"></a>
 
-    <a class="indexterm" name="idp17471344"></a>
+    <a class="indexterm" name="idp193628016"></a>
 
-    <a class="indexterm" name="idp17472976"></a>
+    <a class="indexterm" name="idp193629600"></a>
 
-    <a class="indexterm" name="idp17474608"></a>
+    <a class="indexterm" name="idp193631360"></a>
 
-    <a class="indexterm" name="idp17476240"></a>
+    <a class="indexterm" name="idp193632848"></a>
 
-    <a class="indexterm" name="idp17477872"></a>
+    <a class="indexterm" name="idp193634480"></a>
 
-    <a class="indexterm" name="idp17479504"></a>
+    <a class="indexterm" name="idp193636128"></a>
 
-    <a class="indexterm" name="idp17481136"></a>
+    <a class="indexterm" name="idp193637760"></a>
 
-    <a class="indexterm" name="idp17482832"></a>
-
-    <a class="indexterm" name="idp17484384"></a>
-
-    <a class="indexterm" name="idp17486080"></a>
-
-    <a class="indexterm" name="idp17487568"></a>
-
-    <a class="indexterm" name="idp17489200"></a>
-
-    <a class="indexterm" name="idp17490832"></a>
-
-    <a class="indexterm" name="idp17492528"></a>
-
-    <a class="indexterm" name="idp17494112"></a>
+    <a class="indexterm" name="idp193639392"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -1901,6 +1879,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

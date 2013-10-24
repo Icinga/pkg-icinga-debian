@@ -10,6 +10,7 @@ SRC_BASE=@srcdir@/base
 SRC_CGI=@srcdir@/cgi
 SRC_HTM=@srcdir@/html
 SRC_DOCS=@srcdir@/html/docs
+SRC_DOCS_IMAGES=@srcdir@/html/docs/images
 SRC_MODULE=@srcdir@/module
 SRC_INCLUDE=@srcdir@/include
 SRC_COMMON=@srcdir@/common
@@ -20,6 +21,7 @@ SRC_TTAP=@srcdir@/t-tap
 SRC_TAP=@srcdir@/tools/libtap
 SRC_T=@srcdir@/t
 SRC_DOCBOOK=@srcdir@/docbook
+SRC_DOCBOOK_IMAGES=@srcdir@/docbook/images
 SRC_DOCBOOK_DE=@srcdir@/docbook/de
 SRC_DOCBOOK_EN=@srcdir@/docbook/en
 
@@ -49,13 +51,21 @@ INSTALL_OPTS=@INSTALL_OPTS@
 INSTALL_OPTS_WEB=@INSTALL_OPTS_WEB@
 COMMAND_OPTS=@COMMAND_OPTS@
 HTTPD_CONF=@HTTPD_CONF@
+APACHE24_DEBIAN=@APACHE24_DEBIAN@
 HTTPDCONFFILE=@HTTPDCONFFILE@
 HTTPAUTHFILE=@HTTPAUTHFILE@
 INIT_DIR=@init_dir@
 INIT_OPTS=@INIT_OPTS@
+SYSTEMD_UNIT_DIR=@systemd_unit_dir@
+SYSTEMD_SYSCONFIG_DIR=@systemd_sysconfig_dir@
 CGICFGDIR=$(CGIDIR)
 PERLDIR=@PERLDIR@
 STATEDIR=@STATEDIR@
+
+###############################
+# Debug
+###############################
+ENABLE_DEBUG=@ENABLE_DEBUG@
 
 ###############################
 # Modules
@@ -81,7 +91,7 @@ MKDIR=/bin/mkdir
 ###############################
 # Global
 ###############################
-ICINGA_VERSION=1.9.3
+ICINGA_VERSION=1.10.0
 
 CP=@CP@
 
@@ -121,9 +131,10 @@ none:
 	@printf "\t%-23s - %s\n" "install-dev-docu" "install doxygen development documentation"
 	@printf "\t%-23s - %s\n" "install-testconfig" "install test config"
 	@printf "\t%-23s - %s\n" "install-classicui-standalone" "install standalone classic ui"
+	@printf "\t%-23s - %s\n" "install-classicui-standalone-conf" "install standalone classic ui config"
 
 
-# FreeBSD make does not support -C option, so we'll use the Apache style... (patch by Stanley Hopcroft 12/27/1999)
+# Solaris make does not support -C option, so we'll use the Apache style... (patch by Stanley Hopcroft 12/27/1999)
 
 ###############################
 # Compile
@@ -279,7 +290,7 @@ distclean: clean
 	cd $(SRC_TAP) && $(MAKE) $@; \
 
 	rm -f sample-config/*.cfg sample-config/*.conf sample-config/template-object/*.cfg
-	rm -f daemon-init pkginfo rc.ido2db
+	rm -f daemon-init pkginfo rc.ido2db ido2db-systemd icinga-systemd sysconfig-env
 	rm -f include/dh.h
 	rm -f Makefile subst p1.pl
 	rm -f config.log config.status config.cache
@@ -319,6 +330,7 @@ create-docs: copy-docs-style
 	#${MAKE} submodule-update-latest
 	cd ${SRC_DOCBOOK_EN} && make en
 	cd ${SRC_DOCBOOK_DE} && make de
+	cp ${SRC_DOCBOOK_IMAGES}/*.png ${SRC_DOCS_IMAGES}/
 	@echo "updated docs :)"
 
 create-tarball:
@@ -465,6 +477,10 @@ install-testconfig:
 install-webconf:
 	$(MKDIR) -p -m 775 $(DESTDIR)$(HTTPD_CONF)
 	$(INSTALL) -b -m 644 $(INSTALL_OPTS) sample-config/httpd.conf $(DESTDIR)$(HTTPDCONFFILE)
+	@if [ x$(APACHE24_DEBIAN) = xyes ]; then \
+		echo " Debian Apache 2.4 detected. " ;\
+		echo " Run 'a2enconf icinga' and 'service apache2 reload'" ;\
+	fi
 
 	@echo ""
 	@echo "*** Icinga/Apache conf file installed ***"
@@ -472,6 +488,7 @@ install-webconf:
 
 install-webconf-auth:
 
+	$(MKDIR) -p -m 775 $(DESTDIR)$(HTTPD_CONF)
 	$(INSTALL) -b -m 644 $(INSTALL_OPTS) icinga.htpasswd $(DESTDIR)$(HTTPAUTHFILE)
 
 	@echo ""
@@ -519,6 +536,15 @@ install-daemoninit:
 	@echo "*** Init script installed ***"
 	@echo ""
 
+install-systemd:
+	$(INSTALL) -m 755 -d $(INIT_OPTS) $(DESTDIR)$(SYSTEMD_UNIT_DIR)
+	$(INSTALL) -m 755 -d $(INIT_OPTS) $(DESTDIR)$(SYSTEMD_SYSCONFIG_DIR)
+	$(INSTALL) -m 644 $(INIT_OPTS) icinga-systemd $(DESTDIR)$(SYSTEMD_UNIT_DIR)/icinga.service
+	$(INSTALL) -m 644 $(INIT_OPTS) sysconfig-env $(DESTDIR)$(SYSTEMD_SYSCONFIG_DIR)/icinga
+
+	@if [ x$(USE_IDOUTILS) = xyes ]; then \
+		$(INSTALL) -m 644 $(INIT_OPTS) ido2db-systemd $(DESTDIR)$(SYSTEMD_UNIT_DIR)/ido2db.service ;\
+	fi
 
 install-commandmode:
 	$(INSTALL) -m 775 $(COMMAND_OPTS) -d $(DESTDIR)$(EXTCMDFILEDIR)
@@ -546,8 +572,13 @@ install-eventhandlers:
 	@echo "*** Sample Eventhandlers installed ***"
 	@echo ""
 
+install-classicui-standalone-conf: install-cgiconf install-webconf
 
-install-classicui-standalone: install-cgis install-html install-cgiconf install-webconf
+	@echo ""
+	@echo "*** Icinga Classic UI Standalone configuration installed. ***"
+	@echo ""
+
+install-classicui-standalone: install-cgis install-html
 
 	# make sure we keep all the needed dirs for data
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(STATEDIR)
@@ -556,7 +587,9 @@ install-classicui-standalone: install-cgis install-html install-cgiconf install-
 	$(INSTALL) -m 775 $(COMMAND_OPTS) -d $(DESTDIR)$(EXTCMDFILEDIR)
 
 	@echo ""
-	@echo "*** Icinga Classic UI Standalone installed ***"
+	@echo "*** Icinga Classic UI Standalone installed. ***"
+	@echo ""
+	@echo "*** Now use 'make install-classicui-standalone-conf to install the configuration ***"
 	@echo ""
 
 fullinstall:
@@ -593,13 +626,13 @@ Prototype:
 	cd sample-config; \
 	for file in *.cfg; \
 	do \
-	    $(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/$$file.$(VERSION); \
+	    ../$(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/$$file.$(VERSION); \
 	done
 	chmod 640 $(PACKDIR)/$(CFGDIR)/resource.cfg.$(VERSION)
 	cd sample-config/template-object; \
 	for file in *.cfg; \
 	do \
-	    $(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/objects/$$file.$(VERSION); \
+	    ../../$(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/objects/$$file.$(VERSION); \
 	done
 	mkdir -p $(PACKDIR)/lib/svc/method/
 	$(INSTALL) -o root -g bin -m 555 daemon-init $(PACKDIR)/lib/svc/method/icinga
@@ -614,7 +647,7 @@ Prototype:
 	do \
 	    if [ -f $$file ] ; then echo i $$file >> Prototype; fi ; \
 	done
-	pkgproto $(PACKDIR)=/ | sed -e "s|$(LOGNAME) $(GROUP)$$|root root|" | egrep -v "(s|d) none (/ |/var|/usr|/etc|/lib)" >> solaris/Prototype
+	pkgproto $(PACKDIR)=/ | egrep -v "(s|d) none (/|/var|/usr|/etc|/lib) " >> solaris/Prototype
 
 pkg/icinga/pkgmap: Prototype
 	mkdir $(PACKDIR)/$(SOL_PKG_NAME)

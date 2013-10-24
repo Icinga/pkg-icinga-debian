@@ -626,6 +626,7 @@ TESTS_CFLAGS
 HAVE_SSL
 ido2db_perl
 PERL
+ENABLE_DEBUG
 USE_IDOUTILS_ORACLE
 USE_IDOUTILS
 USE_EVENTBROKER
@@ -647,9 +648,9 @@ ido2db_name
 icingastats_name
 icinga_name
 LIBDBIDRIVERDIR
-CLASSICUI_STANDALONE_FLAG
 DBLIBS
 IDO_INSTANCE_NAME
+CLASSICUI_STANDALONE_FLAG
 BROKER_H
 BROKER_O
 MOD_LDFLAGS
@@ -676,6 +677,8 @@ IDOSOCKFILE
 IDO2DBLOCKFILE
 ICINGACHKFILE
 lockfile
+systemd_sysconfig_dir
+systemd_unit_dir
 init_dir
 P1FILELOC
 PHPAPIEXTCMDDIR
@@ -683,6 +686,7 @@ EXTCMDFILEDIR
 CGILOGDIR
 ENABLECGILOG
 LOGDIR
+ENABLEPERFDATA
 EVENTHANDLERDIR
 PLUGINDIR
 HTTPDCONFFILE
@@ -691,6 +695,7 @@ STATEDIR
 TMPFILE
 TMPDIR
 CHECKRESULTDIR
+APACHE24_DEBIAN
 HTTPD_CONF
 MAIL_PROG
 INSTALL_OPTS_WEB
@@ -788,12 +793,15 @@ with_http_auth_file
 with_httpd_conf_file
 with_plugin_dir
 with_eventhandler_dir
+enable_perfdata
 with_log_dir
 enable_cgi_log
 with_cgi_log_dir
 with_ext_cmd_file_dir
 with_p1_file_dir
 with_init_dir
+with_systemd_unit_dir
+with_systemd_sysconfig_dir
 with_lockfile
 with_icinga_chkfile
 with_ido2db_lockfile
@@ -802,11 +810,13 @@ with_idomod_tmpfile
 with_gd_lib
 with_gd_inc
 enable_statusmap
+enable_debug
 with_cgiurl
 with_htmurl
 with_mainurl
 enable_nanosleep
 enable_event_broker
+enable_classicui_standalone
 enable_idoutils
 with_ido_instance_name
 enable_oracle
@@ -818,7 +828,6 @@ with_pgsql_lib
 with_psql_inc
 with_dbi_lib
 with_dbi_inc
-enable_classicui_standalone
 with_libdbi_driver_dir
 enable_embedded_perl
 with_perlcache
@@ -1451,18 +1460,20 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-perfdata       enables perfdata in icinga.cfg
   --enable-cgi-log        enables cgi logging - experimental!!
   --disable-statusmap     disables compilation of statusmap CGI
+  --enable-debug          enables debug mode
   --enable-nanosleep      enables use of nanosleep (instead sleep) in event
                           timing
   --enable-event-broker   enables integration of event broker routines
+  --enable-classicui-standalone
+                          enables standalone Classic UI (default: disabled)
   --enable-idoutils       enables database connectivity using idoutils
                           (default: enabled)
   --enable-oracle         enables idoutils with ocilib and oracle
   --enable-pgsql          !use libdbis pgsql support instead, libpq not yet
                           implemented! enables idoutils with libpq and pgsql
-  --enable-classicui-standalone
-                          enables standalone Classic UI (default: disabled)
   --enable-embedded-perl  will enable embedded Perl interpreter
   --enable-cygwin         enables building under the CYGWIN environment
   --enable-libtap         this is deprecated, libtap is built with make test
@@ -1514,6 +1525,11 @@ Optional Packages:
   --with-p1-file-dir=<path>
                           sets path to embedded perl p1.pl directory
   --with-init-dir=<path>  sets directory to place init script into
+  --with-systemd-unitdir=<path>
+                          sets directory to place systemd service file into
+  --with-systemd-sysconfigdir=<path>
+                          sets directory to place systemd service
+                          configuration file
   --with-lockfile=<path>  sets path and file name for lock file
   --with-icinga-chkfile=<path>
                           sets path and file name for icinga initscript error
@@ -2491,9 +2507,9 @@ ac_config_headers="$ac_config_headers include/config.h"
 
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.9.3"
+PKG_VERSION="1.10.0"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="07-07-2013"
+PKG_REL_DATE="10-24-2013"
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
@@ -5363,6 +5379,7 @@ fi
 
 
 HTTPD_CONF=no
+APACHE24_DEBIAN=no
 
 # Check whether --with-httpd_conf was given.
 if test "${with_httpd_conf+set}" = set; then :
@@ -5374,6 +5391,9 @@ fi
 if test x$HTTPD_CONF = xno; then
 	if test -d /etc/httpd/conf.d; then
 		HTTPD_CONF="/etc/httpd/conf.d"
+	elif test -d /etc/apache2/conf-available; then
+				HTTPD_CONF="/etc/apache2/conf-available"
+		APACHE24_DEBIAN=yes
 	elif test -d /etc/apache2/conf.d; then
 		HTTPD_CONF="/etc/apache2/conf.d"
 	elif test -d /etc/apache/conf.d; then
@@ -5382,6 +5402,7 @@ if test x$HTTPD_CONF = xno; then
 		HTTPD_CONF="/etc/httpd/conf.d"
 	fi
 fi
+
 
 
 CHECKRESULTDIR=no
@@ -5499,6 +5520,26 @@ if test x$EVENTHANDLERDIR = xno; then
         fi
 
 
+ENABLE_PERFDATA=no
+# Check whether --enable-perfdata was given.
+if test "${enable_perfdata+set}" = set; then :
+  enableval=$enable_perfdata;
+        if test x$enableval = xyes; then
+                ENABLE_PERFDATA=yes
+        fi
+
+else
+  ENABLE_PERFDATA=no
+fi
+
+
+if test x$ENABLE_PERFDATA = xyes; then
+        ENABLEPERFDATA=1
+else
+        ENABLEPERFDATA=0
+fi
+
+
 
 
 LOGDIR=no
@@ -5599,6 +5640,31 @@ fi
 # Check whether --with-init_dir was given.
 if test "${with_init_dir+set}" = set; then :
   withval=$with_init_dir; init_dir=$withval
+fi
+
+
+
+systemd_unit_dir=/usr/lib/systemd/system
+if test -d /usr/lib/systemd/system; then
+       systemd_unit_dir=/usr/lib/systemd/system
+elif test -d /lib/systemd/system; then
+       systemd_unit_dir=/lib/systemd/system
+fi
+
+systemd_sysconfig_dir=/etc/sysconfig
+
+
+# Check whether --with-systemd_unit_dir was given.
+if test "${with_systemd_unit_dir+set}" = set; then :
+  withval=$with_systemd_unit_dir; systemd_unit_dir=$withval
+fi
+
+
+
+
+# Check whether --with-systemd_sysconfig_dir was given.
+if test "${with_systemd_sysconfig_dir+set}" = set; then :
+  withval=$with_systemd_sysconfig_dir; systemd_sysconfig_dir=$withval
 fi
 
 
@@ -6137,6 +6203,23 @@ _ACEOF
 fi
 
 
+ENABLE_DEBUG=no
+# Check whether --enable-debug was given.
+if test "${enable_debug+set}" = set; then :
+  enableval=$enable_debug; ENABLE_DEBUG=$enableval
+else
+  ENABLE_DEBUG=no
+fi
+
+if test x$ENABLE_DEBUG = xyes; then
+
+cat >>confdefs.h <<_ACEOF
+#define ENABLE_DEBUG /**/
+_ACEOF
+
+fi
+
+
 # Check whether --with-cgiurl was given.
 if test "${with_cgiurl+set}" = set; then :
   withval=$with_cgiurl; cgiurl=$withval
@@ -6441,6 +6524,24 @@ if test x$SNPRINTF_BROKEN = xyes; then
 
 fi
 
+CLASSICUI_STANDALONE=no
+# Check whether --enable-classicui-standalone was given.
+if test "${enable_classicui_standalone+set}" = set; then :
+  enableval=$enable_classicui_standalone; CLASSICUI_STANDALONE=$enableval
+else
+  CLASSICUI_STANDALONE=no
+fi
+
+if test x$CLASSICUI_STANDALONE = xyes; then
+	CLASSICUI_STANDALONE_FLAG="1"
+fi
+if test x$CLASSICUI_STANDALONE = xno; then
+	CLASSICUI_STANDALONE_FLAG="0"
+fi
+
+
+
+if test x$CLASSICUI_STANDALONE = xno; then
 
 OCILIB_LIB=""
 
@@ -6772,20 +6873,6 @@ _ACEOF
 
 	fi
 fi
-
-CLASSICUI_STANDALONE=no
-# Check whether --enable-classicui-standalone was given.
-if test "${enable_classicui_standalone+set}" = set; then :
-  enableval=$enable_classicui_standalone; CLASSICUI_STANDALONE=$enableval
-else
-  CLASSICUI_STANDALONE=no
-fi
-
-if test x$CLASSICUI_STANDALONE = xyes; then
-	CLASSICUI_STANDALONE_FLAG="1"
-fi
-if test x$CLASSICUI_STANDALONE = xno; then
-	CLASSICUI_STANDALONE_FLAG="0"
 fi
 
 
@@ -6968,6 +7055,7 @@ $as_echo "#define USE_NAGIOS_ENV \"1\"" >>confdefs.h
 
 
 fi
+
 
 
 
@@ -7217,7 +7305,7 @@ $as_echo_n "checking for -Wall based on os/compiler... " >&6; }
         esac
 
 
-ac_config_files="$ac_config_files Makefile subst solaris/pkginfo solaris/icinga.xml base/Makefile common/Makefile contrib/Makefile cgi/Makefile html/Makefile module/Makefile module/idoutils/Makefile xdata/Makefile daemon-init rc.ido2db module/idoutils/src/Makefile t-tap/Makefile t/Makefile module/idoutils/db/scripts/installdb module/idoutils/db/scripts/upgradedb module/idoutils/db/scripts/prepsql p1.pl"
+ac_config_files="$ac_config_files Makefile subst solaris/pkginfo solaris/icinga.xml base/Makefile common/Makefile contrib/Makefile cgi/Makefile html/Makefile module/Makefile module/idoutils/Makefile xdata/Makefile daemon-init rc.ido2db icinga-systemd sysconfig-env ido2db-systemd module/idoutils/src/Makefile t-tap/Makefile t/Makefile module/idoutils/db/scripts/installdb module/idoutils/db/scripts/upgradedb module/idoutils/db/scripts/prepsql p1.pl"
 
 
 
@@ -7840,6 +7928,9 @@ do
     "xdata/Makefile") CONFIG_FILES="$CONFIG_FILES xdata/Makefile" ;;
     "daemon-init") CONFIG_FILES="$CONFIG_FILES daemon-init" ;;
     "rc.ido2db") CONFIG_FILES="$CONFIG_FILES rc.ido2db" ;;
+    "icinga-systemd") CONFIG_FILES="$CONFIG_FILES icinga-systemd" ;;
+    "sysconfig-env") CONFIG_FILES="$CONFIG_FILES sysconfig-env" ;;
+    "ido2db-systemd") CONFIG_FILES="$CONFIG_FILES ido2db-systemd" ;;
     "module/idoutils/src/Makefile") CONFIG_FILES="$CONFIG_FILES module/idoutils/src/Makefile" ;;
     "t-tap/Makefile") CONFIG_FILES="$CONFIG_FILES t-tap/Makefile" ;;
     "t/Makefile") CONFIG_FILES="$CONFIG_FILES t/Makefile" ;;
@@ -8444,6 +8535,7 @@ perl subst $srcdir/contrib/eventhandlers/enable_notifications
 
 perl subst $srcdir/html/index.html
 perl subst $srcdir/html/menu.html
+perl subst $srcdir/html/js/autocomplete.js
 
 echo ""
 echo "Creating sample config files in sample-config/ ..."
@@ -8492,6 +8584,10 @@ $as_echo "        Icinga user/group:  $icinga_user,$icinga_grp" >&6; }
 $as_echo "       Command user/group:  $command_user,$command_grp" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:         Apache user/group:  $web_user,$web_group" >&5
 $as_echo "        Apache user/group:  $web_user,$web_group" >&6; }
+if test x$ENABLE_DEBUG = xyes; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:                Debug Mode:  yes" >&5
+$as_echo "               Debug Mode:  yes" >&6; }
+fi
 if test x$USEPERL = xyes; then
 if test x$PERLCACHE = xyes; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:             Embedded Perl:  yes, with caching" >&5
@@ -8510,6 +8606,13 @@ $as_echo "             Event Broker:  yes" >&6; }
 else
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:              Event Broker:  no" >&5
 $as_echo "             Event Broker:  no" >&6; }
+fi
+if test x$ENABLE_PERFDATA = xyes; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:   Enable Performance Data:  yes" >&5
+$as_echo "  Enable Performance Data:  yes" >&6; }
+else
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result:   Enable Performance Data:  no" >&5
+$as_echo "  Enable Performance Data:  no" >&6; }
 fi
 if test x$USE_IDOUTILS = xyes; then
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:           ido2db lockfile:  $IDO2DBLOCKFILE" >&5
