@@ -1,3 +1,13 @@
+icinga (1.10.0-1) unstable; urgency=low
+
+  * [3c852fa] Fix typo
+  * [1e3b0a9] Don't set -e in icingas initscript (Closes: #722261)
+  * [b2e5497]  Enable cgi module for apache 2.4
+  * [f9e8662] Imported Upstream version 1.10.0
+  * [604c4f6] Bump standards version
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 24 Oct 2013 17:26:19 +0200
+
 icinga (1.9.3-2) unstable; urgency=low
 
   * [7e2d81e] Update README.Debian
