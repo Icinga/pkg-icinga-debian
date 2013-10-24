@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.9 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.10 Documentation">
 <link rel="up" href="ch02.html" title="Chapter 2. Getting Started">
 <link rel="prev" href="ch02.html" title="Chapter 2. Getting Started">
 <link rel="next" href="quickstart.html" title="2.2. Quickstart Installation Guides">
@@ -40,7 +40,17 @@
   depending on the number of things to be monitored and the complexity of your environment. Once you become familiar with how it works and
   what it can do for you, you'll never want to be without it. :-) Here are some important things to keep in mind for first-time
   Icinga users:</p>
-<div class="orderedlist"><ol class="orderedlist" type="1">
+<div class="orderedlist">
+<div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+        <p>If you installed a package then the sample files might be missing. The contents is listed <a class="link" href="sample-config.html" title="13.1. Sample configuration files and definitions">here</a> for reference.</p>
+      </td></tr>
+</table></div>
+<ol class="orderedlist" type="1">
 <li class="listitem">
         <p><span class="bold"><strong>Relax - it's going to take some time.</strong></span> Don't expect to be able to get things working exactly
         the way you want them right off the bat. It's not that easy. Setting up Icinga can involve a bit of work - partly because of
@@ -68,9 +78,9 @@
       </li>
 <li class="listitem">
         <p><span class="bold"><strong>Understand the architecture.</strong></span> Icinga Core ships with two GUIs, Icinga Classic UI and
-        Icinga-Web. Icinga Classic UI uses the native status and log file format, while Icinga-Web requires IDOUtils with a database backend.
+        Icinga Web. Icinga Classic UI uses the native status and log file format, while Icinga Web requires IDOUtils with a database backend.
         Both GUIs can co-exist on the same host below /icinga and /icinga-web. The IDOUtils database is also a requirement for
-        Icinga-Reporting based on JasperReports Server which can be integrated into Icinga-Web as cronk. Check <a class="link" href="ch12.html" title="Chapter 12. IDOUtils">IDOUtils
+        Icinga Reporting based on JasperReports Server which can be integrated into Icinga Web as cronk. Check <a class="link" href="ch12.html" title="Chapter 12. IDOUtils">IDOUtils
         chapter</a> for details on the IDOUtils components involved. <a class="link" href="plugins.html" title="5.1. Icinga Plugins">Plugins</a> are essential to your
         checks, as well as <a class="link" href="ch10.html" title="Chapter 10. Additional software">addons</a> may enhance your setup.</p>
       </li>
@@ -80,10 +90,11 @@
         background reading and you provide a good problem description, odds are that someone will give you some pointers on getting things
         working properly. "good description" means to include details on your operating system, the version of Icinga, as well as
         what you tried and the results of it (preferably copy&amp;paste). More information on subscribing to the mailing lists or searching
-        the list archives can be found at <a class="link" href="http://www.icinga.org/support/" target="_top">http://www.icinga.org/support/</a>. Another source of
+        the list archives can be found at <a class="link" href="http://www.icinga.org/support/" target="_top">https://support.icinga.org</a>. Another source of
         information is the <a class="link" href="https://wiki.icinga.org/display/howtos/Home" target="_top">how to wiki section</a>.</p>
       </li>
-</ol></div>
+</ol>
+</div>
 
   <div class="section" title="2.1.1. Icinga Overview">
 <div class="titlepage"><div><div><h3 class="title">
@@ -129,7 +140,7 @@
   <p>The configuration is based on text files and managing them requires just a text editor like vi. <a class="link" href="objectinheritance.html" title="7.26. Object Inheritance">Inheritance</a> using templates simplifies defining objects because it enables you to reduce the definition
   to a minimum.</p>
 
-  <p>Accessing the information can be done via the cgi-based classic ui, the Icinga-Web ui, or several other interfaces like mentioned in
+  <p>Accessing the information can be done via the cgi-based classic ui, the Icinga Web ui, or several other interfaces like mentioned in
   <a class="link" href="addons.html" title="10.1. Icinga Addons">addons</a> as well.</p>
 </div>
 
@@ -137,8 +148,8 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="icinga_gui_comparison"></a>2.1.2. <a name="icinga-gui-comparison"></a>Icinga web GUI comparison</h3></div></div></div>
 <div class="toc"><dl>
-<dt><span class="section">2.1.2.1. <a href="beginners.html#idp185648">Icinga Classic Web</a></span></dt>
-<dt><span class="section">2.1.2.2. <a href="beginners.html#idp232208">Icinga New Web</a></span></dt>
+<dt><span class="section">2.1.2.1. <a href="beginners.html#idp176279200">Icinga Classic Web</a></span></dt>
+<dt><span class="section">2.1.2.2. <a href="beginners.html#idp176326128">Icinga New Web</a></span></dt>
 </dl></div>
   
 
@@ -148,7 +159,7 @@
 
   <div class="section" title="2.1.2.1. Icinga Classic Web">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp185648"></a>2.1.2.1. Icinga Classic Web</h4></div></div></div>
+<a name="idp176279200"></a>2.1.2.1. Icinga Classic Web</h4></div></div></div>
     <a name="icinga_gui_classic"></a>
 
     
@@ -193,7 +204,7 @@
     <p>Because Icinga Classic Web receives continuous development, you can rest assured that any addons you are accostumed to use with
     Nagios can be used with Icinga too.</p>
 
-    <table border="1" id="idp198640">
+    <table border="1" id="idp176292080">
       <caption>Table 2.1. Screenshots Icinga classic web</caption>
 
       <tr>
@@ -287,7 +298,7 @@
 
   <div class="section" title="2.1.2.2. Icinga New Web">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idp232208"></a>2.1.2.2. Icinga New Web</h4></div></div></div>
+<a name="idp176326128"></a>2.1.2.2. Icinga New Web</h4></div></div></div>
     <a name="icinga_gui_new_web"></a>
 
     
@@ -356,7 +367,7 @@
       </li>
 </ul></div>
 
-    <table border="1" id="idp248944">
+    <table border="1" id="idp176343072">
       <caption>Table 2.2. Screenshots Icinga new web</caption>
 
       <tr>
@@ -506,14 +517,14 @@
     </table>
   </div>
 
-  <a class="indexterm" name="idp305520"></a>
+  <a class="indexterm" name="idp176399792"></a>
 
-  <a class="indexterm" name="idp306656"></a>
+  <a class="indexterm" name="idp176401136"></a>
 
-  <a class="indexterm" name="idp308256"></a>
+  <a class="indexterm" name="idp176402800"></a>
 </div>
 
-  <a class="indexterm" name="idp183696"></a>
+  <a class="indexterm" name="idp176404592"></a>
 </div>
 <div class="navfooter">
 <hr>
@@ -532,6 +543,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

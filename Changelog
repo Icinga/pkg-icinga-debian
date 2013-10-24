@@ -13,6 +13,123 @@ UPGRADE NOTES
 	- idoutils: ${source}/module/idoutils/config/updates
 * package locations may differ!
 
+1.10.0 - 24/10/2013
+
+* idoutils: slahistory table must be removed manually after enable_sla removal #4363
+	- DROP TABLE icinga_slahistory
+* idoutils: timedevents & timedeventqueue tables are deprecated and removed #4482
+
+ENHANCEMENTS
+
+* core: allow exclude (!) to work for regexp matches as well (Matthias Kerk) #3720 - MF
+* core: make logging of external command errors more verbose (Anton Lofgren, op5 team) #4402 - MF
+* core: avoid unnecessary ctime() calls when debugging is disabled, increase performance (Opsview Team) #4681 - MF
+* core: add check source to checkresult/status data #4709 - MF
+* core: fix check fails when using environment variables (Sven Nierlein) #2647 - MF
+
+* classic ui: add display filter modification for status.cgi #852 - RB
+* classic ui: log errors into cgi log (use_logging=1) #4389 - MF
+* classic ui: show custom variables in extended info #4390 - MF
+* classic ui: allow to exclude custom variable name/value based on pattern #4390 - MF
+* classic ui: add make install-classicui-standalone-conf as seperated config installation #4664 - MF
+* classic ui: added performance data to extinfo json output #4728 - RB
+* classic ui: show backend version info from status file (1.x or 2.x) #4737 - MF
+* classic ui: added option for partial servicegroups #2740 - RB
+* classic ui: show check source in extinfo #4709 - MF
+* classic ui: added live search #1657 - Kepi/RB
+
+* idoutils: add a table trimming option for 'downtime history' #3989 - MF
+* idoutils: allow to disable customvar status updates with dump_customvar_status=0|1 in idomod.cfg #4479 - MF
+* idoutils: add check_source to status tables #4709 - MF
+* idoutils: add object_id (host, service) to logentries status updates/state changes #4754 - MF
+
+* docs: add samples files for reference #4422 - WN
+* docs: update pnp screenshots #4288 - WN
+* docs: explain icinga web expander icon #4527 - WN
+* docs: add hint to views.xml config file #4690 - WN
+* docs: add "show_partial_servicegroups" to cgi.cfg #4730 - WN
+* docs: add "dump_customvar_status" to idomod.cfg #4705 - WN
+
+* install: allow enable perfdata config switch via configure #3996 - MF
+* install: add --enable-debug=yes/no to set specific compiler flags for gdb, valgrind #4387 - MF
+* install: detect /etc/apache2/conf-available on debian with apache2.4 #4509 - MF
+* install: add manpages from debian upstream #4055 - MF
+
+* contrib: add vim highlight script for Icinga syntax #4150 - LE
+
+FIXES
+* core: multiple idomod modules: only first gets data from registered callback functions #4199 - MF
+* core: fix services with no host mappings are not accepted (Viranch Metha) #3961 - MF
+* core: remove event_profiling_enabled functionality causing core dumps #2244 - MF
+* core: fix init script status exit codes on not running daemon and present pid file #4243 - MF
+* core: replace localtime() with reentrant localtime_r() (Opsview Team) #4682 - MF
+* core: fix config parser ignores errors on non-existing templates used in multiple templates levels #4702 - MF
+* core: add colon to illegal_object_name_chars #4227 - MF
+* core: fix umask after reset for cmd pipe #4771 - MF
+* core: dump host/service initial states on event loop initialization again #3838 - MF
+* core: fix scheduling a downtime should preserve the author's name if provided, not setting "(Icinga Process)" (thx Eric Stanley) #4822 - MF
+* core: fix external commands for CHANGE_*_INTERVAL don't accept floating point values #4897 - MF
+
+* classic ui: fixed Generated HTML code partly invalid #3608 - RB/Dakon
+* classic ui: fix empty REMOTE_ADDR env var causes sigsegv in cmd.cgi (use_logging=1) #4445 - MF
+* classic ui: fixed disapearing scheduled downtime for down hosts in tac.cgi #4260 - RB
+* classic ui: Hostgroup/Servicegroup Overview: hosts not sorted alphabetical #4404 - RB
+
+* idoutils: remove enable_sla functionality (deprecated in 1.9) #4363
+* idoutils: fix duration integer columns could run out of range (William Epler) #4420 #4939 - MF
+* idoutils: remove timedevent support and tables #4482 - MF
+* idoutils: fix comments(history) UK misses object_id, not allowing the same comment on host AND service #4544 - MF
+* idoutils: fix contact_notificationcommands contain garbage and insert faulty command object ids (thx mhein/mjentsch) #4799 - MF
+* idoutils: deprecate clean_{config,realtime}_tables_on_core_startup #4791 - MF
+* idoutils: fix ido2db does not clear scheduleddowntime table on instance startup #4808 - MF
+
+* docs: quickstart guides / default changed to compilation of IDOUtils #4203 - WN
+* docs: update icinga web troubleshooting for timezones #4554 - WN
+* docs: remove enable_sla, timedevent* from idoutils docs #4487 - MF
+* docs: add colon to illegal_object_name_chars #4704 - MF
+
+* install: fix initscripts exit-code 1 on start when service is already started (thx Marco Hoyer) #4393 - MF
+* install: fix ido2db initscript: kill fails on stop() on debian wheezy #4504 - MF
+
+* icinga.spec: remove commandgrp/user flags for configure (INSTALL_OPTS useless on package build) #4394 - MF
+
+SUPPORT
+* fixed gcc warnings about unused vars and unused return values #3984 - RB
+* fixed gcc errors in extinfo.c and ido2db.c #4392 - CF
+* fix warnings with CLANG compiler #4159 - MF
+* added cgi JSON output tests #3203 - RB
+
+* classic ui: javascript cleanup and common.lib added #4324 - RB
+
+CHANGES
+* core: multiple neb modules from same bin are copied to tmp with random name (again) #4199
+	** trick dlopen() to register callbacks for every neb module with different instance_name
+	** no need to manually copy binaries around
+* core: drop event_profiling_enabled functionality #2244
+* core: add colon to illegal_object_name_chars #4227
+	** reason are on-demand macros not working in #4005
+* core: broker_{host,service}_data accept check_source parameter #4709
+* core: dump_retained_host_service_states_to_neb is now disabled (re-enabled timing loop updates instead) #3838
+
+* classic ui: added custom vars to json_output in extinfo.cgi #4390
+* classic ui: add exclude_customvar_name and exclude_customvar_value to cfg.cfg #4390
+	** patterns to be excluded, comma seperated list
+* classic ui: make install-classicui-standalone does not install configs anymore #4664
+	** use make install-classicui-standalone-conf instead
+
+* idoutils: add max_downtimhistory_age to ido2db.cfg #3989
+* idoutils: remove enable_sla functionality (deprecated in 1.9) #4363
+* idoutils: remove timedevents functionality, drop tables #4482
+* idoutils: unique constraint on comments/commenthistory tables #4544
+* idoutils: customvariablestatus table not updated by default (dump_customvar_status=0) #4479
+* idoutils: dump_customvar_status=0|1 in idomod.cfg #4479
+* idoutils: add 'check_source' column to {host,service}_status tables #4709
+* idoutils: clean_{config,realtime}_tables_on_core_startup are now DEPRECATED #4791
+* idoutils: add 'object_id' to logentries table (NULL if not provided) #4754
+
+* install: configure --enable-perfdata sets icinga.cfg:process_performance_data #3996
+
+
 1.9.3 - 07/07/2013
 
 FIXES
@@ -143,9 +260,6 @@ FIXES
 
 * install: drop unused daemon-init-readhat script (spec uses daemon-init) #3402 - MF
 * install: fix broken configure ssl detection for idoutils on ubuntu/debian (Oliver Skibbe) #3413 - MF
-* install: fix ido2db initscript uses same chkconfig line as icinga (Dirk Götz) #3490 - MF
-* install: fix configure does not detect AIX6/7 properly #3895 - MF
-* install: fix STATEDIR creation during make install #3869 - MF
 
 * docs: add missing cmd_mod description in cgi params #3438 - MF
 * docs: search_string as cgi GET param works also for status.cgi #3451 - MF

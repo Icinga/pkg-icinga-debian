@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.9 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.10 Documentation">
 <link rel="up" href="ch02.html" title="Chapter 2. Getting Started">
 <link rel="prev" href="quickstart-icinga-freebsd.html" title="2.4. Icinga Quickstart FreeBSD">
 <link rel="next" href="quickstart-idoutils-freebsd.html" title="2.6. Icinga and IDOUtils Quickstart on FreeBSD">
@@ -573,8 +573,8 @@
     <p>Extract the Icinga source code tarball</p>
 
     <pre class="screen"> #&gt; cd /usr/src/ 
- #&gt; tar xvzf icinga-1.9.tar.gz 
- #&gt; cd icinga-1.9</pre>
+ #&gt; tar xvzf icinga-1.10.tar.gz 
+ #&gt; cd icinga-1.10</pre>
 
     <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -600,6 +600,19 @@
 </table></div>
 
     <pre class="screen"> #&gt; ./configure --with-command-group=icinga-cmd</pre>
+
+    <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Starting with Apache 2.4 the web configuration folder changed from <code class="filename">/etc/apache2/conf.d</code> to
+      <code class="filename">/etc/apache2/conf-available</code> so depending on your distribution (testing versions of Debian / Ubuntu
+      ) you might have to add this option to the call of configure </p>
+<pre class="screen">#&gt; ./configure --with-httpd-conf=/etc/apache2/conf-available</pre>
+    </td></tr>
+</table></div>
 
     <p>Also with PostgreSQL you should not use the argument --enable-pgsq because it is not supported yet.</p>
 
@@ -949,7 +962,7 @@
  #&gt; make install-cgis
  #&gt; make install-html</pre>
 
-    <p>If you are interested in the new Icinga Web, please refer to <a class="link" href="icinga-web-scratch.html" title="6.4. Installation of the Icinga-Web Frontend">Install Icinga Web
+    <p>If you are interested in the new Icinga Web, please refer to <a class="link" href="icinga-web-scratch.html" title="6.4. Installation of the Icinga Web Frontend">Install Icinga Web
     Interface</a>.</p>
 
     <p>Install the Icinga classic web config file in the Apache conf.d directory.</p>
@@ -965,6 +978,17 @@
       <p>Starting with Icinga 1.9 the command 'make install-webconf-auth' additionally installs the file
       <code class="filename">htpasswd.users</code> which contains credentials for the user <span class="emphasis"><em>icingaadmin</em></span> so you can skip the
       following step. The password is <span class="emphasis"><em>icingaadmin</em></span>.</p>
+    </td></tr>
+</table></div>
+
+    <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Starting with Apache 2.4 (testing versions of Debian / Ubuntu) you have to enable the configuration </p>
+<pre class="screen">#&gt; a2enconf icinga</pre>
     </td></tr>
 </table></div>
 
@@ -1016,8 +1040,8 @@
     <p>Extract the Nagios plugins source code tarball.</p>
 
     <pre class="screen"> #&gt; cd /usr/src 
- #&gt; tar xvzf nagios-plugins-1.4.16.tar.gz 
- #&gt; cd nagios-plugins-1.4.16  </pre>
+ #&gt; tar xvzf nagios-plugins-1.5.tar.gz 
+ #&gt; cd nagios-plugins-1.5  </pre>
 
     <p>Compile and install the plugins by changing install directory to <code class="filename">/usr/local/icinga</code></p>
 
@@ -1163,7 +1187,7 @@
     <pre class="screen"> #&gt; iptables -A INPUT -p tcp -m tcp --dport 80 -j ACCEPT</pre>
 
     <p>Setting up your mail transfer agent (MTA) like exim, sendmail or postfix to allow Icinga sending notification emails won't
-    be explained here. Please refer to the <a class="link" href="http://www.nagioswiki.org/" target="_top">Nagios-Wiki</a> for more resources.</p>
+    be explained here. Please refer to the <a class="link" href="http://www.nagioswiki.org/" target="_top">Nagios Wiki</a> for more resources.</p>
 
     <p>There are several tweaks for the IDOUtils (former NDOUtils of Nagios) available.</p>
   </div>
@@ -1177,9 +1201,9 @@
     You'll no doubt want to monitor more than just your local machine, so check out the chapter on <a class="link" href="ch02.html" title="Chapter 2. Getting Started">"Getting
     Started"</a> about "Monitoring ..."</p>
 
-    <a class="indexterm" name="idp808272"></a>
+    <a class="indexterm" name="idp176924336"></a>
 
-    <a class="indexterm" name="idp806192"></a>
+    <a class="indexterm" name="idp176926064"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -1199,6 +1223,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

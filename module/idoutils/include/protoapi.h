@@ -58,7 +58,7 @@
 #define IDO_API_LOGENTRY                             100
 
 #define IDO_API_PROCESSDATA                          200
-#define IDO_API_TIMEDEVENTDATA                       201
+#define IDO_API_TIMEDEVENTDATA                       201	/* removed */
 #define IDO_API_LOGDATA                              202
 #define IDO_API_SYSTEMCOMMANDDATA                    203
 #define IDO_API_EVENTHANDLERDATA                     204
@@ -109,7 +109,7 @@
 
 /************** COMMON DATA ATTRIBUTES **************/
 
-#define IDO_MAX_DATA_TYPES                           271
+#define IDO_MAX_DATA_TYPES                           273
 
 #define IDO_DATA_NONE                                0
 
@@ -393,4 +393,6 @@
 #define IDO_DATA_DOWNTIMEISINEFFECT		     268
 #define IDO_DATA_DOWNTIMETRIGGERTIME		     269
 #define IDO_DATA_DISABLED_NOTIFICATIONS_EXPIRE_TIME  270
+#define IDO_DATA_CUSTOMVARIABLESTATUS                271    /* seperate type from CUSTOMVARIABLE config */
+#define IDO_DATA_CHECKSOURCE			     272
 #endif

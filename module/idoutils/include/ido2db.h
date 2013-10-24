@@ -53,8 +53,9 @@
 #define IDO2DB_MBUF_RUNTIMEVARIABLE                     11
 #define IDO2DB_MBUF_CUSTOMVARIABLE                      12
 #define IDO2DB_MBUF_CONTACT                             13
+#define IDO2DB_MBUF_CUSTOMVARIABLESTATUS                14
 
-#define IDO2DB_MAX_MBUF_ITEMS                           14
+#define IDO2DB_MAX_MBUF_ITEMS                           15
 
 #define IDO2DB_MAX_BUFLEN				16384
 #define IDO2DB_MYSQL_MAX_TEXT_LEN		32768
@@ -101,9 +102,6 @@ typedef struct ido2db_dbconninfo_struct{
 	OCI_Statement* oci_statement_objects_insert;
 	OCI_Statement* oci_statement_logentries_insert;
 	OCI_Statement* oci_statement_startup_clean;
-	OCI_Statement* oci_statement_timedevents;
-	OCI_Statement* oci_statement_timedevents_queue;
-	OCI_Statement* oci_statement_timedeventqueue;
 	OCI_Statement* oci_statement_hostchecks;
 	OCI_Statement* oci_statement_hoststatus;
 	OCI_Statement* oci_statement_servicechecks;
@@ -167,7 +165,6 @@ typedef struct ido2db_dbconninfo_struct{
 	OCI_Statement* oci_statement_objects_update_active;
 	OCI_Statement* oci_statement_object_enable_disable;
 	OCI_Statement* oci_statement_programstatus_update;
-	OCI_Statement* oci_statement_timedevents_update;
 	OCI_Statement* oci_statement_comment_history_update;
 	OCI_Statement* oci_statement_downtimehistory_update_start;
 	OCI_Statement* oci_statement_scheduleddowntime_update_start;
@@ -179,8 +176,6 @@ typedef struct ido2db_dbconninfo_struct{
 	OCI_Statement* oci_statement_instances_select;
 
 	/* delete */
-	OCI_Statement* oci_statement_timedeventqueue_delete;
-	OCI_Statement* oci_statement_timedeventqueue_delete_more;
 	OCI_Statement* oci_statement_comments_delete;
 	OCI_Statement* oci_statement_downtime_delete;
 	OCI_Statement* oci_statement_instances_delete;
@@ -209,7 +204,6 @@ typedef struct ido2db_dbconninfo_struct{
 	int clean_event_queue;
 	unsigned long last_notification_id;
 	unsigned long last_contact_notification_id;
-	unsigned long max_timedevents_age;
 	unsigned long max_systemcommands_age;
 	unsigned long max_servicechecks_age;
 	unsigned long max_hostchecks_age;
@@ -220,6 +214,7 @@ typedef struct ido2db_dbconninfo_struct{
 	unsigned long max_notifications_age;
 	unsigned long max_contactnotifications_age;
 	unsigned long max_contactnotificationmethods_age;
+	unsigned long max_downtimehistory_age;
 	unsigned long trim_db_interval;
 	unsigned long housekeeping_thread_startup_delay;
 	unsigned long clean_realtime_tables_on_core_startup;
@@ -323,7 +318,7 @@ typedef struct ido2db_proxy_args_struct{
 #define IDO2DB_INPUT_DATA_LOGENTRY                      10
 
 #define IDO2DB_INPUT_DATA_PROCESSDATA                   20
-#define IDO2DB_INPUT_DATA_TIMEDEVENTDATA                21
+#define IDO2DB_INPUT_DATA_TIMEDEVENTDATA                21	/* removed */
 #define IDO2DB_INPUT_DATA_LOGDATA                       22
 #define IDO2DB_INPUT_DATA_SYSTEMCOMMANDDATA             23
 #define IDO2DB_INPUT_DATA_EVENTHANDLERDATA              24

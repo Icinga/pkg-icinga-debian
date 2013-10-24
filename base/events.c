@@ -32,11 +32,6 @@
 #include "../include/broker.h"
 #include "../include/sretention.h"
 
-/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-#include "../include/profiler.h"
-#endif
-
 extern char	*config_file;
 
 extern int      test_scheduling;
@@ -91,11 +86,6 @@ extern int      child_processes_fork_twice;
 extern int      time_change_threshold;
 
 extern time_t	disable_notifications_expire_time;
-
-/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-extern int 	event_profiling_enabled;
-#endif
 
 timed_event *event_list_low = NULL;
 timed_event *event_list_low_tail = NULL;
@@ -359,7 +349,8 @@ void init_timing_loop(void) {
 
 			/* skip services that are already scheduled for the future (from retention data), but reschedule ones that were supposed to happen while we weren't running... */
 			if (temp_service->next_check > current_time) {
-				log_debug_info(DEBUGL_EVENTS, 2, "Service is already scheduled to be checked in the future: %s\n", ctime(&temp_service->next_check));
+				if (log_level(DEBUGL_EVENTS, 2))
+					log_debug_info(DEBUGL_EVENTS, 2, "Service is already scheduled to be checked in the future: %s\n", ctime(&temp_service->next_check));
 				continue;
 			}
 
@@ -376,18 +367,21 @@ void init_timing_loop(void) {
 			/* set the preferred next check time for the service */
 			temp_service->next_check = (time_t)(current_time + (mult_factor * scheduling_info.service_inter_check_delay));
 
-			log_debug_info(DEBUGL_EVENTS, 2, "Preferred Check Time: %lu --> %s", (unsigned long)temp_service->next_check, ctime(&temp_service->next_check));
+			if (log_level(DEBUGL_EVENTS, 2))
+				log_debug_info(DEBUGL_EVENTS, 2, "Preferred Check Time: %lu --> %s", (unsigned long)temp_service->next_check, ctime(&temp_service->next_check));
 
 
 			/* make sure the service can actually be scheduled when we want */
 			is_valid_time = check_time_against_period(temp_service->next_check, temp_service->check_period_ptr);
 			if (is_valid_time == ERROR) {
-				log_debug_info(DEBUGL_EVENTS, 2, "Preferred Time is Invalid In Timeperiod '%s': %lu --> %s", temp_service->check_period_ptr->name, (unsigned long)temp_service->next_check, ctime(&temp_service->next_check));
+				if (log_level(DEBUGL_EVENTS, 2))
+					log_debug_info(DEBUGL_EVENTS, 2, "Preferred Time is Invalid In Timeperiod '%s': %lu --> %s", temp_service->check_period_ptr->name, (unsigned long)temp_service->next_check, ctime(&temp_service->next_check));
 				get_next_valid_time(temp_service->next_check, &next_valid_time, temp_service->check_period_ptr);
 				temp_service->next_check = next_valid_time;
 			}
 
-			log_debug_info(DEBUGL_EVENTS, 2, "Actual Check Time: %lu --> %s", (unsigned long)temp_service->next_check, ctime(&temp_service->next_check));
+			if (log_level(DEBUGL_EVENTS, 2))
+				log_debug_info(DEBUGL_EVENTS, 2, "Actual Check Time: %lu --> %s", (unsigned long)temp_service->next_check, ctime(&temp_service->next_check));
 
 			if (scheduling_info.first_service_check == (time_t)0 || (temp_service->next_check < scheduling_info.first_service_check))
 				scheduling_info.first_service_check = temp_service->next_check;
@@ -405,9 +399,7 @@ void init_timing_loop(void) {
 	for (temp_service = service_list; temp_service != NULL; temp_service = temp_service->next) {
 
 		/* update status of all services (scheduled or not) */
-		/* MF 2011-07-22 this causes a lot of data to be dumped into neb
-		   on startup and may cause IDOUtils to slow down */
-		/* update_service_status(temp_service,FALSE); */
+		update_service_status(temp_service,FALSE);
 
 		/* skip most services that shouldn't be scheduled */
 		if (temp_service->should_be_scheduled == FALSE) {
@@ -508,14 +500,16 @@ void init_timing_loop(void) {
 
 		/* skip hosts that are already scheduled for the future (from retention data), but reschedule ones that were supposed to be checked before we started */
 		if (temp_host->next_check > current_time) {
-			log_debug_info(DEBUGL_EVENTS, 2, "Host is already scheduled to be checked in the future: %s\n", ctime(&temp_host->next_check));
+			if (log_level(DEBUGL_EVENTS, 2))
+				log_debug_info(DEBUGL_EVENTS, 2, "Host is already scheduled to be checked in the future: %s\n", ctime(&temp_host->next_check));
 			continue;
 		}
 
 		/* calculate preferred host check time */
 		temp_host->next_check = (time_t)(current_time + (mult_factor * scheduling_info.host_inter_check_delay));
 
-		log_debug_info(DEBUGL_EVENTS, 2, "Preferred Check Time: %lu --> %s", (unsigned long)temp_host->next_check, ctime(&temp_host->next_check));
+		if (log_level(DEBUGL_EVENTS, 2))
+			log_debug_info(DEBUGL_EVENTS, 2, "Preferred Check Time: %lu --> %s", (unsigned long)temp_host->next_check, ctime(&temp_host->next_check));
 
 		/* make sure the host can actually be scheduled at this time */
 		is_valid_time = check_time_against_period(temp_host->next_check, temp_host->check_period_ptr);
@@ -524,7 +518,8 @@ void init_timing_loop(void) {
 			temp_host->next_check = next_valid_time;
 		}
 
-		log_debug_info(DEBUGL_EVENTS, 2, "Actual Check Time: %lu --> %s", (unsigned long)temp_host->next_check, ctime(&temp_host->next_check));
+		if (log_level(DEBUGL_EVENTS, 2))
+			log_debug_info(DEBUGL_EVENTS, 2, "Actual Check Time: %lu --> %s", (unsigned long)temp_host->next_check, ctime(&temp_host->next_check));
 
 		if (scheduling_info.first_host_check == (time_t)0 || (temp_host->next_check < scheduling_info.first_host_check))
 			scheduling_info.first_host_check = temp_host->next_check;
@@ -541,9 +536,7 @@ void init_timing_loop(void) {
 	for (temp_host = host_list; temp_host != NULL; temp_host = temp_host->next) {
 
 		/* update status of all hosts (scheduled or not) */
-		/* MF 2011-07-22 this causes a lot of data to be dumped into neb
-		   on startup and may cause IDOUtils to slow down */
-		/* update_host_status(temp_host,FALSE); */
+		update_host_status(temp_host,FALSE);
 
 		/* skip most hosts that shouldn't be scheduled */
 		if (temp_host->should_be_scheduled == FALSE) {
@@ -989,7 +982,8 @@ int delete_scheduled_event(int event_type, int high_priority, time_t run_time, i
 
 		if (temp_event->event_type == event_type && temp_event->event_options == event_options && temp_event->event_data == event_data) {
 
-			log_debug_info(DEBUGL_EVENTS, 1, "Removing event type %d @ %s", event_type, ctime(&run_time));
+			if (log_level(DEBUGL_EVENTS, 1))
+				log_debug_info(DEBUGL_EVENTS, 1, "Removing event type %d @ %s", event_type, ctime(&run_time));
 
 			/* remove the event from the event list */
 			remove_event(temp_event, event_list, event_list_tail);
@@ -1160,11 +1154,6 @@ int event_execution_loop(void) {
 	struct timespec delay;
 	pid_t wait_result;
 
-	/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-	struct timeval start;
-#endif
-
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "event_execution_loop() start\n");
 
 	time(&last_time);
@@ -1185,12 +1174,6 @@ int event_execution_loop(void) {
 	sleep_event.prev = NULL;
 
 	while (1) {
-
-		/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-		if (event_profiling_enabled)
-			gettimeofday(&start, NULL);
-#endif
 
 		/* see if we should exit or restart (a signal was encountered) */
 		if (sigshutdown == TRUE || sigrestart == TRUE)
@@ -1217,14 +1200,21 @@ int event_execution_loop(void) {
 		last_time = current_time;
 
 		log_debug_info(DEBUGL_EVENTS, 1, "** Event Check Loop\n");
-		if (event_list_high != NULL)
-			log_debug_info(DEBUGL_EVENTS, 1, "Next High Priority Event Time: %s", ctime(&event_list_high->run_time));
-		else
+
+		if (event_list_high != NULL) {
+			if (log_level(DEBUGL_EVENTS, 1))
+				log_debug_info(DEBUGL_EVENTS, 1, "Next High Priority Event Time: %s", ctime(&event_list_high->run_time));
+		} else {
 			log_debug_info(DEBUGL_EVENTS, 1, "No high priority events are scheduled...\n");
-		if (event_list_low != NULL)
+		}
+
+		if (event_list_low != NULL) {
+			if (log_level(DEBUGL_EVENTS, 1))
 			log_debug_info(DEBUGL_EVENTS, 1, "Next Low Priority Event Time:  %s", ctime(&event_list_low->run_time));
-		else
+		} else {
 			log_debug_info(DEBUGL_EVENTS, 1, "No low priority events are scheduled...\n");
+		}
+
 		log_debug_info(DEBUGL_EVENTS, 1, "Current/Max Service Checks: %d/%d\n", currently_running_service_checks, max_parallel_service_checks);
 
 		/* get rid of terminated child processes (zombies) */
@@ -1456,13 +1446,6 @@ int event_execution_loop(void) {
 			last_status_update = current_time;
 			update_program_status(FALSE);
 		}
-
-		/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-		if (event_profiling_enabled)
-			profiler_update(EVENT_LOOP_COMPLETION, start);
-#endif
-
 	}
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "event_execution_loop() end\n");
@@ -1481,11 +1464,6 @@ int handle_timed_event(timed_event *event) {
 	void (*userfunc)(void *);
 	struct timeval tv;
 	double latency = 0.0;
-	/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-	struct timeval start;
-	gettimeofday(&start, NULL);
-#endif
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "handle_timed_event() start\n");
 
@@ -1494,7 +1472,8 @@ int handle_timed_event(timed_event *event) {
 	broker_timed_event(NEBTYPE_TIMEDEVENT_EXECUTE, NEBFLAG_NONE, NEBATTR_NONE, event, NULL);
 #endif
 
-	log_debug_info(DEBUGL_EVENTS, 0, "** Timed Event ** Type: %d, Run Time: %s", event->event_type, ctime(&event->run_time));
+	if (log_level(DEBUGL_EVENTS, 0))
+		log_debug_info(DEBUGL_EVENTS, 0, "** Timed Event ** Type: %d, Run Time: %s", event->event_type, ctime(&event->run_time));
 
 	/* how should we handle the event? */
 	switch (event->event_type) {
@@ -1716,12 +1695,6 @@ int handle_timed_event(timed_event *event) {
 	}
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "handle_timed_event() end\n");
-
-	/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-	if (event_profiling_enabled)
-		profiler_update(event->event_type, start);
-#endif
 
 	return OK;
 }
