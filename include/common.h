@@ -27,8 +27,8 @@
 #define PROGRAM_NAME "Icinga"
 #define PROGRAM_NAME_UC "ICINGA"
 #define PROGRAM_NAME_LC "icinga"
-#define PROGRAM_VERSION "1.9.3"
-#define PROGRAM_MODIFICATION_DATE "07-07-2013"
+#define PROGRAM_VERSION "1.10.1"
+#define PROGRAM_MODIFICATION_DATE "11-04-2013"
 
 /*#define DEBUG_CHECK_IPC 1 */
 /*#define DEBUG_CHECK_IPC2 1*/
@@ -321,7 +321,15 @@
 
 /* custom command introduced in Nagios 3.x */
 #define CMD_CUSTOM_COMMAND                              999
+#define CMD_INTERNAL_CHANGE_HOST_CHECK_RETRY_INTERVAL   1001
+#define CMD_INTERNAL_CHANGE_SVC_CHECK_RETRY_INTERVAL    1002
 
+/**************************** COMMAND ERRORS *****************************/
+#define CMD_ERROR_OK 			0 	/* No errors encountered */
+#define CMD_ERROR_UNKNOWN_COMMAND 	1 	/* Unknown/unsupported command */
+#define CMD_ERROR_MALFORMED_COMMAND 	2 	/* Command malformed/missing timestamp? */
+#define CMD_ERROR_INTERNAL_ERROR 	3 	/* Internal error */
+#define CMD_ERROR_FAILURE 		4 	/* Command routine failed */
 
 
 /************************ SERVICE CHECK TYPES ****************************/

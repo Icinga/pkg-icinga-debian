@@ -294,6 +294,8 @@ int write_to_log(char *buffer, unsigned long data_type, time_t *timestamp) {}
 int log_debug_info(int level, int verbosity, const char *fmt, ...) {}
 int close_log_file(void) {}
 int chown_debug_log(uid_t uid, gid_t gid) {}
+int fix_log_file_owner(uid_t uid, gid_t gid) {}
+int log_level(int level, int verbosity) {}
 
 int neb_free_callback_list(void) {}
 void broker_program_status(int type, int flags, int attr, struct timeval *timestamp) {}
@@ -310,9 +312,7 @@ int my_recvall(int s, char *buf, int *len, int timeout) {}
 int neb_free_module_list(void) {}
 
 /* Icinga special */
-int     event_profiling_enabled = FALSE;
 unsigned long max_check_result_list_items = DEFAULT_MAX_CHECK_RESULT_LIST_ITEMS;
-void    profiler_update(int event, struct timeval start) {}
 
 void remove_host_acknowledgement(host * hst) {}
 void remove_service_acknowledgement(service * svc) {}

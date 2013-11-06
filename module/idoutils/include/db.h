@@ -22,7 +22,6 @@ typedef struct ido2db_dbconfig_struct{
 	char *dbprefix;
 	char *dbserver;
 	char *dbsocket;
-	unsigned long max_timedevents_age;
 	unsigned long max_systemcommands_age;
 	unsigned long max_servicechecks_age;
 	unsigned long max_hostchecks_age;
@@ -33,6 +32,7 @@ typedef struct ido2db_dbconfig_struct{
         unsigned long max_notifications_age;
         unsigned long max_contactnotifications_age;
         unsigned long max_contactnotificationmethods_age;
+	unsigned long max_downtimehistory_age;
 	unsigned long trim_db_interval;
 	unsigned long housekeeping_thread_startup_delay;
         unsigned long clean_realtime_tables_on_core_startup;
@@ -57,8 +57,8 @@ typedef struct ido2db_dbconfig_struct{
 #define IDO2DB_DBTABLE_SERVICESTATUS                  11
 #define IDO2DB_DBTABLE_HOSTSTATUS                     12
 #define IDO2DB_DBTABLE_PROCESSEVENTS                  13
-#define IDO2DB_DBTABLE_TIMEDEVENTS                    14
-#define IDO2DB_DBTABLE_TIMEDEVENTQUEUE                15
+#define IDO2DB_DBTABLE_TIMEDEVENTS                    14 /* removed */
+#define IDO2DB_DBTABLE_TIMEDEVENTQUEUE                15 /* removed */
 #define IDO2DB_DBTABLE_FLAPPINGHISTORY                16
 #define IDO2DB_DBTABLE_COMMENTHISTORY                 17
 #define IDO2DB_DBTABLE_COMMENTS                       18
@@ -113,9 +113,8 @@ typedef struct ido2db_dbconfig_struct{
 #define IDO2DB_DBTABLE_HOSTESCALATIONCONTACTGROUPS    66
 #define IDO2DB_DBTABLE_SERVICEESCALATIONCONTACTGROUPS 67
 #define IDO2DB_DBTABLE_DBVERSION                      68
-#define IDO2DB_DBTABLE_SLAHISTORY                     69
 
-#define IDO2DB_MAX_DBTABLES                           70
+#define IDO2DB_MAX_DBTABLES                           69
 
 
 /**************** Object types *****************/

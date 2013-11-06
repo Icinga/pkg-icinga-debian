@@ -45,11 +45,6 @@
 #include "../include/nebmods.h"
 #include "../include/nebmodules.h"
 
-/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-#include "../include/profiler.h"
-#endif
-
 /*#define DEBUG_MEMORY 1*/
 #ifdef DEBUG_MEMORY
 #include <mcheck.h>
@@ -152,7 +147,7 @@ int             soft_state_dependencies = FALSE;
 int             retain_state_information = FALSE;
 int             retention_update_interval = DEFAULT_RETENTION_UPDATE_INTERVAL;
 int             use_retained_program_state = TRUE;
-int		dump_retained_host_service_states_to_neb = TRUE;
+int		dump_retained_host_service_states_to_neb = FALSE;
 int             use_retained_scheduling_info = FALSE;
 int             retention_scheduling_horizon = DEFAULT_RETENTION_SCHEDULING_HORIZON;
 unsigned long   modified_host_process_attributes = MODATTR_NONE;
@@ -251,11 +246,6 @@ int             command_file_fd;
 FILE            *command_file_fp;
 int             command_file_created = FALSE;
 
-/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-int             event_profiling_enabled = FALSE;
-#endif
-
 int		keep_unknown_macros = FALSE;
 
 extern contact	       *contact_list;
@@ -290,15 +280,12 @@ unsigned long   max_check_result_list_items = DEFAULT_MAX_CHECK_RESULT_LIST_ITEM
 
 int		enable_state_based_escalation_ranges = FALSE;
 
-int dummy;	/* reduce compiler warnings */
-
 
 /* Following main() declaration required by older versions of Perl ut 5.00503 */
 int main(int argc, char **argv, char **env) {
 	int result;
 	int error = FALSE;
 	char *buffer = NULL;
-	char *dummy_c = NULL;
 	int display_license = FALSE;
 	int display_help = FALSE;
 	int c = 0;
@@ -483,7 +470,7 @@ int main(int argc, char **argv, char **env) {
 		}
 
 		/* get absolute path of current working directory */
-		dummy_c = getcwd(config_file, MAX_FILENAME_LENGTH);
+		getcwd(config_file, MAX_FILENAME_LENGTH);
 
 		/* append a forward slash */
 		strncat(config_file, "/", 1);
@@ -662,13 +649,6 @@ int main(int argc, char **argv, char **env) {
 	/* else start to monitor things... */
 	else {
 
-		/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-		/* This is Sparta! */
-		if (event_profiling_enabled == TRUE)
-			profiler_init();
-#endif
-
 		/* keep monitoring things until we get a shutdown command */
 		do {
 
@@ -695,7 +675,7 @@ int main(int argc, char **argv, char **env) {
 			/* get program (re)start time and save as macro */
 			program_start = time(NULL);
 			my_free(mac->x[MACRO_PROCESSSTARTTIME]);
-			dummy = asprintf(&mac->x[MACRO_PROCESSSTARTTIME], "%lu", (unsigned long)program_start);
+			asprintf(&mac->x[MACRO_PROCESSSTARTTIME], "%lu", (unsigned long)program_start);
 
 			/* open debug log */
 			open_debug_log();
@@ -827,7 +807,7 @@ int main(int argc, char **argv, char **env) {
 					exit(ERROR);
 				}
 
-				dummy = asprintf(&buffer, "Finished daemonizing... (New PID=%d)\n", (int)getpid());
+				asprintf(&buffer, "Finished daemonizing... (New PID=%d)\n", (int)getpid());
 				write_to_all_logs(buffer, NSLOG_PROCESS_INFO);
 				my_free(buffer);
 
@@ -891,10 +871,10 @@ int main(int argc, char **argv, char **env) {
 			/* get event start time and save as macro */
 			event_start = time(NULL);
 			my_free(mac->x[MACRO_EVENTSTARTTIME]);
-			dummy = asprintf(&mac->x[MACRO_EVENTSTARTTIME], "%lu", (unsigned long)event_start);
+			asprintf(&mac->x[MACRO_EVENTSTARTTIME], "%lu", (unsigned long)event_start);
 
 			/* print event loop start */
-			dummy = asprintf(&buffer, "Event loop started...\n");
+			asprintf(&buffer, "Event loop started...\n");
 			write_to_all_logs(buffer, NSLOG_PROCESS_INFO);
 			my_free(buffer);
 
@@ -908,9 +888,9 @@ int main(int argc, char **argv, char **env) {
 			if (caught_signal == TRUE) {
 
 				if (sig_id == SIGHUP)
-					dummy = asprintf(&buffer, "Caught SIGHUP, restarting...\n");
+					asprintf(&buffer, "Caught SIGHUP, restarting...\n");
 				else if (sig_id != SIGSEGV)
-					dummy = asprintf(&buffer, "Caught SIG%s, shutting down...\n", sigs[sig_id]);
+					asprintf(&buffer, "Caught SIG%s, shutting down...\n", sigs[sig_id]);
 
 				write_to_all_logs(buffer, NSLOG_PROCESS_INFO);
 				my_free(buffer);
