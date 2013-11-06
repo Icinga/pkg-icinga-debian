@@ -156,14 +156,9 @@ install-stamp: build-stamp fix-configs-stamp
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.4.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.5.0-1
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.6.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.6.0-1
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.7.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.7.0-1
-<<<<<<< HEAD
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.8.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.8.0-1~debmon60+1
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.9.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.9.0-1~debmon60+1
-=======
-	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.8.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.8.0-1
-	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.9.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.9.0-1
-	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.10.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.10.1-1
->>>>>>> master
+	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.10.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.10.1-1~debmon60+1
 	# set up /var/cache/icinga for access by www-data
 	chgrp www-data ${b}/icinga-common/var/cache/icinga
 	chmod g+s ${b}/icinga-common/var/cache/icinga
