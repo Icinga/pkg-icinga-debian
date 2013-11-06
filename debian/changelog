@@ -1,3 +1,9 @@
+icinga (1.10.1-1~debmon60+1) debmon-squeeze; urgency=low
+
+  * Rebuild for debmon-squeeze
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 06 Nov 2013 20:28:02 +0100
+
 icinga (1.10.1-1) unstable; urgency=low
 
   * [2b8968a] Install sql upgrade files for 1.10
