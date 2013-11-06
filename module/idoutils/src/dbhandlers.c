@@ -1167,7 +1167,7 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 	char *es[1];
 	time_t etime = 0L;
 	char *ts[1];
-	unsigned long type = 0L;
+	int type = 0;
 	unsigned long object_id = 0L;
 	int result = IDO_OK;
 	int duplicate_record = IDO_FALSE;
@@ -1305,7 +1305,7 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 		if (object_id != 0) {
 		        if (asprintf(
 		                    &buf,
-	        	            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %lu, E'%s', '0', '0', %lu)",
+	        	            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %d, E'%s', '0', '0', %lu)",
 	                	    ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
 		                    idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
 		                    : es[0], object_id) == -1)
@@ -1313,7 +1313,7 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 		} else {
 		        if (asprintf(
 		                    &buf,
-	        	            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %lu, E'%s', '0', '0')",
+	        	            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %d, E'%s', '0', '0')",
 	                	    ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
 		                    idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
 		                    : es[0]) == -1)
@@ -1324,7 +1324,7 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 		if (object_id != 0) {
 		        if (asprintf(
 		                    &buf,
-        		            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %lu, '%s', '0', '0', %lu)",
+        		            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %d, '%s', '0', '0', %lu)",
 	                	    ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
 		                    idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
 		                    : es[0], object_id) == -1)
@@ -1332,7 +1332,7 @@ int ido2db_handle_logentry(ido2db_idi *idi) {
 		} else {
 		        if (asprintf(
 		                    &buf,
-        		            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %lu, '%s', '0', '0')",
+        		            "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %d, '%s', '0', '0')",
 	                	    ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
 		                    idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
 		                    : es[0]) == -1)
@@ -1733,7 +1733,7 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
 	int type, flags, attr;
 	struct timeval tstamp;
 	time_t etime = 0L;
-	unsigned long letype = 0L;
+	int letype = 0;
 	unsigned long object_id = 0L;
 	char *ts[2];
 	char *es[1];
@@ -1756,7 +1756,7 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
 	         &tstamp);
 
 	/* convert data */
-	result = ido2db_convert_string_to_unsignedlong(
+	result = ido2db_convert_string_to_int(
 	             idi->buffered_input[IDO_DATA_LOGENTRYTYPE], &letype);
 	result = ido2db_convert_string_to_unsignedlong(
 	             idi->buffered_input[IDO_DATA_LOGENTRYTIME],
@@ -1790,7 +1790,7 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
                 if (object_id != 0) {
                         if (asprintf(
                                     &buf,
-                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %lu, E'%s', '1', '1', %lu)",
+                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %d, E'%s', '1', '1', %lu)",
                                     ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
                                     idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
                                     : es[0], object_id) == -1)
@@ -1798,7 +1798,7 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
                 } else {
                         if (asprintf(
                                     &buf,
-                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %lu, E'%s', '1', '1')",
+                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %d, E'%s', '1', '1')",
                                     ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
                                     idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
                                     : es[0]) == -1)
@@ -1809,7 +1809,7 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
                 if (object_id != 0) {
                         if (asprintf(
                                     &buf,
-                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %lu, '%s', '1', '1', %lu)",
+                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted, object_id) VALUES (%lu, %s, %s, '0', %d, '%s', '1', '1', %lu)",
                                     ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
                                     idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
                                     : es[0], object_id) == -1)
@@ -1817,7 +1817,7 @@ int ido2db_handle_logdata(ido2db_idi *idi) {
                 } else {
                         if (asprintf(
                                     &buf,
-                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %lu, '%s', '1', '1')",
+                                    "INSERT INTO %s (instance_id, logentry_time, entry_time, entry_time_usec, logentry_type, logentry_data, realtime_data, inferred_data_extracted) VALUES (%lu, %s, %s, '0', %d, '%s', '1', '1')",
                                     ido2db_db_tablenames[IDO2DB_DBTABLE_LOGENTRIES],
                                     idi->dbinfo.instance_id, ts[0], ts[0], type, (es[0] == NULL) ? ""
                                     : es[0]) == -1)
@@ -3597,11 +3597,11 @@ int ido2db_handle_hoststatusdata(ido2db_idi *idi) {
 	double normal_check_interval = 0.0;
 	double retry_check_interval = 0.0;
 	char *ts[10];
-	char *es[6];
+	char *es[5];
 	unsigned long object_id = 0L;
 	unsigned long check_timeperiod_object_id = 0L;
 	int x = 0;
-	void *data[57];
+	void *data[56];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hoststatusdata() start\n");
 
@@ -3659,7 +3659,6 @@ int ido2db_handle_hoststatusdata(ido2db_idi *idi) {
 	es[2] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_PERFDATA]);
 	es[3] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_EVENTHANDLER]);
 	es[4] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_CHECKCOMMAND]);
-	es[5] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_CHECKSOURCE]);
 
 	ts[0] = ido2db_db_timet_to_sql(idi, tstamp.tv_sec);
 	ts[1] = ido2db_db_timet_to_sql(idi, last_check);
@@ -3734,8 +3733,6 @@ int ido2db_handle_hoststatusdata(ido2db_idi *idi) {
 	data[53] = (void *) &last_time_unreachable;
 	data[54] = (void *) &last_notification;
 	data[55] = (void *) &next_notification;
-	/* check_source */
-	data[56] = (void *) &es[5];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_hoststatusdata() LongLen:%d\n", strlen(es[1]));
 
@@ -3797,11 +3794,11 @@ int ido2db_handle_servicestatusdata(ido2db_idi *idi) {
 	double normal_check_interval = 0.0;
 	double retry_check_interval = 0.0;
 	char *ts[11];
-	char *es[6];
+	char *es[5];
 	unsigned long object_id = 0L;
 	unsigned long check_timeperiod_object_id = 0L;
 	int x = 0;
-	void *data[59];
+	void *data[58];
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_servicestatusdata() start\n");
 
@@ -3860,7 +3857,6 @@ int ido2db_handle_servicestatusdata(ido2db_idi *idi) {
 	es[2] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_PERFDATA]);
 	es[3] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_EVENTHANDLER]);
 	es[4] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_CHECKCOMMAND]);
-	es[5] = ido2db_db_escape_string(idi, idi->buffered_input[IDO_DATA_CHECKSOURCE]);
 
 	ts[0] = ido2db_db_timet_to_sql(idi, tstamp.tv_sec);
 	ts[1] = ido2db_db_timet_to_sql(idi, last_check);
@@ -3943,8 +3939,6 @@ int ido2db_handle_servicestatusdata(ido2db_idi *idi) {
 	data[55] = (void *) &last_time_critical;
 	data[56] = (void *) &last_notification;
 	data[57] = (void *) &next_notification;
-	/* check_source */
-	data[58] = (void *) &es[5];
 
 	ido2db_query_insert_or_update_servicestatusdata_add(idi, data);
 

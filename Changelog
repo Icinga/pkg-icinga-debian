@@ -13,6 +13,24 @@ UPGRADE NOTES
 	- idoutils: ${source}/module/idoutils/config/updates
 * package locations may differ!
 
+1.10.1 - 04/11/2013
+
+ENHANCEMENTS
+
+* core: add line number information to config verification error messages #4967 - GB
+
+FIXES
+
+* core/idoutils: revert check_source attribute due to mod_gearman manipulating in-memory checkresult list #4958 - MF
+	** classic ui/idoutils schema: functionality is kept only for Icinga 2 support
+
+* classic ui: fix context help on mouseover in cmd.cgi (Marc-Christian Petersen) #4971 - MF
+* classic ui: correction of colspan value in status.cgi (Bernd Arnold) #4961 - MF
+
+* idoutils: fix pgsql update script #4953 - AW/MF
+* idoutils: fix logentry_type being integer, not unsigned long (thx David Mikulksi) #4953 - MF
+
+
 1.10.0 - 24/10/2013
 
 * idoutils: slahistory table must be removed manually after enable_sla removal #4363

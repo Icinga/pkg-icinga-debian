@@ -331,7 +331,6 @@ typedef struct check_result_struct{
 	int return_code;				/* plugin return code */
 	char *output;	                                /* plugin output */
 	struct check_result_struct *next;
-	char *source;
 	}check_result;
 
 
@@ -372,7 +371,6 @@ typedef struct passive_check_result_struct{
 	time_t check_time;
 	double latency;
 	struct passive_check_result_struct *next;
-	char *source;
 	}passive_check_result;
 
 
@@ -407,7 +405,6 @@ typedef struct check_stats_struct{
 	int minute_stats[3];
 	time_t last_update;
         }check_stats;
-
 
 /******************* THREAD STUFF ********************/
 
@@ -740,7 +737,6 @@ char *get_program_modification_date(void);
 int has_shell_metachars(const char *);
 
 extern pthread_mutex_t icinga_eventloop_lock;
-
 
 #ifdef __cplusplus
 }
