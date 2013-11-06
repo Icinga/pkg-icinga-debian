@@ -1,21 +1,21 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>6.4. Installation of the Icinga-Web Frontend</title>
+<title>6.4. Installation of the Icinga Web Frontend</title>
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.9 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.10 Documentation">
 <link rel="up" href="ch06.html" title="Chapter 6. User Interfaces">
 <link rel="prev" href="cgicmd.html" title="6.3. Executing CGIs on the command line">
-<link rel="next" href="upgrading_icingaweb.html" title="6.5. Upgrading Icinga-Web and Icinga-Web Database">
+<link rel="next" href="upgrading_icingaweb.html" title="6.5. Upgrading Icinga Web and Icinga Web Database">
 <script src="../js/jquery-min.js" type="text/javascript"></script><script src="../js/icinga-docs.js" type="text/javascript"></script>
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <CENTER><IMG src="../images/logofullsize.png" border="0" alt="Icinga" title="Icinga"></CENTER>
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">6.4. Installation of the Icinga-Web Frontend</th></tr>
+<tr><th colspan="3" align="center">6.4. Installation of the Icinga Web Frontend</th></tr>
 <tr>
 <td width="20%" align="left">
 <a accesskey="p" href="cgicmd.html">Prev</a> </td>
@@ -26,9 +26,9 @@
 </table>
 <hr>
 </div>
-<div class="section" title="6.4. Installation of the Icinga-Web Frontend">
+<div class="section" title="6.4. Installation of the Icinga Web Frontend">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="icinga-web-scratch"></a>6.4. Installation of the Icinga-Web Frontend</h2></div></div></div>
+<a name="icinga-web-scratch"></a>6.4. Installation of the Icinga Web Frontend</h2></div></div></div>
 <div class="toc"><dl>
 <dt><span class="section">6.4.1. <a href="icinga-web-scratch.html#introduction">Introduction</a></span></dt>
 <dt><span class="section">6.4.2. <a href="icinga-web-scratch.html#prerequisites">Prerequisites</a></span></dt>
@@ -47,11 +47,11 @@
     <p>The new Icinga Web is under heavy development so please keep in mind that some information in this howto might change without any
     further notice. If you require more detailed information about installing, please check doc/INSTALL.</p>
 
-    <p>More information about the overall architecture can be found on our website: <a class="link" href="http://www.icinga.org/architecture/" target="_top">http://www.icinga.org/architecture/</a>. If you want know more about Icinga web development
-    and the module architecture, please check out the development wiki of Icinga Web: <a class="link" href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web" target="_top">Icinga-Wiki</a></p>
+    <p>More information about the overall architecture can be found on our website: <a class="link" href="http://www.icinga.org/architecture/" target="_top">https://www.icinga.org/architecture/</a>. If you want know more about Icinga web development
+    and the module architecture, please check out the development wiki of Icinga Web: <a class="link" href="https://dev.icinga.org/projects/icinga-development/wiki#24-Icinga-Web" target="_top">Icinga Wiki</a></p>
 
-    <p>This installation guide describes the installation of Icinga-Web with MySQL or PostgreSQL as underlying database.
-    Icinga-Web also supports Oracle as database backend.</p>
+    <p>This installation guide describes the installation of Icinga Web with MySQL or PostgreSQL as underlying database.
+    Icinga Web also supports Oracle as database backend.</p>
   </div>
 
   <div class="section" title="6.4.2. Prerequisites">
@@ -69,18 +69,7 @@
 <li class="listitem">
             <p><span class="bold"><strong>Ubuntu / Debian</strong></span></p>
 
-            <pre class="screen"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-pdo php5-soap php5-gd php5-ldap php5-mysql</pre>
-
-            <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
-<th align="left">Note</th>
-</tr>
-<tr><td align="left" valign="top">
-              <p>For Ubuntu you install the required PDO extensions with php5 and php5-mysql! There is no php5-pdo package
-              available.</p>
-            </td></tr>
-</table></div>
+            <pre class="screen"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-mysql php-soap php5-gd php5-ldap php5-mysql</pre>
           </li>
 <li class="listitem">
             <p><span class="bold"><strong>Fedora / RHEL / CentOS</strong></span></p>
@@ -137,18 +126,7 @@
 <li class="listitem">
             <p><span class="bold"><strong>Ubuntu / Debian</strong></span></p>
 
-            <pre class="screen"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php5-pdo php5-gd php5-ldap php5-pgsql</pre>
-
-            <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
-<th align="left">Note</th>
-</tr>
-<tr><td align="left" valign="top">
-              <p>For Ubuntu you install the required PDO extensions with php5 and php5-pgsql! There is no php5-pdo package
-              available.</p>
-            </td></tr>
-</table></div>
+            <pre class="screen"> #&gt; apt-get install php5 php5-cli php-pear php5-xmlrpc php5-xsl php-soap php5-gd php5-ldap php5-pgsql</pre>
           </li>
 <li class="listitem">
             <p><span class="bold"><strong>Fedora / RHEL / CentOS</strong></span></p>
@@ -210,13 +188,13 @@
 
         <p>Unpack your tarball:</p>
 
-        <pre class="screen"> #&gt; tar xzvf icinga-web-1.9.0.tar.gz</pre>
+        <pre class="screen"> #&gt; tar xzvf icinga-web-1.10.0.tar.gz</pre>
 
         <p>Then change to the directory:</p>
 
-        <pre class="screen"> #&gt; cd icinga-web-1.9.0</pre>
+        <pre class="screen"> #&gt; cd icinga-web-1.10.0</pre>
 
-        <p>Icinga-Web provides several configure options e.g.</p>
+        <p>Icinga Web provides several configure options e.g.</p>
 
         <pre class="screen"> #&gt; ./configure
                 --prefix=/usr/local/icinga-web
@@ -231,7 +209,7 @@
                 --with-db-user=icinga_web
                 --with-db-pass=icinga_web
                 --with-conf-dir=etc/conf.d
-                --with-log-folder=log
+                --with-log-dir=log
                 --with-api-subtype=TYPE DB driver or network connection
                 --with-api-host=HOST Host to connect (DB or other) (default localhost)
                 --with-api-port=PORT Port for connection (default 3306)
@@ -248,13 +226,27 @@
         </td></tr>
 </table></div>
 
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+          <p>Starting with Apache 2.4 (testing versions of Debian / Ubuntu) the default web configuration folder has
+          changed from <code class="filename">/etc/apache2/conf.d</code> to <code class="filename">/etc/apache2/conf-available</code> so you might have to add
+          this option to the call of configure</p>
+
+          <pre class="screen">#&gt; ./configure --with-web-apache-path=/etc/apache2/conf-available</pre>
+        </td></tr>
+</table></div>
+
         <p>Please use:</p>
 
         <pre class="screen"> #&gt; ./configure --help</pre>
 
         <p>to see all configure options.</p>
 
-        <p>To configure Icinga-Web for PostgreSQL please execute the following command:</p>
+        <p>To configure Icinga Web for PostgreSQL please execute the following command:</p>
 
         <pre class="screen"> #&gt; ./configure --with-db-type=pgsql --with-db-port=5432</pre>
 
@@ -263,7 +255,7 @@
         <pre class="screen"> #&gt; ./configure --with-db-type=pgsql --with-db-port=5432 \
     --with-api-subtype=pgsql --with-api-port=5432</pre>
 
-        <p>Per default the Icinga-Webinterface will be installed to <code class="filename">/usr/local/icinga-web</code> using:</p>
+        <p>Per default the Icinga Webinterface will be installed to <code class="filename">/usr/local/icinga-web</code> using:</p>
 
         <pre class="screen"> #&gt; ./configure
  #&gt; make install</pre>
@@ -273,6 +265,26 @@
         <p>Install the new Apache configuration</p>
 
         <pre class="screen"> #&gt; make install-apache-config</pre>
+
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+          Starting with Apache 2.4 (testing versions of 
+
+          Debian
+
+           / 
+
+          Ubuntu
+
+          ) you have to enable the module
+
+          <pre class="screen">#&gt; a2enconf icinga-web</pre>
+        </td></tr>
+</table></div>
 
         <p>If you don't need an alias, you can alternatively use the old behaviour setting a symlink instead: </p>
 <pre class="screen"> #&gt; make install-javascript</pre>
@@ -446,7 +458,7 @@
 
     <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
-        <p><span class="bold"><strong>Settings of Icinga-Web</strong></span></p>
+        <p><span class="bold"><strong>Settings of Icinga Web</strong></span></p>
 
         <p>Normally you can set the database credentials during configure, but if you want to recheck or even change them, please adapt
         those to your needs.</p>
@@ -928,11 +940,11 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
     <p>If you have any updates on that please do not hesitate to report back! :-)</p>
 
-    <a class="indexterm" name="idp12354368"></a>
+    <a class="indexterm" name="idp188473728"></a>
 
-    <a class="indexterm" name="idp12356000"></a>
+    <a class="indexterm" name="idp188475152"></a>
 
-    <a class="indexterm" name="idp12356896"></a>
+    <a class="indexterm" name="idp188473856"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -948,10 +960,10 @@ Alias /icinga-web /usr/local/icinga-web/pub
 <tr>
 <td width="40%" align="left" valign="top">6.3. Executing CGIs on the command line </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
-<td width="40%" align="right" valign="top"> 6.5. Upgrading Icinga-Web and Icinga-Web Database</td>
+<td width="40%" align="right" valign="top"> 6.5. Upgrading Icinga Web and Icinga Web Database</td>
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

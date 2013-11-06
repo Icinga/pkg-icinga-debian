@@ -13,7 +13,7 @@
 -- Functions
 --
 
-CREATE OR REPLACE FUNCTION from_unixtime(integer) RETURNS timestamp with time zone AS '
+CREATE OR REPLACE FUNCTION from_unixtime(bigint) RETURNS timestamp with time zone AS '
          SELECT to_timestamp($1) AS result
 ' LANGUAGE sql;
 
@@ -112,7 +112,7 @@ CREATE TABLE  icinga_commenthistory (
   deletion_time timestamp with time zone default '1970-01-01 00:00:00',
   deletion_time_usec INTEGER  default 0,
   CONSTRAINT PK_commenthistory_id PRIMARY KEY (commenthistory_id) ,
-  CONSTRAINT UQ_commenthistory UNIQUE (instance_id,comment_time,internal_comment_id)
+  CONSTRAINT UQ_commenthistory UNIQUE (instance_id,object_id,comment_time,internal_comment_id)
 );
 
 -- --------------------------------------------------------
@@ -138,7 +138,7 @@ CREATE TABLE  icinga_comments (
   expires INTEGER  default 0,
   expiration_time timestamp with time zone default '1970-01-01 00:00:00',
   CONSTRAINT PK_comment_id PRIMARY KEY (comment_id) ,
-  CONSTRAINT UQ_comments UNIQUE (instance_id,comment_time,internal_comment_id)
+  CONSTRAINT UQ_comments UNIQUE (instance_id,object_id,comment_time,internal_comment_id)
 )  ;
 
 -- --------------------------------------------------------
@@ -426,7 +426,7 @@ CREATE TABLE  icinga_downtimehistory (
   internal_downtime_id bigint default 0,
   triggered_by_id bigint default 0,
   is_fixed INTEGER  default 0,
-  duration INTEGER  default 0,
+  duration BIGINT  default 0,
   scheduled_start_time timestamp with time zone default '1970-01-01 00:00:00',
   scheduled_end_time timestamp with time zone default '1970-01-01 00:00:00',
   was_started INTEGER  default 0,
@@ -732,6 +732,7 @@ CREATE TABLE  icinga_hoststatus (
   output TEXT  default '',
   long_output TEXT  default '',
   perfdata TEXT  default '',
+  check_source TEXT  default '',
   current_state INTEGER  default 0,
   has_been_checked INTEGER  default 0,
   should_be_scheduled INTEGER  default 0,
@@ -847,6 +848,7 @@ CREATE TABLE  icinga_logentries (
   logentry_data TEXT  default '',
   realtime_data INTEGER  default 0,
   inferred_data_extracted INTEGER  default 0,
+  object_id bigint default NULL,
   CONSTRAINT PK_logentry_id PRIMARY KEY (logentry_id) 
 ) ;
 
@@ -980,7 +982,7 @@ CREATE TABLE  icinga_scheduleddowntime (
   internal_downtime_id bigint default 0,
   triggered_by_id bigint default 0,
   is_fixed INTEGER  default 0,
-  duration INTEGER  default 0,
+  duration BIGINT  default 0,
   scheduled_start_time timestamp with time zone default '1970-01-01 00:00:00',
   scheduled_end_time timestamp with time zone default '1970-01-01 00:00:00',
   was_started INTEGER  default 0,
@@ -1208,6 +1210,7 @@ CREATE TABLE  icinga_servicestatus (
   output TEXT  default '',
   long_output TEXT  default '',
   perfdata TEXT  default '',
+  check_source TEXT  default '',
   current_state INTEGER  default 0,
   has_been_checked INTEGER  default 0,
   should_be_scheduled INTEGER  default 0,
@@ -1332,47 +1335,6 @@ CREATE TABLE  icinga_systemcommands (
 -- --------------------------------------------------------
 
 --
--- Table structure for table icinga_timedeventqueue
---
-
-CREATE TABLE  icinga_timedeventqueue (
-  timedeventqueue_id bigserial,
-  instance_id bigint default 0,
-  event_type INTEGER  default 0,
-  queued_time timestamp with time zone default '1970-01-01 00:00:00',
-  queued_time_usec INTEGER  default 0,
-  scheduled_time timestamp with time zone default '1970-01-01 00:00:00',
-  recurring_event INTEGER  default 0,
-  object_id bigint default 0,
-  CONSTRAINT PK_timedeventqueue_id PRIMARY KEY (timedeventqueue_id) 
-) ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table icinga_timedevents
---
-
-CREATE TABLE  icinga_timedevents (
-  timedevent_id bigserial,
-  instance_id bigint default 0,
-  event_type INTEGER  default 0,
-  queued_time timestamp with time zone default '1970-01-01 00:00:00',
-  queued_time_usec INTEGER  default 0,
-  event_time timestamp with time zone default '1970-01-01 00:00:00',
-  event_time_usec INTEGER  default 0,
-  scheduled_time timestamp with time zone default '1970-01-01 00:00:00',
-  recurring_event INTEGER  default 0,
-  object_id bigint default 0,
-  deletion_time timestamp with time zone default '1970-01-01 00:00:00',
-  deletion_time_usec INTEGER  default 0,
-  CONSTRAINT PK_timedevent_id PRIMARY KEY (timedevent_id) ,
-  CONSTRAINT UQ_timedevents UNIQUE (instance_id,event_type,scheduled_time,object_id)
-) ;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table icinga_timeperiods
 --
 
@@ -1402,26 +1364,6 @@ CREATE TABLE  icinga_timeperiod_timeranges (
   CONSTRAINT PK_timeperiod_timerange_id PRIMARY KEY (timeperiod_timerange_id)
 ) ;
 
--- --------------------------------------------------------
-
---
--- Table structure for table icinga_slahistory
---
-                                                                                
-CREATE TABLE icinga_slahistory (
-  slahistory_id serial,
-  instance_id bigint default 0,
-  start_time timestamp with time zone default '1970-01-01 00:00:00',
-  end_time timestamp with time zone default '1970-01-01 00:00:00',
-  acknowledgement_time timestamp with time zone default '1970-01-01 00:00:00',
-  object_id bigint default 0,
-  state INTEGER default 0,
-  state_type INTEGER default '0',
-  scheduled_downtime INTEGER default 0,
-  CONSTRAINT PK_slahistory_id PRIMARY KEY (slahistory_id)
-) ;
-
-
 
 -- -----------------------------------------
 -- add index (delete)
@@ -1434,8 +1376,6 @@ CREATE TABLE icinga_slahistory (
 -- EXTERNALCOMMANDS => entry_time
 
 -- instance_id
-CREATE INDEX timedevents_i_id_idx on icinga_timedevents(instance_id);
-CREATE INDEX timedeventq_i_id_idx on icinga_timedeventqueue(instance_id);
 CREATE INDEX systemcommands_i_id_idx on icinga_systemcommands(instance_id);
 CREATE INDEX servicechecks_i_id_idx on icinga_servicechecks(instance_id);
 CREATE INDEX hostchecks_i_id_idx on icinga_hostchecks(instance_id);
@@ -1443,8 +1383,6 @@ CREATE INDEX eventhandlers_i_id_idx on icinga_eventhandlers(instance_id);
 CREATE INDEX externalcommands_i_id_idx on icinga_externalcommands(instance_id);
 
 -- time
-CREATE INDEX timedevents_time_id_idx on icinga_timedevents(scheduled_time);
-CREATE INDEX timedeventq_time_id_idx on icinga_timedeventqueue(scheduled_time);
 CREATE INDEX systemcommands_time_id_idx on icinga_systemcommands(start_time);
 CREATE INDEX servicechecks_time_id_idx on icinga_servicechecks(start_time);
 CREATE INDEX hostchecks_time_id_idx on icinga_hostchecks(start_time);
@@ -1460,7 +1398,6 @@ CREATE INDEX programstatus_i_id_idx on icinga_programstatus(instance_id);
 CREATE INDEX hoststatus_i_id_idx on icinga_hoststatus(instance_id);
 CREATE INDEX servicestatus_i_id_idx on icinga_servicestatus(instance_id);
 CREATE INDEX contactstatus_i_id_idx on icinga_contactstatus(instance_id);
-CREATE INDEX timedeventqueue_i_id_idx on icinga_timedeventqueue(instance_id);
 CREATE INDEX comments_i_id_idx on icinga_comments(instance_id);
 CREATE INDEX scheduleddowntime_i_id_idx on icinga_scheduleddowntime(instance_id);
 CREATE INDEX runtimevariables_i_id_idx on icinga_runtimevariables(instance_id);
@@ -1543,18 +1480,6 @@ CREATE INDEX srvcstatus_latency_idx on icinga_servicestatus(latency);
 CREATE INDEX srvcstatus_ex_time_idx on icinga_servicestatus(execution_time);
 CREATE INDEX srvcstatus_sch_downt_d_idx on icinga_servicestatus(scheduled_downtime_depth);
 
--- timedeventqueue
-CREATE INDEX timed_e_q_event_type_idx on icinga_timedeventqueue(event_type);
-CREATE INDEX timed_e_q_sched_time_idx on icinga_timedeventqueue(scheduled_time);
-CREATE INDEX timed_e_q_object_id_idx on icinga_timedeventqueue(object_id);
-CREATE INDEX timed_e_q_rec_ev_id_idx on icinga_timedeventqueue(recurring_event);
-
--- timedevents
-CREATE INDEX timed_e_event_type_idx on icinga_timedevents(event_type);
---CREATE INDEX timed_e_sched_time_idx on icinga_timedevents(scheduled_time); --already set for delete
-CREATE INDEX timed_e_object_id_idx on icinga_timedevents(object_id);
-CREATE INDEX timed_e_rec_ev_idx on icinga_timedevents(recurring_event);
-
 -- hostchecks
 CREATE INDEX hostchks_h_obj_id_idx on icinga_hostchecks(host_object_id);
 
@@ -1612,9 +1537,6 @@ CREATE INDEX statehist_i_id_o_id_s_ty_s_ti on icinga_statehistory(instance_id, o
 --#2274
 create index statehist_state_idx on icinga_statehistory(object_id,state);
 
--- SLA statehistory
-CREATE INDEX slahist_i_id_o_id_s_ti_s_s_ti_e on icinga_slahistory(instance_id,object_id,start_time,end_time);
-
 -- #2618
 CREATE INDEX cntgrpmbrs_cgid_coid ON icinga_contactgroup_members (contactgroup_id,contact_object_id);
 CREATE INDEX hstgrpmbrs_hgid_hoid ON icinga_hostgroup_members (hostgroup_id,host_object_id);
@@ -1635,5 +1557,5 @@ CREATE INDEX sla_idx_obj ON icinga_objects (objecttype_id, is_active, name1);
 -- set dbversion
 -- -----------------------------------------
 
-SELECT updatedbversion('1.9.0');
+SELECT updatedbversion('1.10.0');
 

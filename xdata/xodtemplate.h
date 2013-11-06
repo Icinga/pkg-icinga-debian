@@ -854,6 +854,14 @@ typedef struct xodtemplate_memberlist_struct{
 	struct xodtemplate_memberlist_struct *next;
         }xodtemplate_memberlist;
 
+/* CONFIG DEBUG INFO */
+typedef struct debuginfo_struct{
+	void      *cookie;
+	char      *file;
+	int       line;
+	struct debuginfo_struct *next;
+	}debuginfo;
+
 
 /***** CHAINED HASH DATA STRUCTURES ******/
 
@@ -863,7 +871,6 @@ typedef struct xodtemplate_service_cursor_struct{
         }xodtemplate_service_cursor;
 
 
-
 /********* FUNCTION DEFINITIONS **********/
 
 int xodtemplate_read_config_data(char *,int,int,int);       /* top-level routine processes all config files */
@@ -871,13 +878,19 @@ int xodtemplate_grab_config_info(char *);                   /* grabs variables f
 int xodtemplate_process_config_file(char *,int);            /* process data in a specific config file */
 int xodtemplate_process_config_dir(char *,int);             /* process all files in a specific config directory */
 
+debuginfo *get_debuginfo(void *cookie);
+const char *format_debuginfo(void *cookie);
+void set_debuginfo(void *cookie, const char *file, int line);
+void purge_debuginfo(void);
+void xodtemplate_set_debuginfo(void *object, void *xodtemplate);
+
 #ifdef NSCORE
 xodtemplate_memberlist *xodtemplate_expand_contactgroups_and_contacts(char *,char *,int,int);
 int xodtemplate_expand_contactgroups(xodtemplate_memberlist **,xodtemplate_memberlist **,char *,int,int);
 int xodtemplate_expand_contacts(xodtemplate_memberlist **,xodtemplate_memberlist **,char *,int,int);
 int xodtemplate_add_contactgroup_members_to_memberlist(xodtemplate_memberlist **,xodtemplate_contactgroup *,int,int);
 
-xodtemplate_memberlist *xodtemplate_expand_hostgroups_and_hosts(char *,char *,int,int);
+int xodtemplate_expand_hostgroups_and_hosts(xodtemplate_memberlist **,char *,char *,int,int);
 int xodtemplate_expand_hostgroups(xodtemplate_memberlist **,xodtemplate_memberlist **,char *,int,int);
 int xodtemplate_expand_hosts(xodtemplate_memberlist **,xodtemplate_memberlist **,char *,int,int);
 int xodtemplate_add_hostgroup_members_to_memberlist(xodtemplate_memberlist **,xodtemplate_hostgroup *,int,int);

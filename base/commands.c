@@ -89,17 +89,34 @@ extern pthread_t       worker_threads[TOTAL_WORKER_THREADS];
 extern circular_buffer external_command_buffer;
 extern int             external_command_buffer_slots;
 
-int dummy;	/* reduce compiler warnings */
-
 /******************************************************************/
 /****************** EXTERNAL COMMAND PROCESSING *******************/
 /******************************************************************/
+
+/* error string helper */
+static const char *cmd_error_strerror(int code) {
+	switch(code) {
+		case CMD_ERROR_OK:
+			return "No error";
+		case CMD_ERROR_FAILURE:
+			return "Command failed";
+		case CMD_ERROR_INTERNAL_ERROR:
+			return "Internal error";
+		case CMD_ERROR_UNKNOWN_COMMAND:
+			return "Unknown or unsupported command";
+		case CMD_ERROR_MALFORMED_COMMAND:
+			return "Malformed command";
+		default:
+			return "Unknown error";
+	}
+}
 
 
 /* checks for the existence of the external command file and processes all commands found in it */
 int check_for_external_commands(void) {
 	char *buffer = NULL;
 	int update_status = FALSE;
+	int result;
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "check_for_external_commands()\n");
 
@@ -151,7 +168,9 @@ int check_for_external_commands(void) {
 		pthread_mutex_unlock(&external_command_buffer.buffer_lock);
 
 		/* process the command */
-		process_external_command1(buffer);
+		if ((result = process_external_command1(buffer)) != CMD_ERROR_OK) {
+			logit(NSLOG_EXTERNAL_COMMAND | NSLOG_RUNTIME_WARNING, TRUE, "External command error: %s\n", cmd_error_strerror(result));
+		}
 
 		/* free memory */
 		my_free(buffer);
@@ -170,7 +189,7 @@ int check_for_external_commands(void) {
 int process_external_commands_from_file(char *fname, int delete_file) {
 	mmapfile *thefile = NULL;
 	char *input = NULL;
-
+	int result;
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "process_external_commands_from_file()\n");
 
@@ -196,7 +215,9 @@ int process_external_commands_from_file(char *fname, int delete_file) {
 			break;
 
 		/* process the command */
-		process_external_command1(input);
+		if ((result = process_external_command1(input)) != CMD_ERROR_OK) {
+			logit(NSLOG_EXTERNAL_COMMAND | NSLOG_RUNTIME_WARNING, TRUE, "External command error: %s\n", cmd_error_strerror(result));
+		}
 	}
 
 	/* close the file */
@@ -219,11 +240,12 @@ int process_external_command1(char *cmd) {
 	time_t entry_time = 0L;
 	int command_type = CMD_NONE;
 	char *temp_ptr = NULL;
+	int result = OK;
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "process_external_command1()\n");
 
 	if (cmd == NULL)
-		return ERROR;
+		return CMD_ERROR_MALFORMED_COMMAND;
 
 	/* strip the command of newlines and carriage returns */
 	strip(cmd);
@@ -232,16 +254,16 @@ int process_external_command1(char *cmd) {
 
 	/* get the command entry time */
 	if ((temp_ptr = my_strtok(cmd, "[")) == NULL)
-		return ERROR;
+		return CMD_ERROR_MALFORMED_COMMAND;
 	if ((temp_ptr = my_strtok(NULL, "]")) == NULL)
-		return ERROR;
+		return CMD_ERROR_MALFORMED_COMMAND;
 	entry_time = (time_t)strtoul(temp_ptr, NULL, 10);
 
 	/* get the command identifier */
 	if ((temp_ptr = my_strtok(NULL, ";")) == NULL)
-		return ERROR;
+		return CMD_ERROR_MALFORMED_COMMAND;
 	if ((command_id = (char *)strdup(temp_ptr + 1)) == NULL)
-		return ERROR;
+		return CMD_ERROR_INTERNAL_ERROR;
 
 	/* get the command arguments */
 	if ((temp_ptr = my_strtok(NULL, "\n")) == NULL)
@@ -251,7 +273,7 @@ int process_external_command1(char *cmd) {
 
 	if (args == NULL) {
 		my_free(command_id);
-		return ERROR;
+		return CMD_ERROR_INTERNAL_ERROR;
 	}
 
 	/* decide what type of command this is... */
@@ -730,14 +752,14 @@ int process_external_command1(char *cmd) {
 		my_free(command_id);
 		my_free(args);
 
-		return ERROR;
+		return CMD_ERROR_UNKNOWN_COMMAND;
 	}
 
 	/* update statistics for external commands */
 	update_check_stats(EXTERNAL_COMMAND_STATS, time(NULL));
 
 	/* log the external command */
-	dummy = asprintf(&temp_buffer, "EXTERNAL COMMAND: %s;%s\n", command_id, args);
+	asprintf(&temp_buffer, "EXTERNAL COMMAND: %s;%s\n", command_id, args);
 
 	if (command_type == CMD_PROCESS_SERVICE_CHECK_RESULT || command_type == CMD_PROCESS_HOST_CHECK_RESULT) {
 		/* passive checks are logged in checks.c as well, as some my bypass external commands by getting dropped in checkresults dir */
@@ -755,7 +777,11 @@ int process_external_command1(char *cmd) {
 #endif
 
 	/* process the command */
-	process_external_command2(command_type, entry_time, args);
+	result = (process_external_command2(command_type, entry_time, args) == OK) ? CMD_ERROR_OK : CMD_ERROR_FAILURE;
+
+	if (result != CMD_ERROR_OK) {
+		logit(NSLOG_EXTERNAL_COMMAND | NSLOG_RUNTIME_WARNING, TRUE, "Error: External command failed -> %s;%s\n", command_id, args);
+	}
 
 #ifdef USE_EVENT_BROKER
 	/* send data to event broker */
@@ -766,13 +792,12 @@ int process_external_command1(char *cmd) {
 	my_free(command_id);
 	my_free(args);
 
-	return OK;
+	return result;
 }
-
-
 
 /* top-level processor for a single external command */
 int process_external_command2(int cmd, time_t entry_time, char *args) {
+	int result = OK;
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "process_external_command2()\n");
 
@@ -789,19 +814,19 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 
 	case CMD_SHUTDOWN_PROCESS:
 	case CMD_RESTART_PROCESS:
-		cmd_signal_process(cmd, args);
+		result = cmd_signal_process(cmd, args);
 		break;
 
 	case CMD_SAVE_STATE_INFORMATION:
-		save_state_information(FALSE);
+		result = save_state_information(FALSE);
 		break;
 
 	case CMD_READ_STATE_INFORMATION:
-		read_initial_state_information();
+		result = read_initial_state_information();
 		break;
 
 	case CMD_SYNC_STATE_INFORMATION:
-		sync_state_information();
+		result = sync_state_information();
 		break;
 
 	case CMD_ENABLE_NOTIFICATIONS:
@@ -939,7 +964,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_STOP_OBSESSING_OVER_HOST:
 	case CMD_SET_HOST_NOTIFICATION_NUMBER:
 	case CMD_SEND_CUSTOM_HOST_NOTIFICATION:
-		process_host_command(cmd, entry_time, args);
+		result = process_host_command(cmd, entry_time, args);
 		break;
 
 
@@ -959,7 +984,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_DISABLE_HOSTGROUP_SVC_CHECKS:
 	case CMD_ENABLE_HOSTGROUP_PASSIVE_SVC_CHECKS:
 	case CMD_DISABLE_HOSTGROUP_PASSIVE_SVC_CHECKS:
-		process_hostgroup_command(cmd, entry_time, args);
+		result = process_hostgroup_command(cmd, entry_time, args);
 		break;
 
 
@@ -981,7 +1006,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_STOP_OBSESSING_OVER_SVC:
 	case CMD_SET_SVC_NOTIFICATION_NUMBER:
 	case CMD_SEND_CUSTOM_SVC_NOTIFICATION:
-		process_service_command(cmd, entry_time, args);
+		result = process_service_command(cmd, entry_time, args);
 		break;
 
 
@@ -1001,7 +1026,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_DISABLE_SERVICEGROUP_SVC_CHECKS:
 	case CMD_ENABLE_SERVICEGROUP_PASSIVE_SVC_CHECKS:
 	case CMD_DISABLE_SERVICEGROUP_PASSIVE_SVC_CHECKS:
-		process_servicegroup_command(cmd, entry_time, args);
+		result = process_servicegroup_command(cmd, entry_time, args);
 		break;
 
 
@@ -1013,7 +1038,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_DISABLE_CONTACT_HOST_NOTIFICATIONS:
 	case CMD_ENABLE_CONTACT_SVC_NOTIFICATIONS:
 	case CMD_DISABLE_CONTACT_SVC_NOTIFICATIONS:
-		process_contact_command(cmd, entry_time, args);
+		result = process_contact_command(cmd, entry_time, args);
 		break;
 
 
@@ -1025,7 +1050,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_DISABLE_CONTACTGROUP_HOST_NOTIFICATIONS:
 	case CMD_ENABLE_CONTACTGROUP_SVC_NOTIFICATIONS:
 	case CMD_DISABLE_CONTACTGROUP_SVC_NOTIFICATIONS:
-		process_contactgroup_command(cmd, entry_time, args);
+		result = process_contactgroup_command(cmd, entry_time, args);
 		break;
 
 
@@ -1036,52 +1061,52 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 
 	case CMD_ADD_HOST_COMMENT:
 	case CMD_ADD_SVC_COMMENT:
-		cmd_add_comment(cmd, entry_time, args);
+		result = cmd_add_comment(cmd, entry_time, args);
 		break;
 
 	case CMD_DEL_HOST_COMMENT:
 	case CMD_DEL_SVC_COMMENT:
-		cmd_delete_comment(cmd, args);
+		result = cmd_delete_comment(cmd, args);
 		break;
 
 	case CMD_DELAY_HOST_NOTIFICATION:
 	case CMD_DELAY_SVC_NOTIFICATION:
-		cmd_delay_notification(cmd, args);
+		result = cmd_delay_notification(cmd, args);
 		break;
 
 	case CMD_SCHEDULE_SVC_CHECK:
 	case CMD_SCHEDULE_FORCED_SVC_CHECK:
-		cmd_schedule_check(cmd, args);
+		result = cmd_schedule_check(cmd, args);
 		break;
 
 	case CMD_SCHEDULE_HOST_SVC_CHECKS:
 	case CMD_SCHEDULE_FORCED_HOST_SVC_CHECKS:
-		cmd_schedule_check(cmd, args);
+		result = cmd_schedule_check(cmd, args);
 		break;
 
 	case CMD_DEL_ALL_HOST_COMMENTS:
 	case CMD_DEL_ALL_SVC_COMMENTS:
-		cmd_delete_all_comments(cmd, args);
+		result = cmd_delete_all_comments(cmd, args);
 		break;
 
 	case CMD_PROCESS_SERVICE_CHECK_RESULT:
-		cmd_process_service_check_result(cmd, entry_time, args);
+		result = cmd_process_service_check_result(cmd, entry_time, args);
 		break;
 
 	case CMD_PROCESS_HOST_CHECK_RESULT:
-		cmd_process_host_check_result(cmd, entry_time, args);
+		result = cmd_process_host_check_result(cmd, entry_time, args);
 		break;
 
 	case CMD_ACKNOWLEDGE_HOST_PROBLEM:
 	case CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE:
 	case CMD_ACKNOWLEDGE_SVC_PROBLEM:
 	case CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE:
-		cmd_acknowledge_problem(cmd, args);
+		result = cmd_acknowledge_problem(cmd, args);
 		break;
 
 	case CMD_REMOVE_HOST_ACKNOWLEDGEMENT:
 	case CMD_REMOVE_SVC_ACKNOWLEDGEMENT:
-		cmd_remove_acknowledgement(cmd, args);
+		result = cmd_remove_acknowledgement(cmd, args);
 		break;
 
 	case CMD_SCHEDULE_HOST_DOWNTIME:
@@ -1093,24 +1118,24 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME:
 	case CMD_SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME:
 	case CMD_SCHEDULE_AND_PROPAGATE_TRIGGERED_HOST_DOWNTIME:
-		cmd_schedule_downtime(cmd, entry_time, args);
+		result = cmd_schedule_downtime(cmd, entry_time, args);
 		break;
 
 	case CMD_DEL_HOST_DOWNTIME:
 	case CMD_DEL_SVC_DOWNTIME:
-		cmd_delete_downtime(cmd, args);
+		result = cmd_delete_downtime(cmd, args);
 		break;
 
 	case CMD_DEL_DOWNTIME_BY_HOST_NAME:
-		cmd_delete_downtime_by_host_name(cmd, args);
+		result = cmd_delete_downtime_by_host_name(cmd, args);
 		break;
 
 	case CMD_DEL_DOWNTIME_BY_HOSTGROUP_NAME:
-		cmd_delete_downtime_by_hostgroup_name(cmd, args);
+		result = cmd_delete_downtime_by_hostgroup_name(cmd, args);
 		break;
 
 	case CMD_DEL_DOWNTIME_BY_START_TIME_COMMENT:
-		cmd_delete_downtime_by_start_time_comment(cmd, args);
+		result = cmd_delete_downtime_by_start_time_comment(cmd, args);
 		break;
 
 	case CMD_CANCEL_ACTIVE_HOST_SVC_DOWNTIME:
@@ -1119,7 +1144,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 
 	case CMD_SCHEDULE_HOST_CHECK:
 	case CMD_SCHEDULE_FORCED_HOST_CHECK:
-		cmd_schedule_check(cmd, args);
+		result = cmd_schedule_check(cmd, args);
 		break;
 
 	case CMD_CHANGE_GLOBAL_HOST_EVENT_HANDLER:
@@ -1134,7 +1159,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_CHANGE_SVC_NOTIFICATION_TIMEPERIOD:
 	case CMD_CHANGE_CONTACT_HOST_NOTIFICATION_TIMEPERIOD:
 	case CMD_CHANGE_CONTACT_SVC_NOTIFICATION_TIMEPERIOD:
-		cmd_change_object_char_var(cmd, args);
+		result = cmd_change_object_char_var(cmd, args);
 		break;
 
 	case CMD_CHANGE_NORMAL_HOST_CHECK_INTERVAL:
@@ -1148,13 +1173,13 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_CHANGE_CONTACT_MODATTR:
 	case CMD_CHANGE_CONTACT_MODHATTR:
 	case CMD_CHANGE_CONTACT_MODSATTR:
-		cmd_change_object_int_var(cmd, args);
+		result = cmd_change_object_int_var(cmd, args);
 		break;
 
 	case CMD_CHANGE_CUSTOM_HOST_VAR:
 	case CMD_CHANGE_CUSTOM_SVC_VAR:
 	case CMD_CHANGE_CUSTOM_CONTACT_VAR:
-		cmd_change_object_custom_var(cmd, args);
+		result = cmd_change_object_custom_var(cmd, args);
 		break;
 
 
@@ -1164,7 +1189,7 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 
 
 	case CMD_PROCESS_FILE:
-		cmd_process_external_commands_from_file(cmd, args);
+		result = cmd_process_external_commands_from_file(cmd, args);
 		break;
 
 
@@ -1178,11 +1203,11 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 		break;
 
 	default:
-		return ERROR;
+		return CMD_ERROR_UNKNOWN_COMMAND;
 		break;
 	}
 
-	return OK;
+	return result;
 }
 
 
@@ -2943,13 +2968,32 @@ int cmd_change_object_int_var(int cmd, char *args) {
 		break;
 	}
 
-	/* get the value */
-	if ((temp_ptr = my_strtok(NULL, ";")) == NULL)
-		return ERROR;
-	intval = (int)strtol(temp_ptr, NULL, 0);
-	if (intval < 0 || (intval == 0 && errno == EINVAL))
-		return ERROR;
-	dval = (int)strtod(temp_ptr, NULL);
+	switch (cmd) {
+
+	case CMD_CHANGE_NORMAL_HOST_CHECK_INTERVAL:
+	case CMD_CHANGE_RETRY_HOST_CHECK_INTERVAL:
+	case CMD_CHANGE_NORMAL_SVC_CHECK_INTERVAL:
+	case CMD_CHANGE_RETRY_SVC_CHECK_INTERVAL:
+		/* get the value */
+		if ((temp_ptr = my_strtok(NULL, ";")) == NULL)
+			return ERROR;
+#ifdef HAVE_STRTOF
+		dval = strtof(temp_ptr, NULL);
+#else
+		/* Solaris 8 doesn't have strtof() */
+		dval = (float)strtod(temp_ptr, NULL);
+#endif
+		break;
+	default:
+		/* get the value */
+		if ((temp_ptr = my_strtok(NULL, ";")) == NULL)
+			return ERROR;
+		intval = (int)strtol(temp_ptr, NULL, 0);
+		if (intval < 0 || (intval == 0 && errno == EINVAL))
+			return ERROR;
+		dval = (double)strtod(temp_ptr, NULL);
+		break;
+	}
 
 	switch (cmd) {
 
@@ -3811,7 +3855,6 @@ void disable_all_notifications(void) {
 }
 
 void disable_all_notifications_expire_time(int cmd, char *args) {
-	char *temp_ptr = NULL;
 	char *exp_ptr = NULL;
 	char *end_ptr = NULL;
 	struct tm *tm, tm_s;
@@ -3820,7 +3863,7 @@ void disable_all_notifications_expire_time(int cmd, char *args) {
 
 	/* extract expire time */
 	/* first arg is scheduled time, unused */
-	temp_ptr = my_strtok(args, ";");
+	my_strtok(args, ";");
 
         exp_ptr = my_strtok(NULL, ";");
         if (exp_ptr != NULL) {
@@ -5309,7 +5352,7 @@ void process_passive_checks(void) {
 
 	/* open a temp file for storing check result(s) */
 	old_umask = umask(new_umask);
-	dummy = asprintf(&checkresult_file, "%s/checkXXXXXX", temp_path);
+	asprintf(&checkresult_file, "%s/checkXXXXXX", temp_path);
 	checkresult_file_fd = mkstemp(checkresult_file);
 	umask(old_umask);
 

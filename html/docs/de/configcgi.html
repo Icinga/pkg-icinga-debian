@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.9 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.10 Dokumentation">
 <link rel="up" href="ch03.html" title="Kapitel 3. Icinga konfigurieren">
 <link rel="prev" href="customobjectvars.html" title="3.5. Maßgeschneiderte Objektvariablen">
 <link rel="next" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">
@@ -1924,7 +1924,7 @@
   </div>
 
   <p>Innerhalb der CGIs gibt es einen neuen Header, der per Default aktiviert ist. Die neue Ansicht hat ein ähnliches Aussehen wie der
-  Header in Icinga-Web und enthält wichtige taktische und Überwachungs-Performance-Informationen, so dass Sie immer über die aktuelle
+  Header in Icinga Web und enthält wichtige taktische und Überwachungs-Performance-Informationen, so dass Sie immer über die aktuelle
   Situation informiert sind.</p>
 
   <p>Wenn Sie die alte minimalistische Ansicht beibehalten möchte, dann kann der neue Header durch folgenden Eintrag deaktiviert werden:
@@ -1958,7 +1958,7 @@
   aktive Prüfungen dargestellt werden.</p>
 
   <div class="figure">
-<a name="idp6881808"></a><p class="title"><b>Abbildung 3.1. Beispiel des neuen Headers</b></p>
+<a name="idp182814624"></a><p class="title"><b>Abbildung 3.1. Beispiel des neuen Headers</b></p>
 <div class="figure-contents">
     
 
@@ -2523,9 +2523,8 @@
   </td></tr>
 </table></div>
 
-  <p><a name="configcgi-standalone_installation"></a><span class="bold"><strong>Classic UI Standalone Installation
-  </strong></span></p>
-  
+  <p><a name="configcgi-standalone_installation"></a><span class="bold"><strong>Classic UI Standalone Installation </strong></span></p>
+
   <div class="informaltable">
     <table border="0">
 <colgroup>
@@ -2545,11 +2544,10 @@
 </table>
   </div>
 
-  <p>Diese Option legt fest, ob die Classic UI "standalone" installiert und verwendet wird. Diese Option wurde mehrheitlich für Icinga 2 und dessen Compat
-  Layer implementiert, kann aber auch in anderen Installationen verwendet werden, beispielsweise als zusätzliches Dashboard.
-  Wenn Sie diese Option aktivieren, wird die Classic UI die Option main_config_file ignorieren, und stattdessen alle benötigten Einstellungen in
-  der cgi.cfg suchen. Sie finden diese in der Beispielkonfiguration in der Sektion "Standalone (Icinga 2)".
-  </p>
+  <p>Diese Option legt fest, ob die Classic UI "standalone" installiert und verwendet wird. Diese Option wurde mehrheitlich für Icinga 2
+  und dessen Compat Layer implementiert, kann aber auch in anderen Installationen verwendet werden, beispielsweise als zusätzliches
+  Dashboard. Wenn Sie diese Option aktivieren, wird die Classic UI die Option main_config_file ignorieren, und stattdessen alle benötigten
+  Einstellungen in der cgi.cfg suchen. Sie finden diese in der Beispielkonfiguration in der Sektion "Standalone (Icinga 2)".</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -2557,149 +2555,198 @@
 <th align="left">Anmerkung</th>
 </tr>
 <tr><td align="left" valign="top">
-    <p>This option is available starting with Icinga 1.9</p>
+    <p>Diese Option ist verfügbar ab Icinga 1.9</p>
   </td></tr>
 </table></div>
 
+  <p><a name="configcgi-show_partial_servicegroups"></a><span class="bold"><strong>Ansehen von partiellen Service-Gruppen
+  erlauben</strong></span></p>
 
-  <a class="indexterm" name="idp7084544"></a>
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td align="left" valign="top"><p>Format:</p></td>
+<td><p><span class="bold"><strong>show_partial_servicegroups=0|1</strong></span></p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p>Beispiel:</p></td>
+<td><p><span class="color"><font color="red"><span class="bold"><strong>show_partial_servicegroups=1</strong></span></font></span></p></td>
+</tr>
+</tbody>
+</table>
+  </div>
 
-  <a class="indexterm" name="idp7086112"></a>
+  <p>Als Standard (d.h., wenn die Direktive nicht gesetzt oder deaktiviert ist) kann ein Benutzer eine Service-Gruppe und die darin
+  enthaltenen Hosts bzw. Service nur dann sehen, wenn er ein autorisierter Kontakt für alle Hosts und Services der Gruppe ist. Dieses
+  Verhalten kann mit der Direktive <code class="literal">show_partial_servicegroups=1</code> geändert werden. Wenn sie aktiviert ist, wird die
+  Service-Gruppen-Übersicht für alle Service-Gruppen eine partielle Auflistung von Hosts und Services zeigen, bei denen der Benutzer als
+  autorisierter Kontakt eingetragen ist. Sie zeigt außerdem den Hinweis "(Partial Servicegroups Enabled)" oben in der
+  Service-Gruppen-Übersicht, um Verwirrung darüber zu verhindern, ob die Direktive gesetzt ist oder nicht. Allerdings werden Service-Gruppen
+  nicht extra gekennzeichnet, bei denen nur eine partielle Auflistung gezeigt wird.</p>
 
-  <a class="indexterm" name="idp7087504"></a>
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+      <p>0 - deaktiviert, Benutzer sieht nur vollständige Service-Gruppen (Standard)</p>
+    </li>
+<li class="listitem">
+      <p>1 - aktiviert, Benutzer sieht auch partielle Service-Gruppen</p>
+    </li>
+</ul></div>
 
-  <a class="indexterm" name="idp7089312"></a>
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.10</p>
+  </td></tr>
+</table></div>
 
-  <a class="indexterm" name="idp7090944"></a>
+  <a class="indexterm" name="idp183031920"></a>
 
-  <a class="indexterm" name="idp7092576"></a>
+  <a class="indexterm" name="idp183032048"></a>
 
-  <a class="indexterm" name="idp7094208"></a>
+  <a class="indexterm" name="idp183035424"></a>
 
-  <a class="indexterm" name="idp7095808"></a>
+  <a class="indexterm" name="idp183036816"></a>
 
-  <a class="indexterm" name="idp7097472"></a>
+  <a class="indexterm" name="idp183038448"></a>
 
-  <a class="indexterm" name="idp7099136"></a>
+  <a class="indexterm" name="idp183040128"></a>
 
-  <a class="indexterm" name="idp7100864"></a>
+  <a class="indexterm" name="idp183041776"></a>
 
-  <a class="indexterm" name="idp7102624"></a>
+  <a class="indexterm" name="idp183043424"></a>
 
-  <a class="indexterm" name="idp7104352"></a>
+  <a class="indexterm" name="idp183045120"></a>
 
-  <a class="indexterm" name="idp7106080"></a>
+  <a class="indexterm" name="idp183046864"></a>
 
-  <a class="indexterm" name="idp7107712"></a>
+  <a class="indexterm" name="idp183048496"></a>
 
-  <a class="indexterm" name="idp7109248"></a>
+  <a class="indexterm" name="idp183049616"></a>
 
-  <a class="indexterm" name="idp7110496"></a>
+  <a class="indexterm" name="idp183051328"></a>
 
-  <a class="indexterm" name="idp7112800"></a>
+  <a class="indexterm" name="idp183053040"></a>
 
-  <a class="indexterm" name="idp7113904"></a>
+  <a class="indexterm" name="idp183055328"></a>
 
-  <a class="indexterm" name="idp7116192"></a>
+  <a class="indexterm" name="idp183057040"></a>
 
-  <a class="indexterm" name="idp7117392"></a>
+  <a class="indexterm" name="idp183058496"></a>
 
-  <a class="indexterm" name="idp7119584"></a>
+  <a class="indexterm" name="idp183060384"></a>
 
-  <a class="indexterm" name="idp7120784"></a>
+  <a class="indexterm" name="idp183062080"></a>
 
-  <a class="indexterm" name="idp7123040"></a>
+  <a class="indexterm" name="idp183063760"></a>
 
-  <a class="indexterm" name="idp7124784"></a>
+  <a class="indexterm" name="idp183065520"></a>
 
-  <a class="indexterm" name="idp7125872"></a>
+  <a class="indexterm" name="idp183067264"></a>
 
-  <a class="indexterm" name="idp7128128"></a>
+  <a class="indexterm" name="idp183068864"></a>
 
-  <a class="indexterm" name="idp7129856"></a>
+  <a class="indexterm" name="idp183070544"></a>
 
-  <a class="indexterm" name="idp7131488"></a>
+  <a class="indexterm" name="idp183072240"></a>
 
-  <a class="indexterm" name="idp7132544"></a>
+  <a class="indexterm" name="idp183074016"></a>
 
-  <a class="indexterm" name="idp7134224"></a>
+  <a class="indexterm" name="idp183075712"></a>
 
-  <a class="indexterm" name="idp7136432"></a>
+  <a class="indexterm" name="idp183077360"></a>
 
-  <a class="indexterm" name="idp7138160"></a>
+  <a class="indexterm" name="idp183078992"></a>
 
-  <a class="indexterm" name="idp7139824"></a>
+  <a class="indexterm" name="idp183080656"></a>
 
-  <a class="indexterm" name="idp7141424"></a>
+  <a class="indexterm" name="idp183082320"></a>
 
-  <a class="indexterm" name="idp7143056"></a>
+  <a class="indexterm" name="idp183083920"></a>
 
-  <a class="indexterm" name="idp7144688"></a>
+  <a class="indexterm" name="idp183085584"></a>
 
-  <a class="indexterm" name="idp7146320"></a>
+  <a class="indexterm" name="idp183087344"></a>
 
-  <a class="indexterm" name="idp7147328"></a>
+  <a class="indexterm" name="idp183088832"></a>
 
-  <a class="indexterm" name="idp7149536"></a>
+  <a class="indexterm" name="idp183090464"></a>
 
-  <a class="indexterm" name="idp7151104"></a>
+  <a class="indexterm" name="idp183092096"></a>
 
-  <a class="indexterm" name="idp7152848"></a>
+  <a class="indexterm" name="idp183093728"></a>
 
-  <a class="indexterm" name="idp7154528"></a>
+  <a class="indexterm" name="idp183095392"></a>
 
-  <a class="indexterm" name="idp7156192"></a>
+  <a class="indexterm" name="idp183096992"></a>
 
-  <a class="indexterm" name="idp7157824"></a>
+  <a class="indexterm" name="idp183098672"></a>
 
-  <a class="indexterm" name="idp7159472"></a>
+  <a class="indexterm" name="idp183100272"></a>
 
-  <a class="indexterm" name="idp7161104"></a>
+  <a class="indexterm" name="idp183101968"></a>
 
-  <a class="indexterm" name="idp7162832"></a>
+  <a class="indexterm" name="idp183103616"></a>
 
-  <a class="indexterm" name="idp7164112"></a>
+  <a class="indexterm" name="idp183105264"></a>
 
-  <a class="indexterm" name="idp7165632"></a>
+  <a class="indexterm" name="idp183106912"></a>
 
-  <a class="indexterm" name="idp7167264"></a>
+  <a class="indexterm" name="idp183108544"></a>
 
-  <a class="indexterm" name="idp7168896"></a>
+  <a class="indexterm" name="idp183110208"></a>
 
-  <a class="indexterm" name="idp7169952"></a>
+  <a class="indexterm" name="idp183111488"></a>
 
-  <a class="indexterm" name="idp7172224"></a>
+  <a class="indexterm" name="idp183113184"></a>
 
-  <a class="indexterm" name="idp7173280"></a>
+  <a class="indexterm" name="idp183114672"></a>
 
-  <a class="indexterm" name="idp7175552"></a>
+  <a class="indexterm" name="idp183116304"></a>
 
-  <a class="indexterm" name="idp7176608"></a>
+  <a class="indexterm" name="idp183117952"></a>
 
-  <a class="indexterm" name="idp7178832"></a>
+  <a class="indexterm" name="idp183119632"></a>
 
-  <a class="indexterm" name="idp7180432"></a>
+  <a class="indexterm" name="idp183121280"></a>
 
-  <a class="indexterm" name="idp7182256"></a>
+  <a class="indexterm" name="idp183122960"></a>
 
-  <a class="indexterm" name="idp7183904"></a>
+  <a class="indexterm" name="idp183124608"></a>
 
-  <a class="indexterm" name="idp7185568"></a>
+  <a class="indexterm" name="idp183126288"></a>
 
-  <a class="indexterm" name="idp7186688"></a>
+  <a class="indexterm" name="idp183127952"></a>
 
-  <a class="indexterm" name="idp7188400"></a>
+  <a class="indexterm" name="idp183129616"></a>
 
-  <a class="indexterm" name="idp7190720"></a>
+  <a class="indexterm" name="idp183131264"></a>
 
-  <a class="indexterm" name="idp7192384"></a>
+  <a class="indexterm" name="idp183133024"></a>
 
-  <a class="indexterm" name="idp7194048"></a>
+  <a class="indexterm" name="idp183134656"></a>
 
-  <a class="indexterm" name="idp7195744"></a>
+  <a class="indexterm" name="idp183136432"></a>
 
-  <a class="indexterm" name="idp7197360"></a>
+  <a class="indexterm" name="idp183138064"></a>
 
+  <a class="indexterm" name="idp183139760"></a>
+
+  <a class="indexterm" name="idp183141504"></a>
+
+  <a class="indexterm" name="idp183143024"></a>
+
+  <a class="indexterm" name="idp183144736"></a>
+
+  <a class="indexterm" name="idp183146352"></a>
 </div>
 <div class="navfooter">
 <hr>
@@ -2718,6 +2765,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

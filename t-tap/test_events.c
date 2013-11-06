@@ -141,12 +141,10 @@ int log_debug_info(int level, int verbosity, const char *fmt, ...) {
 	/* vprintf( fmt, ap ); */
 	va_end(ap);
 }
+int log_level(int level, int verbosity) {}
 int update_host_status(host *hst, int aggregated_dump) {}
 
 /* Icinga special */
-int     event_profiling_enabled = FALSE;
-void    profiler_update(int event, struct timeval start) {}
-
 void remove_host_acknowledgement(host * hst) {}
 void remove_service_acknowledgement(service * svc) {}
 

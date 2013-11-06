@@ -128,6 +128,8 @@ int presorted_objects = FALSE;
 
 extern int allow_empty_hostgroup_assignment;
 
+static debuginfo *debuginfo_buckets[4096];
+
 int xodtemplate_create_escalation_condition(char*, xodtemplate_escalation_condition*);
 
 /*
@@ -168,7 +170,6 @@ int xodtemplate_read_config_data(char *main_config_file, int options, int cache,
 	struct timeval tv[14];
 	double runtime[14];
 	mmapfile *thefile = NULL;
-	int dummy; /* reduce compiler warnings */
 #endif
 	int result = OK;
 
@@ -283,7 +284,7 @@ int xodtemplate_read_config_data(char *main_config_file, int options, int cache,
 
 				temp_buffer = (char *)strdup(val);
 				if (config_base_dir != NULL && val[0] != '/') {
-					dummy = asprintf(&config_file, "%s/%s", config_base_dir, temp_buffer);
+					asprintf(&config_file, "%s/%s", config_base_dir, temp_buffer);
 					my_free(temp_buffer);
 				}
 				else
@@ -304,7 +305,7 @@ int xodtemplate_read_config_data(char *main_config_file, int options, int cache,
 
 				temp_buffer = (char *)strdup(val);
 				if (config_base_dir != NULL && val[0] != '/') {
-					dummy = asprintf(&config_file, "%s/%s", config_base_dir, temp_buffer);
+					asprintf(&config_file, "%s/%s", config_base_dir, temp_buffer);
 					my_free(temp_buffer);
 				}
 				else
@@ -4032,6 +4033,7 @@ int xodtemplate_get_weekday_from_string(char *str, int *weekday) {
 int xodtemplate_duplicate_services(void) {
 	int result = OK;
 	xodtemplate_service *temp_service = NULL;
+	xodtemplate_service *temp_service_previous = NULL;
 	xodtemplate_memberlist *temp_memberlist = NULL;
 	xodtemplate_memberlist *temp_rejectlist = NULL;
 	xodtemplate_memberlist *this_memberlist = NULL;
@@ -4040,7 +4042,11 @@ int xodtemplate_duplicate_services(void) {
 
 
 	/****** DUPLICATE SERVICE DEFINITIONS WITH ONE OR MORE HOSTGROUP AND/OR HOST NAMES ******/
-	for (temp_service = xodtemplate_service_list; temp_service != NULL; temp_service = temp_service->next) {
+	for (temp_service = xodtemplate_service_list; temp_service != NULL; temp_service_previous = temp_service, temp_service = temp_service->next) {
+
+		/* free up top of the service list if it is marked (indicated by the following condition) */
+		if (temp_service == xodtemplate_service_list && temp_service_previous != NULL)
+			my_free(temp_service_previous);
 
 		/* skip service definitions without enough data */
 		if (temp_service->hostgroup_name == NULL && temp_service->host_name == NULL)
@@ -4071,10 +4077,21 @@ int xodtemplate_duplicate_services(void) {
 			continue;
 
 		/* get list of hosts */
-		temp_memberlist = xodtemplate_expand_hostgroups_and_hosts(temp_service->hostgroup_name, temp_service->host_name, temp_service->_config_file, temp_service->_start_line);
-		if (temp_memberlist == NULL) {
+		if (xodtemplate_expand_hostgroups_and_hosts(&temp_memberlist, temp_service->hostgroup_name, temp_service->host_name, temp_service->_config_file, temp_service->_start_line) == ERROR) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand hostgroups and/or hosts specified in service (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_service->_config_file), temp_service->_start_line);
 			return ERROR;
+		} else if (temp_memberlist == NULL) {
+			/* delete services with no host mapping */
+			if (temp_service_previous == NULL) {
+				xodtemplate_service_list = temp_service->next;
+				/* temp_service marked for my_free()-ing in increment statement of for loop:
+				   temp_service_previous = temp_service */
+			} else {
+				temp_service_previous->next = temp_service->next;
+				my_free(temp_service);
+				temp_service = temp_service_previous;
+			}
+			continue;
 		}
 
 		/* add a copy of the service for every host in the hostgroup/host name list */
@@ -4108,6 +4125,7 @@ int xodtemplate_duplicate_services(void) {
 		/* free memory we used for host list */
 		xodtemplate_free_memberlist(&temp_memberlist);
 	}
+	temp_service_previous = NULL;
 
 
 	/***************************************/
@@ -4246,8 +4264,8 @@ int xodtemplate_duplicate_objects(void) {
 			continue;
 
 		/* get list of hosts */
-		master_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_hostescalation->hostgroup_name, temp_hostescalation->host_name, temp_hostescalation->_config_file, temp_hostescalation->_start_line);
-		if (master_hostlist == NULL) {
+		result = xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_hostescalation->hostgroup_name, temp_hostescalation->host_name, temp_hostescalation->_config_file, temp_hostescalation->_start_line);
+		if (result == ERROR || master_hostlist == NULL) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand hostgroups and/or hosts specified in host escalation (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_hostescalation->_config_file), temp_hostescalation->_start_line);
 			return ERROR;
 		}
@@ -4293,8 +4311,8 @@ int xodtemplate_duplicate_objects(void) {
 			continue;
 
 		/* get list of hosts */
-		master_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_serviceescalation->hostgroup_name, temp_serviceescalation->host_name, temp_serviceescalation->_config_file, temp_serviceescalation->_start_line);
-		if (master_hostlist == NULL) {
+		result = xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_serviceescalation->hostgroup_name, temp_serviceescalation->host_name, temp_serviceescalation->_config_file, temp_serviceescalation->_start_line);
+		if (result == ERROR || master_hostlist == NULL) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand hostgroups and/or hosts specified in service escalation (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_serviceescalation->_config_file), temp_serviceescalation->_start_line);
 			return ERROR;
 		}
@@ -4441,15 +4459,15 @@ int xodtemplate_duplicate_objects(void) {
 			continue;
 
 		/* get list of master host names */
-		master_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_hostdependency->hostgroup_name, temp_hostdependency->host_name, temp_hostdependency->_config_file, temp_hostdependency->_start_line);
-		if (master_hostlist == NULL && allow_empty_hostgroup_assignment==0) {
+		result = xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_hostdependency->hostgroup_name, temp_hostdependency->host_name, temp_hostdependency->_config_file, temp_hostdependency->_start_line);
+		if (result == ERROR || (master_hostlist == NULL && allow_empty_hostgroup_assignment==0)) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand master hostgroups and/or hosts specified in host dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_hostdependency->_config_file), temp_hostdependency->_start_line);
 			return ERROR;
 		}
 
 		/* get list of dependent host names */
-		dependent_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_hostdependency->dependent_hostgroup_name, temp_hostdependency->dependent_host_name, temp_hostdependency->_config_file, temp_hostdependency->_start_line);
-		if (dependent_hostlist == NULL && allow_empty_hostgroup_assignment==0) {
+		result = xodtemplate_expand_hostgroups_and_hosts(&dependent_hostlist, temp_hostdependency->dependent_hostgroup_name, temp_hostdependency->dependent_host_name, temp_hostdependency->_config_file, temp_hostdependency->_start_line);
+		if (result == ERROR || (dependent_hostlist == NULL && allow_empty_hostgroup_assignment==0)) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand dependent hostgroups and/or hosts specified in host dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_hostdependency->_config_file), temp_hostdependency->_start_line);
 			xodtemplate_free_memberlist(&master_hostlist);
 			return ERROR;
@@ -4580,8 +4598,8 @@ int xodtemplate_duplicate_objects(void) {
 			printf("1a) H: %s  HG: %s  SD: %s\n", temp_servicedependency->host_name, temp_servicedependency->hostgroup_name, temp_servicedependency->service_description);
 #endif
 
-			master_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_servicedependency->hostgroup_name, temp_servicedependency->host_name, temp_servicedependency->_config_file, temp_servicedependency->_start_line);
-			if (master_hostlist == NULL && allow_empty_hostgroup_assignment==0) {
+			result = xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_servicedependency->hostgroup_name, temp_servicedependency->host_name, temp_servicedependency->_config_file, temp_servicedependency->_start_line);
+			if (result == ERROR || (master_hostlist == NULL && allow_empty_hostgroup_assignment==0)) {
 				logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand master hostgroups and/or hosts specified in service dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_servicedependency->_config_file), temp_servicedependency->_start_line);
 				return ERROR;
 			}
@@ -4772,8 +4790,8 @@ int xodtemplate_duplicate_objects(void) {
 		/* expand dependent hosts/hostgroups into a list of host names */
 		if (temp_servicedependency->dependent_host_name != NULL || temp_servicedependency->dependent_hostgroup_name != NULL) {
 
-			dependent_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_servicedependency->dependent_hostgroup_name, temp_servicedependency->dependent_host_name, temp_servicedependency->_config_file, temp_servicedependency->_start_line);
-			if (dependent_hostlist == NULL && allow_empty_hostgroup_assignment==0) {
+			result = xodtemplate_expand_hostgroups_and_hosts(&dependent_hostlist, temp_servicedependency->dependent_hostgroup_name, temp_servicedependency->dependent_host_name, temp_servicedependency->_config_file, temp_servicedependency->_start_line);
+			if (result == ERROR || (dependent_hostlist == NULL && allow_empty_hostgroup_assignment==0)) {
 				logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand dependent hostgroups and/or hosts specified in service dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_servicedependency->_config_file), temp_servicedependency->_start_line);
 				return ERROR;
 			}
@@ -4858,8 +4876,8 @@ int xodtemplate_duplicate_objects(void) {
 			continue;
 
 		/* get list of hosts */
-		master_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_hostextinfo->hostgroup_name, temp_hostextinfo->host_name, temp_hostextinfo->_config_file, temp_hostextinfo->_start_line);
-		if (master_hostlist == NULL) {
+		result = xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_hostextinfo->hostgroup_name, temp_hostextinfo->host_name, temp_hostextinfo->_config_file, temp_hostextinfo->_start_line);
+		if (result == ERROR || master_hostlist == NULL) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand hostgroups and/or hosts specified in extended host info (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_hostextinfo->_config_file), temp_hostextinfo->_start_line);
 			return ERROR;
 		}
@@ -4904,8 +4922,8 @@ int xodtemplate_duplicate_objects(void) {
 			continue;
 
 		/* get list of hosts */
-		master_hostlist = xodtemplate_expand_hostgroups_and_hosts(temp_serviceextinfo->hostgroup_name, temp_serviceextinfo->host_name, temp_serviceextinfo->_config_file, temp_serviceextinfo->_start_line);
-		if (master_hostlist == NULL) {
+		result = xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_serviceextinfo->hostgroup_name, temp_serviceextinfo->host_name, temp_serviceextinfo->_config_file, temp_serviceextinfo->_start_line);
+		if (result == ERROR || master_hostlist == NULL) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand hostgroups and/or hosts specified in extended service info (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_serviceextinfo->_config_file), temp_serviceextinfo->_start_line);
 			return ERROR;
 		}
@@ -6153,7 +6171,10 @@ int xodtemplate_resolve_timeperiod(xodtemplate_timeperiod *this_timeperiod) {
 		}
 
 		/* resolve the template timeperiod... */
-		xodtemplate_resolve_timeperiod(template_timeperiod);
+		if (xodtemplate_resolve_timeperiod(template_timeperiod) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template timeperiod... */
 		if (this_timeperiod->timeperiod_name == NULL && template_timeperiod->timeperiod_name != NULL)
@@ -6251,7 +6272,10 @@ int xodtemplate_resolve_command(xodtemplate_command *this_command) {
 		}
 
 		/* resolve the template command... */
-		xodtemplate_resolve_command(template_command);
+		if (xodtemplate_resolve_command(template_command) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template command... */
 		if (this_command->command_name == NULL && template_command->command_name != NULL)
@@ -6304,7 +6328,10 @@ int xodtemplate_resolve_contactgroup(xodtemplate_contactgroup *this_contactgroup
 		}
 
 		/* resolve the template contactgroup... */
-		xodtemplate_resolve_contactgroup(template_contactgroup);
+		if (xodtemplate_resolve_contactgroup(template_contactgroup) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template contactgroup... */
 		if (this_contactgroup->contactgroup_name == NULL && template_contactgroup->contactgroup_name != NULL)
@@ -6361,7 +6388,10 @@ int xodtemplate_resolve_hostgroup(xodtemplate_hostgroup *this_hostgroup) {
 		}
 
 		/* resolve the template hostgroup... */
-		xodtemplate_resolve_hostgroup(template_hostgroup);
+		if (xodtemplate_resolve_hostgroup(template_hostgroup) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template hostgroup... */
 		if (this_hostgroup->hostgroup_name == NULL && template_hostgroup->hostgroup_name != NULL)
@@ -6433,7 +6463,10 @@ int xodtemplate_resolve_servicegroup(xodtemplate_servicegroup *this_servicegroup
 		}
 
 		/* resolve the template servicegroup... */
-		xodtemplate_resolve_servicegroup(template_servicegroup);
+		if (xodtemplate_resolve_servicegroup(template_servicegroup) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template servicegroup... */
 		if (this_servicegroup->servicegroup_name == NULL && template_servicegroup->servicegroup_name != NULL)
@@ -6503,7 +6536,10 @@ int xodtemplate_resolve_servicedependency(xodtemplate_servicedependency *this_se
 		}
 
 		/* resolve the template servicedependency... */
-		xodtemplate_resolve_servicedependency(template_servicedependency);
+		if (xodtemplate_resolve_servicedependency(template_servicedependency) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template servicedependency... */
 		xodtemplate_get_inherited_string(&template_servicedependency->have_servicegroup_name, &template_servicedependency->servicegroup_name, &this_servicedependency->have_servicegroup_name, &this_servicedependency->servicegroup_name);
@@ -6584,7 +6620,10 @@ int xodtemplate_resolve_serviceescalation(xodtemplate_serviceescalation *this_se
 		}
 
 		/* resolve the template serviceescalation... */
-		xodtemplate_resolve_serviceescalation(template_serviceescalation);
+		if (xodtemplate_resolve_serviceescalation(template_serviceescalation) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template serviceescalation... */
 		xodtemplate_get_inherited_string(&template_serviceescalation->have_servicegroup_name, &template_serviceescalation->servicegroup_name, &this_serviceescalation->have_servicegroup_name, &this_serviceescalation->servicegroup_name);
@@ -6692,7 +6731,10 @@ int xodtemplate_resolve_contact(xodtemplate_contact *this_contact) {
 		}
 
 		/* resolve the template contact... */
-		xodtemplate_resolve_contact(template_contact);
+		if (xodtemplate_resolve_contact(template_contact) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template contact... */
 		if (this_contact->contact_name == NULL && template_contact->contact_name != NULL)
@@ -6830,7 +6872,10 @@ int xodtemplate_resolve_host(xodtemplate_host *this_host) {
 		}
 
 		/* resolve the template host... */
-		xodtemplate_resolve_host(template_host);
+		if (xodtemplate_resolve_host(template_host) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template host... */
 		if (this_host->host_name == NULL && template_host->host_name != NULL)
@@ -7084,7 +7129,10 @@ int xodtemplate_resolve_service(xodtemplate_service *this_service) {
 		}
 
 		/* resolve the template service... */
-		xodtemplate_resolve_service(template_service);
+		if (xodtemplate_resolve_service(template_service) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template service... */
 		if (this_service->have_service_description == FALSE && template_service->have_service_description == TRUE) {
@@ -7329,7 +7377,10 @@ int xodtemplate_resolve_hostdependency(xodtemplate_hostdependency *this_hostdepe
 		}
 
 		/* resolve the template hostdependency... */
-		xodtemplate_resolve_hostdependency(template_hostdependency);
+		if (xodtemplate_resolve_hostdependency(template_hostdependency) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template hostdependency... */
 
@@ -7405,7 +7456,10 @@ int xodtemplate_resolve_hostescalation(xodtemplate_hostescalation *this_hostesca
 		}
 
 		/* resolve the template hostescalation... */
-		xodtemplate_resolve_hostescalation(template_hostescalation);
+		if (xodtemplate_resolve_hostescalation(template_hostescalation) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template hostescalation... */
 		xodtemplate_get_inherited_string(&template_hostescalation->have_host_name, &template_hostescalation->host_name, &this_hostescalation->have_host_name, &this_hostescalation->host_name);
@@ -7499,7 +7553,10 @@ int xodtemplate_resolve_hostextinfo(xodtemplate_hostextinfo *this_hostextinfo) {
 		}
 
 		/* resolve the template hostextinfo... */
-		xodtemplate_resolve_hostextinfo(template_hostextinfo);
+		if (xodtemplate_resolve_hostextinfo(template_hostextinfo) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template hostextinfo... */
 		if (this_hostextinfo->have_host_name == FALSE && template_hostextinfo->have_host_name == TRUE) {
@@ -7603,7 +7660,10 @@ int xodtemplate_resolve_serviceextinfo(xodtemplate_serviceextinfo *this_servicee
 		}
 
 		/* resolve the template serviceextinfo... */
-		xodtemplate_resolve_serviceextinfo(template_serviceextinfo);
+		if (xodtemplate_resolve_serviceextinfo(template_serviceextinfo) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template serviceextinfo... */
 		if (this_serviceextinfo->have_host_name == FALSE && template_serviceextinfo->have_host_name == TRUE) {
@@ -7690,7 +7750,10 @@ int xodtemplate_resolve_module(xodtemplate_module *this_module) {
 		}
 
 		/* resolve the template module... */
-		xodtemplate_resolve_module(template_module);
+		if (xodtemplate_resolve_module(template_module) == ERROR) {
+			my_free(template_names);
+			return ERROR;
+		}
 
 		/* apply missing properties from template module... */
 		if (this_module->module_name == NULL && template_module->module_name != NULL)
@@ -7902,6 +7965,7 @@ int xodtemplate_recombobulate_hostgroups(void) {
 	char *hostgroup_names = NULL;
 	char *temp_ptr = NULL;
 	char *new_members = NULL;
+	int result = OK;
 
 #ifdef DEBUG
 	printf("** PRE-EXPANSION 1\n");
@@ -8008,10 +8072,10 @@ int xodtemplate_recombobulate_hostgroups(void) {
 			continue;
 
 		/* get list of hosts in the hostgroup */
-		temp_memberlist = xodtemplate_expand_hostgroups_and_hosts(NULL, temp_hostgroup->members, temp_hostgroup->_config_file, temp_hostgroup->_start_line);
+		result = xodtemplate_expand_hostgroups_and_hosts(&temp_memberlist, NULL, temp_hostgroup->members, temp_hostgroup->_config_file, temp_hostgroup->_start_line);
 
 		/* add all members to the host group */
-		if (temp_memberlist == NULL && allow_empty_hostgroup_assignment == 0) {
+		if (result != OK || (temp_memberlist == NULL && allow_empty_hostgroup_assignment == 0)) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand members specified in hostgroup (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_hostgroup->_config_file), temp_hostgroup->_start_line);
 			return ERROR;
 		}
@@ -8803,6 +8867,8 @@ int xodtemplate_register_timeperiod(xodtemplate_timeperiod *this_timeperiod) {
 		return ERROR;
 	}
 
+	xodtemplate_set_debuginfo(new_timeperiod, this_timeperiod);
+
 	/* add all exceptions to timeperiod */
 	for (x = 0; x < DATERANGE_TYPES; x++) {
 		for (temp_daterange = this_timeperiod->exceptions[x]; temp_daterange != NULL; temp_daterange = temp_daterange->next) {
@@ -8958,6 +9024,8 @@ int xodtemplate_register_command(xodtemplate_command *this_command) {
 		return ERROR;
 	}
 
+	xodtemplate_set_debuginfo(new_command, this_command);
+
 	return OK;
 }
 
@@ -8981,6 +9049,8 @@ int xodtemplate_register_contactgroup(xodtemplate_contactgroup *this_contactgrou
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register contactgroup (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_contactgroup->_config_file), this_contactgroup->_start_line);
 		return ERROR;
 	}
+
+	xodtemplate_set_debuginfo(new_contactgroup, this_contactgroup);
 
 	/* Need to check for NULL because strtok could use a NULL value to check the previous string's token value */
 	if (this_contactgroup->members != NULL) {
@@ -9018,6 +9088,8 @@ int xodtemplate_register_hostgroup(xodtemplate_hostgroup *this_hostgroup) {
 		return ERROR;
 	}
 
+	xodtemplate_set_debuginfo(new_hostgroup, this_hostgroup);
+
 	if (this_hostgroup->members != NULL) {
 		for (host_name = strtok(this_hostgroup->members, ","); host_name != NULL; host_name = strtok(NULL, ",")) {
 			strip(host_name);
@@ -9053,6 +9125,8 @@ int xodtemplate_register_servicegroup(xodtemplate_servicegroup *this_servicegrou
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register servicegroup (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_servicegroup->_config_file), this_servicegroup->_start_line);
 		return ERROR;
 	}
+
+	xodtemplate_set_debuginfo(new_servicegroup, this_servicegroup);
 
 	if (this_servicegroup->members != NULL) {
 		for (host_name = strtok(this_servicegroup->members, ","); host_name != NULL; host_name = strtok(NULL, ",")) {
@@ -9101,6 +9175,8 @@ int xodtemplate_register_servicedependency(xodtemplate_servicedependency *this_s
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register service execution dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_servicedependency->_config_file), this_servicedependency->_start_line);
 			return ERROR;
 		}
+
+		xodtemplate_set_debuginfo(new_servicedependency, this_servicedependency);
 	}
 	if (this_servicedependency->have_notification_dependency_options == TRUE) {
 
@@ -9111,6 +9187,8 @@ int xodtemplate_register_servicedependency(xodtemplate_servicedependency *this_s
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register service notification dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_servicedependency->_config_file), this_servicedependency->_start_line);
 			return ERROR;
 		}
+
+		xodtemplate_set_debuginfo(new_servicedependency, this_servicedependency);
 	}
 
 	return OK;
@@ -9146,6 +9224,8 @@ int xodtemplate_register_serviceescalation(xodtemplate_serviceescalation *this_s
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register service escalation (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_serviceescalation->_config_file), this_serviceescalation->_start_line);
 		return ERROR;
 	}
+
+	xodtemplate_set_debuginfo(new_serviceescalation, this_serviceescalation);
 
 	/* add the contact groups */
 	if (this_serviceescalation->contact_groups != NULL) {
@@ -9226,6 +9306,8 @@ int xodtemplate_register_contact(xodtemplate_contact *this_contact) {
 		return ERROR;
 	}
 
+	xodtemplate_set_debuginfo(new_contact, this_contact);
+
 	/* add all the host notification commands */
 	if (this_contact->host_notification_commands != NULL) {
 
@@ -9295,6 +9377,8 @@ int xodtemplate_register_host(xodtemplate_host *this_host) {
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register host (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_host->_config_file), this_host->_start_line);
 		return ERROR;
 	}
+
+	xodtemplate_set_debuginfo(new_host, this_host);
 
 	/* add the parent hosts */
 	if (this_host->parents != NULL) {
@@ -9372,6 +9456,8 @@ int xodtemplate_register_service(xodtemplate_service *this_service) {
 		return ERROR;
 	}
 
+	xodtemplate_set_debuginfo(new_service, this_service);
+
 	/* add all contact groups to the service */
 	if (this_service->contact_groups != NULL) {
 
@@ -9434,6 +9520,8 @@ int xodtemplate_register_hostdependency(xodtemplate_hostdependency *this_hostdep
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register host execution dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_hostdependency->_config_file), this_hostdependency->_start_line);
 			return ERROR;
 		}
+
+		xodtemplate_set_debuginfo(new_hostdependency, this_hostdependency);
 	}
 
 	/* add the host notification dependency */
@@ -9446,6 +9534,8 @@ int xodtemplate_register_hostdependency(xodtemplate_hostdependency *this_hostdep
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register host notification dependency (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_hostdependency->_config_file), this_hostdependency->_start_line);
 			return ERROR;
 		}
+
+		xodtemplate_set_debuginfo(new_hostdependency, this_hostdependency);
 	}
 
 	return OK;
@@ -9480,6 +9570,8 @@ int xodtemplate_register_hostescalation(xodtemplate_hostescalation *this_hostesc
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register host escalation (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_hostescalation->_config_file), this_hostescalation->_start_line);
 		return ERROR;
 	}
+
+	xodtemplate_set_debuginfo(new_hostescalation, this_hostescalation);
 
 	/* add all contact groups */
 	if (this_hostescalation->contact_groups != NULL) {
@@ -9555,6 +9647,8 @@ int xodtemplate_register_module(xodtemplate_module *this_module) {
 		logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not register module (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(this_module->_config_file), this_module->_start_line);
 		return ERROR;
 	}
+
+	xodtemplate_set_debuginfo(new_module, this_module);
 
 	return OK;
 }
@@ -12417,6 +12511,12 @@ int xodtemplate_expand_contactgroups(xodtemplate_memberlist **list, xodtemplate_
 		/* strip trailing spaces */
 		strip(temp_ptr);
 
+		/* this contactgroup should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
+
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
@@ -12450,7 +12550,7 @@ int xodtemplate_expand_contactgroups(xodtemplate_memberlist **list, xodtemplate_
 					continue;
 
 				/* add contactgroup members to list */
-				xodtemplate_add_contactgroup_members_to_memberlist(list, temp_contactgroup, _config_file, _start_line);
+				xodtemplate_add_contactgroup_members_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_contactgroup, _config_file, _start_line);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -12472,18 +12572,12 @@ int xodtemplate_expand_contactgroups(xodtemplate_memberlist **list, xodtemplate_
 						continue;
 
 					/* add contactgroup to list */
-					xodtemplate_add_contactgroup_members_to_memberlist(list, temp_contactgroup, _config_file, _start_line);
+					xodtemplate_add_contactgroup_members_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_contactgroup, _config_file, _start_line);
 				}
 			}
 
 			/* else this is just a single contactgroup... */
 			else {
-
-				/* this contactgroup should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the contactgroup */
 				temp_contactgroup = xodtemplate_find_real_contactgroup(temp_ptr);
@@ -12539,6 +12633,12 @@ int xodtemplate_expand_contacts(xodtemplate_memberlist **list, xodtemplate_membe
 		/* strip trailing spaces */
 		strip(temp_ptr);
 
+		/* this contact should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
+
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
@@ -12570,7 +12670,7 @@ int xodtemplate_expand_contacts(xodtemplate_memberlist **list, xodtemplate_membe
 					continue;
 
 				/* add contact to list */
-				xodtemplate_add_member_to_memberlist(list, temp_contact->contact_name, NULL);
+				xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_contact->contact_name, NULL);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -12595,18 +12695,12 @@ int xodtemplate_expand_contacts(xodtemplate_memberlist **list, xodtemplate_membe
 						continue;
 
 					/* add contact to list */
-					xodtemplate_add_member_to_memberlist(list, temp_contact->contact_name, NULL);
+					xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_contact->contact_name, NULL);
 				}
 			}
 
 			/* else this is just a single contact... */
 			else {
-
-				/* this contact should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the contact */
 				temp_contact = xodtemplate_find_real_contact(temp_ptr);
@@ -12675,22 +12769,22 @@ int xodtemplate_add_contactgroup_members_to_memberlist(xodtemplate_memberlist **
 
 
 /* expands a comma-delimited list of hostgroups and/or hosts to member host names */
-xodtemplate_memberlist *xodtemplate_expand_hostgroups_and_hosts(char *hostgroups, char *hosts, int _config_file, int _start_line) {
-	xodtemplate_memberlist *temp_list = NULL;
+int xodtemplate_expand_hostgroups_and_hosts(xodtemplate_memberlist **temp_list, char *hostgroups, char *hosts, int _config_file, int _start_line) {
 	xodtemplate_memberlist *reject_list = NULL;
 	xodtemplate_memberlist *list_ptr = NULL;
 	xodtemplate_memberlist *reject_ptr = NULL;
 	int result = OK;
+	*temp_list = NULL;
 
 	/* process list of hostgroups... */
 	if (hostgroups != NULL) {
 
 		/* expand host */
-		result = xodtemplate_expand_hostgroups(&temp_list, &reject_list, hostgroups, _config_file, _start_line);
+		result = xodtemplate_expand_hostgroups(temp_list, &reject_list, hostgroups, _config_file, _start_line);
 		if (result != OK) {
-			xodtemplate_free_memberlist(&temp_list);
+			xodtemplate_free_memberlist(temp_list);
 			xodtemplate_free_memberlist(&reject_list);
-			return NULL;
+			return ERROR;
 		}
 	}
 
@@ -12698,11 +12792,11 @@ xodtemplate_memberlist *xodtemplate_expand_hostgroups_and_hosts(char *hostgroups
 	if (hosts != NULL) {
 
 		/* expand hosts */
-		result = xodtemplate_expand_hosts(&temp_list, &reject_list, hosts, _config_file, _start_line);
+		result = xodtemplate_expand_hosts(temp_list, &reject_list, hosts, _config_file, _start_line);
 		if (result != OK) {
-			xodtemplate_free_memberlist(&temp_list);
+			xodtemplate_free_memberlist(temp_list);
 			xodtemplate_free_memberlist(&reject_list);
-			return NULL;
+			return ERROR;
 		}
 	}
 
@@ -12721,9 +12815,9 @@ xodtemplate_memberlist *xodtemplate_expand_hostgroups_and_hosts(char *hostgroups
 	/* remove rejects (if any) from the list (no duplicate entries exist in either list) */
 	/* NOTE: rejects from this list also affect hosts generated from processing hostgroup names (see above) */
 	for (reject_ptr = reject_list; reject_ptr != NULL; reject_ptr = reject_ptr->next) {
-		for (list_ptr = temp_list; list_ptr != NULL; list_ptr = list_ptr->next) {
+		for (list_ptr = *temp_list; list_ptr != NULL; list_ptr = list_ptr->next) {
 			if (!strcmp(reject_ptr->name1, list_ptr->name1)) {
-				xodtemplate_remove_memberlist_item(list_ptr, &temp_list);
+				xodtemplate_remove_memberlist_item(list_ptr, temp_list);
 				break;
 			}
 		}
@@ -12731,7 +12825,7 @@ xodtemplate_memberlist *xodtemplate_expand_hostgroups_and_hosts(char *hostgroups
 	xodtemplate_free_memberlist(&reject_list);
 	reject_list = NULL;
 
-	return temp_list;
+	return OK;
 }
 
 
@@ -12760,6 +12854,12 @@ int xodtemplate_expand_hostgroups(xodtemplate_memberlist **list, xodtemplate_mem
 
 		/* strip trailing spaces */
 		strip(temp_ptr);
+
+		/* this hostgroup should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
 
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
@@ -12794,7 +12894,7 @@ int xodtemplate_expand_hostgroups(xodtemplate_memberlist **list, xodtemplate_mem
 					continue;
 
 				/* add hostgroup members to list */
-				xodtemplate_add_hostgroup_members_to_memberlist(list, temp_hostgroup, _config_file, _start_line);
+				xodtemplate_add_hostgroup_members_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_hostgroup, _config_file, _start_line);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -12816,18 +12916,12 @@ int xodtemplate_expand_hostgroups(xodtemplate_memberlist **list, xodtemplate_mem
 						continue;
 
 					/* add hostgroup to list */
-					xodtemplate_add_hostgroup_members_to_memberlist(list, temp_hostgroup, _config_file, _start_line);
+					xodtemplate_add_hostgroup_members_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_hostgroup, _config_file, _start_line);
 				}
 			}
 
 			/* else this is just a single hostgroup... */
 			else {
-
-				/* this hostgroup should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the hostgroup */
 				temp_hostgroup = xodtemplate_find_real_hostgroup(temp_ptr);
@@ -12882,6 +12976,12 @@ int xodtemplate_expand_hosts(xodtemplate_memberlist **list, xodtemplate_memberli
 
 		/* strip trailing spaces */
 		strip(temp_ptr);
+
+		/* this host should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
 
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
@@ -12939,18 +13039,12 @@ int xodtemplate_expand_hosts(xodtemplate_memberlist **list, xodtemplate_memberli
 						continue;
 
 					/* add host to list */
-					xodtemplate_add_member_to_memberlist(list, temp_host->host_name, NULL);
+					xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_host->host_name, NULL);
 				}
 			}
 
 			/* else this is just a single host... */
 			else {
-
-				/* this host should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the host */
 				temp_host = xodtemplate_find_real_host(temp_ptr);
@@ -13116,6 +13210,12 @@ int xodtemplate_expand_servicegroups(xodtemplate_memberlist **list, xodtemplate_
 		/* strip trailing spaces */
 		strip(temp_ptr);
 
+		/* this servicegroup should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
+
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
@@ -13149,7 +13249,7 @@ int xodtemplate_expand_servicegroups(xodtemplate_memberlist **list, xodtemplate_
 					continue;
 
 				/* add servicegroup members to list */
-				xodtemplate_add_servicegroup_members_to_memberlist(list, temp_servicegroup, _config_file, _start_line);
+				xodtemplate_add_servicegroup_members_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_servicegroup, _config_file, _start_line);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -13171,18 +13271,12 @@ int xodtemplate_expand_servicegroups(xodtemplate_memberlist **list, xodtemplate_
 						continue;
 
 					/* add servicegroup to list */
-					xodtemplate_add_servicegroup_members_to_memberlist(list, temp_servicegroup, _config_file, _start_line);
+					xodtemplate_add_servicegroup_members_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_servicegroup, _config_file, _start_line);
 				}
 			}
 
 			/* else this is just a single servicegroup... */
 			else {
-
-				/* this servicegroup should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the servicegroup */
 				if ((temp_servicegroup = xodtemplate_find_real_servicegroup(temp_ptr)) != NULL) {
@@ -13256,6 +13350,12 @@ int xodtemplate_expand_services(xodtemplate_memberlist **list, xodtemplate_membe
 		/* strip trailing spaces */
 		strip(temp_ptr);
 
+		/* this service should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
+
 		/* should we use regular expression matching for the service description? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp_service = TRUE;
@@ -13307,7 +13407,7 @@ int xodtemplate_expand_services(xodtemplate_memberlist **list, xodtemplate_membe
 					continue;
 
 				/* add service to the list */
-				xodtemplate_add_member_to_memberlist(list, host_name, temp_service->service_description);
+				xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, host_name, temp_service->service_description);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -13336,18 +13436,12 @@ int xodtemplate_expand_services(xodtemplate_memberlist **list, xodtemplate_membe
 						continue;
 
 					/* add service to the list */
-					xodtemplate_add_member_to_memberlist(list, host_name, temp_service->service_description);
+					xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, host_name, temp_service->service_description);
 				}
 			}
 
 			/* else this is just a single service... */
 			else {
-
-				/* this service should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* excluding all hosts is not allowed */
 				if (strcmp(host_name, "!*")) {
@@ -13531,6 +13625,12 @@ int xodtemplate_get_hostgroup_names(xodtemplate_memberlist **list, xodtemplate_m
 		/* strip trailing spaces */
 		strip(temp_ptr);
 
+		/* this hostgroup should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
+
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
@@ -13564,7 +13664,7 @@ int xodtemplate_get_hostgroup_names(xodtemplate_memberlist **list, xodtemplate_m
 					continue;
 
 				/* add hostgroup to list */
-				xodtemplate_add_member_to_memberlist(list, temp_hostgroup->hostgroup_name, NULL);
+				xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_hostgroup->hostgroup_name, NULL);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -13586,18 +13686,12 @@ int xodtemplate_get_hostgroup_names(xodtemplate_memberlist **list, xodtemplate_m
 						continue;
 
 					/* add hostgroup to list */
-					xodtemplate_add_member_to_memberlist(list, temp_hostgroup->hostgroup_name, NULL);
+					xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_hostgroup->hostgroup_name, NULL);
 				}
 			}
 
 			/* else this is just a single hostgroup... */
 			else {
-
-				/* this hostgroup should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the hostgroup */
 				temp_hostgroup = xodtemplate_find_real_hostgroup(temp_ptr);
@@ -13707,6 +13801,12 @@ int xodtemplate_get_contactgroup_names(xodtemplate_memberlist **list, xodtemplat
 		/* strip trailing spaces */
 		strip(temp_ptr);
 
+		/* this contactgroup should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
+
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
@@ -13740,7 +13840,7 @@ int xodtemplate_get_contactgroup_names(xodtemplate_memberlist **list, xodtemplat
 					continue;
 
 				/* add contactgroup to list */
-				xodtemplate_add_member_to_memberlist(list, temp_contactgroup->contactgroup_name, NULL);
+				xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_contactgroup->contactgroup_name, NULL);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -13762,18 +13862,12 @@ int xodtemplate_get_contactgroup_names(xodtemplate_memberlist **list, xodtemplat
 						continue;
 
 					/* add contactgroup to list */
-					xodtemplate_add_member_to_memberlist(list, temp_contactgroup->contactgroup_name, NULL);
+					xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_contactgroup->contactgroup_name, NULL);
 				}
 			}
 
 			/* else this is just a single contactgroup... */
 			else {
-
-				/* this contactgroup should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the contactgroup */
 				temp_contactgroup = xodtemplate_find_real_contactgroup(temp_ptr);
@@ -13883,6 +13977,12 @@ int xodtemplate_get_servicegroup_names(xodtemplate_memberlist **list, xodtemplat
 		/* strip trailing spaces */
 		strip(temp_ptr);
 
+		/* this servicegroup should be excluded (rejected) */
+		if (temp_ptr[0] == '!') {
+			reject_item = TRUE;
+			temp_ptr++;
+		}
+
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
@@ -13916,7 +14016,7 @@ int xodtemplate_get_servicegroup_names(xodtemplate_memberlist **list, xodtemplat
 					continue;
 
 				/* add servicegroup to list */
-				xodtemplate_add_member_to_memberlist(list, temp_servicegroup->servicegroup_name, NULL);
+				xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_servicegroup->servicegroup_name, NULL);
 			}
 
 			/* free memory allocated to compiled regexp */
@@ -13938,18 +14038,12 @@ int xodtemplate_get_servicegroup_names(xodtemplate_memberlist **list, xodtemplat
 						continue;
 
 					/* add servicegroup to list */
-					xodtemplate_add_member_to_memberlist(list, temp_servicegroup->servicegroup_name, NULL);
+					xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list : list, temp_servicegroup->servicegroup_name, NULL);
 				}
 			}
 
 			/* else this is just a single servicegroup... */
 			else {
-
-				/* this servicegroup should be excluded (rejected) */
-				if (temp_ptr[0] == '!') {
-					reject_item = TRUE;
-					temp_ptr++;
-				}
 
 				/* find the servicegroup */
 				temp_servicegroup = xodtemplate_find_real_servicegroup(temp_ptr);
@@ -14243,5 +14337,73 @@ int xodtemplate_create_escalation_condition(char *value, xodtemplate_escalation_
 		condition_last = new_condition;
 	}
 	return result;
+}
+
+debuginfo *get_debuginfo(void *cookie) {
+	debuginfo *di;
+	int bucket = (intptr_t)cookie % (sizeof(debuginfo_buckets) / sizeof(debuginfo_buckets[0]));
+
+	for (di = debuginfo_buckets[bucket]; di; di = di->next)
+		if (di->cookie == cookie)
+			return di;
+
+	return NULL;
+}
+
+const char *format_debuginfo(void *cookie) {
+	static char *text;
+	debuginfo *di = get_debuginfo(cookie);
+
+	if (!di)
+		return "unknown file/line";
+
+	free(text);
+	(void) asprintf(&text, "file '%s', line %d", di->file, di->line);
+
+	return text;
+}
+
+void set_debuginfo(void *cookie, const char *file, int line) {
+	debuginfo *di;
+	int bucket = (intptr_t)cookie % (sizeof(debuginfo_buckets) / sizeof(debuginfo_buckets[0]));
+
+	for (di = debuginfo_buckets[bucket]; di; di = di->next) {
+		if (di->cookie == cookie) {
+			free(di->file);
+			break;
+		}
+	}
+
+	if (!di) {
+		di = malloc(sizeof(debuginfo));
+		di->cookie = cookie;
+		di->next = debuginfo_buckets[bucket];
+		debuginfo_buckets[bucket] = di;
+	}
+
+	di->file = strdup(file);
+	di->line = line;
+}
+
+void purge_debuginfo(void) {
+	int i;
+	debuginfo *next;
+
+	for (i = 0; i < sizeof(debuginfo_buckets) / sizeof(debuginfo_buckets[0]); i++) {
+		while (debuginfo_buckets[i]) {
+			next = debuginfo_buckets[i]->next;
+			free(debuginfo_buckets[i]->file);
+			free(debuginfo_buckets[i]);
+			debuginfo_buckets[i] = next;
+		}
+	}
+}
+
+void xodtemplate_set_debuginfo(void *object, void *xodtemplate) {
+	/* Thanks to the xodtemplate_* struct layout this is guaranteed to
+	 * work. Nevertheless, it's quite evil. */
+	xodtemplate_timeperiod *real_template = (xodtemplate_timeperiod *)xodtemplate;
+
+	set_debuginfo(object, xodtemplate_config_file_name(real_template->_config_file), real_template->_start_line);
 }
 
