@@ -827,7 +827,7 @@ int main(void) {
 					}
 				}
 
-				/* if no hostgroup matched, try to find a serviegroup */
+				/* if no hostgroup matched, try to find a servicegroup */
 				if (return_live_search_data == TRUE || found == FALSE) {
 					for (temp_servicegroup = servicegroup_list; temp_servicegroup != NULL; temp_servicegroup = temp_servicegroup->next) {
 						if (regexec(&preg, temp_servicegroup->group_name, 0, NULL, 0) == 0 || regexec(&preg, temp_servicegroup->alias, 0, NULL, 0) == 0) {
@@ -2509,7 +2509,7 @@ void show_service_detail(void) {
 
 		if (new_host == TRUE && content_type != CSV_CONTENT && content_type != JSON_CONTENT) {
 			if (strcmp(last_host, ""))
-				printf("<tr><td colspan='6'></td></tr>\n");
+				printf("<tr><td colspan='8'></td></tr>\n");
 		}
 
 		if (odd)
