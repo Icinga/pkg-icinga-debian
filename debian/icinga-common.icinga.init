@@ -19,8 +19,6 @@
 # Description:       icinga is a monitoring and management system for hosts, services and networks.
 ### END INIT INFO
 
-set -e
-
 . /lib/lsb/init-functions
 
 DAEMON=/usr/sbin/icinga

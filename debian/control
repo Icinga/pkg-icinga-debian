@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Debian Nagios Maintainer Group <pkg-nagios-devel@lists.alioth.debian.org>
 Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Vcs-Browser: http://git.debian.org/?p=pkg-nagios/icinga.git
 Vcs-Git: git://git.debian.org/pkg-nagios/icinga.git
 Build-Depends: autotools-dev,
@@ -52,8 +52,8 @@ Depends: adduser,
          apache2-utils,
          coreutils (>= 4.5.3),
          icinga-common (= ${source:Version}),
-         libjs-jquery (>= 1.4.2-2~),
-         libjs-jquery-ui,
+         libjs-jquery (>= 1.4.2-1~),
+         libjs-jquery-ui (>= 1.10.1+dfsg-1~),
          ucf (>= 0.28),
          ${misc:Depends},
          ${perl:Depends},

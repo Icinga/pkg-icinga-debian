@@ -9,6 +9,8 @@
 /*#define DEBUG_MEMORY 1*/
 /*#define DEBUG_IDO2DB2 1*/
 
+#include <stdint.h>
+
 #ifdef DEBUG_MEMORY
 #include <mcheck.h>
 #endif
@@ -22,7 +24,6 @@
 #include "../include/ido2db.h"
 #include "../include/db.h"
 #include "../include/dbhandlers.h"
-#include "../include/sla.h"
 #include "../include/logging.h"
 #ifdef HAVE_SSL
 #include "../../../include/dh.h"
@@ -87,7 +88,6 @@ int ido2db_debug_verbosity = IDO2DB_DEBUGV_BASIC;
 FILE *ido2db_debug_file_fp = NULL;
 unsigned long ido2db_max_debug_file_size = 0L;
 
-int enable_sla = IDO_FALSE;
 int ido2db_debug_readable_timestamp = IDO_FALSE;
 
 static time_t ido2db_proxy_last_report = 0;
@@ -97,9 +97,6 @@ char *libdbi_driver_dir = NULL;
 int stop_signal_detected = IDO_FALSE;
 
 char *sigs[35] = {"EXIT", "HUP", "INT", "QUIT", "ILL", "TRAP", "ABRT", "BUS", "FPE", "KILL", "USR1", "SEGV", "USR2", "PIPE", "ALRM", "TERM", "STKFLT", "CHLD", "CONT", "STOP", "TSTP", "TTIN", "TTOU", "URG", "XCPU", "XFSZ", "VTALRM", "PROF", "WINCH", "IO", "PWR", "UNUSED", "ZERR", "DEBUG", (char *)NULL};
-
-
-int dummy;	/* reduce compiler warnings */
 
 
 int main(int argc, char **argv) {
@@ -459,6 +456,15 @@ int ido2db_process_config_file(char *filename) {
 	return result;
 }
 
+/* log generic deprecation warning on variables */
+static void log_deprecation_warning(char *var) {
+
+	if (!var)
+		return;
+
+	syslog(LOG_USER | LOG_INFO, "Warning: config setting '%s' ignored. This has been deprecated. Remove it from your configuration!", var);
+}
+
 
 /* process a single module config variable */
 int ido2db_process_config_var(char *arg) {
@@ -545,8 +551,7 @@ int ido2db_process_config_var(char *arg) {
 	} else if (!strcmp(var, "db_socket")) {
 		if ((ido2db_db_settings.dbsocket = strdup(val)) == NULL)
 			return IDO_ERROR;
-	} else if (!strcmp(var, "max_timedevents_age"))
-		ido2db_db_settings.max_timedevents_age = strtoul(val, NULL, 0) * 60;
+	}
 	else if (!strcmp(var, "max_systemcommands_age"))
 		ido2db_db_settings.max_systemcommands_age = strtoul(val, NULL, 0) * 60;
 	else if (!strcmp(var, "max_servicechecks_age"))
@@ -567,6 +572,8 @@ int ido2db_process_config_var(char *arg) {
 		ido2db_db_settings.max_contactnotifications_age = strtoul(val, NULL, 0) * 60;
 	else if (!strcmp(var, "max_contactnotificationmethods_age"))
 		ido2db_db_settings.max_contactnotificationmethods_age = strtoul(val, NULL, 0) * 60;
+	else if (!strcmp(var, "max_downtimehistory_age"))
+		ido2db_db_settings.max_downtimehistory_age = strtoul(val, NULL, 0) * 60;
 
 	else if (!strcmp(var, "trim_db_interval"))
 		ido2db_db_settings.trim_db_interval = strtoul(val, NULL, 0);
@@ -595,25 +602,12 @@ int ido2db_process_config_var(char *arg) {
 			else
 				use_ssl = 0;
 		}
-	} else if (!strcmp(var, "clean_realtime_tables_on_core_startup")) {
-		if (strlen(val) != 1 || val[0] < '0' || val[0] > '1') {
-			return IDO_ERROR;
-		}
-		ido2db_db_settings.clean_realtime_tables_on_core_startup = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
-	} else if (!strcmp(var, "clean_config_tables_on_core_startup")) {
-		if (strlen(val) != 1 || val[0] < '0' || val[0] > '1') {
-			return IDO_ERROR;
-		}
-		ido2db_db_settings.clean_config_tables_on_core_startup = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
 	}
 
 	else if (!strcmp(var, "oci_errors_to_syslog")) {
 		ido2db_db_settings.oci_errors_to_syslog = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
 	} else if (!strcmp(var, "oracle_trace_level")) {
 		ido2db_db_settings.oracle_trace_level = atoi(val);
-	} else if (!strcmp(var, "enable_sla")) {
-		syslog(LOG_USER | LOG_INFO, "Warning: enable_sla is deprecated!\n");
-		enable_sla = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
 	} else if (!strcmp(var, "debug_readable_timestamp")) {
 		ido2db_debug_readable_timestamp = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
         }
@@ -621,6 +615,22 @@ int ido2db_process_config_var(char *arg) {
 		if ((libdbi_driver_dir = strdup(val)) == NULL)
 			return IDO_ERROR;
 	}
+	/* DEPRECATED variables */
+	else if (!strcmp(var, "clean_realtime_tables_on_core_startup")) {
+		log_deprecation_warning(var);
+		if (strlen(val) != 1 || val[0] < '0' || val[0] > '1') {
+			return IDO_ERROR;
+		}
+		ido2db_db_settings.clean_realtime_tables_on_core_startup = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
+	}
+	else if (!strcmp(var, "clean_config_tables_on_core_startup")) {
+		log_deprecation_warning(var);
+		if (strlen(val) != 1 || val[0] < '0' || val[0] > '1') {
+			return IDO_ERROR;
+		}
+		ido2db_db_settings.clean_config_tables_on_core_startup = (atoi(val) > 0) ? IDO_TRUE : IDO_FALSE;
+	}
+
 	//syslog(LOG_ERR,"ido2db_process_config_var(%s) end\n",var);
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_process_config_var(%s) end\n", var);
@@ -642,7 +652,6 @@ int ido2db_initialize_variables(void) {
 	ido2db_db_settings.dbname = NULL;
 	ido2db_db_settings.dbprefix = NULL;
 	ido2db_db_settings.dbsocket = NULL;
-	ido2db_db_settings.max_timedevents_age = 0L;
 	ido2db_db_settings.max_systemcommands_age = 0L;
 	ido2db_db_settings.max_servicechecks_age = 0L;
 	ido2db_db_settings.max_hostchecks_age = 0L;
@@ -653,6 +662,7 @@ int ido2db_initialize_variables(void) {
 	ido2db_db_settings.max_notifications_age = 0L;
 	ido2db_db_settings.max_contactnotifications_age = 0L;
 	ido2db_db_settings.max_contactnotificationmethods_age = 0L;
+	ido2db_db_settings.max_downtimehistory_age = 0L;
 	ido2db_db_settings.trim_db_interval = (unsigned long)DEFAULT_TRIM_DB_INTERVAL; /* set the default if missing in ido2db.cfg */
 	ido2db_db_settings.housekeeping_thread_startup_delay = (unsigned long)DEFAULT_HOUSEKEEPING_THREAD_STARTUP_DELAY; /* set the default if missing in ido2db.cfg */
 	ido2db_db_settings.clean_realtime_tables_on_core_startup = IDO_TRUE; /* default is cleaning on startup */
@@ -921,9 +931,9 @@ int ido2db_daemonize(void) {
 	if (lock_file) {
 		/* write PID to lockfile... */
 		lseek(lockfile, 0, SEEK_SET);
-		dummy = ftruncate(lockfile, 0);
+		ftruncate(lockfile, 0);
 		sprintf(buf, "%d\n", (int)getpid());
-		dummy = write(lockfile, buf, strlen(buf));
+		write(lockfile, buf, strlen(buf));
 
 		/* make sure lock file stays open while program is executing... */
 		val = fcntl(lockfile, F_GETFD, 0);
@@ -1161,7 +1171,7 @@ static void *ido2db_proxy_thread_proc(void *pargs) {
 
 		time(&now);
 		if (ido2db_proxy_last_report < now && (size_left > 0 || size_right > 0)) {
-			syslog(LOG_INFO, "IDO2DB proxy stats (p=%p): left=%d, right=%d; iostats=%d\n", proxy, (int)size_left, (int)size_right, (int)(iostats + size_left + size_right) / 2);
+			syslog(LOG_INFO, "IDO2DB proxy stats (p=%p): left=%jd bytes, right=%jd bytes; iostats=%jd bytes\n", proxy, (intmax_t)size_left, (intmax_t)size_right, (intmax_t)(iostats + size_left + size_right) / 2);
 			ido2db_proxy_last_report = now;
 		}
 
@@ -1195,14 +1205,14 @@ static void *ido2db_proxy_thread_proc(void *pargs) {
 
 static ido2db_proxy *ido2db_proxy_new(int fd_left, int fd_right) {
 	pthread_t tid;
-
 	ido2db_proxy *proxy = (ido2db_proxy *)malloc(sizeof(ido2db_proxy));
+	ido2db_proxy_args *pa = (ido2db_proxy_args *)malloc(sizeof(ido2db_proxy_args));
+
 	pthread_mutex_init(&(proxy->mutex), NULL);
 	proxy->size_left = 0;
 	proxy->size_right = 0;
 	proxy->refs = 2;
 
-	ido2db_proxy_args *pa = (ido2db_proxy_args *)malloc(sizeof(ido2db_proxy_args));
 	pa->fd_left = fd_left;
 	pa->fd_right = fd_right;
 	pa->proxy = proxy;
@@ -1936,9 +1946,6 @@ int ido2db_handle_client_input(ido2db_idi *idi, char *buf) {
 			case IDO_API_PROCESSDATA:
 				idi->current_input_data = IDO2DB_INPUT_DATA_PROCESSDATA;
 				break;
-			case IDO_API_TIMEDEVENTDATA:
-				idi->current_input_data = IDO2DB_INPUT_DATA_TIMEDEVENTDATA;
-				break;
 			case IDO_API_LOGDATA:
 				idi->current_input_data = IDO2DB_INPUT_DATA_LOGDATA;
 				break;
@@ -2164,7 +2171,6 @@ int ido2db_start_input_data(ido2db_idi *idi) {
 
 int ido2db_add_input_data_item(ido2db_idi *idi, int type, char *buf) {
 	char *newbuf = NULL;
-	int mbuf_used = IDO_TRUE;
 
 	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_add_input_data_item() start\n");
 
@@ -2319,12 +2325,13 @@ int ido2db_add_input_data_item(ido2db_idi *idi, int type, char *buf) {
 	case IDO_DATA_CONTACT:
 		ido2db_add_input_data_mbuf(idi, type, IDO2DB_MBUF_CONTACT, newbuf);
 		break;
+	case IDO_DATA_CUSTOMVARIABLESTATUS:
+		ido2db_add_input_data_mbuf(idi, type, IDO2DB_MBUF_CUSTOMVARIABLESTATUS, newbuf);
+		break;
 
 		/* NORMAL DATA */
 		/* normal data items appear only once per data type */
 	default:
-
-		mbuf_used = IDO_FALSE;
 
 		/* if there was already a matching item, discard the old one */
 		if (idi->buffered_input[type] != NULL) {
@@ -2416,9 +2423,6 @@ int ido2db_end_input_data(ido2db_idi *idi) {
 		/* realtime Icinga data */
 	case IDO2DB_INPUT_DATA_PROCESSDATA:
 		result = ido2db_handle_processdata(idi);
-		break;
-	case IDO2DB_INPUT_DATA_TIMEDEVENTDATA:
-		result = ido2db_handle_timedeventdata(idi);
 		break;
 	case IDO2DB_INPUT_DATA_LOGDATA:
 		result = ido2db_handle_logdata(idi);
@@ -3026,15 +3030,13 @@ static void *ido2db_thread_cleanup_exit_handler(void * arg) {
 
 int ido2db_terminate_threads(void) {
 
-	int result;
-
 	/* from cleaner thread */
 	ido2db_db_disconnect(&thread_idi);
 	ido2db_db_deinit(&thread_idi);
 
 	/* terminate each thread on its own */
 	/*result=terminate_worker_thread();*/
-	result = terminate_cleanup_thread();
+	terminate_cleanup_thread();
 
 	return IDO_OK;
 }

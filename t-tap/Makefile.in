@@ -13,7 +13,7 @@ CFLAGS=@TESTS_CFLAGS@ @DEFS@ -DNSCORE -I../include -I../tools/libtap
 TAPOBJ=../tools/libtap/tap.o
 
 #TESTS = test_logging test_events test_timeperiods test_icinga_config test_xsddefault test_checks test_strtoul test_commands test_downtime
-TESTS = test_logging test_events test_timeperiods test_icinga_config test_xsddefault test_strtoul test_commands test_downtime
+TESTS = test_logging test_events test_timeperiods test_icinga_config test_strtoul test_commands test_downtime
 
 # these objects must be the same as defined in cgi/Makefile.in as CGILIBS!
 XSD_OBJS = $(SRC_CGI)/statusdata-cgi.o $(SRC_CGI)/xstatusdata-cgi.o
@@ -84,6 +84,18 @@ BROKER_O=@BROKER_O@
 BROKER_H=@BROKER_H@
 
 TAPOBJ += $(SNPRINTF_O)
+
+
+###############################
+# Debug
+###############################
+ENABLE_DEBUG=@ENABLE_DEBUG@
+
+# Compiler flags for use with Valgrind - set when debug is enabled
+ifeq ('$(ENABLE_DEBUG)', 'yes')
+        CFLAGS=-O0 -g -Wall -DNSCORE -I../include -I../tools/libtap
+endif
+
 
 all: $(TESTS)
 

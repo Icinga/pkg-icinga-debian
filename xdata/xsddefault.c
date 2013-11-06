@@ -35,12 +35,6 @@
 #include "../include/macros.h"
 #include "../include/skiplist.h"
 
-/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-#include "../include/statsprofiler.h"
-#include "../include/profiler.h"
-#endif
-
 #ifdef NSCORE
 #include "../include/icinga.h"
 #endif
@@ -61,6 +55,7 @@ int daemon_mode;
 time_t last_command_check;
 time_t last_log_rotation;
 time_t status_file_creation_time;
+char *status_file_icinga_version;
 int enable_notifications;
 time_t disable_notifications_expire_time;
 int execute_service_checks;
@@ -78,11 +73,6 @@ int process_performance_data;
 int nagios_pid;
 int buffer_stats[1][3];
 int program_stats[MAX_CHECK_STATS_TYPES][3];
-/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-int event_profiling_enabled;
-profile_object* profiled_data = NULL;
-#endif
 #endif
 
 #ifdef NSCORE
@@ -131,10 +121,6 @@ extern char           *global_host_event_handler;
 extern char           *global_service_event_handler;
 
 extern check_stats    check_statistics[MAX_CHECK_STATS_TYPES];
-/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-extern int event_profiling_enabled;
-#endif
 #endif
 
 
@@ -306,7 +292,6 @@ int xsddefault_save_status_data(void) {
 	scheduled_downtime *temp_downtime = NULL;
 	time_t current_time;
 	int fd = 0;
-	int dummy; /* reduce compiler warnings */
 	FILE *fp = NULL;
 	int used_external_command_buffer_slots = 0;
 	int high_external_command_buffer_slots = 0;
@@ -321,7 +306,7 @@ int xsddefault_save_status_data(void) {
 	/* open a safe temp file for output */
 	if (xsddefault_temp_file == NULL)
 		return ERROR;
-	dummy = asprintf(&temp_file, "%sXXXXXX", xsddefault_temp_file);
+	asprintf(&temp_file, "%sXXXXXX", xsddefault_temp_file);
 	if (temp_file == NULL)
 		return ERROR;
 
@@ -427,14 +412,6 @@ int xsddefault_save_status_data(void) {
 
 	fprintf(fp, "\tparallel_host_check_stats=%d,%d,%d\n", check_statistics[PARALLEL_HOST_CHECK_STATS].minute_stats[0], check_statistics[PARALLEL_HOST_CHECK_STATS].minute_stats[1], check_statistics[PARALLEL_HOST_CHECK_STATS].minute_stats[2]);
 	fprintf(fp, "\tserial_host_check_stats=%d,%d,%d\n", check_statistics[SERIAL_HOST_CHECK_STATS].minute_stats[0], check_statistics[SERIAL_HOST_CHECK_STATS].minute_stats[1], check_statistics[SERIAL_HOST_CHECK_STATS].minute_stats[2]);
-
-	/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-	fprintf(fp, "\tevent_profiling_enabled=%d\n", event_profiling_enabled);
-
-	if (event_profiling_enabled)
-		profiler_output(fp);
-#endif
 
 	fprintf(fp, "\t}\n\n");
 
@@ -765,17 +742,22 @@ int xsddefault_read_status_data(char *config_file, int options) {
 	}
 
 	/* grab configuration data */
-	result = xsddefault_grab_config_info(config_file);
-	if (result == ERROR)
+	if (xsddefault_grab_config_info(config_file) == ERROR) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Unable to read config file '%s': %s", config_file, strerror(errno));
 		return ERROR;
+	}
 
 	/* open the status file for reading */
 #ifdef NO_MMAP
-	if ((fp = fopen(xsddefault_status_log, "r")) == NULL)
+	if ((fp = fopen(xsddefault_status_log, "r")) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Unable to read status data file '%s': %s", xsddefault_status_log, strerror(errno));
 		return ERROR;
+	}
 #else
-	if ((thefile = mmap_fopen(xsddefault_status_log)) == NULL)
+	if ((thefile = mmap_fopen(xsddefault_status_log)) == NULL) {
+		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Unable to read status data file '%s': %s", xsddefault_status_log, strerror(errno));
 		return ERROR;
+	}
 #endif
 
 	/* Big speedup when reading status.dat in bulk */
@@ -922,6 +904,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 #ifdef NSCGI
 				if (!strcmp(var, "created"))
 					status_file_creation_time = strtoul(val, NULL, 10);
+				else if (!strcmp(var, "version"))
+					status_file_icinga_version = (char *)strdup(val);
 #endif
 				break;
 
@@ -965,23 +949,6 @@ int xsddefault_read_status_data(char *config_file, int options) {
 					enable_failure_prediction = (atoi(val) > 0) ? TRUE : FALSE;
 				else if (!strcmp(var, "process_performance_data"))
 					process_performance_data = (atoi(val) > 0) ? TRUE : FALSE;
-				else if (!strcmp(var, "event_profiling_enabled")) {
-					/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-					event_profiling_enabled = atoi(val);
-#endif
-				}
-
-				else if (strstr(var, "PROFILE_")) {
-					/* make sure gcc3 won't hit here */
-#ifndef GCCTOOOLD
-					if (strstr(var, "COUNTER"))
-						profile_object_update_count(var + strlen("PROFILE_COUNTER_"), strtod(val, NULL));
-
-					if (strstr(var, "ELAPSED"))
-						profile_object_update_elapsed(var + strlen("PROFILE_ELAPSED_"), atoi(val));
-#endif
-				}
 
 				else if (!strcmp(var, "total_external_command_buffer_slots"))
 					buffer_stats[0][0] = atoi(val);
@@ -1057,6 +1024,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 						unescape_newlines(temp_hoststatus->long_plugin_output);
 					} else if (!strcmp(var, "performance_data"))
 						temp_hoststatus->perf_data = (char *)strdup(val);
+					else if (!strcmp(var, "check_source"))
+						temp_hoststatus->check_source = (char *)strdup(val);
 					else if (!strcmp(var, "current_attempt"))
 						temp_hoststatus->current_attempt = atoi(val);
 					else if (!strcmp(var, "max_attempts"))
@@ -1185,6 +1154,8 @@ int xsddefault_read_status_data(char *config_file, int options) {
 						unescape_newlines(temp_servicestatus->long_plugin_output);
 					} else if (!strcmp(var, "performance_data"))
 						temp_servicestatus->perf_data = (char *)strdup(val);
+					else if (!strcmp(var, "check_source"))
+						temp_servicestatus->check_source = (char *)strdup(val);
 					else if (!strcmp(var, "last_check"))
 						temp_servicestatus->last_check = strtoul(val, NULL, 10);
 					else if (!strcmp(var, "next_check"))
@@ -1333,6 +1304,9 @@ int xsddefault_read_status_data(char *config_file, int options) {
 		return ERROR;
 	if (sort_comments() != OK)
 		return ERROR;
+
+	if (status_file_icinga_version == NULL)
+		status_file_icinga_version = PROGRAM_VERSION;
 
 	return OK;
 }

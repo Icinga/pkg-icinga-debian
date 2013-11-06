@@ -129,8 +129,6 @@ extern unsigned long max_debug_file_size;
 extern int      use_embedded_perl;
 #endif
 
-int dummy;	/* reduce compiler warnings */
-
 /******************************************************************/
 /********************* MISCELLANEOUS FUNCTIONS ********************/
 /******************************************************************/
@@ -463,7 +461,8 @@ int run_scheduled_service_check(service *svc, int check_options, double latency)
 				svc->next_check = next_valid_time;
 				svc->should_be_scheduled = TRUE;
 
-				log_debug_info(DEBUGL_CHECKS, 1, "Rescheduled next service check for %s", ctime(&next_valid_time));
+				if (log_level(DEBUGL_CHECKS, 1))
+					log_debug_info(DEBUGL_CHECKS, 1, "Rescheduled next service check for %s", ctime(&next_valid_time));
 			}
 		}
 
@@ -490,7 +489,6 @@ int run_async_service_check(service *svc, int check_options, double latency, int
 	struct timeval start_time, end_time;
 	pid_t pid = 0;
 	int fork_error = FALSE;
-	int wait_result = 0;
 	host *temp_host = NULL;
 	int pclose_result = 0;
 	mode_t new_umask = 077;
@@ -647,7 +645,7 @@ int run_async_service_check(service *svc, int check_options, double latency, int
 
 	/* open a temp file for storing check output */
 	old_umask = umask(new_umask);
-	dummy = asprintf(&output_file, "%s/checkXXXXXX", temp_path);
+	asprintf(&output_file, "%s/checkXXXXXX", temp_path);
 	check_result_info.output_file_fd = mkstemp(output_file);
 	if (check_result_info.output_file_fd >= 0)
 		check_result_info.output_file_fp = fdopen(check_result_info.output_file_fd, "w");
@@ -1035,7 +1033,7 @@ int run_async_service_check(service *svc, int check_options, double latency, int
 		/* wait for the first child to return */
 		/* don't do this if large install tweaks are enabled - we'll clean up children in event loop */
 		if (child_processes_fork_twice == TRUE)
-			wait_result = waitpid(pid, NULL, 0);
+			waitpid(pid, NULL, 0);
 	}
 
 	/* see if we were able to run the check... */
@@ -1165,11 +1163,11 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 	else if (queued_check_result->return_code < 0 || queued_check_result->return_code > 3) {
 
 		if (queued_check_result->return_code == 126) {
-			dummy = asprintf(&temp_service->plugin_output, "The command defined for service %s is not an executable\n", queued_check_result->service_description);
+			asprintf(&temp_service->plugin_output, "The command defined for service %s is not an executable\n", queued_check_result->service_description);
 		} else if (queued_check_result->return_code == 127) {
-			dummy = asprintf(&temp_service->plugin_output, "The command defined for service %s does not exist\n", queued_check_result->service_description);
+			asprintf(&temp_service->plugin_output, "The command defined for service %s does not exist\n", queued_check_result->service_description);
 		} else {
-			dummy = asprintf(&temp_service->plugin_output, "Return code of %d is out of bounds", queued_check_result->return_code);
+			asprintf(&temp_service->plugin_output, "Return code of %d is out of bounds", queued_check_result->return_code);
 		}
 		logit(NSLOG_RUNTIME_WARNING, TRUE, "%s", temp_service->plugin_output);
 
@@ -1727,7 +1725,8 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 	/* reschedule the next service check ONLY for active, scheduled checks */
 	if (reschedule_check == TRUE) {
 
-		log_debug_info(DEBUGL_CHECKS, 1, "Rescheduling next check of service at %s", ctime(&next_service_check));
+		if (log_level(DEBUGL_CHECKS, 1))
+			log_debug_info(DEBUGL_CHECKS, 1, "Rescheduling next check of service at %s", ctime(&next_service_check));
 
 		/* default is to reschedule service check unless a test below fails... */
 		temp_service->should_be_scheduled = TRUE;
@@ -1881,7 +1880,8 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 	if (svc == NULL)
 		return;
 
-	log_debug_info(DEBUGL_CHECKS, 0, "Scheduling a %s, active check of service '%s' on host '%s' @ %s", (options & CHECK_OPTION_FORCE_EXECUTION) ? "forced" : "non-forced", svc->description, svc->host_name, ctime(&check_time));
+	if (log_level(DEBUGL_CHECKS, 0))
+		log_debug_info(DEBUGL_CHECKS, 0, "Scheduling a %s, active check of service '%s' on host '%s' @ %s", (options & CHECK_OPTION_FORCE_EXECUTION) ? "forced" : "non-forced", svc->description, svc->host_name, ctime(&check_time));
 
 	/* don't schedule a check if active checks of this service are disabled */
 	if (svc->checks_enabled == FALSE && !(options & CHECK_OPTION_FORCE_EXECUTION)) {
@@ -1902,7 +1902,8 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 	 */
 	if (temp_event != NULL) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Found another service check event for service '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&temp_event->run_time));
+		if (log_level(DEBUGL_CHECKS, 2))
+			log_debug_info(DEBUGL_CHECKS, 2, "Found another service check event for service '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&temp_event->run_time));
 
 		/* use the originally scheduled check unless we decide otherwise */
 		use_original_event = TRUE;
@@ -1946,7 +1947,8 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 	 */
 	if (use_original_event == FALSE) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new service check event for '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&check_time));
+		if (log_level(DEBUGL_CHECKS, 2))
+			log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new service check event for '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&check_time));
 
 		/* allocate memory for a new event item */
 		new_event = (timed_event *)malloc(sizeof(timed_event));
@@ -1958,7 +1960,8 @@ void schedule_service_check(service *svc, time_t check_time, int options) {
 
 		/* make sure we kill off the old event */
 		if (temp_event) {
-			log_debug_info(DEBUGL_CHECKS, 2, "Removing service check event for service '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&temp_event->run_time));
+			if (log_level(DEBUGL_CHECKS, 2))
+				log_debug_info(DEBUGL_CHECKS, 2, "Removing service check event for service '%s' on host '%s' @ %s", svc->description, svc->host_name, ctime(&temp_event->run_time));
 			remove_event(temp_event, &event_list_low, &event_list_low_tail);
 			my_free(temp_event);
 		}
@@ -2152,9 +2155,11 @@ void check_for_orphaned_services(void) {
 			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: The check of service '%s' on host '%s' looks like it was orphaned (results never came back; last_check=%s; next_check=%s).  I'm scheduling an immediate check of the service...\n", temp_service->description, temp_service->host_name, ctime(&temp_service->last_check), ctime(&temp_service->next_check));
 
 			log_debug_info(DEBUGL_CHECKS, 1, "Service '%s' on host '%s' was orphaned, so we're scheduling an immediate check...\n", temp_service->description, temp_service->host_name);
-            log_debug_info(DEBUGL_CHECKS, 1, "  next_check=%lu (%s); last_check=%lu (%s);\n",
-                    temp_service->next_check, ctime(&temp_service->next_check),
-                    temp_service->last_check, ctime(&temp_service->last_check));
+
+			if (log_level(DEBUGL_CHECKS, 1))
+				log_debug_info(DEBUGL_CHECKS, 1, "  next_check=%lu (%s); last_check=%lu (%s);\n",
+					temp_service->next_check, ctime(&temp_service->next_check),
+					temp_service->last_check, ctime(&temp_service->last_check));
 
 			/* decrement the number of running service checks */
 			if (currently_running_service_checks > 0)
@@ -2364,7 +2369,8 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 	if (hst == NULL)
 		return;
 
-	log_debug_info(DEBUGL_CHECKS, 0, "Scheduling a %s, active check of host '%s' @ %s", (options & CHECK_OPTION_FORCE_EXECUTION) ? "forced" : "non-forced", hst->name, ctime(&check_time));
+	if (log_level(DEBUGL_CHECKS, 0))
+		log_debug_info(DEBUGL_CHECKS, 0, "Scheduling a %s, active check of host '%s' @ %s", (options & CHECK_OPTION_FORCE_EXECUTION) ? "forced" : "non-forced", hst->name, ctime(&check_time));
 
 	/* don't schedule a check if active checks of this host are disabled */
 	if (hst->checks_enabled == FALSE && !(options & CHECK_OPTION_FORCE_EXECUTION)) {
@@ -2385,7 +2391,8 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 	 */
 	if (temp_event != NULL) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Found another host check event for host '%s' @ %s", hst->name, ctime(&temp_event->run_time));
+		if (log_level(DEBUGL_CHECKS, 2))
+			log_debug_info(DEBUGL_CHECKS, 2, "Found another host check event for host '%s' @ %s", hst->name, ctime(&temp_event->run_time));
 
 		/* use the originally scheduled check unless we decide otherwise */
 		use_original_event = TRUE;
@@ -2428,7 +2435,8 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 	 */
 	if (use_original_event == FALSE) {
 
-		log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new host check event for '%s' @ %s", hst->name, ctime(&check_time));
+		if (log_level(DEBUGL_CHECKS, 2))
+			log_debug_info(DEBUGL_CHECKS, 2, "Scheduling new host check event for '%s' @ %s", hst->name, ctime(&check_time));
 
 		/* allocate memory for a new event item */
 		if((new_event = (timed_event *)malloc(sizeof(timed_event))) == NULL) {
@@ -2437,7 +2445,8 @@ void schedule_host_check(host *hst, time_t check_time, int options) {
 		}
 
 		if (temp_event) {
-			log_debug_info(DEBUGL_CHECKS, 2, "Removing host check event for host '%s' @ %s", hst->name, ctime(&temp_event->run_time));
+			if (log_level(DEBUGL_CHECKS, 2))
+				log_debug_info(DEBUGL_CHECKS, 2, "Removing host check event for host '%s' @ %s", hst->name, ctime(&temp_event->run_time));
 			remove_event(temp_event, &event_list_low, &event_list_low_tail);
 			my_free(temp_event);
 		}
@@ -2970,7 +2979,7 @@ int execute_sync_host_check_3x(host *hst) {
 	if (early_timeout == TRUE) {
 
 		my_free(temp_plugin_output);
-		dummy = asprintf(&temp_plugin_output, "Host check timed out after %d seconds\n", host_check_timeout);
+		asprintf(&temp_plugin_output, "Host check timed out after %d seconds\n", host_check_timeout);
 
 		/* log the timeout */
 		logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Host check command '%s' for host '%s' timed out after %d seconds\n", processed_command, hst->name, host_check_timeout);
@@ -3098,7 +3107,8 @@ int run_scheduled_host_check_3x(host *hst, int check_options, double latency) {
 				hst->next_check = next_valid_time;
 				hst->should_be_scheduled = TRUE;
 
-				log_debug_info(DEBUGL_CHECKS, 1, "Rescheduled next host check for %s", ctime(&next_valid_time));
+				if (log_level(DEBUGL_CHECKS, 1))
+					log_debug_info(DEBUGL_CHECKS, 1, "Rescheduled next host check for %s", ctime(&next_valid_time));
 			}
 		}
 
@@ -3127,7 +3137,6 @@ int run_async_host_check_3x(host *hst, int check_options, double latency, int sc
 	struct timeval start_time, end_time;
 	pid_t pid = 0;
 	int fork_error = FALSE;
-	int wait_result = 0;
 	int pclose_result = 0;
 	mode_t new_umask = 077;
 	mode_t old_umask;
@@ -3231,7 +3240,7 @@ int run_async_host_check_3x(host *hst, int check_options, double latency, int sc
 
 	/* open a temp file for storing check output */
 	old_umask = umask(new_umask);
-	dummy = asprintf(&output_file, "%s/checkXXXXXX", temp_path);
+	asprintf(&output_file, "%s/checkXXXXXX", temp_path);
 	check_result_info.output_file_fd = mkstemp(output_file);
 	if (check_result_info.output_file_fd >= 0)
 		check_result_info.output_file_fp = fdopen(check_result_info.output_file_fd, "w");
@@ -3447,7 +3456,7 @@ int run_async_host_check_3x(host *hst, int check_options, double latency, int sc
 		/* wait for the first child to return */
 		/* if large install tweaks are enabled, we'll clean up the zombie process later */
 		if (child_processes_fork_twice == TRUE)
-			wait_result = waitpid(pid, NULL, 0);
+			waitpid(pid, NULL, 0);
 	}
 
 	/* see if we were able to run the check... */
@@ -3613,7 +3622,7 @@ int handle_async_host_check_result_3x(host *temp_host, check_result *queued_chec
 			my_free(temp_host->long_plugin_output);
 			my_free(temp_host->perf_data);
 
-			dummy = asprintf(&temp_host->plugin_output, "(Return code of %d is out of bounds%s)", queued_check_result->return_code, (queued_check_result->return_code == 126 || queued_check_result->return_code == 127) ? " - plugin may be missing" : "");
+			asprintf(&temp_host->plugin_output, "(Return code of %d is out of bounds%s)", queued_check_result->return_code, (queued_check_result->return_code == 126 || queued_check_result->return_code == 127) ? " - plugin may be missing" : "");
 
 			result = STATE_CRITICAL;
 		}
@@ -4073,7 +4082,8 @@ int process_host_check_result_3x(host *hst, int new_state, char *old_plugin_outp
 	/* reschedule the next check of the host (usually ONLY for scheduled, active checks, unless overridden above) */
 	if (reschedule_check == TRUE) {
 
-		log_debug_info(DEBUGL_CHECKS, 1, "Rescheduling next check of host at %s", ctime(&next_check));
+		if (log_level(DEBUGL_CHECKS, 1))
+			log_debug_info(DEBUGL_CHECKS, 1, "Rescheduling next check of host at %s", ctime(&next_check));
 
 		/* default is to reschedule host check unless a test below fails... */
 		hst->should_be_scheduled = TRUE;

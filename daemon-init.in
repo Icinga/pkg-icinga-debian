@@ -31,6 +31,9 @@ IcingaChkFile=@ICINGACHKFILE@
 if [ -f /etc/sysconfig/icinga ]; then
         . /etc/sysconfig/icinga
 fi
+if [ -f /etc/default/icinga ]; then
+        . /etc/default/icinga
+fi
 
 
 # Source function library
@@ -146,7 +149,7 @@ start(){
 		# check if pid can be found running
 		if status_icinga > /dev/null; then
 			echo "Icinga is already running. PID: $IcingaPID"
-				exit 1
+				exit 0
 			else
 				echo "Icinga PID $IcingaPID not running. Removing lockfile."
 				rm -f $IcingaRunFile $IcingaLockDir/$IcingaLockFile

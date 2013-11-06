@@ -1,8 +1,30 @@
+<<<<<<< HEAD
 icinga (1.9.3-2~debmon70+1) debmon-wheezy; urgency=low
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 21:55:21 +0100
+=======
+icinga (1.10.1-1) unstable; urgency=low
+
+  * [2b8968a] Install sql upgrade files for 1.10
+  * [4ef9215] Add versioned dep to jquery-ui to reenable calendar
+  * [9fbc042] Imported Upstream version 1.10.1
+    - fix problems in postinst (Closes: #728245)
+  * [27e8455] Update sql file installation
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 06 Nov 2013 09:07:00 +0100
+
+icinga (1.10.0-1) unstable; urgency=low
+
+  * [3c852fa] Fix typo
+  * [1e3b0a9] Don't set -e in icingas initscript (Closes: #722261)
+  * [b2e5497]  Enable cgi module for apache 2.4
+  * [f9e8662] Imported Upstream version 1.10.0
+  * [604c4f6] Bump standards version
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 24 Oct 2013 17:26:19 +0200
+>>>>>>> master
 
 icinga (1.9.3-2) unstable; urgency=low
 

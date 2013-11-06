@@ -114,7 +114,9 @@ printstatus_ido2db()
 
 killproc_ido2db ()
 {
-	kill $2 $Ido2dbPID
+	if status_ido2db $1 $2; then
+		kill $Ido2dbPID
+	fi
 
 }
 
@@ -147,7 +149,7 @@ case "$1" in
 			# check if pid can be found running
 			if status_ido2db > /dev/null; then
 				echo "$servicename is already running. PID: $Ido2dbPID"
-				exit 1
+				exit 0
 			else
 				echo "$servicename PID $Ido2dbPID not running. Removing lockfile."
 				rm -f $Ido2dbStatusFile $Ido2dbRunFile $Ido2dbLockDir/$Ido2dbLockFile $Ido2dbCommandFile
@@ -168,7 +170,7 @@ case "$1" in
 		printf "Stopping $servicename: "
 
 		pid_ido2db
-		killproc_ido2db ido2db
+		killproc_ido2db
 
  		# now we have to wait for ido2db to exit and remove its
  		# own Ido2dbRunFile, otherwise a following "start" could

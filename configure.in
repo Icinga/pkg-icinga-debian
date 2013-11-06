@@ -9,9 +9,9 @@ AC_CONFIG_HEADER(include/config.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.9.3"
+PKG_VERSION="1.10.1"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="07-07-2013"
+PKG_REL_DATE="11-04-2013"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -287,10 +287,15 @@ AC_SUBST(MAIL_PROG)
 
 dnl Check for location of Apache conf.d directory
 HTTPD_CONF=no
+APACHE24_DEBIAN=no
 AC_ARG_WITH(httpd_conf,AC_HELP_STRING([--with-httpd-conf=<path_to_conf>],[sets path to Apache conf.d directory]),HTTPD_CONF=$withval,HTTPD_CONF=no)
 if test x$HTTPD_CONF = xno; then
 	if test -d /etc/httpd/conf.d; then
 		HTTPD_CONF="/etc/httpd/conf.d"
+	elif test -d /etc/apache2/conf-available; then
+		dnl debian apache 2.4
+		HTTPD_CONF="/etc/apache2/conf-available"
+		APACHE24_DEBIAN=yes
 	elif test -d /etc/apache2/conf.d; then
 		HTTPD_CONF="/etc/apache2/conf.d"
 	elif test -d /etc/apache/conf.d; then
@@ -300,6 +305,7 @@ if test x$HTTPD_CONF = xno; then
 	fi
 fi
 AC_SUBST(HTTPD_CONF)
+AC_SUBST(APACHE24_DEBIAN)
 
 dnl Location of check result path
 CHECKRESULTDIR=no
@@ -367,6 +373,21 @@ if test x$EVENTHANDLERDIR = xno; then
                 EVENTHANDLERDIR="$libexecdir/eventhandlers"
         fi
 AC_SUBST(EVENTHANDLERDIR)
+
+dnl enable perfdata
+ENABLE_PERFDATA=no
+AC_ARG_ENABLE(perfdata,AC_HELP_STRING([--enable-perfdata],[enables perfdata in icinga.cfg]),[
+        if test x$enableval = xyes; then
+                ENABLE_PERFDATA=yes
+        fi
+        ],ENABLE_PERFDATA=no)
+
+if test x$ENABLE_PERFDATA = xyes; then
+        ENABLEPERFDATA=1
+else   
+        ENABLEPERFDATA=0
+fi
+AC_SUBST(ENABLEPERFDATA)
 
 
 
@@ -445,6 +466,24 @@ fi
 dnl User can override init script location
 AC_ARG_WITH(init_dir,AC_HELP_STRING([--with-init-dir=<path>],[sets directory to place init script into]),init_dir=$withval)
 AC_SUBST(init_dir)
+
+dnl Check for location of systemd unit files
+systemd_unit_dir=/usr/lib/systemd/system
+if test -d /usr/lib/systemd/system; then
+       systemd_unit_dir=/usr/lib/systemd/system
+elif test -d /lib/systemd/system; then
+       systemd_unit_dir=/lib/systemd/system
+fi
+
+systemd_sysconfig_dir=/etc/sysconfig
+
+dnl User can override unit file directory location
+AC_ARG_WITH(systemd_unit_dir,AC_HELP_STRING([--with-systemd-unitdir=<path>],[sets directory to place systemd service file into]),systemd_unit_dir=$withval)
+AC_SUBST(systemd_unit_dir)
+
+dnl User can override sysconfig file directory location
+AC_ARG_WITH(systemd_sysconfig_dir,AC_HELP_STRING([--with-systemd-sysconfigdir=<path>],[sets directory to place systemd service configuration file]),systemd_sysconfig_dir=$withval)
+AC_SUBST(systemd_sysconfig_dir)
 
 dnl User can override lock file location
 AC_ARG_WITH(lockfile,AC_HELP_STRING([--with-lockfile=<path>],[sets path and file name for lock file]),lockfile=$withval,lockfile=$localstatedir/icinga.lock)
@@ -723,6 +762,13 @@ if test x$TRYGD = xyep; then
 	fi
 fi
 
+
+ENABLE_DEBUG=no
+AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[enables debug mode]),ENABLE_DEBUG=$enableval,ENABLE_DEBUG=no)
+if test x$ENABLE_DEBUG = xyes; then
+	AC_DEFINE_UNQUOTED(ENABLE_DEBUG,,[enables debug mode])
+fi
+
 AC_ARG_WITH(cgiurl,AC_HELP_STRING([--with-cgiurl=<local-url>],[sets URL for cgi programs (do not use a trailing slash)]),cgiurl=$withval,cgiurl=/icinga/cgi-bin)
 AC_SUBST(cgiurl)
 AC_ARG_WITH(htmurl,AC_HELP_STRING([--with-htmurl=<local-url>],[sets URL for public html]),htmurl=$withval,htmurl=/icinga)
@@ -862,6 +908,19 @@ if test x$SNPRINTF_BROKEN = xyes; then
 	AC_SUBST(SNPRINTF_O_IDO)
 fi
 
+dnl Classic UI Standalone
+CLASSICUI_STANDALONE=no
+AC_ARG_ENABLE(classicui-standalone,AC_HELP_STRING([--enable-classicui-standalone],[enables standalone Classic UI (default: disabled)]),CLASSICUI_STANDALONE=$enableval,CLASSICUI_STANDALONE=no)
+if test x$CLASSICUI_STANDALONE = xyes; then
+	CLASSICUI_STANDALONE_FLAG="1"
+fi
+if test x$CLASSICUI_STANDALONE = xno; then
+	CLASSICUI_STANDALONE_FLAG="0"
+fi
+AC_SUBST(CLASSICUI_STANDALONE_FLAG)
+
+
+if test x$CLASSICUI_STANDALONE = xno; then
 dnl Configure IDOUtils
 
 dnl set dummy for ocilib
@@ -1004,17 +1063,9 @@ if test x$USE_IDOUTILS = xyes; then
 
 	fi
 fi
+dnl classic ui standalone
+fi
 
-dnl Classic UI Standalone
-CLASSICUI_STANDALONE=no
-AC_ARG_ENABLE(classicui-standalone,AC_HELP_STRING([--enable-classicui-standalone],[enables standalone Classic UI (default: disabled)]),CLASSICUI_STANDALONE=$enableval,CLASSICUI_STANDALONE=no)
-if test x$CLASSICUI_STANDALONE = xyes; then
-	CLASSICUI_STANDALONE_FLAG="1"
-fi
-if test x$CLASSICUI_STANDALONE = xno; then
-	CLASSICUI_STANDALONE_FLAG="0"
-fi
-AC_SUBST(CLASSICUI_STANDALONE_FLAG)
 
 dnl Location of temp path
 LIBDBIDRIVERDIR=no
@@ -1160,6 +1211,7 @@ AC_SUBST(INSTALLPERLSTUFF)
 AC_SUBST(USE_EVENTBROKER)
 AC_SUBST(USE_IDOUTILS)
 AC_SUBST(USE_IDOUTILS_ORACLE)
+AC_SUBST(ENABLE_DEBUG)
 
 AC_PATH_PROG(PERL,perl)
 
@@ -1332,7 +1384,7 @@ AC_MSG_CHECKING(for -Wall based on os/compiler)
 
 
 dnl OUTPUT
-AC_OUTPUT(Makefile subst solaris/pkginfo solaris/icinga.xml base/Makefile common/Makefile contrib/Makefile cgi/Makefile html/Makefile module/Makefile module/idoutils/Makefile xdata/Makefile daemon-init rc.ido2db module/idoutils/src/Makefile t-tap/Makefile t/Makefile module/idoutils/db/scripts/installdb module/idoutils/db/scripts/upgradedb module/idoutils/db/scripts/prepsql p1.pl)
+AC_OUTPUT(Makefile subst solaris/pkginfo solaris/icinga.xml base/Makefile common/Makefile contrib/Makefile cgi/Makefile html/Makefile module/Makefile module/idoutils/Makefile xdata/Makefile daemon-init rc.ido2db icinga-systemd sysconfig-env ido2db-systemd module/idoutils/src/Makefile t-tap/Makefile t/Makefile module/idoutils/db/scripts/installdb module/idoutils/db/scripts/upgradedb module/idoutils/db/scripts/prepsql p1.pl)
 
 perl subst $srcdir/include/locations.h
 
@@ -1344,6 +1396,7 @@ perl subst $srcdir/contrib/eventhandlers/enable_notifications
 
 perl subst $srcdir/html/index.html
 perl subst $srcdir/html/menu.html
+perl subst $srcdir/html/js/autocomplete.js
 
 echo ""
 echo "Creating sample config files in sample-config/ ..."
@@ -1392,6 +1445,9 @@ AC_MSG_RESULT([        Icinga executable:  $icinga_name])
 AC_MSG_RESULT([        Icinga user/group:  $icinga_user,$icinga_grp])
 AC_MSG_RESULT([       Command user/group:  $command_user,$command_grp])
 AC_MSG_RESULT([        Apache user/group:  $web_user,$web_group])
+if test x$ENABLE_DEBUG = xyes; then
+AC_MSG_RESULT([               Debug Mode:  yes])
+fi
 if test x$USEPERL = xyes; then
 if test x$PERLCACHE = xyes; then
 AC_MSG_RESULT([            Embedded Perl:  yes, with caching])
@@ -1405,6 +1461,11 @@ if test x$USE_EVENTBROKER = xyes; then
 AC_MSG_RESULT([             Event Broker:  yes])
 else
 AC_MSG_RESULT([             Event Broker:  no])
+fi
+if test x$ENABLE_PERFDATA = xyes; then
+AC_MSG_RESULT([  Enable Performance Data:  yes])
+else
+AC_MSG_RESULT([  Enable Performance Data:  no])
 fi
 if test x$USE_IDOUTILS = xyes; then
 AC_MSG_RESULT([          ido2db lockfile:  $IDO2DBLOCKFILE])
