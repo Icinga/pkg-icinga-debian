@@ -1,8 +1,14 @@
-icinga (1.10.1-1~debmon60+1) debmon-squeeze; urgency=low
+icinga (1.10.2-1~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon-squeeze
 
  -- Alexander Wirt <formorer@debian.org>  Wed, 06 Nov 2013 20:28:02 +0100
+
+icinga (1.10.2-1) unstable; urgency=medium
+
+  * [4b9faee] Imported Upstream version 1.10.2
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 15 Dec 2013 22:02:40 +0100
 
 icinga (1.10.1-1) unstable; urgency=low
 
@@ -48,7 +54,6 @@ icinga (1.9.1-2) unstable; urgency=low
   * [9c53a84] Fix dependency on libgd3 (Closes: #710839)
 
  -- Alexander Wirt <formorer@debian.org>  Mon, 03 Jun 2013 08:08:21 +0200
->>>>>>> master
 
 icinga (1.9.1-1) unstable; urgency=low
 
