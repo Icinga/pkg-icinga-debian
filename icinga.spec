@@ -54,7 +54,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: icinga
-Version: 1.10.1
+Version: 1.10.2
 Release: %{revision}%{?dist}
 License: GPLv2
 Group: Applications/System
@@ -407,7 +407,7 @@ if [ $1 -eq 0 ]; then
 fi
 %endif
 %else
-f [ $1 -eq 0 ]; then
+if [ $1 -eq 0 ]; then
     # No systemd, just plain old sysvinit
     /sbin/service ido2db stop &>/dev/null || :
     /sbin/chkconfig --del ido2db
@@ -610,6 +610,9 @@ fi
 
 
 %changelog
+* Thu Dec 05 2013 Ricardo Bartels <ricardo@bitchbrothers.com> - 1.10.2-1
+- bump 1.10.2
+
 * Mon Nov 04 2013 Michael Friedrich <michael.friedrich@netways.de> - 1.10.1-1
 - bump 1.10.1
 

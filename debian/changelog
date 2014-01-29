@@ -1,8 +1,14 @@
-icinga (1.10.1-1~ppa1~lucid1) lucid; urgency=low
+icinga (1.10.2-1~ppa1~lucid1) lucid; urgency=low
 
   * Rebuild for my ubuntu ppa
 
- -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 22:10:43 +0100
+ -- Alexander Wirt <formorer@debian.org>  Wed, 29 Jan 2014 12:05:11 +0100
+
+icinga (1.10.2-1) unstable; urgency=medium
+
+  * [4b9faee] Imported Upstream version 1.10.2
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 15 Dec 2013 22:02:40 +0100
 
 icinga (1.10.1-1) unstable; urgency=low
 
@@ -22,7 +28,6 @@ icinga (1.10.0-1) unstable; urgency=low
   * [f9e8662] Imported Upstream version 1.10.0
   * [604c4f6] Bump standards version
 
- -- Alexander Wirt <formorer@debian.org>  Thu, 24 Oct 2013 17:26:19 +0200
 
 icinga (1.9.3-2) unstable; urgency=low
 
