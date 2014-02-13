@@ -181,7 +181,7 @@
 
     <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
-        <p>Please download the archive from <a class="link" href="http://sourceforge.net/projects/icinga/files/" target="_top">http://sourceforge.net/projects/icinga/files/</a>. If your need a
+        <p>Please download the archive from <a class="link" href="http://www.icinga.org/download/" target="_top">http://www.icinga.org/download/</a>. If your need a
         function only available in the latest developer version then clone from the icinga-web.git to get the freshest branch:</p>
 
         <pre class="screen"> #&gt; git clone git://git.icinga.org/icinga-web.git</pre>
@@ -343,9 +343,6 @@
 
         <p>The user must have default data privileges like SELECT, UPDATE, INSERT, DELETE.</p>
 
-        <pre class="screen"> SQL&gt; GRANT USAGE ON *.* TO 'icinga_web'@'localhost' IDENTIFIED BY 'icinga_web';
- SQL&gt; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON icinga_web.* TO 'icinga_web'@'localhost';</pre>
-
         <div class="itemizedlist"><ul class="itemizedlist" type="circle">
 <li class="listitem">
             <p><span class="bold"><strong>MySQL</strong></span></p>
@@ -354,11 +351,7 @@
 
  mysql&gt; CREATE DATABASE icinga_web;
 
-        GRANT USAGE ON *.* TO 'icinga_web'@'localhost' IDENTIFIED BY 'icinga_web' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0;
-
-        GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON icinga_web.* TO 'icinga_web'@'localhost';
-
-        FLUSH PRIVILEGES;
+ 	   GRANT SELECT, INSERT, UPDATE, DELETE, DROP, CREATE VIEW, INDEX, EXECUTE ON icinga_web.* TO 'icinga_web'@'localhost' IDENTIFIED BY 'icinga_web';
 
         quit</pre>
           </li>
@@ -940,11 +933,11 @@ Alias /icinga-web /usr/local/icinga-web/pub
 
     <p>If you have any updates on that please do not hesitate to report back! :-)</p>
 
-    <a class="indexterm" name="idp188473728"></a>
+    <a class="indexterm" name="idp188713232"></a>
 
-    <a class="indexterm" name="idp188475152"></a>
+    <a class="indexterm" name="idp188714784"></a>
 
-    <a class="indexterm" name="idp188473856"></a>
+    <a class="indexterm" name="idp188713360"></a>
   </div>
 </div>
 <div class="navfooter">
