@@ -54,7 +54,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: icinga
-Version: 1.10.2
+Version: 1.10.3
 Release: %{revision}%{?dist}
 License: GPLv2
 Group: Applications/System
@@ -365,8 +365,19 @@ fi
 
 %pre gui
 # Add apacheuser in the icingacmd group
-  %{_sbindir}/usermod -a -G icingacmd %{apacheuser}
+# If the group exists, add the apacheuser in the icingacmd group.
+# It is not neccessary that icinga-cgi is installed on the same system as
+# icinga 1.x and only on systems with icinga installed the icingacmd
+# group exists.
+getent group icingacmd > /dev/null
 
+if [ $? -eq 0 ]; then
+%if "%{_vendor}" == "suse"
+  %{_sbindir}/usermod -G icingacmd %{apacheuser}
+%else
+  %{_sbindir}/usermod -a -G icingacmd %{apacheuser}
+%endif
+fi
 
 %post idoutils-libdbi-mysql
 
@@ -610,6 +621,9 @@ fi
 
 
 %changelog
+* Tue Feb 11 2014 Michael Friedrich <michael.friedrich@netways.de> - 1.10.3-1
+- bump 1.10.3
+
 * Thu Dec 05 2013 Ricardo Bartels <ricardo@bitchbrothers.com> - 1.10.2-1
 - bump 1.10.2
 
