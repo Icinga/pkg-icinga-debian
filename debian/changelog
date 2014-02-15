@@ -1,4 +1,4 @@
-icinga (1.10.3-1~ppa1~lucid1) lucid; urgency=low
+icinga (1.10.3-1~ppa1~quantal1) quantal; urgency=low
 
   * Rebuild for my ubuntu ppa
 
@@ -14,7 +14,6 @@ icinga (1.10.3-1) unstable; urgency=high
       (This is a fix for CVE-2014-1878)
 
  -- Alexander Wirt <formorer@debian.org>  Fri, 14 Feb 2014 09:34:15 +0100
->>>>>>> master
 
 icinga (1.10.2-1) unstable; urgency=medium
 
