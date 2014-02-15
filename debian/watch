@@ -1,2 +1,3 @@
 version=3
-http://sf.net/icinga/icinga-([0-9-.]+)\.tar\.gz
+opts=filenamemangle=s/.+\/icinga-([0-9.]+).tar.gz/icinga-$1.tar.gz/ \
+  https://github.com/Icinga/icinga-core/releases .*/icinga-([0-9.]+).tar.gz

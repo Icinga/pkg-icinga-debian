@@ -1,8 +1,20 @@
-icinga (1.10.2-1~ppa1~lucid1) lucid; urgency=low
+icinga (1.10.3-1~ppa1~lucid1) lucid; urgency=low
 
   * Rebuild for my ubuntu ppa
 
- -- Alexander Wirt <formorer@debian.org>  Wed, 29 Jan 2014 12:05:11 +0100
+ -- Alexander Wirt <formorer@debian.org>  Sat, 15 Feb 2014 21:25:27 +0100
+
+icinga (1.10.3-1) unstable; urgency=high
+
+  * [b84b83c] Update watch file for github
+  * [0ac07f7] Imported Upstream version 1.10.3
+    - include source for jquery and timepicker
+      (Closes: #736727)
+    - Check for overflows in cmd.cgi 
+      (This is a fix for CVE-2014-1878)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 14 Feb 2014 09:34:15 +0100
+>>>>>>> master
 
 icinga (1.10.2-1) unstable; urgency=medium
 
