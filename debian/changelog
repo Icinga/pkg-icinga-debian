@@ -1,8 +1,13 @@
-icinga (1.10.2-1~debmon70+1) debmon-wheezy; urgency=low
+icinga (1.10.3-1) unstable; urgency=high
 
-  * Rebuild for debmon
+  * [b84b83c] Update watch file for github
+  * [0ac07f7] Imported Upstream version 1.10.3
+    - include source for jquery and timepicker
+      (Closes: #736727)
+    - Check for overflows in cmd.cgi 
+      (This is a fix for CVE-2014-1878)
 
- -- Alexander Wirt <formorer@debian.org>  Mon, 14 Jan 2013 21:55:21 +0100
+ -- Alexander Wirt <formorer@debian.org>  Fri, 14 Feb 2014 09:34:15 +0100
 
 icinga (1.10.2-1) unstable; urgency=medium
 
