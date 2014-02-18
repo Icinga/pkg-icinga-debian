@@ -1,8 +1,19 @@
-icinga (1.10.2-1~debmon60+1) debmon-squeeze; urgency=low
+icinga (1.10.3-1~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon-squeeze
 
  -- Alexander Wirt <formorer@debian.org>  Wed, 06 Nov 2013 20:28:02 +0100
+
+icinga (1.10.3-1) unstable; urgency=high
+
+  * [b84b83c] Update watch file for github
+  * [0ac07f7] Imported Upstream version 1.10.3
+    - include source for jquery and timepicker
+      (Closes: #736727)
+    - Check for overflows in cmd.cgi 
+      (This is a fix for CVE-2014-1878)
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 14 Feb 2014 09:34:15 +0100
 
 icinga (1.10.2-1) unstable; urgency=medium
 
