@@ -3,7 +3,7 @@
  * IDOMOD.C - Icinga Data Output Event Broker Module
  *
  * Copyright (c) 2005-2007 Ethan Galstad
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  *****************************************************************************/
 
@@ -56,7 +56,7 @@ int idomod_config_output_options = IDOMOD_CONFIG_DUMP_ALL;
 unsigned long idomod_sink_buffer_slots = 5000;
 idomod_sink_buffer sinkbuf;
 
-int dump_customvar_status = IDO_FALSE;
+int dump_customvar_status = IDO_TRUE;
 
 char *idomod_debug_file = NULL;
 int idomod_debug_level = IDOMOD_DEBUGL_NONE;
@@ -4588,6 +4588,11 @@ int idomod_open_debug_log(void) {
 	/* don't do anything if we're not debugging */
 	if (idomod_debug_level == IDOMOD_DEBUGL_NONE)
 		return IDO_OK;
+
+	if (idomod_debug_file == NULL) {
+		syslog(LOG_ERR, "Warning: Null pointer passed as logfile name to idomod_open_debug_log()");
+		return IDO_ERROR;
+	}
 
 	if ((idomod_debug_file_fp = fopen(idomod_debug_file, "a+")) == NULL) {
 		syslog(LOG_ERR, "Warning: Could not open debug file '%s' - '%s'", idomod_debug_file, strerror(errno));
