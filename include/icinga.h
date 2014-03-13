@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -103,6 +103,8 @@ extern "C" {
 #define DEFAULT_LOG_EXTERNAL_COMMANDS_USER			0	/* log external commands user*/
 #define DEFAULT_LOG_PASSIVE_CHECKS				1	/* log passive service checks */
 #define DEFAULT_LOG_LONG_PLUGIN_OUTPUT				0	/* don't log long plugin output */
+#define DEFAULT_LOG_ANONYMIZED_EXTERNAL_COMMAND_AUTHOR		0	/* don't anonymize external command author in log files */
+#define DEFAULT_LOG_ANONYMIZED_EXTERNAL_COMMAND_AUTHOR_NAME	"<anon>"	/* string is used as anonymized user name */
 
 #define DEFAULT_DEBUG_LEVEL                                     0       /* don't log any debugging information */
 #define DEFAULT_DEBUG_VERBOSITY                                 1
@@ -692,10 +694,10 @@ void start_obsessing_over_service_checks(void);		/* start obsessing about servic
 void stop_obsessing_over_service_checks(void);		/* stop obsessing about service check results */
 void start_obsessing_over_host_checks(void);		/* start obsessing about host check results */
 void stop_obsessing_over_host_checks(void);		/* stop obsessing about host check results */
-void enable_service_freshness_checks(void);		/* enable service freshness checks */
-void disable_service_freshness_checks(void);		/* disable service freshness checks */
-void enable_host_freshness_checks(void);		/* enable host freshness checks */
-void disable_host_freshness_checks(void);		/* disable host freshness checks */
+void enable_service_freshness_checks(service *svc);	/* enable service freshness checks */
+void disable_service_freshness_checks(service *svc);	/* disable service freshness checks */
+void enable_host_freshness_checks(host *hst);		/* enable host freshness checks */
+void disable_host_freshness_checks(host *hst);		/* disable host freshness checks */
 void process_passive_checks(void);                      /* processes passive host and service check results */
 void enable_all_failure_prediction(void);               /* enables failure prediction on a program-wide basis */
 void disable_all_failure_prediction(void);              /* disables failure prediction on a program-wide basis */

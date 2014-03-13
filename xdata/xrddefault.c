@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -1299,7 +1299,7 @@ int xrddefault_read_retention_file_information(char *retention_file, int overwri
 							if (use_retained_scheduling_info == TRUE && scheduling_info_is_ok == TRUE)
 								temp_host->check_options = atoi(val);
 						} else if (!strcmp(var, "current_attempt"))
-							temp_host->current_attempt = (atoi(val) > 0) ? TRUE : FALSE;
+							temp_host->current_attempt = atoi(val);
 						else if (!strcmp(var, "current_event_id"))
 							temp_host->current_event_id = strtoul(val, NULL, 10);
 						else if (!strcmp(var, "last_event_id"))

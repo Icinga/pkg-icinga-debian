@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2008 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team
+ * Copyright (c) 2009-present Icinga Development Team
  *
  * License:
  *
@@ -77,6 +77,7 @@ extern int      log_event_handlers;
 extern int      log_external_commands;
 extern int      log_passive_checks;
 extern int      log_long_plugin_output;
+extern int      log_anonymized_external_command_author;
 
 extern int      service_check_timeout;
 extern int      service_check_timeout_state;
@@ -691,6 +692,17 @@ int read_main_config_file(char *main_config_file) {
 			}
 
 			log_current_states = (atoi(value) > 0) ? TRUE : FALSE;
+		}
+
+		else if (!strcmp(variable, "log_anonymized_external_command_author")) {
+
+			if (strlen(value) != 1 || value[0] < '0' || value[0] > '1') {
+				asprintf(&error_message, "Illegal value for log_anonymized_external_command_author");
+				error = TRUE;
+				break;
+			}
+
+			log_anonymized_external_command_author = (atoi(value) > 0) ? TRUE : FALSE;
 		}
 
 		else if (!strcmp(variable, "retain_state_information")) {
@@ -1495,13 +1507,6 @@ int read_main_config_file(char *main_config_file) {
 
 			my_free(auth_file);
 			auth_file = (char *)strdup(value);
-		}
-
-		/* warn about old variables */
-		else if (!strcmp(variable, "comment_file") || !strcmp(variable, "xcddefault_comment_file")) {
-			logit(NSLOG_CONFIG_WARNING, TRUE, "Warning: comment_file variable ignored.  Comments are now stored in the status and retention files.");
-		} else if (!strcmp(variable, "downtime_file") || !strcmp(variable, "xdddefault_downtime_file")) {
-			logit(NSLOG_CONFIG_WARNING, TRUE, "Warning: downtime_file variable ignored.  Downtime entries are now stored in the status and retention files.");
 		}
 
 		/* skip external data directives */

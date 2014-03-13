@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -63,7 +63,6 @@
 #undef USE_XRDDEFAULT
 #undef USE_XODTEMPLATE
 #undef USE_XPDDEFAULT
-#undef USE_XDDDEFAULT
 
 /***** CGI COMPILE OPTIONS *****/
 /* should we compile and use the statusmap CGI? */
@@ -305,6 +304,11 @@
 #undef HAVE_GETOPT_H
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#endif
+
+#undef HAVE_ZLIB_H
+#ifdef HAVE_ZLIB_H
+#include <zlib.h>
 #endif
 
 #undef HAVE_LINUX_MODULE_H

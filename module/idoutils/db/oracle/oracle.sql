@@ -3,7 +3,7 @@
 -- oracle.sql
 -- DB definition for Oracle
 --
--- Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+-- Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
 --
 -- requires ocilib, oracle client (instantclient or full client/server) libs+sdk to work
 -- requires Oracle 10+ on server, 
@@ -14,14 +14,10 @@
 -- CAUTION: THIS WILL DROP EXISTING USER AND TABLESPACE WITH SAME NAME
 -- # export TWO_TASK=<instance>; cd <this_sql_dir>; sqlplus "sys as sysdba" @ oracle.sql
 --
--- initial version: 2008-02-20 David Schmidt
--- 		    2011-01-17 Michael Friedrich <michael.friedrich(at)univie.ac.at>
--- current version: 2012-03-03 Thomas Dressler
---
 -- -- --------------------------------------------------------
 */
 
-DEFINE ICINGA_VERSION=1.10.0
+DEFINE ICINGA_VERSION=1.11.0
 
 -- -----------------------------------------
 -- set defines
