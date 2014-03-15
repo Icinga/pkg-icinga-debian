@@ -80,8 +80,8 @@ Description: host and network monitoring system - CGI scripts
 
 Package: icinga-cgi-bin
 Architecture: any
-Replaces: icinga-cgi (<< 1.11.0-2),
-Breaks: icinga-cgi (<< 1.11.0-2),
+Replaces: icinga-cgi (<< 1.11.0-2~),
+Breaks: icinga-cgi (<< 1.11.0-2~),
 Depends: ${misc:Depends},
          ${perl:Depends},
          ${shlibs:Depends}
