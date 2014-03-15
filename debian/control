@@ -51,6 +51,7 @@ Architecture: any
 Depends: adduser,
          apache2-utils,
          coreutils (>= 4.5.3),
+         icinga-cgi-bin (= ${binary:Version}),
          icinga-common (= ${source:Version}),
          libjs-jquery (>= 1.4.2-1~),
          libjs-jquery-ui (>= 1.10.1+dfsg-1~),
@@ -75,7 +76,33 @@ Description: host and network monitoring system - CGI scripts
   * web output: current status, notifications, problem history, log
     file, etc.
  .
- This package provides CGI script files.
+ This package provides CGI configuration files and the required dependencys.
+
+Package: icinga-cgi-bin
+Architecture: any
+Replaces: icinga-cgi (<< 1.11.0-2),
+Breaks: icinga-cgi (<< 1.11.0-2),
+Depends: ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends}
+Recommends: apache2 | httpd, nagios-images (>> 0.1)
+Description: host and network monitoring system - CGI scripts
+ Icinga is a modular monitoring framework for hosts, services, and
+ networks, based on the Nagios project. It is designed to be easy to
+ understand and modify to fit any need.
+ .
+ Features include:
+  * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
+    TCP port
+  * plugin interface to allow for user-developed service checks
+  * contact notifications when problems occur and get resolved (via
+    email, pager, or user-defined method)
+  * support for proactive problem resolution (handlers can be defined to
+    be run during service or host events)
+  * web output: current status, notifications, problem history, log
+    file, etc.
+ .
+ This package provides CGI binarys and HTML files.
 
 Package: icinga-idoutils
 Architecture: any
