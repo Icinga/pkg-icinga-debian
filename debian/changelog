@@ -1,3 +1,9 @@
+icinga (1.11.0-1~ppa1~lucid1) lucid; urgency=medium
+
+  * Rebuild for my ubuntu ppa
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 18 Mar 2014 10:35:52 +0100
+
 icinga (1.11.0-1) unstable; urgency=medium
 
   * [c35f31c] Imported Upstream version 1.11.0
