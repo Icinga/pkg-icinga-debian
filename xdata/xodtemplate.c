@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * Description:
  *
@@ -4236,6 +4236,7 @@ int xodtemplate_duplicate_objects(void) {
 	int result = OK;
 	xodtemplate_hostescalation *temp_hostescalation = NULL;
 	xodtemplate_serviceescalation *temp_serviceescalation = NULL;
+	xodtemplate_serviceescalation *temp_serviceescalation_previous = NULL;
 	xodtemplate_hostdependency *temp_hostdependency = NULL;
 	xodtemplate_servicedependency *temp_servicedependency = NULL;
 	xodtemplate_hostextinfo *temp_hostextinfo = NULL;
@@ -4304,17 +4305,26 @@ int xodtemplate_duplicate_objects(void) {
 
 
 	/****** DUPLICATE SERVICE ESCALATION DEFINITIONS WITH ONE OR MORE HOSTGROUP AND/OR HOST NAMES ******/
-	for (temp_serviceescalation = xodtemplate_serviceescalation_list; temp_serviceescalation != NULL; temp_serviceescalation = temp_serviceescalation->next) {
+	for (temp_serviceescalation = xodtemplate_serviceescalation_list; temp_serviceescalation != NULL; temp_serviceescalation_previous = temp_serviceescalation, temp_serviceescalation = temp_serviceescalation->next) {
 
 		/* skip service escalation definitions without enough data */
 		if (temp_serviceescalation->hostgroup_name == NULL && temp_serviceescalation->host_name == NULL)
 			continue;
 
 		/* get list of hosts */
-		result = xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_serviceescalation->hostgroup_name, temp_serviceescalation->host_name, temp_serviceescalation->_config_file, temp_serviceescalation->_start_line);
-		if (result == ERROR || master_hostlist == NULL) {
+		if (xodtemplate_expand_hostgroups_and_hosts(&master_hostlist, temp_serviceescalation->hostgroup_name, temp_serviceescalation->host_name, temp_serviceescalation->_config_file, temp_serviceescalation->_start_line) == ERROR) {
 			logit(NSLOG_CONFIG_ERROR, TRUE, "Error: Could not expand hostgroups and/or hosts specified in service escalation (config file '%s', starting on line %d)\n", xodtemplate_config_file_name(temp_serviceescalation->_config_file), temp_serviceescalation->_start_line);
 			return ERROR;
+		} else if (master_hostlist == NULL) {
+			/* ignore escalations with no host mapping */
+			if (temp_serviceescalation_previous == NULL) {
+				xodtemplate_serviceescalation_list = temp_serviceescalation->next;
+			} else {
+				temp_serviceescalation_previous->next = temp_serviceescalation->next;
+				my_free(temp_serviceescalation);
+				temp_serviceescalation = temp_serviceescalation_previous;
+			}
+			continue;
 		}
 
 		/* duplicate service escalation entries */
@@ -12642,6 +12652,8 @@ int xodtemplate_expand_contacts(xodtemplate_memberlist **list, xodtemplate_membe
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
+		else
+			use_regexp = FALSE;
 
 		/* use regular expression matching */
 		if (use_regexp == TRUE) {
@@ -12986,6 +12998,8 @@ int xodtemplate_expand_hosts(xodtemplate_memberlist **list, xodtemplate_memberli
 		/* should we use regular expression matching? */
 		if (use_regexp_matches == TRUE && (use_true_regexp_matching == TRUE || strstr(temp_ptr, "*") || strstr(temp_ptr, "?") || strstr(temp_ptr, "+") || strstr(temp_ptr, "\\.")))
 			use_regexp = TRUE;
+		else
+			use_regexp = FALSE;
 
 		/* use regular expression matching */
 		if (use_regexp == TRUE) {
@@ -13014,7 +13028,7 @@ int xodtemplate_expand_hosts(xodtemplate_memberlist **list, xodtemplate_memberli
 					continue;
 
 				/* add host to list */
-				xodtemplate_add_member_to_memberlist(list, temp_host->host_name, NULL);
+				xodtemplate_add_member_to_memberlist((reject_item == TRUE) ? reject_list:list, temp_host->host_name, NULL);
 			}
 
 			/* free memory allocated to compiled regexp */

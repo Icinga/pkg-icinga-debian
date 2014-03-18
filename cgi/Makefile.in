@@ -37,17 +37,17 @@ ENABLE_DEBUG=@ENABLE_DEBUG@
 
 # Compiler flags for use with Valgrind - set when debug is enabled
 ifeq ('$(ENABLE_DEBUG)', 'yes')
-        CFLAGS=-O0 -g -Wall -DHAVE_CONFIG_H -DNSCGI
+        CFLAGS+=-O0 -g -DHAVE_CONFIG_H -DNSCGI
 endif
 
 # for profiling
 #CFLAGS += -pg -ftest-coverage
 
 # Compiler flags for optimization (overrides default)
-#CFLAGS=-O3 -Wall -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -DHAVE_CONFIG_H -DNSCGI
+#CFLAGS=-O3 -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -DHAVE_CONFIG_H -DNSCGI
 
 # Compiler flags for optimization (complements default)
-#CFLAGS_WARN=-Wall -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs
+#CFLAGS_WARN= -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs
 #CFLAGS_DEBUG=-ggdb3 -g3
 #CFLAGS+=$(CFLAGS_WARN) $(CFLAGS_DEBUG)
 
@@ -59,12 +59,8 @@ CGIS=avail.cgi cmd.cgi config.cgi extinfo.cgi history.cgi notifications.cgi outa
 # External data I/O code and headers
 XSDC=@XSDC@
 XSDH=@XSDH@
-XCDC=@XCDC@
-XCDH=@XCDH@
 XODC=@XODC@
 XODH=@XODH@
-XDDC=@XDDC@
-XDDH=@XDDH@
 
 # Generated automatically from configure script
 SNPRINTF_O=@SNPRINTF_O@
@@ -94,8 +90,6 @@ CGILIBS=$(SRC_COMMON)/shared.o getcgi.o cgiutils.o cgiauth.o readlogs.o macros-c
 CGIHDRS=$(SRC_INCLUDE)/config.h $(SRC_INCLUDE)/common.h $(SRC_INCLUDE)/locations.h
 CGIDEPS=$(CGILIBS) $(ODATADEPS) $(SDATADEPS)
 
-
-MATHLIBS=-lm
 GDLIBS=@GDLIBS@
 
 
@@ -133,9 +127,6 @@ xcomments-cgi.o: $(SRC_XDATA)/$(XCDC) $(SRC_XDATA)/$(XCDH)
 downtime-cgi.o: $(SRC_COMMON)/downtime.c $(SRC_INCLUDE)/downtime.h
 	$(CC) $(CFLAGS) -c -o $@ $(SRC_COMMON)/downtime.c
 
-xdowntime-cgi.o: $(SRC_XDATA)/$(XDDC) $(SRC_XDATA)/$(XDDH)
-	$(CC) $(CFLAGS) -c -o $@ $(SRC_XDATA)/$(XDDC)
-
 $(SRC_COMMON)/shared.o: $(SRC_COMMON)/shared.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -143,9 +134,6 @@ $(SRC_COMMON)/shared.o: $(SRC_COMMON)/shared.c
 
 avail.cgi: avail.c $(CGIDEPS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ avail.c $(CGILIBS) $(LIBS)
-
-checksanity.cgi: checksanity.c $(CGIDEPS) $(CDATADEPS) $(DDATADEPS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ checksanity.c $(CGILIBS) $(CDATALIBS) $(DDATALIBS) $(LIBS)
 
 cmd.cgi: cmd.c $(CGIDEPS) $(CDATADEPS) $(DDATADEPS) extcmd_list.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ cmd.c extcmd_list.o $(CGILIBS) $(CDATALIBS) $(DDATALIBS) $(LIBS)

@@ -1,8 +1,9 @@
-icinga (1.10.3-1~ppa1~quantal1) quantal; urgency=low
+icinga (1.11.0-1) unstable; urgency=medium
 
-  * Rebuild for my ubuntu ppa
+  * [c35f31c] Imported Upstream version 1.11.0
+  * [7a31e4e] Install 1.11.0 db upgrade files
 
- -- Alexander Wirt <formorer@debian.org>  Sat, 15 Feb 2014 21:25:27 +0100
+ -- Alexander Wirt <formorer@debian.org>  Thu, 13 Mar 2014 13:14:09 +0100
 
 icinga (1.10.3-1) unstable; urgency=high
 

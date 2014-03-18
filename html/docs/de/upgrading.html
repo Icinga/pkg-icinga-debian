@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.10 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.11 Dokumentation">
 <link rel="up" href="ch02.html" title="Kapitel 2. Los geht's">
 <link rel="prev" href="howtos.html" title="2.8. Links zu weiteren Howtos">
 <link rel="next" href="upgrading_idoutils.html" title="2.10. IDOUtils-Datenbank aktualisieren">
@@ -60,7 +60,7 @@
   </td></tr>
 </table></div>
 
-  <a class="indexterm" name="idp177332416"></a>
+  <a class="indexterm" name="idp178189616"></a>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -79,7 +79,7 @@
 <th align="left">Anmerkung</th>
 </tr>
 <tr><td align="left" valign="top">
-    <p>Wenn Sie Icinga Web benutzen, dann müssen Sie auch diese aktualisieren. Weitere Informationen finden Sie im Abschnitt <a class="link" href="upgrading_icingaweb.html" title="6.6. Aktualisierung von Icinga Web und Icinga Web Datenbank">Aktualisierung von Icinga-Web und Icinga-Web-Datenbank</a>.</p>
+    <p>Wenn Sie Icinga Web benutzen, dann müssen Sie auch diese aktualisieren. Weitere Informationen finden Sie im Abschnitt <a class="link" href="upgrading_icingaweb.html" title="6.7. Aktualisierung von Icinga Web und Icinga Web Datenbank">Aktualisierung von Icinga-Web und Icinga-Web-Datenbank</a>.</p>
   </td></tr>
 </table></div>
 
@@ -117,7 +117,20 @@
 
     <p>Starten Sie das Icinga-configure-Script mit den gleichen Optionen wie bei der letzten Installation, z.B. so:</p>
 
-    <pre class="programlisting"> #&gt; ./configure --with-command-group=icinga-cmd --enable-idoutils</pre>
+    <pre class="programlisting"> #&gt; ./configure --with-command-group=icinga-cmd</pre>
+
+    <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+      <p>Beginnend mit Icinga 1.9 hat sich der Default geändert, so dass Sie die Kompilation der IDOUtils ggf. explizit
+      verhindern müssen.</p>
+
+      <pre class="programlisting"> #&gt; ./configure --with-command-group=icinga-cmd --disable-idoutils</pre>
+    </td></tr>
+</table></div>
 
     <p>Kompilieren Sie den Icinga-Quellcode.</p>
 
@@ -135,8 +148,9 @@
 
     <p><span class="bold"><strong>Aktualisieren auf Apache 2.4</strong></span></p>
 
-      <p>Beginnend mit Apache 2.4 hat sich der Standard-Konfigurationsordner von <code class="filename">/etc/apache2/conf.d</code> in
-      <code class="filename">/etc/apache2/conf-available</code> geändert. Wenn Sie migrieren wollen, dann verschieben Sie einfach die Datei(en), aktivieren die Konfiguration(en) und starten den Web-Server neu</p>
+    <p>Beginnend mit Apache 2.4 hat sich der Standard-Konfigurationsordner von <code class="filename">/etc/apache2/conf.d</code> in
+    <code class="filename">/etc/apache2/conf-available</code> geändert. Wenn Sie migrieren wollen, dann verschieben Sie einfach die Datei(en),
+    aktivieren die Konfiguration(en) und starten den Web-Server neu</p>
 <pre class="screen">#&gt; mv /etc/apache2/conf.d/icinga*.conf /etc/apache2/conf-available
 #&gt; a2enconf icinga icinga-web
 #&gt; service apache2 reload</pre>
@@ -146,17 +160,15 @@
 <td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
 <th align="left">Anmerkung</th>
 </tr>
-<tr><td align="left" valign="top"><p>
-      Hinter
-
-      <code class="literal">a2enconf</code>
-
-      geben Sie die Konfiguration(en) an. Das Beispiel nimmt an, dass Sie Icinga Classic UI und Icinga Web installiert haben.
-    </p></td></tr>
+<tr><td align="left" valign="top">
+      <p>Hinter <code class="literal">a2enconf</code> geben Sie die Konfiguration(en) an. Das Beispiel nimmt an, dass Sie Icinga Classic UI und
+      Icinga Web installiert haben.</p>
+    </td></tr>
 </table></div>
+
     <p>Das war's - Sie sind fertig!</p>
 
-    <a class="indexterm" name="idp177353232"></a>
+    <a class="indexterm" name="idp178213888"></a>
   </div>
 
   <div class="section" title="2.9.2. Upgrade von Nagios 3.x">
@@ -212,12 +224,12 @@
 
     <p>Holen Sie sich das Quellcode-Archiv der letzten Icinga-Version (besuchen Sie <a class="link" href="http://www.icinga.org//" target="_top">https://www.icinga.org/</a> für den Verweis auf die letzte Version).</p>
 
-    <pre class="programlisting"> #&gt; wget https://github.com/Icinga/icinga-core/releases/download/v<span class="emphasis"><strong>1.10</strong></span>/icinga-<span class="emphasis"><strong>1.10</strong></span>.tar.gz</pre>
+    <pre class="programlisting"> #&gt; wget https://github.com/Icinga/icinga-core/releases/download/v<span class="emphasis"><strong>1.11</strong></span>/icinga-<span class="emphasis"><strong>1.11</strong></span>.tar.gz</pre>
 
     <p>Entpacken Sie das Quellcode-Archiv.</p>
 
-    <pre class="programlisting"> #&gt; tar xzf icinga-<span class="emphasis"><strong>1.10</strong></span>.tar.gz
- #&gt; cd icinga-<span class="emphasis"><strong>1.10</strong></span> </pre>
+    <pre class="programlisting"> #&gt; tar xzf icinga-<span class="emphasis"><strong>1.11</strong></span>.tar.gz
+ #&gt; cd icinga-<span class="emphasis"><strong>1.11</strong></span> </pre>
 
     <p>Starten Sie das Icinga-configure-Script mit den Optionen, die Sie beim <code class="code">./configure</code> von Nagios benutzt
     haben. Den Aufruf finden Sie in der Datei <code class="filename">config.log</code>. Beispiel:</p>
@@ -308,11 +320,11 @@
       </li>
 </ul></div>
 
-    <a class="indexterm" name="idp177403056"></a>
+    <a class="indexterm" name="idp178261232"></a>
 
-    <a class="indexterm" name="idp177403216"></a>
+    <a class="indexterm" name="idp178262624"></a>
 
-    <a class="indexterm" name="idp177406352"></a>
+    <a class="indexterm" name="idp178264016"></a>
   </div>
 
   <div class="section" title="2.9.3. Upgrade von Nagios 2.x">
@@ -320,9 +332,9 @@
 <a name="upgradenagios2x"></a>2.9.3. Upgrade von Nagios 2.x</h3></div></div></div>
     
 
-    <p>Es sollte nicht allzu schwierig sein, von Nagios 2.x auf Icinga 1.10 zu aktualisieren. Die Aktualisierung
+    <p>Es sollte nicht allzu schwierig sein, von Nagios 2.x auf Icinga 1.11 zu aktualisieren. Die Aktualisierung
     ist im Wesentlichen die gleiche wie die von bestehenden Nagios 3.x-Versionen. Allerdings müssen Sie Ihre Konfigurationsdateien
-    ein wenig ändern, damit sie mit Icinga 1.10 funktionieren:</p>
+    ein wenig ändern, damit sie mit Icinga 1.11 funktionieren:</p>
 
     <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
@@ -360,7 +372,7 @@
       </li>
 </ul></div>
 
-    <p>Stellen Sie außerdem sicher, dass Sie den "<a class="link" href="whatsnew.html" title="1.2. What's New in Icinga 1.10">Was gibt's Neues</a>"-Abschnitt in der Dokumentation lesen.
+    <p>Stellen Sie außerdem sicher, dass Sie den "<a class="link" href="whatsnew.html" title="1.2. What's New in Icinga 1.11">Was gibt's Neues</a>"-Abschnitt in der Dokumentation lesen.
     Er beschreibt all die Änderungen am Icinga-Code.</p>
   </div>
 
@@ -431,7 +443,7 @@
     installieren. Stellen Sie sicher, dass Sie all Ihre kritischen Nagios-Dateien gesichert haben, bevor Sie das Original-RPM- oder
     APT-Paket entfernen, so dass Sie darauf zurückgreifen können, wenn Sie auf Probleme stoßen.</p>
 
-    <a class="indexterm" name="idp177448896"></a>
+    <a class="indexterm" name="idp178301456"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -451,6 +463,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-present Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>
