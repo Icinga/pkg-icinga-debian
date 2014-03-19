@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2010 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -1245,6 +1245,13 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 			else
 				run_async_host_check_3x(temp_host, CHECK_OPTION_NONE, 0.0, FALSE, FALSE, NULL, NULL);
 		}
+
+		/* if a new service has been added, it needs to
+		 * be saved into statehistory. NOTOK states will
+		 * be added in other sections.
+		 */
+		if (temp_service->has_been_checked == FALSE)
+			handle_service_event(temp_service);
 	}
 
 
@@ -3636,17 +3643,21 @@ int handle_async_host_check_result_3x(host *temp_host, check_result *queued_chec
 	}
 
 	/* translate return code to basic UP/DOWN state - the DOWN/UNREACHABLE state determination is made later */
-	/* if we're not doing aggressive host checking, let WARNING states indicate the host is up (fake the result to be STATE_OK) */
-	if (use_aggressive_host_checking == FALSE && result == STATE_WARNING)
-		result = STATE_OK;
+	/* NOTE: only do this for active checks - passive check results already have the final state */
+	if (queued_check_result->check_type == HOST_CHECK_ACTIVE) {
 
-	/* OK states means the host is UP */
-	if (result == STATE_OK)
-		result = HOST_UP;
+		/* if we're not doing aggressive host checking, let WARNING states indicate the host is up (fake the result to be STATE_OK) */
+		if (use_aggressive_host_checking == FALSE && result == STATE_WARNING)
+			result = STATE_OK;
 
-	/* any problem state indicates the host is not UP */
-	else
-		result = HOST_DOWN;
+		/* OK states means the host is UP */
+		if (result == STATE_OK)
+			result = HOST_UP;
+
+		/* any problem state indicates the host is not UP */
+		else
+			result = HOST_DOWN;
+	}
 
 
 	/******************* PROCESS THE CHECK RESULTS ******************/

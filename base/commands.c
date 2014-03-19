@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2008 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -67,6 +67,7 @@ extern int      process_performance_data;
 
 extern int      log_external_commands;
 extern int      log_passive_checks;
+extern int      log_anonymized_external_command_author;
 
 extern unsigned long    modified_host_process_attributes;
 extern unsigned long    modified_service_process_attributes;
@@ -235,11 +236,14 @@ int process_external_commands_from_file(char *fname, int delete_file) {
 /* top-level external command processor */
 int process_external_command1(char *cmd) {
 	char *temp_buffer = NULL;
+	char *temp_buffer2 = NULL;
 	char *command_id = NULL;
 	char *args = NULL;
 	time_t entry_time = 0L;
 	int command_type = CMD_NONE;
 	char *temp_ptr = NULL;
+	int author_position = 0;
+	int position = 1;
 	int result = OK;
 
 	log_debug_info(DEBUGL_FUNCTIONS, 0, "process_external_command1()\n");
@@ -374,9 +378,10 @@ int process_external_command1(char *cmd) {
 	/**** HOST-RELATED COMMANDS ****/
 	/*******************************/
 
-	else if (!strcmp(command_id, "ADD_HOST_COMMENT"))
+	else if (!strcmp(command_id, "ADD_HOST_COMMENT")) {
 		command_type = CMD_ADD_HOST_COMMENT;
-	else if (!strcmp(command_id, "DEL_HOST_COMMENT"))
+		author_position = 3;
+	} else if (!strcmp(command_id, "DEL_HOST_COMMENT"))
 		command_type = CMD_DEL_HOST_COMMENT;
 	else if (!strcmp(command_id, "DEL_ALL_HOST_COMMENTS"))
 		command_type = CMD_DEL_ALL_HOST_COMMENTS;
@@ -419,11 +424,13 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "SCHEDULE_FORCED_HOST_SVC_CHECKS"))
 		command_type = CMD_SCHEDULE_FORCED_HOST_SVC_CHECKS;
 
-	else if (!strcmp(command_id, "ACKNOWLEDGE_HOST_PROBLEM"))
+	else if (!strcmp(command_id, "ACKNOWLEDGE_HOST_PROBLEM")) {
 		command_type = CMD_ACKNOWLEDGE_HOST_PROBLEM;
-	else if (!strcmp(command_id, "ACKNOWLEDGE_HOST_PROBLEM_EXPIRE"))
+		author_position = 5;
+	} else if (!strcmp(command_id, "ACKNOWLEDGE_HOST_PROBLEM_EXPIRE")) {
 		command_type = CMD_ACKNOWLEDGE_HOST_PROBLEM_EXPIRE;
-	else if (!strcmp(command_id, "REMOVE_HOST_ACKNOWLEDGEMENT"))
+		author_position = 6;
+	} else if (!strcmp(command_id, "REMOVE_HOST_ACKNOWLEDGEMENT"))
 		command_type = CMD_REMOVE_HOST_ACKNOWLEDGEMENT;
 
 	else if (!strcmp(command_id, "ENABLE_HOST_EVENT_HANDLER"))
@@ -441,11 +448,13 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "SCHEDULE_FORCED_HOST_CHECK"))
 		command_type = CMD_SCHEDULE_FORCED_HOST_CHECK;
 
-	else if (!strcmp(command_id, "SCHEDULE_HOST_DOWNTIME"))
+	else if (!strcmp(command_id, "SCHEDULE_HOST_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_HOST_DOWNTIME;
-	else if (!strcmp(command_id, "SCHEDULE_HOST_SVC_DOWNTIME"))
+		author_position = 7;
+	} else if (!strcmp(command_id, "SCHEDULE_HOST_SVC_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_HOST_SVC_DOWNTIME;
-	else if (!strcmp(command_id, "DEL_HOST_DOWNTIME"))
+		author_position = 7;
+	} else if (!strcmp(command_id, "DEL_HOST_DOWNTIME"))
 		command_type = CMD_DEL_HOST_DOWNTIME;
 	else if (!strcmp(command_id, "DEL_DOWNTIME_BY_HOST_NAME"))
 		command_type = CMD_DEL_DOWNTIME_BY_HOST_NAME;
@@ -478,13 +487,15 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "CHANGE_MAX_HOST_CHECK_ATTEMPTS"))
 		command_type = CMD_CHANGE_MAX_HOST_CHECK_ATTEMPTS;
 
-	else if (!strcmp(command_id, "SCHEDULE_AND_PROPAGATE_TRIGGERED_HOST_DOWNTIME"))
+	else if (!strcmp(command_id, "SCHEDULE_AND_PROPAGATE_TRIGGERED_HOST_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_AND_PROPAGATE_TRIGGERED_HOST_DOWNTIME;
+		author_position = 7;
 
-	else if (!strcmp(command_id, "SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME"))
+	} else if (!strcmp(command_id, "SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME;
+		author_position = 7;
 
-	else if (!strcmp(command_id, "SET_HOST_NOTIFICATION_NUMBER"))
+	} else if (!strcmp(command_id, "SET_HOST_NOTIFICATION_NUMBER"))
 		command_type = CMD_SET_HOST_NOTIFICATION_NUMBER;
 
 	else if (!strcmp(command_id, "CHANGE_HOST_CHECK_TIMEPERIOD"))
@@ -493,10 +504,11 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "CHANGE_CUSTOM_HOST_VAR"))
 		command_type = CMD_CHANGE_CUSTOM_HOST_VAR;
 
-	else if (!strcmp(command_id, "SEND_CUSTOM_HOST_NOTIFICATION"))
+	else if (!strcmp(command_id, "SEND_CUSTOM_HOST_NOTIFICATION")) {
 		command_type = CMD_SEND_CUSTOM_HOST_NOTIFICATION;
+		author_position = 3;
 
-	else if (!strcmp(command_id, "CHANGE_HOST_NOTIFICATION_TIMEPERIOD"))
+	} else if (!strcmp(command_id, "CHANGE_HOST_NOTIFICATION_TIMEPERIOD"))
 		command_type = CMD_CHANGE_HOST_NOTIFICATION_TIMEPERIOD;
 
 	else if (!strcmp(command_id, "CHANGE_HOST_MODATTR"))
@@ -537,19 +549,23 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "DISABLE_HOSTGROUP_PASSIVE_SVC_CHECKS"))
 		command_type = CMD_DISABLE_HOSTGROUP_PASSIVE_SVC_CHECKS;
 
-	else if (!strcmp(command_id, "SCHEDULE_HOSTGROUP_HOST_DOWNTIME"))
+	else if (!strcmp(command_id, "SCHEDULE_HOSTGROUP_HOST_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_HOSTGROUP_HOST_DOWNTIME;
-	else if (!strcmp(command_id, "SCHEDULE_HOSTGROUP_SVC_DOWNTIME"))
+		author_position = 7;
+	} else if (!strcmp(command_id, "SCHEDULE_HOSTGROUP_SVC_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_HOSTGROUP_SVC_DOWNTIME;
+		author_position = 7;
+	}
 
 
 	/**********************************/
 	/**** SERVICE-RELATED COMMANDS ****/
 	/**********************************/
 
-	else if (!strcmp(command_id, "ADD_SVC_COMMENT"))
+	else if (!strcmp(command_id, "ADD_SVC_COMMENT")) {
 		command_type = CMD_ADD_SVC_COMMENT;
-	else if (!strcmp(command_id, "DEL_SVC_COMMENT"))
+		author_position = 4;
+	} else if (!strcmp(command_id, "DEL_SVC_COMMENT"))
 		command_type = CMD_DEL_SVC_COMMENT;
 	else if (!strcmp(command_id, "DEL_ALL_SVC_COMMENTS"))
 		command_type = CMD_DEL_ALL_SVC_COMMENTS;
@@ -591,16 +607,18 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "DISABLE_SVC_FLAP_DETECTION"))
 		command_type = CMD_DISABLE_SVC_FLAP_DETECTION;
 
-	else if (!strcmp(command_id, "SCHEDULE_SVC_DOWNTIME"))
+	else if (!strcmp(command_id, "SCHEDULE_SVC_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_SVC_DOWNTIME;
-	else if (!strcmp(command_id, "DEL_SVC_DOWNTIME"))
+		author_position = 8;
+	} else if (!strcmp(command_id, "DEL_SVC_DOWNTIME"))
 		command_type = CMD_DEL_SVC_DOWNTIME;
-
-	else if (!strcmp(command_id, "ACKNOWLEDGE_SVC_PROBLEM"))
+	else if (!strcmp(command_id, "ACKNOWLEDGE_SVC_PROBLEM")) {
 		command_type = CMD_ACKNOWLEDGE_SVC_PROBLEM;
-	else if (!strcmp(command_id, "ACKNOWLEDGE_SVC_PROBLEM_EXPIRE"))
+		author_position = 6;
+	} else if (!strcmp(command_id, "ACKNOWLEDGE_SVC_PROBLEM_EXPIRE")) {
 		command_type = CMD_ACKNOWLEDGE_SVC_PROBLEM_EXPIRE;
-	else if (!strcmp(command_id, "REMOVE_SVC_ACKNOWLEDGEMENT"))
+		author_position = 7;
+	} else if (!strcmp(command_id, "REMOVE_SVC_ACKNOWLEDGEMENT"))
 		command_type = CMD_REMOVE_SVC_ACKNOWLEDGEMENT;
 
 	else if (!strcmp(command_id, "START_OBSESSING_OVER_SVC"))
@@ -633,10 +651,11 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "CHANGE_CUSTOM_CONTACT_VAR"))
 		command_type = CMD_CHANGE_CUSTOM_CONTACT_VAR;
 
-	else if (!strcmp(command_id, "SEND_CUSTOM_SVC_NOTIFICATION"))
+	else if (!strcmp(command_id, "SEND_CUSTOM_SVC_NOTIFICATION")) {
 		command_type = CMD_SEND_CUSTOM_SVC_NOTIFICATION;
+		author_position = 4;
 
-	else if (!strcmp(command_id, "CHANGE_SVC_NOTIFICATION_TIMEPERIOD"))
+	} else if (!strcmp(command_id, "CHANGE_SVC_NOTIFICATION_TIMEPERIOD"))
 		command_type = CMD_CHANGE_SVC_NOTIFICATION_TIMEPERIOD;
 
 	else if (!strcmp(command_id, "CHANGE_SVC_MODATTR"))
@@ -677,10 +696,13 @@ int process_external_command1(char *cmd) {
 	else if (!strcmp(command_id, "DISABLE_SERVICEGROUP_PASSIVE_SVC_CHECKS"))
 		command_type = CMD_DISABLE_SERVICEGROUP_PASSIVE_SVC_CHECKS;
 
-	else if (!strcmp(command_id, "SCHEDULE_SERVICEGROUP_HOST_DOWNTIME"))
+	else if (!strcmp(command_id, "SCHEDULE_SERVICEGROUP_HOST_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_SERVICEGROUP_HOST_DOWNTIME;
-	else if (!strcmp(command_id, "SCHEDULE_SERVICEGROUP_SVC_DOWNTIME"))
+		author_position = 7;
+	} else if (!strcmp(command_id, "SCHEDULE_SERVICEGROUP_SVC_DOWNTIME")) {
 		command_type = CMD_SCHEDULE_SERVICEGROUP_SVC_DOWNTIME;
+		author_position = 7;
+	}
 
 
 	/**********************************/
@@ -758,8 +780,30 @@ int process_external_command1(char *cmd) {
 	/* update statistics for external commands */
 	update_check_stats(EXTERNAL_COMMAND_STATS, time(NULL));
 
-	/* log the external command */
-	asprintf(&temp_buffer, "EXTERNAL COMMAND: %s;%s\n", command_id, args);
+	if (log_anonymized_external_command_author == TRUE && author_position != 0) {
+		position = 1;
+		for (temp_ptr = my_strtok(args, ";"); temp_ptr != NULL; temp_ptr = my_strtok(NULL, ";")) {
+
+			if (position == 1) {
+				temp_buffer2 = strdup((position == author_position) ? DEFAULT_LOG_ANONYMIZED_EXTERNAL_COMMAND_AUTHOR_NAME : temp_ptr);
+			} else {
+				asprintf(&temp_buffer, "%s;%s", (temp_buffer2 != NULL) ? temp_buffer2 : "", (position == author_position) ? DEFAULT_LOG_ANONYMIZED_EXTERNAL_COMMAND_AUTHOR_NAME : temp_ptr);
+				my_free(temp_buffer2);
+				temp_buffer2 = strdup(temp_buffer);
+				my_free(temp_buffer);
+			}
+			position++;
+		}
+
+		/* log the external command */
+		asprintf(&temp_buffer, "EXTERNAL COMMAND: %s;%s\n", command_id, (temp_buffer2 != NULL) ? temp_buffer2 : "");
+		my_free(temp_buffer2);
+
+	} else {
+
+		/* log the external command */
+		asprintf(&temp_buffer, "EXTERNAL COMMAND: %s;%s\n", command_id, args);
+	}
 
 	if (command_type == CMD_PROCESS_SERVICE_CHECK_RESULT || command_type == CMD_PROCESS_HOST_CHECK_RESULT) {
 		/* passive checks are logged in checks.c as well, as some my bypass external commands by getting dropped in checkresults dir */
@@ -905,22 +949,6 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 		disable_flap_detection_routines();
 		break;
 
-	case CMD_ENABLE_SERVICE_FRESHNESS_CHECKS:
-		enable_service_freshness_checks();
-		break;
-
-	case CMD_DISABLE_SERVICE_FRESHNESS_CHECKS:
-		disable_service_freshness_checks();
-		break;
-
-	case CMD_ENABLE_HOST_FRESHNESS_CHECKS:
-		enable_host_freshness_checks();
-		break;
-
-	case CMD_DISABLE_HOST_FRESHNESS_CHECKS:
-		disable_host_freshness_checks();
-		break;
-
 	case CMD_ENABLE_FAILURE_PREDICTION:
 		enable_all_failure_prediction();
 		break;
@@ -964,6 +992,8 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_STOP_OBSESSING_OVER_HOST:
 	case CMD_SET_HOST_NOTIFICATION_NUMBER:
 	case CMD_SEND_CUSTOM_HOST_NOTIFICATION:
+	case CMD_ENABLE_HOST_FRESHNESS_CHECKS:
+	case CMD_DISABLE_HOST_FRESHNESS_CHECKS:
 		result = process_host_command(cmd, entry_time, args);
 		break;
 
@@ -1006,6 +1036,8 @@ int process_external_command2(int cmd, time_t entry_time, char *args) {
 	case CMD_STOP_OBSESSING_OVER_SVC:
 	case CMD_SET_SVC_NOTIFICATION_NUMBER:
 	case CMD_SEND_CUSTOM_SVC_NOTIFICATION:
+	case CMD_ENABLE_SERVICE_FRESHNESS_CHECKS:
+	case CMD_DISABLE_SERVICE_FRESHNESS_CHECKS:
 		result = process_service_command(cmd, entry_time, args);
 		break;
 
@@ -1220,20 +1252,46 @@ int process_host_command(int cmd, time_t entry_time, char *args) {
 	char *str = NULL;
 	char *buf[2] = {NULL, NULL};
 	int intval = 0;
+	int error_condition = 0;//handles freshness checks that do not have a host specified
 
 	printf("ARGS: %s\n", args);
 
 	/* get the host name */
-	if ((host_name = my_strtok(args, ";")) == NULL)
-		return ERROR;
+	if ((host_name = my_strtok(args, ";")) == NULL){
+		error_condition = 1;
+	}else{
+		/* find the host */
+		if ((temp_host = find_host(host_name)) == NULL) {
+			logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
+			error_condition = 1;
+		}
+	}
 
-	/* find the host */
-	if ((temp_host = find_host(host_name)) == NULL) {
-		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' provided in external command!\n", host_name);
+	if(error_condition == 1){
+		//check to see if we have a global freshness check command, if so, run it's global version without returning an error
+		switch(cmd){
+			case CMD_ENABLE_HOST_FRESHNESS_CHECKS:
+				enable_host_freshness_checks(temp_host);//passes NULL
+				return OK;
+	
+			case CMD_DISABLE_HOST_FRESHNESS_CHECKS:
+				disable_host_freshness_checks(temp_host);//passes NULL
+				return OK;
+		}
+		//returns ERROR if we aren't dealing with global Freshness Checks
 		return ERROR;
 	}
 
 	switch (cmd) {
+	
+	//send freshness checks with a host
+	case CMD_ENABLE_HOST_FRESHNESS_CHECKS:
+		enable_host_freshness_checks(temp_host);
+		break;
+	
+	case CMD_DISABLE_HOST_FRESHNESS_CHECKS:
+		disable_host_freshness_checks(temp_host);
+		break;
 
 	case CMD_ENABLE_HOST_NOTIFICATIONS:
 		enable_host_notifications(temp_host);
@@ -1458,22 +1516,46 @@ int process_service_command(int cmd, time_t entry_time, char *args) {
 	char *str = NULL;
 	char *buf[2] = {NULL, NULL};
 	int intval = 0;
+	int error_condition = 0;//handles freshness checks that do not have a host or service specified
 
 	/* get the host name */
-	if ((host_name = my_strtok(args, ";")) == NULL)
-		return ERROR;
+	if ((host_name = my_strtok(args, ";")) == NULL){
+		error_condition = 1;
+		/* get the service description */
+	}else{
+		if ((svc_description = my_strtok(NULL, ";")) == NULL){
+			error_condition = 1;
+		}else{
+			/* find the service */
+			if ((temp_service = find_service(host_name, svc_description)) == NULL) {
+				logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
+				error_condition = 1;
+			}
+		}
+	}
 
-	/* get the service description */
-	if ((svc_description = my_strtok(NULL, ";")) == NULL)
-		return ERROR;
-
-	/* find the service */
-	if ((temp_service = find_service(host_name, svc_description)) == NULL) {
-		logit(NSLOG_RUNTIME_ERROR, TRUE, "Error: Could not find host '%s' and service '%s' provided in external command!\n", host_name, svc_description);
+	if(error_condition == 1){
+		//check to see if we have a global freshness check command, if so, run it's global version without returning an error
+		switch(cmd){
+			case CMD_ENABLE_SERVICE_FRESHNESS_CHECKS:
+				enable_service_freshness_checks(temp_service);//Passes NULL
+				return OK;
+			case CMD_DISABLE_SERVICE_FRESHNESS_CHECKS:
+				disable_service_freshness_checks(temp_service);//Passes NULL
+				return OK;
+		}
+		//returns ERROR if we aren't dealing with global Freshness Checks
 		return ERROR;
 	}
 
 	switch (cmd) {
+	case CMD_ENABLE_SERVICE_FRESHNESS_CHECKS:
+		enable_service_freshness_checks(temp_service);
+		return OK;
+
+	case CMD_DISABLE_SERVICE_FRESHNESS_CHECKS:
+		disable_service_freshness_checks(temp_service);
+		return OK;
 
 	case CMD_ENABLE_SVC_NOTIFICATIONS:
 		enable_service_notifications(temp_service);
@@ -4989,107 +5071,189 @@ void stop_obsessing_over_host_checks(void) {
 	return;
 }
 
-
-
 /* enables service freshness checking */
-void enable_service_freshness_checks(void) {
+void enable_service_freshness_checks(service *svc) {
+	
 	unsigned long attr = MODATTR_FRESHNESS_CHECKS_ENABLED;
 
-	/* no change */
-	if (check_service_freshness == TRUE)
-		return;
-
-	/* set the attribute modified flag */
-	modified_service_process_attributes |= attr;
-
-	/* set the freshness check flag */
-	check_service_freshness = TRUE;
+	if(svc == NULL){//global
+		/* no change */
+		if (check_service_freshness == TRUE)
+			return;
+		
+		/* set the attribute modified flag */
+		modified_service_process_attributes |= attr;
+		
+		/* set the freshness check flag */
+		check_service_freshness = TRUE;
 
 #ifdef USE_EVENT_BROKER
-	/* send data to event broker */
-	broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, MODATTR_NONE, modified_host_process_attributes, attr, modified_service_process_attributes, NULL);
+		/* send data to event broker */
+		broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, MODATTR_NONE, modified_host_process_attributes, attr, modified_service_process_attributes, NULL);
 #endif
 
-	/* update the status log with the program info */
-	update_program_status(FALSE);
+		/* update the status log with the program info */
+		update_program_status(FALSE);
+
+	}else{//specific service
+		/* no change */
+		if(svc->check_freshness == TRUE)
+			return;
+	
+		/* set the attribute modified flag */
+		svc->modified_attributes |= attr;
+		
+		/* set the freshness check flag */
+		svc->check_freshness = TRUE;
+
+#ifdef USE_EVENT_BROKER
+		/* send data to event broker */
+		broker_adaptive_service_data(NEBTYPE_ADAPTIVESERVICE_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, svc, CMD_NONE, attr, svc->modified_attributes, NULL);
+#endif
+
+		/* update the status log with the service info */
+		update_service_status(svc, FALSE);
+	}
+
 
 	return;
 }
 
 
 /* disables service freshness checking */
-void disable_service_freshness_checks(void) {
+void disable_service_freshness_checks(service *svc) {
 	unsigned long attr = MODATTR_FRESHNESS_CHECKS_ENABLED;
 
-	/* no change */
-	if (check_service_freshness == FALSE)
-		return;
-
-	/* set the attribute modified flag */
-	modified_service_process_attributes |= attr;
-
-	/* set the freshness check flag */
-	check_service_freshness = FALSE;
+	if(svc == NULL){//global
+		/* no change */
+		if (check_service_freshness == FALSE)
+			return;
+		
+		/* set the attribute modified flag */
+		modified_service_process_attributes |= attr;
+		
+		/* set the freshness check flag */
+		check_service_freshness = FALSE;
 
 #ifdef USE_EVENT_BROKER
-	/* send data to event broker */
-	broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, MODATTR_NONE, modified_host_process_attributes, attr, modified_service_process_attributes, NULL);
+		/* send data to event broker */
+		broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, MODATTR_NONE, modified_host_process_attributes, attr, modified_service_process_attributes, NULL);
 #endif
 
-	/* update the status log with the program info */
-	update_program_status(FALSE);
+		/* update the status log with the program info */
+		update_program_status(FALSE);
+
+	}else{//specific service
+		/* no change */
+		if(svc->check_freshness == FALSE)
+			return;
+	
+		/* set the attribute modified flag */
+		svc->modified_attributes |= attr;
+		
+		/* set the freshness check flag */
+		svc->check_freshness = FALSE;
+
+#ifdef USE_EVENT_BROKER
+		/* send data to event broker */
+		broker_adaptive_service_data(NEBTYPE_ADAPTIVESERVICE_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, svc, CMD_NONE, attr, svc->modified_attributes, NULL);
+#endif
+
+		/* update the status log with the service info */
+		update_service_status(svc, FALSE);
+	}
 
 	return;
 }
 
 
 /* enables host freshness checking */
-void enable_host_freshness_checks(void) {
+void enable_host_freshness_checks(host *hst) {
 	unsigned long attr = MODATTR_FRESHNESS_CHECKS_ENABLED;
 
-	/* no change */
-	if (check_host_freshness == TRUE)
-		return;
+	if(hst == NULL){//global host
+		/* no change */
+		if (check_host_freshness == TRUE)
+			return;
 
-	/* set the attribute modified flag */
-	modified_host_process_attributes |= attr;
+		/* set the attribute modified flag */
+		modified_host_process_attributes |= attr;
 
-	/* set the freshness check flag */
-	check_host_freshness = TRUE;
+		/* set the freshness check flag */
+		check_host_freshness = TRUE;
 
 #ifdef USE_EVENT_BROKER
-	/* send data to event broker */
-	broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, attr, modified_host_process_attributes, MODATTR_NONE, modified_service_process_attributes, NULL);
+		/* send data to event broker */
+		broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, attr, modified_host_process_attributes, MODATTR_NONE, modified_service_process_attributes, NULL);
 #endif
 
-	/* update the status log with the program info */
-	update_program_status(FALSE);
+		/* update the status log with the program info */
+		update_program_status(FALSE);
+	}else{//specific host modification
+		/* no change */
+		if (hst->check_freshness == TRUE)
+			return;
 
+		/* set the attribute modified flag */
+		hst->modified_attributes |= attr;
+
+		/* set the freshness check flag */
+		hst->check_freshness = TRUE;
+
+#ifdef USE_EVENT_BROKER
+		/* send data to event broker */
+		broker_adaptive_host_data(NEBTYPE_ADAPTIVEHOST_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, hst, CMD_NONE, attr, hst->modified_attributes, NULL);
+#endif
+
+		/* update the status log with the host info */
+		update_host_status(hst, FALSE);
+	}
 	return;
 }
 
 
 /* disables host freshness checking */
-void disable_host_freshness_checks(void) {
+void disable_host_freshness_checks(host *hst) {
 	unsigned long attr = MODATTR_FRESHNESS_CHECKS_ENABLED;
 
-	/* no change */
-	if (check_host_freshness == FALSE)
-		return;
+	if(hst == NULL){//global host
+		/* no change */
+		if (check_host_freshness == FALSE)
+			return;
 
-	/* set the attribute modified flag */
-	modified_host_process_attributes |= attr;
+		/* set the attribute modified flag */
+		modified_host_process_attributes |= attr;
 
-	/* set the freshness check flag */
-	check_host_freshness = FALSE;
+		/* set the freshness check flag */
+		check_host_freshness = FALSE;
+
+#ifdef USE_EVENT_BROKER
+		/* send data to event broker */
+		broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, attr, modified_host_process_attributes, MODATTR_NONE, modified_service_process_attributes, NULL);
+#endif
+
+		/* update the status log with the program info */
+		update_program_status(FALSE);
+
+	}else{ //specific host modification
+		/* no change */
+		if (hst->check_freshness == FALSE)
+			return;
+
+		/* set the attribute modified flag */
+		hst->modified_attributes |= attr;
+		
+		/* set the freshness check flag */
+		hst->check_freshness = FALSE;
 
 #ifdef USE_EVENT_BROKER
 	/* send data to event broker */
-	broker_adaptive_program_data(NEBTYPE_ADAPTIVEPROGRAM_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, CMD_NONE, attr, modified_host_process_attributes, MODATTR_NONE, modified_service_process_attributes, NULL);
+	broker_adaptive_host_data(NEBTYPE_ADAPTIVEHOST_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, hst, CMD_NONE, attr, hst->modified_attributes, NULL);
 #endif
 
-	/* update the status log with the program info */
-	update_program_status(FALSE);
+		/* update the status log with the host info */
+		update_host_status(hst, FALSE);
+	}
 
 	return;
 }

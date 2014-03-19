@@ -29,11 +29,11 @@ ENABLE_DEBUG=@ENABLE_DEBUG@
 
 # Compiler flags for use with Valgrind - set when debug is enabled
 ifeq ('$(ENABLE_DEBUG)', 'yes')
-        CFLAGS=-O0 -g -Wall -DHAVE_CONFIG_H
+        CFLAGS+=-O0 -g -DHAVE_CONFIG_H
 endif
 
 # We don't like ANSI because ANSI doesn't like us! phhht!
-#CFLAGS=-g -Wall -ansi -pedantic -DHAVE_CONFIG_H
+#CFLAGS=-g -ansi -pedantic -DHAVE_CONFIG_H
 
 MOD_CFLAGS=@MOD_CFLAGS@
 LDFLAGS=@LDFLAGS@
@@ -113,9 +113,6 @@ distclean: clean
 devclean: distclean
 
 install:
-	@echo "Going to uninstall old idomod.o in $(DESTDIR)$(BINDIR)/idomod.o ..."
-	rm -f $(DESTDIR)$(BINDIR)/idomod.o
-	@echo "Resuming with install..."
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(BINDIR)
 	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(LIBDIR)
 	$(INSTALL) -m 755 $(INSTALL_OPTS) ido2db $(DESTDIR)$(BINDIR)

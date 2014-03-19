@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2010 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2012 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * Last Modified: 08-08-2010
  *
@@ -151,6 +151,7 @@ typedef struct statusdata_struct {
 	time_t		ts_state_duration;		/**< duration of this status as timestamp */
 	char		*attempts;			/**< attempts as string */
 	int		current_attempt;		/**< attempts as integer */
+	int		current_notification_number;	/**< number of current sent out notifications */
 	char		*plugin_output;			/**< full processed plugin output */
 	int		problem_has_been_acknowledged;	/**< bool if problem is acknowledged */
 	int		scheduled_downtime_depth;	/**< int of downtime depth */
@@ -1672,61 +1673,65 @@ int main(void) {
 int process_cgivars(void) {
 	char **variables;
 	char *temp_buffer = NULL;
+	char *key = NULL;
+	char *value = NULL;
 	int error = FALSE;
 	int x;
 
 	variables = getcgivars();
 
-	for (x = 0; variables[x] != NULL; x++) {
+	for (x = 0; variables[x] != NULL; x+=2) {
+		key = variables[x];
+		value = variables[x+1];
 
 		/* do some basic length checking on the variable identifier to prevent buffer overflows */
-		if (strlen(variables[x]) >= MAX_INPUT_BUFFER - 1)
-			continue;
+		if (strlen(key) >= MAX_INPUT_BUFFER - 1) {
+			error = TRUE;
+			break;
+		}
+		/* likewise, check the value if it exists (NULL is valid if it does not) */
+		if (value != NULL)
+			if (strlen(value) >= MAX_INPUT_BUFFER - 1) {
+				error = TRUE;
+				break;
+		}
 
 		/* we found the search_string argument */
-		else if (!strcmp(variables[x], "search_string")) {
-			x++;
-			if (variables[x] == NULL) {
+		if (!strcmp(key, "search_string")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
 			group_style_type = STYLE_HOST_SERVICE_DETAIL;
-			search_string = strdup(variables[x]);
+			search_string = strdup(value);
 		}
 
 		/* we found the servicefilter argument */
-		else if (!strcmp(variables[x], "servicefilter")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "servicefilter")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			service_filter = (char *)strdup(variables[x]);
+			service_filter = (char *)strdup(value);
 		}
 
 		/* we found the navbar search argument */
 		/* kept for backwards compatibility */
-		else if (!strcmp(variables[x], "navbarsearch")) {
-			x++;
-			if (variables[x] == NULL) {
-				error = TRUE;
-				break;
-			}
+		else if (!strcmp(key, "navbarsearch")) {
 			navbar_search = TRUE;
 		}
 
 		/* we found the hostgroup argument */
-		else if (!strcmp(variables[x], "hostgroup")) {
+		else if (!strcmp(key, "hostgroup")) {
 			display_type = DISPLAY_HOSTGROUPS;
-			x++;
-			if (variables[x] == NULL) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			temp_buffer = (char *)strdup(variables[x]);
+			temp_buffer = (char *)strdup(value);
 			strip_html_brackets(temp_buffer);
 
 			if (temp_buffer != NULL)
@@ -1736,15 +1741,14 @@ int process_cgivars(void) {
 		}
 
 		/* we found the servicegroup argument */
-		else if (!strcmp(variables[x], "servicegroup")) {
+		else if (!strcmp(key, "servicegroup")) {
 			display_type = DISPLAY_SERVICEGROUPS;
-			x++;
-			if (variables[x] == NULL) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			temp_buffer = strdup(variables[x]);
+			temp_buffer = strdup(value);
 			strip_html_brackets(temp_buffer);
 
 			if (temp_buffer != NULL)
@@ -1754,15 +1758,14 @@ int process_cgivars(void) {
 		}
 
 		/* we found the host argument */
-		else if (!strcmp(variables[x], "host")) {
+		else if (!strcmp(key, "host")) {
 			display_type = DISPLAY_HOSTS;
-			x++;
-			if (variables[x] == NULL) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			temp_buffer = strdup(variables[x]);
+			temp_buffer = strdup(value);
 			strip_html_brackets(temp_buffer);
 
 			if (temp_buffer != NULL)
@@ -1772,192 +1775,181 @@ int process_cgivars(void) {
 		}
 
 		/* we found the columns argument */
-		else if (!strcmp(variables[x], "columns")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "columns")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			overview_columns = atoi(variables[x]);
+			overview_columns = atoi(value);
 			if (overview_columns <= 0)
 				overview_columns = 1;
 		}
 
 		/* we found the service status type argument */
-		else if (!strcmp(variables[x], "servicestatustypes")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "servicestatustypes")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			service_status_types = atoi(variables[x]);
+			service_status_types = atoi(value);
 		}
 
 		/* we found the host status type argument */
-		else if (!strcmp(variables[x], "hoststatustypes")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "hoststatustypes")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			host_status_types = atoi(variables[x]);
+			host_status_types = atoi(value);
 		}
 
 		/* we found the service properties argument */
-		else if (!strcmp(variables[x], "serviceprops")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "serviceprops")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			service_properties = strtoul(variables[x], NULL, 10);
+			service_properties = strtoul(value, NULL, 10);
 		}
 
 		/* we found the host properties argument */
-		else if (!strcmp(variables[x], "hostprops")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "hostprops")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			host_properties = strtoul(variables[x], NULL, 10);
+			host_properties = strtoul(value, NULL, 10);
 		}
 
 		/* we found the host or service group style argument */
-		else if (!strcmp(variables[x], "style")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "style")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			if (!strcmp(variables[x], "overview"))
+			if (!strcmp(value, "overview"))
 				group_style_type = STYLE_OVERVIEW;
-			else if (!strcmp(variables[x], "detail"))
+			else if (!strcmp(value, "detail"))
 				group_style_type = STYLE_SERVICE_DETAIL;
-			else if (!strcmp(variables[x], "summary"))
+			else if (!strcmp(value, "summary"))
 				group_style_type = STYLE_SUMMARY;
-			else if (!strcmp(variables[x], "grid"))
+			else if (!strcmp(value, "grid"))
 				group_style_type = STYLE_GRID;
-			else if (!strcmp(variables[x], "hostdetail"))
+			else if (!strcmp(value, "hostdetail"))
 				group_style_type = STYLE_HOST_DETAIL;
-			else if (!strcmp(variables[x], "hostservicedetail"))
+			else if (!strcmp(value, "hostservicedetail"))
 				group_style_type = STYLE_HOST_SERVICE_DETAIL;
 			else
 				group_style_type = STYLE_SERVICE_DETAIL;
 		}
 
 		/* we found the sort type argument */
-		else if (!strcmp(variables[x], "sorttype")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "sorttype")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			sort_type = atoi(variables[x]);
+			sort_type = atoi(value);
 		}
 
 		/* we found the sort option argument */
-		else if (!strcmp(variables[x], "sortoption")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "sortoption")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			sort_option = atoi(variables[x]);
+			sort_option = atoi(value);
 		}
 
 		/* we found the sort object argument */
-		else if (!strcmp(variables[x], "sortobject")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "sortobject")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			if (!strcmp(variables[x], "hosts"))
+			if (!strcmp(value, "hosts"))
 				sort_object = HOST_STATUS;
-			else if (!strcmp(variables[x], "services"))
+			else if (!strcmp(value, "services"))
 				sort_object = SERVICE_STATUS;
 		}
 
 		/* we found the embed option */
-		else if (!strcmp(variables[x], "embedded"))
+		else if (!strcmp(key, "embedded"))
 			embedded = TRUE;
 
 		/* we found the noheader option */
-		else if (!strcmp(variables[x], "noheader"))
+		else if (!strcmp(key, "noheader"))
 			display_header = FALSE;
 
 		/* we found the nostatusheader option */
-		else if (!strcmp(variables[x], "nostatusheader"))
+		else if (!strcmp(key, "nostatusheader"))
 			nostatusheader_option = TRUE;
 
 		/* we found the CSV output option */
-		else if (!strcmp(variables[x], "csvoutput")) {
+		else if (!strcmp(key, "csvoutput")) {
 			display_header = FALSE;
 			content_type = CSV_CONTENT;
 		}
 
 		/* we found the JSON output option */
-		else if (!strcmp(variables[x], "jsonoutput")) {
+		else if (!strcmp(key, "jsonoutput")) {
 			display_header = FALSE;
 			content_type = JSON_CONTENT;
 		}
 
 		/* we found the pause option */
-		else if (!strcmp(variables[x], "livesearchdata")) {
+		else if (!strcmp(key, "livesearchdata")) {
 			return_live_search_data = TRUE;
 			display_header = FALSE;
 			content_type = JSON_CONTENT;
 		}
 
 		/* we found the pause option */
-		else if (!strcmp(variables[x], "paused"))
+		else if (!strcmp(key, "paused"))
 			refresh = FALSE;
 
 		/* we found the nodaemoncheck option */
-		else if (!strcmp(variables[x], "nodaemoncheck"))
+		else if (!strcmp(key, "nodaemoncheck"))
 			daemon_check = FALSE;
 
 		/* we found the nodaemoncheck option */
-		else if (!strcmp(variables[x], "allunhandledproblems"))
+		else if (!strcmp(key, "allunhandledproblems"))
 			display_all_unhandled_problems = TRUE;
 
 		/* we found the nodaemoncheck option */
-		else if (!strcmp(variables[x], "allproblems"))
+		else if (!strcmp(key, "allproblems"))
 			display_all_problems = TRUE;
 
 		/* start num results to skip on displaying statusdata */
-		else if (!strcmp(variables[x], "start")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "start")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			result_start = atoi(variables[x]);
+			result_start = atoi(value);
 
 			if (result_start < 1)
 				result_start = 1;
 		}
 
 		/* amount of results to display */
-		else if (!strcmp(variables[x], "limit")) {
-			x++;
-			if (variables[x] == NULL) {
+		else if (!strcmp(key, "limit")) {
+			if (value == NULL) {
 				error = TRUE;
 				break;
 			}
 
-			get_result_limit = atoi(variables[x]);
+			get_result_limit = atoi(value);
 		}
 
 	}
@@ -2807,6 +2799,7 @@ void show_service_detail(void) {
 			printf("\"last_check\": \"%s\", ", temp_status->last_check);
 			printf("\"duration\": \"%s\", ", temp_status->state_duration);
 			printf("\"attempts\": \"%s\", ", temp_status->attempts);
+			printf("\"current_notification_number\": %d, ", temp_status->current_notification_number);
 			printf("\"state_type\": \"%s\", ", (temp_status->state_type == HARD_STATE) ? "HARD" : "SOFT");
 			printf("\"is_flapping\": %s, ", (temp_status->is_flapping == TRUE) ? "true" : "false");
 			printf("\"in_scheduled_downtime\": %s, ", (temp_status->scheduled_downtime_depth > 0) ? "true" : "false");
@@ -3258,6 +3251,7 @@ void show_host_detail(void) {
 			printf("\"last_check\": \"%s\", ", temp_statusdata->last_check);
 			printf("\"duration\": \"%s\", ", temp_statusdata->state_duration);
 			printf("\"attempts\": \"%s\", ", temp_statusdata->attempts);
+			printf("\"current_notification_number\": %d, ", temp_statusdata->current_notification_number);
 			printf("\"state_type\": \"%s\", ", (temp_statusdata->state_type == HARD_STATE) ? "HARD" : "SOFT");
 			printf("\"is_flapping\": %s, ", (temp_statusdata->is_flapping == TRUE) ? "true" : "false");
 			printf("\"in_scheduled_downtime\": %s, ", (temp_statusdata->scheduled_downtime_depth > 0) ? "true" : "false");
@@ -3485,6 +3479,16 @@ int show_servicegroup_overview(servicegroup *temp_servicegroup) {
 		printf("<div class='status'>\n");
 		printf("<a href='%s?servicegroup=%s&amp;style=detail'>%s</a>", STATUS_CGI, url_encode(temp_servicegroup->group_name), html_encode(temp_servicegroup->alias, TRUE));
 		printf(" (<a href='%s?type=%d&amp;servicegroup=%s'>%s</a>)", EXTINFO_CGI, DISPLAY_SERVICEGROUP_INFO, url_encode(temp_servicegroup->group_name), html_encode(temp_servicegroup->group_name, TRUE));
+		if (temp_servicegroup->action_url != NULL && strcmp(temp_servicegroup->action_url, "")) {
+			printf("<a href='");
+			print_extra_servicegroup_url(temp_servicegroup->group_name, temp_servicegroup->action_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='Perform Additional Actions On This Servicegroup' title='Perform Additional Actions On This Servicegroup'></a>\n", (action_url_target == NULL) ? "_blank" : action_url_target, url_images_path, ACTION_ICON);
+		}
+		if (temp_servicegroup->notes_url != NULL && strcmp(temp_servicegroup->notes_url, "")) {
+			printf("<a href='");
+			print_extra_servicegroup_url(temp_servicegroup->group_name, temp_servicegroup->notes_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='View Additional Notes For This Servicegroup' title='View Additional Notes For This Servicegroup'></a>\n", (notes_url_target == NULL) ? "_blank" : notes_url_target, url_images_path, NOTES_ICON);
+		}
 		printf("</div>\n");
 
 		printf("<table border='1' class='status' align='center'>\n");
@@ -3691,6 +3695,16 @@ void show_servicegroup_summary(servicegroup *temp_servicegroup, int odd) {
 		printf("<tr class='status%s'><td class='status%s'>\n", status_bg_class, status_bg_class);
 		printf("<a href='%s?servicegroup=%s&amp;style=overview'>%s</a> ", STATUS_CGI, url_encode(temp_servicegroup->group_name), html_encode(temp_servicegroup->alias, TRUE));
 		printf("(<a href='%s?type=%d&amp;servicegroup=%s'>%s</a>)", EXTINFO_CGI, DISPLAY_SERVICEGROUP_INFO, url_encode(temp_servicegroup->group_name), html_encode(temp_servicegroup->group_name, TRUE));
+		if (temp_servicegroup->action_url != NULL && strcmp(temp_servicegroup->action_url, "")) {
+			printf("<a href='");
+			print_extra_servicegroup_url(temp_servicegroup->group_name, temp_servicegroup->action_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='Perform Additional Actions On This Servicegroup' title='Perform Additional Actions On This Servicegroup'></a>\n", (action_url_target == NULL) ? "_blank" : action_url_target, url_images_path, ACTION_ICON);
+		}
+		if (temp_servicegroup->notes_url != NULL && strcmp(temp_servicegroup->notes_url, "")) {
+			printf("<a href='");
+			print_extra_servicegroup_url(temp_servicegroup->group_name, temp_servicegroup->notes_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='View Additional Notes For This Servicegroup' title='View Additional Notes For This Servicegroup'></a>\n", (notes_url_target == NULL) ? "_blank" : notes_url_target, url_images_path, NOTES_ICON);
+		}
 		printf("</td>");
 
 		printf("<td class='status%s' align='center' valign='middle'>", status_bg_class);
@@ -4253,7 +4267,18 @@ int show_servicegroup_grid(servicegroup *temp_servicegroup) {
 		printf("\"members\": [ \n");
 	} else {
 		printf("<div class='status'><a href='%s?servicegroup=%s&amp;style=detail'>%s</a>", STATUS_CGI, url_encode(temp_servicegroup->group_name), html_encode(temp_servicegroup->alias, TRUE));
-		printf(" (<a href='%s?type=%d&amp;servicegroup=%s'>%s</a>)</div>", EXTINFO_CGI, DISPLAY_SERVICEGROUP_INFO, url_encode(temp_servicegroup->group_name), html_encode(temp_servicegroup->group_name, TRUE));
+		printf(" (<a href='%s?type=%d&amp;servicegroup=%s'>%s</a>)", EXTINFO_CGI, DISPLAY_SERVICEGROUP_INFO, url_encode(temp_servicegroup->group_name), html_encode(temp_servicegroup->group_name, TRUE));
+		if (temp_servicegroup->action_url != NULL && strcmp(temp_servicegroup->action_url, "")) {
+			printf("<a href='");
+			print_extra_servicegroup_url(temp_servicegroup->group_name, temp_servicegroup->action_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='Perform Additional Actions On This Servicegroup' title='Perform Additional Actions On This Servicegroup'></a>\n", (action_url_target == NULL) ? "_blank" : action_url_target, url_images_path, ACTION_ICON);
+		}
+		if (temp_servicegroup->notes_url != NULL && strcmp(temp_servicegroup->notes_url, "")) {
+			printf("<a href='");
+			print_extra_servicegroup_url(temp_servicegroup->group_name, temp_servicegroup->notes_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='View Additional Notes For This Servicegroup' title='View Additional Notes For This Servicegroup'></a>\n", (notes_url_target == NULL) ? "_blank" : notes_url_target, url_images_path, NOTES_ICON);
+		}
+		printf("</div>");
 
 		printf("<table border='1' class='status' align='center'>\n");
 		printf("<tr><th class='status'>Host</th><th class='status'>Services</a></th><th class='status'>Actions</th></tr>\n");
@@ -4635,6 +4660,16 @@ int show_hostgroup_overview(hostgroup *temp_hostgroup) {
 		printf("<div class='status'>\n");
 		printf("<a href='%s?hostgroup=%s&amp;style=detail'>%s</a>", STATUS_CGI, url_encode(temp_hostgroup->group_name), html_encode(temp_hostgroup->alias, TRUE));
 		printf(" (<a href='%s?type=%d&amp;hostgroup=%s'>%s</a>)", EXTINFO_CGI, DISPLAY_HOSTGROUP_INFO, url_encode(temp_hostgroup->group_name), html_encode(temp_hostgroup->group_name, TRUE));
+		if (temp_hostgroup->action_url != NULL && strcmp(temp_hostgroup->action_url, "")) {
+			printf("<a href='");
+			print_extra_hostgroup_url(temp_hostgroup->group_name, temp_hostgroup->action_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='Perform Additional Actions On This Hostgroup' title='Perform Additional Actions On This Hostgroup'></a>\n", (action_url_target == NULL) ? "_blank" : action_url_target, url_images_path, ACTION_ICON);
+		}
+		if (temp_hostgroup->notes_url != NULL && strcmp(temp_hostgroup->notes_url, "")) {
+			printf("<a href='");
+			print_extra_hostgroup_url(temp_hostgroup->group_name, temp_hostgroup->notes_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='View Additional Notes For This Hostgroup' title='View Additional Notes For This Hostgroup'></a>\n", (notes_url_target == NULL) ? "_blank" : notes_url_target, url_images_path, NOTES_ICON);
+		}
 		printf("</div>\n");
 
 		printf("<table border='1' class='status' align='center'>\n");
@@ -5035,6 +5070,16 @@ void show_hostgroup_summary(hostgroup *temp_hostgroup, int odd) {
 		printf("<tr class='status%s'><td class='status%s'>\n", status_bg_class, status_bg_class);
 		printf("<a href='%s?hostgroup=%s&amp;style=overview'>%s</a> ", STATUS_CGI, url_encode(temp_hostgroup->group_name), html_encode(temp_hostgroup->alias, TRUE));
 		printf("(<a href='%s?type=%d&amp;hostgroup=%s'>%s</a>)", EXTINFO_CGI, DISPLAY_HOSTGROUP_INFO, url_encode(temp_hostgroup->group_name), html_encode(temp_hostgroup->group_name, TRUE));
+		if (temp_hostgroup->action_url != NULL && strcmp(temp_hostgroup->action_url, "")) {
+			printf("<a href='");
+			print_extra_hostgroup_url(temp_hostgroup->group_name, temp_hostgroup->action_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='Perform Additional Actions On This Hostgroup' title='Perform Additional Actions On This Hostgroup'></a>\n", (action_url_target == NULL) ? "_blank" : action_url_target, url_images_path, ACTION_ICON);
+		}
+		if (temp_hostgroup->notes_url != NULL && strcmp(temp_hostgroup->notes_url, "")) {
+			printf("<a href='");
+			print_extra_hostgroup_url(temp_hostgroup->group_name, temp_hostgroup->notes_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='View Additional Notes For This Hostgroup' title='View Additional Notes For This Hostgroup'></a>\n", (notes_url_target == NULL) ? "_blank" : notes_url_target, url_images_path, NOTES_ICON);
+		}
 		printf("</td>");
 
 		printf("<td class='status%s' align='center' valign='middle'>", status_bg_class);
@@ -5590,7 +5635,18 @@ int show_hostgroup_grid(hostgroup *temp_hostgroup) {
 		printf("\"members\": [ \n");
 	} else {
 		printf("<div class='status'><a href='%s?hostgroup=%s&amp;style=detail'>%s</a>", STATUS_CGI, url_encode(temp_hostgroup->group_name), html_encode(temp_hostgroup->alias, TRUE));
-		printf(" (<a href='%s?type=%d&amp;hostgroup=%s'>%s</a>)</div>", EXTINFO_CGI, DISPLAY_HOSTGROUP_INFO, url_encode(temp_hostgroup->group_name), html_encode(temp_hostgroup->group_name, TRUE));
+		printf(" (<a href='%s?type=%d&amp;hostgroup=%s'>%s</a>)", EXTINFO_CGI, DISPLAY_HOSTGROUP_INFO, url_encode(temp_hostgroup->group_name), html_encode(temp_hostgroup->group_name, TRUE));
+		if (temp_hostgroup->action_url != NULL && strcmp(temp_hostgroup->action_url, "")) {
+			printf("<a href='");
+			print_extra_hostgroup_url(temp_hostgroup->group_name, temp_hostgroup->action_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='Perform Additional Actions On This Hostgroup' title='Perform Additional Actions On This Hostgroup'></a>\n", (action_url_target == NULL) ? "_blank" : action_url_target, url_images_path, ACTION_ICON);
+		}
+		if (temp_hostgroup->notes_url != NULL && strcmp(temp_hostgroup->notes_url, "")) {
+			printf("<a href='");
+			print_extra_hostgroup_url(temp_hostgroup->group_name, temp_hostgroup->notes_url);
+			printf("' target='%s'><img src='%s%s' border='0' alt='View Additional Notes For This Hostgroup' title='View Additional Notes For This Hostgroup'></a>\n", (notes_url_target == NULL) ? "_blank" : notes_url_target, url_images_path, NOTES_ICON);
+		}
+		printf("</div>");
 
 		printf("<table border='1' class='status' align='center'>\n");
 		printf("<tr><th class='status'>Host</th><th class='status'>Services</a></th><th class='status'>Actions</th></tr>\n");
@@ -6054,6 +6110,7 @@ int add_status_data(int status_type, void *data) {
 	int checks_enabled = FALSE;
 	int accept_passive_checks = FALSE;
 	int state_type = HARD_STATE;
+	int current_notification_number = 0;
 
 	if (status_type == HOST_STATUS) {
 
@@ -6080,6 +6137,7 @@ int add_status_data(int status_type, void *data) {
 
 		host_name = host_status->host_name;
 		current_attempt = host_status->current_attempt;
+		current_notification_number = host_status->current_notification_number;
 
 		problem_has_been_acknowledged = host_status->problem_has_been_acknowledged;
 		scheduled_downtime_depth = host_status->scheduled_downtime_depth;
@@ -6123,6 +6181,7 @@ int add_status_data(int status_type, void *data) {
 		host_name = service_status->host_name;
 		svc_description = service_status->description;
 		current_attempt = service_status->current_attempt;
+		current_notification_number = service_status->current_notification_number;
 
 		problem_has_been_acknowledged = service_status->problem_has_been_acknowledged;
 		scheduled_downtime_depth = service_status->scheduled_downtime_depth;
@@ -6199,6 +6258,7 @@ int add_status_data(int status_type, void *data) {
 	new_statusdata->attempts = strdup(attempts);
 
 	new_statusdata->current_attempt = current_attempt;
+	new_statusdata->current_notification_number = current_notification_number;
 
 	new_statusdata->problem_has_been_acknowledged = problem_has_been_acknowledged;
 	new_statusdata->scheduled_downtime_depth = scheduled_downtime_depth;
@@ -6517,6 +6577,12 @@ int passes_host_properties_filter(hoststatus *temp_hoststatus) {
 	if ((host_properties & HOST_PASSIVE_CHECKS_ENABLED) && temp_hoststatus->accept_passive_host_checks == FALSE)
 		return FALSE;
 
+	if ((host_properties & HOST_MODIFIED_ATTRIBUTES) && temp_hoststatus->modified_attributes == MODATTR_NONE)
+		return FALSE;
+
+	if ((host_properties & HOST_NO_MODIFIED_ATTRIBUTES) && temp_hoststatus->modified_attributes != MODATTR_NONE)
+		return FALSE;
+
 	if ((host_properties & HOST_HARD_STATE) && temp_hoststatus->state_type == SOFT_STATE)
 		return FALSE;
 
@@ -6582,6 +6648,12 @@ int passes_service_properties_filter(servicestatus *temp_servicestatus) {
 		return FALSE;
 
 	if ((service_properties & SERVICE_PASSIVE_CHECKS_ENABLED) && temp_servicestatus->accept_passive_service_checks == FALSE)
+		return FALSE;
+
+	if ((service_properties & SERVICE_MODIFIED_ATTRIBUTES) && temp_servicestatus->modified_attributes == MODATTR_NONE)
+		return FALSE;
+
+	if ((service_properties & SERVICE_NO_MODIFIED_ATTRIBUTES) && temp_servicestatus->modified_attributes != MODATTR_NONE)
 		return FALSE;
 
 	if ((service_properties & SERVICE_HARD_STATE) && temp_servicestatus->state_type == SOFT_STATE)
@@ -6723,6 +6795,12 @@ void show_filters(void) {
 	printf("<input id='filter_hp_state_type_3' name='filter_hp_state_type' type='radio' value='0' ><label for='filter_hp_state_type_3'>No Filter</label>\n");
 	printf("</div></td></tr>\n");
 
+	printf("<tr><td align='left' class='filterName' nowrap>Modified Attributes</td><td><div id='radio' nowrap>\n");
+	printf("<input id='filter_hp_modified_attributes_1' name='filter_hp_modified_attributes' type='radio' value='%d'><label for='filter_hp_modified_attributes_1'>Yes</label>\n", HOST_MODIFIED_ATTRIBUTES);
+	printf("<input id='filter_hp_modified_attributes_2' name='filter_hp_modified_attributes' type='radio' value='%d'><label for='filter_hp_modified_attributes_2'>No</label>\n", HOST_NO_MODIFIED_ATTRIBUTES);
+	printf("<input id='filter_hp_modified_attributes_3' name='filter_hp_modified_attributes' type='radio' value='0' ><label for='filter_hp_modified_attributes_3'>No Filter</label>\n");
+	printf("</div></td></tr>\n");
+
 	printf("<tr><td style='height:10px; line-height:10px;'>&nbsp;</td><td>&nbsp;</td></tr>\n");
 
 	printf("<tr><td align='left' class='filterName' nowrap>Host State Handled</td><td><div id='radio' nowrap>\n");
@@ -6825,6 +6903,12 @@ void show_filters(void) {
 	printf("<input id='filter_sp_state_type_1' name='filter_sp_state_type' type='radio' value='%d'><label for='filter_sp_state_type_1'>Hard</label>\n", SERVICE_HARD_STATE);
 	printf("<input id='filter_sp_state_type_2' name='filter_sp_state_type' type='radio' value='%d'><label for='filter_sp_state_type_2'>Soft</label>\n", SERVICE_SOFT_STATE);
 	printf("<input id='filter_sp_state_type_3' name='filter_sp_state_type' type='radio' value='0' ><label for='filter_sp_state_type_3'>No Filter</label>\n");
+	printf("</div></td></tr>\n");
+
+	printf("<tr><td align='left' class='filterName' nowrap>Modified Attributes</td><td><div id='radio' nowrap>\n");
+	printf("<input id='filter_sp_modified_attributes_1' name='filter_sp_modified_attributes' type='radio' value='%d'><label for='filter_sp_modified_attributes_1'>Yes</label>\n", SERVICE_MODIFIED_ATTRIBUTES);
+	printf("<input id='filter_sp_modified_attributes_2' name='filter_sp_modified_attributes' type='radio' value='%d'><label for='filter_sp_modified_attributes_2'>No</label>\n", SERVICE_NO_MODIFIED_ATTRIBUTES);
+	printf("<input id='filter_sp_modified_attributes_3' name='filter_sp_modified_attributes' type='radio' value='0' ><label for='filter_sp_modified_attributes_3'>No Filter</label>\n");
 	printf("</div></td></tr>\n");
 
 	printf("<tr><td style='height:10px; line-height:10px;'>&nbsp;</td><td>&nbsp;</td></tr>\n");
@@ -7077,7 +7161,7 @@ void status_page_num_selector(int local_result_start, int status_type) {
 
 	/* get url options but filter out "limit" and "status" */
 	if (getenv("QUERY_STRING") != NULL && strcmp(getenv("QUERY_STRING"), "")) {
-		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER) {
+		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("status_page_num_selector(): Query string exceeds max length. Returning without displaying page num selector.\n");
 			return;
 		}
@@ -7085,7 +7169,7 @@ void status_page_num_selector(int local_result_start, int status_type) {
 		strip_html_brackets(stripped_query_string);
 
 		/* check if concatenated strings exceed MAX_INPUT_BUFFER */
-		if (strlen(link) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER) {
+		if (strlen(link) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("status_page_num_selector(): Full query string exceeds max length. Returning without displaying page num selector.\n");
 			return;
 		}

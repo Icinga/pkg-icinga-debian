@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.10 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.11 Documentation">
 <link rel="up" href="ch02.html" title="Chapter 2. Getting Started">
 <link rel="prev" href="quickstart.html" title="2.2. Quickstart Installation Guides">
 <link rel="next" href="quickstart-icinga-freebsd.html" title="2.4. Icinga Quickstart FreeBSD">
@@ -320,7 +320,7 @@
 
     <p>Get the current source from the <a class="link" href="http://www.icinga.org/" target="_top">Icinga Website</a>.</p>
 
-    <p>Don't forget to download the <a class="link" href="http://www.monitoring-plugins.org/" target="_top">Monitoring Plugins</a>.</p>
+    <p>Don't forget to download the <a class="link" href="https://www.monitoring-plugins.org/" target="_top">Monitoring Plugins</a>.</p>
   </div>
 
   <div class="section" title="2.3.6. Compile and install Icinga">
@@ -331,8 +331,8 @@
     <p>Extract the Icinga source code tarball (or change directory to the GIT snapshot)</p>
 
     <pre class="programlisting"> #&gt; cd /usr/src/
- #&gt; tar xvzf icinga-1.10.tar.gz
- #&gt; cd icinga-1.10</pre>
+ #&gt; tar xvzf icinga-1.11.tar.gz
+ #&gt; cd icinga-1.11</pre>
 
     <p>Run the Icinga configure script. You will get help by using the --help flag.</p>
 
@@ -431,7 +431,7 @@
  #&gt; make install-cgis
  #&gt; make install-html</pre>
 
-    <p>If you are interested in the new Icinga Web, please refer to <a class="link" href="icinga-web-scratch.html" title="6.4. Installation of the Icinga Web Frontend">Install Icinga Web
+    <p>If you are interested in the new Icinga Web, please refer to <a class="link" href="icinga-web-scratch.html" title="6.5. Installation of the Icinga Web Frontend">Install Icinga Web
     Interface</a>.</p>
 
     <p>Install the Icinga Classic web config file in the Apache <code class="filename">conf.d</code> directory
@@ -502,7 +502,7 @@
 <a name="compileinstallplugins"></a>2.3.9. Compile and Install the Monitoring Plugins</h3></div></div></div>
     
 
-    <p>Extract the Nagios plugins source code tarball.</p>
+    <p>Extract the plugins source code tarball.</p>
 
     <pre class="programlisting"> #&gt; cd /usr/src
  #&gt; tar xvzf nagios-plugins-1.5.tar.gz
@@ -538,13 +538,19 @@
     system.</p>
 
     <p>Instead of deactivating SELinux or setting it into permissive mode you can use the following commands to run the CGIs in
-    enforcing/targeted mode:</p>
+    enforcing/targeted mode. The <span class="emphasis"><em>semanage</em></span> command will automatically add entries to
+    <code class="filename">/etc/selinux/targeted/contexts/files/file_contexts.local</code>.</p>
+<pre class="programlisting"> #&gt; semanage fcontext -a -t httpd_sys_script_exec_t '/usr/local/icinga/sbin(/.*)?'
+ #&gt; semanage fcontext -a -t httpd_sys_content_t '/usr/local/icinga/share(/.*)?'
+ #&gt; semanage fcontext -a -t httpd_sys_rw_content_t '/usr/local/icinga/var(/.*)?'</pre>
 
-    <pre class="programlisting"> #&gt; chcon -R -t httpd_sys_script_exec_t /usr/local/icinga/sbin/
- #&gt; chcon -R -t httpd_sys_content_t /usr/local/icinga/share/
- #&gt; chcon -R -t httpd_sys_script_rw_t /usr/local/icinga/var/rw/</pre>
+    <p>Once you have defined the necessary contexts you have to apply the settings:</p>
 
-    <p>Alternatively you may want to take a look at <a class="link" href="http://www.linuxquestions.org/questions/blog/sag47-492023/selinux-and-icinga-34926/" target="_top">http://www.linuxquestions.org/questions/blog/sag47-492023/selinux-and-icinga-34926/</a>.</p>
+    <pre class="programlisting"> #&gt; chcon -R /usr/local/icinga/sbin
+ #&gt; chcon -R /usr/local/icinga/share
+ #&gt; chcon -R /usr/local/icinga/var/rw</pre>
+
+    <p>For details please take a look at <a class="link" href="http://www.linuxquestions.org/questions/blog/sag47-492023/selinux-and-icinga-34926/" target="_top">http://www.linuxquestions.org/questions/blog/sag47-492023/selinux-and-icinga-34926/</a>.</p>
   </div>
 
   <div class="section" title="2.3.11. Start Icinga">
@@ -622,7 +628,7 @@
     <p>Setting up your mail transfer agent (MTA) like exim, sendmail or postfix to allow Icinga sending notification emails won't
     be explained here.</p>
 
-    <p>Please refer to the <a class="link" href="http://www.nagioswiki.org/" target="_top">Nagios Wiki</a> for more resources.</p>
+
   </div>
 
   <div class="section" title="2.3.14. You're Done">
@@ -635,7 +641,7 @@
     <p>You'll no doubt want to monitor more than just your local machine, so check out the chapter on <a class="link" href="ch02.html" title="Chapter 2. Getting Started">"Getting
     Started"</a> about "Monitoring ..."</p>
 
-    <a class="indexterm" name="idp176816560"></a>
+    <a class="indexterm" name="idp177640512"></a>
   </div>
 </div>
 <div class="navfooter">
@@ -655,6 +661,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-present Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

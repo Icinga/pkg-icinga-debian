@@ -1,8 +1,15 @@
-icinga (1.10.3-1~debmon70+1) debmon-wheezy; urgency=medium
+icinga (1.11.0-1~debmon70+1) debmon-wheezy; urgency=medium
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 18 Feb 2014 16:58:58 +0100
+
+icinga (1.11.0-1) unstable; urgency=medium
+
+  * [c35f31c] Imported Upstream version 1.11.0
+  * [7a31e4e] Install 1.11.0 db upgrade files
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 13 Mar 2014 13:14:09 +0100
 
 icinga (1.10.3-1) unstable; urgency=high
 

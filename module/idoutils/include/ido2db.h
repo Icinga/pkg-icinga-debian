@@ -2,7 +2,7 @@
  *
  * IDO2DB.H - IDO2DB Include File
  * Copyright (c) 2005-2007 Ethan Galstad
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  ************************************************************************/
 
@@ -256,6 +256,7 @@ typedef struct ido2db_input_data_info_struct{
 	ido2db_mbuf mbuf[IDO2DB_MAX_MBUF_ITEMS];
 	ido2db_dbconninfo dbinfo;
 	ido2db_txbuf txbuf;
+	int in_transaction;
         }ido2db_idi;
 
 typedef struct ido2db_proxy_struct {
