@@ -2,7 +2,7 @@
  * DB.C - Datatabase routines for IDO2DB daemon
  *
  * Copyright (c) 2005-2007 Ethan Galstad
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
@@ -1367,16 +1367,6 @@ int ido2db_db_hello(ido2db_idi *idi) {
 	/* make sure we have an instance name */
 	if (idi->instance_name == NULL)
 		idi->instance_name = strdup("default");
-
-
-	result = ido2db_db_version_check(idi);
-
-	if (result == IDO_ERROR) {
-                syslog(LOG_USER | LOG_INFO, "Error: DB Version Check against %s database query failed! Please check %s database configuration and schema!", ido2db_db_settings.dbserver, ido2db_db_settings.dbserver);
-                ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_version_check() query against existing instance not possible, cleaning up and exiting\n");
-
-		return IDO_ERROR;
-	}
 
 #ifdef USE_LIBDBI /* everything else will be libdbi */
 
@@ -2850,6 +2840,9 @@ int ido2db_db_tx_begin(ido2db_idi *idi) {
 
 	result = ido2db_db_query(idi, "BEGIN");
 	dbi_result_free(idi->dbinfo.dbi_result);
+
+	idi->in_transaction = IDO_TRUE;
+
 	return result;
 #else /* USE_LIBDBI */
 	return IDO_OK;
@@ -2866,10 +2859,42 @@ int ido2db_db_tx_commit(ido2db_idi *idi) {
 
 	result = ido2db_db_query(idi, "COMMIT");
 	dbi_result_free(idi->dbinfo.dbi_result);
+
+	idi->in_transaction = IDO_FALSE;
+
 	return result;
 #else /* USE_LIBDBI */
 	return IDO_OK;
 #endif /* USE_LIBDBI */
+}
+
+int ido2db_db_update_config_dump(ido2db_idi *idi, int in_progress) {
+	int result = IDO_ERROR;
+	char * buf = NULL;
+
+	ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_db_update_config_dump() in_progress=%d\n", in_progress);
+
+	/* commit before query if within transaction*/
+	if (idi->in_transaction == IDO_TRUE)
+		ido2db_db_tx_commit(idi);
+
+	if (asprintf(&buf, "UPDATE %s SET config_dump_in_progress=%d WHERE instance_id=%lu",
+	             ido2db_db_tablenames[IDO2DB_DBTABLE_PROGRAMSTATUS],
+		     (in_progress == IDO_TRUE) ? 1 : 0,
+		     idi->dbinfo.instance_id) == -1)
+		buf = NULL;
+
+	result = ido2db_db_query(idi, buf);
+	dbi_result_free(idi->dbinfo.dbi_result);
+
+	free(buf);
+
+	if (result == IDO_OK) {
+		/* force commit */
+		result = ido2db_db_tx_commit(idi);
+	}
+
+	return result;
 }
 
 /************************************/

@@ -1,8 +1,15 @@
-icinga (1.10.3-1~debmon60+1) debmon-squeeze; urgency=low
+icinga (1.11.0-1~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon-squeeze
 
  -- Alexander Wirt <formorer@debian.org>  Wed, 06 Nov 2013 20:28:02 +0100
+
+icinga (1.11.0-1) unstable; urgency=medium
+
+  * [c35f31c] Imported Upstream version 1.11.0
+  * [7a31e4e] Install 1.11.0 db upgrade files
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 13 Mar 2014 13:14:09 +0100
 
 icinga (1.10.3-1) unstable; urgency=high
 

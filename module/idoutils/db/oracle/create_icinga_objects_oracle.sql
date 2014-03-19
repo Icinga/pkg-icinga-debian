@@ -4,11 +4,8 @@
 -- icinga DB object definition for Oracle
 -- called and defines set from oracle.sql
 --
--- Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+-- Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
 --
--- initial version: 2008-02-20 David Schmidt
---                  2011-01-17 Michael Friedrich <michael.friedrich(at)univie.ac.at>
--- current version: 2012-10-31 Thomas Dressler
 -- -- --------------------------------------------------------
 */
 -- -----------------------------------------
@@ -379,10 +376,10 @@ CREATE TABLE conninfo (
   id integer ,
   instance_id integer default 0 ,
   agent_name varchar2(32),
-  agent_version varchar2(16),
-  disposition varchar2(16),
-  connect_source varchar2(16),
-  connect_type varchar2(16),
+  agent_version varchar2(32),
+  disposition varchar2(32),
+  connect_source varchar2(32),
+  connect_type varchar2(32),
   connect_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
   disconnect_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
   last_checkin_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
@@ -1276,7 +1273,8 @@ CREATE TABLE programstatus (
   modified_host_attributes integer default 0 ,
   modified_service_attributes integer default 0 ,
   global_host_event_handler varchar2(1024),
-  global_service_event_handler varchar2(1024)
+  global_service_event_handler varchar2(1024),
+  config_dump_in_progress integer default 0
 )tablespace &&DATATBS;
 
 alter table programstatus add constraint programstatus_pk PRIMARY KEY  (id)
@@ -1690,7 +1688,8 @@ CREATE TABLE statehistory (
   last_state integer default -1 ,
   last_hard_state integer default -1 ,
   output clob,
-  long_output clob
+  long_output clob,
+  check_source varchar2(255)
 )
 lob (output) store as statehistory_outp_lob(tablespace &&LOBTBS)
 lob (long_output) store as statehistory_loutp_lob(tablespace &&LOBTBS)
@@ -1927,6 +1926,10 @@ CREATE INDEX tperiod_tid_d_ss_es ON timeperiod_timeranges (timeperiod_id,day,sta
 CREATE INDEX sla_idx_sthist ON statehistory (object_id, state_time DESC) tablespace &&IDXTBS;
 CREATE INDEX sla_idx_dohist ON downtimehistory (object_id, actual_start_time, actual_end_time) tablespace &&IDXTBS;
 CREATE INDEX sla_idx_obj ON objects (objecttype_id, is_active, name1) tablespace &&IDXTBS;
+
+-- #4985
+CREATE INDEX commenthistory_delete_idx ON commenthistory (instance_id, comment_time, internal_comment_id) tablespace &&IDXTBS;
+
 
 -- -----------------------------------------
 -- sequences
@@ -2274,8 +2277,6 @@ alter sequence SEQ_SERVICE_CONTACTS cache 5;
 alter sequence SEQ_SLAHISTORY cache 20;
 alter sequence SEQ_STATEHISTORY cache 50; 
 alter sequence SEQ_SYSTEMCOMMANDS cache 5; 
-alter sequence SEQ_TIMEDEVENTQUEUE cache 10;
-alter sequence SEQ_TIMEDEVENTS cache 10; 
 alter sequence SEQ_TIMEPERIODS nocache; 
 alter sequence SEQ_TIMEP_TIMER cache 5;
 

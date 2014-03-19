@@ -72,7 +72,6 @@ ENABLE_DEBUG=@ENABLE_DEBUG@
 ###############################
 USE_EVENTBROKER=@USE_EVENTBROKER@
 USE_IDOUTILS=@USE_IDOUTILS@
-USE_ICINGAAPI=@USE_ICINGAAPI@
 
 INSTALLPERLSTUFF=@INSTALLPERLSTUFF@
 
@@ -91,7 +90,7 @@ MKDIR=/bin/mkdir
 ###############################
 # Global
 ###############################
-ICINGA_VERSION=1.10.3
+ICINGA_VERSION=1.11.0
 
 CP=@CP@
 
@@ -503,14 +502,6 @@ install-idoutils:
 	@if [ x$(USE_IDOUTILS) = xyes ]; then \
 		echo "" ;\
 		echo "*** IDOUtils installed ***" ;\
-		echo "" ;\
-		echo "!!! ATTENTION !!!" ; \
-        	echo "	idomod.o was renamed to idomod.so, module extension is now .so" ;\
-		echo "	idomod.so will now be installed to $(DESTDIR)$(LIBDIR) " ;\
-		echo "	" ;\
-		echo "	Check your config within wether icinga.cfg:broker_module OR" ;\
-		echo "	module definition in modules/ and update to the new path!!!" ;\
-		echo "!!! ATTENTION !!!" ;\
 		echo "" ;\
 		echo "Please check Changelog - CHANGES for more information!" ;\
 		echo "Upgrade docs available at http://docs.icinga.org/latest/en/upgrading_idoutils.html " ;\

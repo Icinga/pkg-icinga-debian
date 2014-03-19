@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.10 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.11 Dokumentation">
 <link rel="up" href="ch05.html" title="Kapitel 5. Die Grundlagen">
 <link rel="prev" href="hostchecks.html" title="5.4. Host-Prüfungen (Host checks)">
 <link rel="next" href="activechecks.html" title="5.6. Aktive Prüfungen (Active Checks)">
@@ -37,6 +37,7 @@
 <dt><span class="section">5.5.5. <a href="servicechecks.html#servicestates">Service-Zustände</a></span></dt>
 <dt><span class="section">5.5.6. <a href="servicechecks.html#servicestatedetermination">Service-Statusermittlung</a></span></dt>
 <dt><span class="section">5.5.7. <a href="servicechecks.html#servicestatechanges">Service-Statusänderungen</a></span></dt>
+<dt><span class="section">5.5.8. <a href="servicechecks.html#servicestatestale">Service-Zustand ist "stale"</a></span></dt>
 </dl></div>
   
 
@@ -153,7 +154,15 @@
     Services anfangen zu flattern, und kann Benachrichtigungen unterdrücken, bis das Flattern stoppt und sich der Service-Status
     stabilisiert. Mehr Informationen über die Erkennungslogik des Flatterns finden Sie <a class="link" href="flapping.html" title="7.8. Erkennung und Behandlung von Status-Flattern">hier</a>.</p>
 
-    <a class="indexterm" name="idp186263600"></a>
+    <a class="indexterm" name="idp187023424"></a>
+  </div>
+
+  <div class="section" title='5.5.8. Service-Zustand ist "stale"'>
+<div class="titlepage"><div><div><h3 class="title">
+<a name="servicestatestale"></a>5.5.8. Service-Zustand ist "stale"</h3></div></div></div>
+    
+
+    <p>Eine Erklärung finden Sie unter <a class="link" href="freshness.html#stale" title='7.5.5. "Check results ... are stale. Forcing an immediate check ...'>"Frische-Prüfungen / freshness"</a>.</p>
   </div>
 </div>
 <div class="navfooter">
@@ -173,6 +182,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-present Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

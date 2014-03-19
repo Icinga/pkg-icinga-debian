@@ -5,10 +5,10 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.10 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.11 Dokumentation">
 <link rel="up" href="ch03.html" title="Kapitel 3. Icinga konfigurieren">
 <link rel="prev" href="customobjectvars.html" title="3.5. Maßgeschneiderte Objektvariablen">
-<link rel="next" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">
+<link rel="next" href="ch04.html" title="Kapitel 4. Icinga starten/stoppen/prüfen">
 <script src="../js/jquery-min.js" type="text/javascript"></script><script src="../js/icinga-docs.js" type="text/javascript"></script>
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -20,7 +20,7 @@
 <td width="20%" align="left">
 <a accesskey="p" href="customobjectvars.html">Zurück</a> </td>
 <th width="60%" align="center">Kapitel 3. Icinga konfigurieren</th>
-<td width="20%" align="right"> <a accesskey="n" href="cgiauth.html">Weiter</a>
+<td width="20%" align="right"> <a accesskey="n" href="ch04.html">Weiter</a>
 </td>
 </tr>
 </table>
@@ -193,7 +193,7 @@
   nutzen. Wenn Sie sich entscheiden, die Authentifizierung nicht zu nutzen, dann stellen Sie sicher, dass das <a class="link" href="cgis.html#cgis-cmd_cgi">command CGI</a> entfernt wird, um nicht autorisierte Benutzer an der Ausführung von Icinga-Befehlen zu
   hindern. Das CGI wird keine Befehle ausführen, wenn Authentifizierung deaktiviert ist, aber wir würden trotzdem dazu raten, das CGI zu
   entfernen, damit man auf der sicheren Seite ist. Mehr Informationen zur Einstellung der Authentifizierung und der Konfiguration von
-  Autorisierung für die CGIs finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Autorisierung für die CGIs finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
@@ -300,7 +300,7 @@
   im <a class="link" href="cgis.html#cgis-extinfo_cgi">extended information CGI</a> ansehen können. Benutzer in dieser Liste sind
   <span class="emphasis"><em>nicht</em></span> automatisch autorisiert, System/Prozessbefehle zu erteilen. Wenn Sie möchten, dass Benutzer auch
   System/Prozessbefehle erteilen können, dann müssen Sie diese der <a class="link" href="configcgi.html#configcgi-authorized_for_system_commands">authorized_for_system_commands</a>-Variable hinzufügen. Mehr Informationen, wie man
-  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -339,7 +339,7 @@
   das <a class="link" href="cgis.html#cgis-extinfo_cgi">command CGI</a> erteilen können. Benutzer in dieser Liste sind <span class="emphasis"><em>nicht</em></span>
   automatisch autorisiert, System/Prozessinformationen anzusehen. Wenn Sie möchten, dass Benutzer auch System/Prozessinformationen ansehen
   können, dann müssen Sie diese der <a class="link" href="configcgi.html#configcgi-authorized_for_system_information">authorized_for_system_information</a>-Variable hinzufügen. Mehr Informationen,
-  wie man Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  wie man Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -378,7 +378,7 @@
   <p>Dies ist eine Komma-separierte Liste von Namen von <span class="emphasis"><em>authentifizierten Benutzern</em></span>, die Konfigurationsinformationen
   im <a class="link" href="cgis.html#cgis-config_cgi">configuration CGI</a> ansehen können. Benutzer in dieser Liste können Informationen zu allen
   konfigurierten Hosts, Hostgruppen, Kontakten, Kontaktgruppen, Zeitfenstern und Befehlen ansehen. Mehr Informationen, wie man
-  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -419,7 +419,7 @@
   allen Services anzusehen. Benutzer in dieser Liste sind <span class="emphasis"><em>nicht</em></span> automatisch berechtigt, Befehle für alle Hosts oder
   Services zu erteilen. Wenn Sie möchten, dass Benutzer auch Befehle für alle Hosts oder Services erteilen können, dann müssen Sie diese der
   <a class="link" href="configcgi.html#configcgi-authorized_for_all_host_commands">authorized_for_all_host_commands</a>-Variable hinzufügen. Mehr
-  Informationen, wie man Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Informationen, wie man Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -460,7 +460,7 @@
   für alle Services zu erteilen. Benutzer in dieser Liste sind <span class="emphasis"><em>nicht</em></span> automatisch berechtigt, Status- oder
   Konfigurationsinformationen für alle Hosts oder Services anzusehen. Wenn Sie möchten, dass Benutzer auch Status- und
   Konfigurationsinformationen für alle Hosts oder Services ansehen können, dann müssen Sie diese der <a class="link" href="configcgi.html#configcgi-authorized_for_all_hosts">authorized_for_all_hosts</a>-Variable hinzufügen. Mehr Informationen, wie man
-  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -500,7 +500,7 @@
   autorisiert, Informationen zu allen Hosts anzusehen. Benutzer in dieser Liste sind <span class="emphasis"><em>nicht</em></span> automatisch berechtigt,
   Befehle für alle Services zu erteilen. Wenn Sie möchten, dass Benutzer auch Befehle für alle Services erteilen können, dann müssen Sie
   diese der <a class="link" href="configcgi.html#configcgi-authorized_for_all_service_commands">authorized_for_all_service_commands</a>-Variable hinzufügen.
-  Mehr Informationen, wie man Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Mehr Informationen, wie man Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -541,7 +541,7 @@
   automatisch autorisiert, Befehle für alle Hosts zu erteilen. Benutzer in dieser Liste sind <span class="emphasis"><em>nicht</em></span> automatisch
   berechtigt, Status- oder Konfigurationsinformationen für alle Hosts anzusehen. Wenn Sie möchten, dass Benutzer auch Status- und
   Konfigurationsinformationen für alle Services ansehen können, dann müssen Sie diese der <a class="link" href="configcgi.html#configcgi-authorized_for_all_services">authorized_for_all_services</a>-Variable hinzufügen. Mehr Informationen, wie man
-  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -610,7 +610,7 @@
   <span class="emphasis"><em>nicht</em></span> automatisch autorisiert, Befehle für alle Hosts zu erteilen. Benutzer in dieser Liste sind <span class="emphasis"><em>nicht
   </em></span> automatisch berechtigt, Status- oder Konfigurationsinformationen für alle Hosts anzusehen. Wenn Sie möchten, dass Benutzer
   auch Status- und Konfigurationsinformationen für alle Services ansehen können, dann müssen Sie diese der <a class="link" href="configcgi.html#configcgi-authorized_for_all_services">authorized_for_all_services</a>-Variable hinzufügen. Mehr Informationen, wie man
-  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="3.7. Authentifizierung und Autorisierung in den CGIs">hier</a>.</p>
+  Authentifizierung einrichtet und Autorisierung für die CGIs konfiguriert, finden Sie <a class="link" href="cgiauth.html" title="6.2. Authentifizierung und Autorisierung im Classic UI">hier</a>.</p>
 
   <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -1958,7 +1958,7 @@
   aktive Prüfungen dargestellt werden.</p>
 
   <div class="figure">
-<a name="idp182851296"></a><p class="title"><b>Abbildung 3.1. Beispiel des neuen Headers</b></p>
+<a name="idp183713920"></a><p class="title"><b>Abbildung 3.1. Beispiel des neuen Headers</b></p>
 <div class="figure-contents">
     
 
@@ -2608,145 +2608,192 @@
   </td></tr>
 </table></div>
 
-  <a class="indexterm" name="idp183068864"></a>
+  <p><a name="configcgi-disable_cmd_cgi_csrf_proctection"></a><span class="bold"><strong>Deaktivieren des Schutzes von cmd.cgi gegen
+  CRSF-Attacken</strong></span></p>
 
-  <a class="indexterm" name="idp183068992"></a>
+  <div class="informaltable">
+    <table border="0">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td align="left" valign="top"><p>Format:</p></td>
+<td><p><span class="bold"><strong>disable_cmd_cgi_csrf_proctection=0|1</strong></span></p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p>Example:</p></td>
+<td><p><span class="color"><font color="red"><span class="bold"><strong>disable_cmd_cgi_csrf_proctection=1</strong></span></font></span></p></td>
+</tr>
+</tbody>
+</table>
+  </div>
 
-  <a class="indexterm" name="idp183072368"></a>
+  <p>Als Standard (d.h., wenn die Direktive nicht gesetzt oder deaktiviert ist) wird ein Befehl zurückgewiesen, wenn ein externen
+  Programm (wie z.B. Nagstamon) versucht, cmd.cgi direkt anzusprechen. Auf diese Weise sollen CRSF-Attacken (Cross-Site Request Forgery)
+  verhindert werden. Aktivieren Sie diese Option nur, wenn Sie diese Funktionalität benötigen.</p>
 
-  <a class="indexterm" name="idp183073760"></a>
+  <div class="itemizedlist"><ul class="itemizedlist" type="disc">
+<li class="listitem">
+      <p>0 - deaktiviert, gegen CSRF-Attacken schützen (default)</p>
+    </li>
+<li class="listitem">
+      <p>1 - aktiviert, externen Programmen Zugriff erlauben</p>
+    </li>
+</ul></div>
 
-  <a class="indexterm" name="idp183075392"></a>
+  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
+<th align="left">Anmerkung</th>
+</tr>
+<tr><td align="left" valign="top">
+    <p>Diese Option ist verfügbar ab Icinga 1.11</p>
+  </td></tr>
+</table></div>
 
-  <a class="indexterm" name="idp183077072"></a>
+  <a class="indexterm" name="idp183946656"></a>
 
-  <a class="indexterm" name="idp183078720"></a>
+  <a class="indexterm" name="idp183948224"></a>
 
-  <a class="indexterm" name="idp183080368"></a>
+  <a class="indexterm" name="idp183948352"></a>
 
-  <a class="indexterm" name="idp183082064"></a>
+  <a class="indexterm" name="idp183951392"></a>
 
-  <a class="indexterm" name="idp183083808"></a>
+  <a class="indexterm" name="idp183953120"></a>
 
-  <a class="indexterm" name="idp183085440"></a>
+  <a class="indexterm" name="idp183954768"></a>
 
-  <a class="indexterm" name="idp183086560"></a>
+  <a class="indexterm" name="idp183956256"></a>
 
-  <a class="indexterm" name="idp183088272"></a>
+  <a class="indexterm" name="idp183957888"></a>
 
-  <a class="indexterm" name="idp183089984"></a>
+  <a class="indexterm" name="idp183959536"></a>
 
-  <a class="indexterm" name="idp183092272"></a>
+  <a class="indexterm" name="idp183961280"></a>
 
-  <a class="indexterm" name="idp183093984"></a>
+  <a class="indexterm" name="idp183962912"></a>
 
-  <a class="indexterm" name="idp183095440"></a>
+  <a class="indexterm" name="idp183964032"></a>
 
-  <a class="indexterm" name="idp183097328"></a>
+  <a class="indexterm" name="idp183965744"></a>
 
-  <a class="indexterm" name="idp183099024"></a>
+  <a class="indexterm" name="idp183967456"></a>
 
-  <a class="indexterm" name="idp183100704"></a>
+  <a class="indexterm" name="idp183969744"></a>
 
-  <a class="indexterm" name="idp183102464"></a>
+  <a class="indexterm" name="idp183971456"></a>
 
-  <a class="indexterm" name="idp183104208"></a>
+  <a class="indexterm" name="idp183972912"></a>
 
-  <a class="indexterm" name="idp183105808"></a>
+  <a class="indexterm" name="idp183974800"></a>
 
-  <a class="indexterm" name="idp183107488"></a>
+  <a class="indexterm" name="idp183976496"></a>
 
-  <a class="indexterm" name="idp183109184"></a>
+  <a class="indexterm" name="idp183978176"></a>
 
-  <a class="indexterm" name="idp183110960"></a>
+  <a class="indexterm" name="idp183979936"></a>
 
-  <a class="indexterm" name="idp183112656"></a>
+  <a class="indexterm" name="idp183981680"></a>
 
-  <a class="indexterm" name="idp183114304"></a>
+  <a class="indexterm" name="idp183983280"></a>
 
-  <a class="indexterm" name="idp183115936"></a>
+  <a class="indexterm" name="idp183984960"></a>
 
-  <a class="indexterm" name="idp183117600"></a>
+  <a class="indexterm" name="idp183986656"></a>
 
-  <a class="indexterm" name="idp183119264"></a>
+  <a class="indexterm" name="idp183988432"></a>
 
-  <a class="indexterm" name="idp183120864"></a>
+  <a class="indexterm" name="idp183990128"></a>
 
-  <a class="indexterm" name="idp183122528"></a>
+  <a class="indexterm" name="idp183991776"></a>
 
-  <a class="indexterm" name="idp183124288"></a>
+  <a class="indexterm" name="idp183993408"></a>
 
-  <a class="indexterm" name="idp183125776"></a>
+  <a class="indexterm" name="idp183995072"></a>
 
-  <a class="indexterm" name="idp183127408"></a>
+  <a class="indexterm" name="idp183996736"></a>
 
-  <a class="indexterm" name="idp183129040"></a>
+  <a class="indexterm" name="idp183998336"></a>
 
-  <a class="indexterm" name="idp183130672"></a>
+  <a class="indexterm" name="idp184000000"></a>
 
-  <a class="indexterm" name="idp183132336"></a>
+  <a class="indexterm" name="idp184001760"></a>
 
-  <a class="indexterm" name="idp183133936"></a>
+  <a class="indexterm" name="idp184003248"></a>
 
-  <a class="indexterm" name="idp183135616"></a>
+  <a class="indexterm" name="idp184004880"></a>
 
-  <a class="indexterm" name="idp183137216"></a>
+  <a class="indexterm" name="idp184006512"></a>
 
-  <a class="indexterm" name="idp183138912"></a>
+  <a class="indexterm" name="idp184008144"></a>
 
-  <a class="indexterm" name="idp183140560"></a>
+  <a class="indexterm" name="idp184009808"></a>
 
-  <a class="indexterm" name="idp183142208"></a>
+  <a class="indexterm" name="idp184011408"></a>
 
-  <a class="indexterm" name="idp183143856"></a>
+  <a class="indexterm" name="idp184013088"></a>
 
-  <a class="indexterm" name="idp183145488"></a>
+  <a class="indexterm" name="idp184014688"></a>
 
-  <a class="indexterm" name="idp183147152"></a>
+  <a class="indexterm" name="idp184016384"></a>
 
-  <a class="indexterm" name="idp183148432"></a>
+  <a class="indexterm" name="idp184018032"></a>
 
-  <a class="indexterm" name="idp183150128"></a>
+  <a class="indexterm" name="idp184019680"></a>
 
-  <a class="indexterm" name="idp183151616"></a>
+  <a class="indexterm" name="idp184021328"></a>
 
-  <a class="indexterm" name="idp183153248"></a>
+  <a class="indexterm" name="idp184022960"></a>
 
-  <a class="indexterm" name="idp183154896"></a>
+  <a class="indexterm" name="idp184024624"></a>
 
-  <a class="indexterm" name="idp183156576"></a>
+  <a class="indexterm" name="idp184025904"></a>
 
-  <a class="indexterm" name="idp183158224"></a>
+  <a class="indexterm" name="idp184027600"></a>
 
-  <a class="indexterm" name="idp183159904"></a>
+  <a class="indexterm" name="idp184029088"></a>
 
-  <a class="indexterm" name="idp183161552"></a>
+  <a class="indexterm" name="idp184030720"></a>
 
-  <a class="indexterm" name="idp183163232"></a>
+  <a class="indexterm" name="idp184032368"></a>
 
-  <a class="indexterm" name="idp183164896"></a>
+  <a class="indexterm" name="idp184034048"></a>
 
-  <a class="indexterm" name="idp183166560"></a>
+  <a class="indexterm" name="idp184035696"></a>
 
-  <a class="indexterm" name="idp183168208"></a>
+  <a class="indexterm" name="idp184037376"></a>
 
-  <a class="indexterm" name="idp183169968"></a>
+  <a class="indexterm" name="idp184039024"></a>
 
-  <a class="indexterm" name="idp183171600"></a>
+  <a class="indexterm" name="idp184040704"></a>
 
-  <a class="indexterm" name="idp183173376"></a>
+  <a class="indexterm" name="idp184042368"></a>
 
-  <a class="indexterm" name="idp183175008"></a>
+  <a class="indexterm" name="idp184044032"></a>
 
-  <a class="indexterm" name="idp183176704"></a>
+  <a class="indexterm" name="idp184045680"></a>
 
-  <a class="indexterm" name="idp183178448"></a>
+  <a class="indexterm" name="idp184047440"></a>
 
-  <a class="indexterm" name="idp183179968"></a>
+  <a class="indexterm" name="idp184049072"></a>
 
-  <a class="indexterm" name="idp183181680"></a>
+  <a class="indexterm" name="idp184050848"></a>
 
-  <a class="indexterm" name="idp183183296"></a>
+  <a class="indexterm" name="idp184052480"></a>
+
+  <a class="indexterm" name="idp184054176"></a>
+
+  <a class="indexterm" name="idp184055920"></a>
+
+  <a class="indexterm" name="idp184057440"></a>
+
+  <a class="indexterm" name="idp184059152"></a>
+
+  <a class="indexterm" name="idp184060768"></a>
+
+  <a class="indexterm" name="idp184062448"></a>
 </div>
 <div class="navfooter">
 <hr>
@@ -2755,16 +2802,16 @@
 <td width="40%" align="left">
 <a accesskey="p" href="customobjectvars.html">Zurück</a> </td>
 <td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td>
-<td width="40%" align="right"> <a accesskey="n" href="cgiauth.html">Weiter</a>
+<td width="40%" align="right"> <a accesskey="n" href="ch04.html">Weiter</a>
 </td>
 </tr>
 <tr>
 <td width="40%" align="left" valign="top">3.5. Maßgeschneiderte Objektvariablen </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td>
-<td width="40%" align="right" valign="top"> 3.7. Authentifizierung und Autorisierung in den CGIs</td>
+<td width="40%" align="right" valign="top"> Kapitel 4. Icinga starten/stoppen/prüfen</td>
 </tr>
 </table>
 </div>
-<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-present Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

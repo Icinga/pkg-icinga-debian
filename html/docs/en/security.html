@@ -5,10 +5,10 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.10 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.11 Documentation">
 <link rel="up" href="ch08.html" title="Chapter 8. Security and Performance Tuning">
 <link rel="prev" href="ch08.html" title="Chapter 8. Security and Performance Tuning">
-<link rel="next" href="cgisecurity.html" title="8.2. Enhanced CGI Security and Authentication">
+<link rel="next" href="cgisecurity.html" title="8.2. Enhanced Classic UI Security and Authentication">
 <script src="../js/jquery-min.js" type="text/javascript"></script><script src="../js/icinga-docs.js" type="text/javascript"></script>
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -115,14 +115,14 @@
       <p><span class="bold"><strong>Require Authentication In The CGIs</strong></span> . We would strongly suggest requiring
       authentication for accessing the CGIs. Once you do that, read the documentation on the default rights that authenticated
       contacts have, and only authorize specific contacts for additional rights as necessary. Instructions on setting up
-      authentication and configuring authorization rights can be found <a class="link" href="cgiauth.html" title="3.7. Authentication And Authorization In The CGIs">here</a>. If you disable the CGI
+      authentication and configuring authorization rights can be found <a class="link" href="cgiauth.html" title="6.2. Authentication And Authorization In The Classic UI">here</a>. If you disable the CGI
       authentication features using the <a class="link" href="configcgi.html#configcgi-use_authentication">use_authentication</a> directive in the
       CGI config file, the <a class="link" href="cgis.html#cgis-cmd_cgi">command CGI</a> will refuse to write any commands to the <a class="link" href="configmain.html#configmain-command_file">external command file</a>. After all, you don't want the world to be able to control
       Icinga do you?</p>
     </li>
 <li class="listitem">
       <p><span class="bold"><strong>Implement Enhanced CGI Security Measures</strong></span> . We would strongly suggest that you
-      consider implementing enhanced security measures for the CGIs as described <a class="link" href="cgisecurity.html" title="8.2. Enhanced CGI Security and Authentication">here</a>. These
+      consider implementing enhanced security measures for the CGIs as described <a class="link" href="cgisecurity.html" title="8.2. Enhanced Classic UI Security and Authentication">here</a>. These
       measures can help ensure that the username/password you use to access the Icinga web interface are not intercepted by
       third parties.</p>
     </li>
@@ -164,7 +164,7 @@
       <p><span class="inlinemediaobject"><img src="../images/security2.png"></span></p>
     </li>
 </ol></div>
-  <a class="indexterm" name="idp191860016"></a>
+  <a class="indexterm" name="idp192787616"></a>
 </div>
 </div>
 <div class="navfooter">
@@ -180,10 +180,10 @@
 <tr>
 <td width="40%" align="left" valign="top">Chapter 8. Security and Performance Tuning </td>
 <td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td>
-<td width="40%" align="right" valign="top"> 8.2. Enhanced CGI Security and Authentication</td>
+<td width="40%" align="right" valign="top"> 8.2. Enhanced Classic UI Security and Authentication</td>
 </tr>
 </table>
 </div>
-<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-present Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

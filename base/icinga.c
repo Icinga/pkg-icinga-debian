@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (http://www.nagios.org)
  * Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * Description:
  *
@@ -94,6 +94,7 @@ int             log_current_states = DEFAULT_LOG_CURRENT_STATES;
 int             log_external_commands = DEFAULT_LOG_EXTERNAL_COMMANDS;
 int             log_passive_checks = DEFAULT_LOG_PASSIVE_CHECKS;
 int             log_long_plugin_output = DEFAULT_LOG_LONG_PLUGIN_OUTPUT;
+int             log_anonymized_external_command_author = DEFAULT_LOG_ANONYMIZED_EXTERNAL_COMMAND_AUTHOR;
 
 unsigned long   logging_options = 0;
 unsigned long   syslog_options = 0;
@@ -395,7 +396,7 @@ int main(int argc, char **argv, char **env) {
 
 	if (daemon_mode == FALSE) {
 		printf("\n%s %s\n", PROGRAM_NAME , PROGRAM_VERSION);
-		printf("Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)\n");
+		printf("Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)\n");
 		printf("Copyright (c) 2009-2013 Nagios Core Development Team and Community Contributors\n");
 		printf("Copyright (c) 1999-2009 Ethan Galstad\n");
 		printf("Last Modified: %s\n", PROGRAM_MODIFICATION_DATE);
@@ -717,6 +718,10 @@ int main(int argc, char **argv, char **env) {
 
                 exit(EXIT_FAILURE);
             }
+
+			/* forcibly send a program status update
+			 * for later updates of PROCESS_* */
+			broker_program_status(NEBTYPE_PROGRAMSTATUS_UPDATE, NEBFLAG_NONE, NEBATTR_NONE, NULL);
 
 			/* send program data to broker */
 			broker_program_state(NEBTYPE_PROCESS_PRELAUNCH, NEBFLAG_NONE, NEBATTR_NONE, NULL);
