@@ -1,3 +1,9 @@
+icinga (1.11.0-2~debmon60+2) debmon-squeeze; urgency=medium
+
+  * [9b7f85e] Fix db file
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 24 Mar 2014 15:29:56 +0100
+
 icinga (1.11.0-2~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon-squeeze
