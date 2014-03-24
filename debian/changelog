@@ -1,8 +1,21 @@
-icinga (1.11.0-1~debmon70+1) debmon-wheezy; urgency=medium
+icinga (1.11.0-2~debmon70+1) debmon-wheezy; urgency=medium
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 18 Feb 2014 16:58:58 +0100
+ 
+icinga (1.11.0-2) unstable; urgency=medium
+
+  [ Alexander Wirt ]
+  * [469b573] Implement initial support for the cgi/cgi-bin split
+  * [807e01e] Fix database schema installation
+
+  [ Markus Frosch ]
+  * [0c1c1c4] Added tilde to dependencies of -cgi for rebuilt versions
+  * [bc7d732] Fixed cleanup of jquery{,-ui} in installed files
+  * [5b5593c] Moved libjs-jquery* deps and links to icinga-cgi-bin
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 24 Mar 2014 14:06:34 +0100
 
 icinga (1.11.0-1) unstable; urgency=medium
 

@@ -1,0 +1,6 @@
+*.log
+*.substvars
+*.debhelper
+files
+tmp/
+icinga*/
