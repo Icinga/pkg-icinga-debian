@@ -1,8 +1,21 @@
-icinga (1.11.0-1~debmon60+1) debmon-squeeze; urgency=low
+icinga (1.11.0-2~debmon60+1) debmon-squeeze; urgency=low
 
   * Rebuild for debmon-squeeze
 
  -- Alexander Wirt <formorer@debian.org>  Wed, 06 Nov 2013 20:28:02 +0100
+
+icinga (1.11.0-2) unstable; urgency=medium
+
+  [ Alexander Wirt ]
+  * [469b573] Implement initial support for the cgi/cgi-bin split
+  * [807e01e] Fix database schema installation
+
+  [ Markus Frosch ]
+  * [0c1c1c4] Added tilde to dependencies of -cgi for rebuilt versions
+  * [bc7d732] Fixed cleanup of jquery{,-ui} in installed files
+  * [5b5593c] Moved libjs-jquery* deps and links to icinga-cgi-bin
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 24 Mar 2014 14:06:34 +0100
 
 icinga (1.11.0-1) unstable; urgency=medium
 

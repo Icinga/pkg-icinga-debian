@@ -160,15 +160,15 @@ install-stamp: build-stamp fix-configs-stamp
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.8.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.8.0
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.9.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.9.0
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.10.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.10.1
-	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.11.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.11.1
+	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.11.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.11.0
 	# set up /var/cache/icinga for access by www-data
 	chgrp www-data ${b}/icinga-common/var/cache/icinga
 	chmod g+s ${b}/icinga-common/var/cache/icinga
 	chown root:www-data ${b}/icinga-common/var/lib/icinga/rw
 	chmod 700 ${b}/icinga-common/var/lib/icinga/rw
 	dh_install           -i
-	rm ${b}/tmp/usr/share/icinga/htdocs/js/jquery-1.8.0.min.js
-	rm -R ${b}/tmp/usr/share/icinga/htdocs/jquery-ui
+	# remove jquery from package
+	rm -rf ${b}/tmp/usr/share/icinga/htdocs/js/jquery-*
 	rm ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/*.in
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/redundancy-scenario1/*
 	# we use the versions in debian
