@@ -1,8 +1,16 @@
-icinga (1.11.0-2~ppa1~raring1) raring; urgency=medium
+icinga (1.11.0-1~ppa1~raring1) raring; urgency=medium
 
   * Rebuild for my ubuntu ppa
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 18 Mar 2014 10:35:52 +0100
+
+icinga (1.11.1-1) unstable; urgency=high
+
+  * [a8a977f] Imported Upstream version 1.11.1
+    - Fix bufferoverflows in classic-ui 
+      (This is a fix for CVE-2014-2386) 
+
+ -- Alexander Wirt <formorer@debian.org>  Sun, 30 Mar 2014 13:33:43 +0200
 
 icinga (1.11.0-2) unstable; urgency=medium
 
