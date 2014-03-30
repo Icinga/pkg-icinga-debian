@@ -2,7 +2,7 @@
  * IDO2DB.C - IDO To Database Daemon
  *
  * Copyright (c) 2005-2008 Ethan Galstad
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
@@ -113,9 +113,9 @@ int main(int argc, char **argv) {
 #ifdef USE_LIBDBI
 	dbi_driver driver;
 	int numdrivers;
-
 	driver = NULL;
 #endif
+ido2db_idi idi_schema;
 #ifdef USE_ORACLE
 	unsigned int v1,v2;
 #endif
@@ -295,6 +295,52 @@ int main(int argc, char **argv) {
 
 	/* open debug log */
 	ido2db_open_debug_log();
+
+	/******************************/
+	/* check db schema version */
+        ido2db_idi_init(&idi_schema);
+        ido2db_db_init(&idi_schema);
+
+        if (ido2db_db_connect(&idi_schema) == IDO_ERROR) {
+                if (idi_schema.dbinfo.connected != IDO_TRUE) {
+
+                        /* we did not get a db connection and the client should be disconnected */
+                        syslog(LOG_ERR, "Error: Database connection for schema check failed, bailing out...\n");
+                        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "Error: Database connection for schema check failed, bailing out...");
+
+                        ido2db_db_deinit(&idi_schema);
+
+                        ido2db_free_input_memory(&idi_schema);
+                        ido2db_free_connection_memory(&idi_schema);
+
+			syslog(LOG_ERR, "Program shutdown... (PID=%d)\n", (int)getpid());
+			ido2db_close_debug_log();
+			ido2db_free_program_memory();
+                        return 1;
+                }
+        }
+
+        if (ido2db_db_version_check(&idi_schema) == IDO_ERROR) {
+                syslog(LOG_ERR, "ERROR: DB Version Check against %s database query failed! Please check %s database configuration and schema! Bailing out ...", ido2db_db_settings.dbserver, ido2db_db_settings.dbserver);
+
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ERROR: DB Version Check against %s database query failed! Please check %s database configuration and schema! Bailing out ...", ido2db_db_settings.dbserver, ido2db_db_settings.dbserver);
+                printf(" ERROR: DB Version Check failed! Please check %s database configuration, schema and syslog for details! Bailing out ...", ido2db_db_settings.dbserver);
+
+		ido2db_db_disconnect(&idi_schema);
+                ido2db_db_deinit(&idi_schema);
+
+                ido2db_free_input_memory(&idi_schema);
+                ido2db_free_connection_memory(&idi_schema);
+
+		syslog(LOG_ERR, "Program shutdown... (PID=%d)\n", (int)getpid());
+		ido2db_close_debug_log();
+		ido2db_free_program_memory();
+                return 1;
+        }
+
+	ido2db_db_disconnect(&idi_schema);
+	ido2db_db_deinit(&idi_schema);
+	/******************************/
 
         /* unlink leftover socket */
         if (ido2db_socket_type == IDO_SINK_UNIXSOCKET)
@@ -1098,15 +1144,16 @@ static int ido2db_proxy_flush_buffer(void **buffer, size_t *size, size_t *iostat
 
 static void ido2db_proxy_free(ido2db_proxy *proxy) {
 	int refs;
+	if (proxy != NULL) {
+		pthread_mutex_lock(&(proxy->mutex));
+		proxy->refs--;
+		refs = proxy->refs;
+		pthread_mutex_unlock(&(proxy->mutex));
 
-	pthread_mutex_lock(&(proxy->mutex));
-	proxy->refs--;
-	refs = proxy->refs;
-	pthread_mutex_unlock(&(proxy->mutex));
-
-	if (refs == 0) {
-		pthread_mutex_destroy(&(proxy->mutex));
-		free(proxy);
+		if (refs == 0) {
+			pthread_mutex_destroy(&(proxy->mutex));
+			free(proxy);
+		}
 	}
 }
 
@@ -1628,25 +1675,29 @@ int ido2db_handle_client_connection(int sd, ido2db_proxy *proxy) {
 
 		result = IDO_OK;
 
-		if (!in_transaction)
+		if (in_transaction == IDO_FALSE)
 			result = ido2db_db_tx_begin(&idi);
 
+		/* check for client input */
 		ido2db_check_for_client_input(&idi);
 
 		if (result == IDO_OK) {
-			in_transaction = (proxy && ido2db_proxy_get_size_left(proxy) > 16 * 1024);
+			in_transaction = (proxy && ido2db_proxy_get_size_left(proxy) > 16 * 1024) ? IDO_TRUE : IDO_FALSE;
 
 			if (io_since_last_commit > 1024 * 1024)
-				in_transaction = 0;
+				in_transaction = IDO_FALSE;
 
-			if (!in_transaction) {
+			if (in_transaction == IDO_FALSE) {
 				io_since_last_commit = 0;
 				printf("Committing...\n");
 			}
 
-			if (!in_transaction && ido2db_db_tx_commit(&idi) != IDO_OK)
+			if (in_transaction == IDO_FALSE && ido2db_db_tx_commit(&idi) != IDO_OK)
 				syslog(LOG_ERR, "IDO2DB commit failed. Some data may have been lost.\n");
 		}
+
+		/* store in_transaction for later */
+		idi.in_transaction = in_transaction;
 
 		/* should we disconnect the client? */
 		if (idi.disconnect_client == IDO_TRUE) {
@@ -1719,6 +1770,7 @@ int ido2db_idi_init(ido2db_idi *idi) {
 	idi->data_start_time = 0L;
 	idi->data_end_time = 0L;
 	idi->tables_cleared = IDO_FALSE;
+	idi->in_transaction = IDO_FALSE;
 
 	ido2db_db_txbuf_init(&(idi->txbuf));
 
@@ -1933,9 +1985,11 @@ int ido2db_handle_client_input(ido2db_idi *idi, char *buf) {
 				/* config dumps */
 			case IDO_API_STARTCONFIGDUMP:
 				idi->current_input_data = IDO2DB_INPUT_DATA_CONFIGDUMPSTART;
+				ido2db_db_update_config_dump(idi, IDO_TRUE);
 				break;
 			case IDO_API_ENDCONFIGDUMP:
 				idi->current_input_data = IDO2DB_INPUT_DATA_CONFIGDUMPEND;
+				ido2db_db_update_config_dump(idi, IDO_FALSE);
 				idi->tables_cleared = IDO_FALSE;
 				syslog(LOG_USER | LOG_INFO, "Config dump completed");
 				break;

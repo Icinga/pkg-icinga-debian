@@ -9,9 +9,9 @@ AC_CONFIG_HEADER(include/config.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.10.3"
+PKG_VERSION="1.11.1"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="02-11-2014"
+PKG_REL_DATE="03-28-2014"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -390,6 +390,58 @@ fi
 AC_SUBST(ENABLEPERFDATA)
 
 
+dnl enable cgi zlib log support
+DISABLE_COMPRESSED_LOGS=no
+DISABLECOMPRESSEDLOGS=""
+AC_ARG_ENABLE(compressed-logs,AC_HELP_STRING([--disable-compressed-logs],[disable support for gzip compressed logs]), [
+	if test x$enableval = xno; then
+	        DISABLE_COMPRESSED_LOGS=yes
+	fi
+	],DISABLE_COMPRESSED_LOGS=no)
+
+if test x$DISABLE_COMPRESSED_LOGS = xno; then
+	AC_ARG_WITH(zlib,
+	[  --with-zlib[[=DIR]]       use libz in DIR],[
+		if test "$withval" != "no" -a "$withval" != "yes"; then
+			Z_DIR=$withval
+			CFLAGS="${CPPFLAGS} -I$withval/include"
+			LDFLAGS="${LDFLAGS} -L$withval/lib"
+		fi
+	])
+	if test "$with_zlib" = "no"; then
+		echo "Disabling support for gzip compressed logs"
+		DISABLE_COMPRESSED_LOGS=yes
+	else
+		AC_CHECK_HEADERS(zlib.h,
+			AC_CHECK_LIB(z, gzread,[
+				AC_DEFINE(HAVE_ZLIB,[],[Do we have zlib])
+				if test "x${Z_DIR}" != "x"; then
+					CFLAGS="$CFLAGS -I${Z_DIR}/include"
+					LIBS="$LIBS -L${Z_DIR}/lib -lz"
+					[case ${host} in
+						*-*-solaris*)
+							LIBS="$LIBS -L${Z_DIR}/lib -R${Z_DIR}/lib -lz"
+							;;
+					esac]
+				else
+					LIBS="$LIBS -lz"
+				fi], [
+					echo "Disabling support for gzip compressed logs"
+					DISABLE_COMPRESSED_LOGS=yes
+				]
+			), [
+				echo "No zlib.h found, disabling support for gzip compressed logs"
+				DISABLE_COMPRESSED_LOGS=yes
+			]
+		)
+	fi
+fi
+
+if test x$DISABLE_COMPRESSED_LOGS = xyes; then
+	DISABLECOMPRESSEDLOGS="THIS OPTION WAS DISABLED DURING COMPILE TIME"
+fi
+AC_SUBST(DISABLECOMPRESSEDLOGS)
+
 
 dnl ################
 dnl LOG DIRS
@@ -526,18 +578,14 @@ AC_SUBST(IDOMODTMPFILE)
 
 dnl Default xdata routines...
 XSDTYPE=default
-XCDTYPE=default
 XRDTYPE=default
 XODTYPE=template
 XPDTYPE=default
-XDDTYPE=default
 
 XSDCOMMENT=
-XCDCOMMENT=
 XRDCOMMENT=
 XODCOMMENT=
 XPDCOMMENT=
-XDDCOMMENT=
 
 USE_MYSQL=no
 USE_PGSQL=no
@@ -550,16 +598,6 @@ XSDCOMMENT="Default (text file)"
 echo "We'll use default routines (in xdata/xsddefault.*) for status data I/O..."
 AC_SUBST(XSDC)
 AC_SUBST(XSDH)
-
-
-dnl Comment data
-AC_DEFINE_UNQUOTED(USE_XCDDEFAULT,,[use default routines (in xdata/xcddefault.*) for comment data I/O...])
-XCDC="xcddefault.c"
-XCDH="xcddefault.h"
-XCDCOMMENT="Default (text file)"
-echo "We'll use default routines (in xdata/xcddefault.*) for comment data I/O..."
-AC_SUBST(XCDC)
-AC_SUBST(XCDH)
 
 
 dnl Retention data
@@ -592,15 +630,6 @@ echo "We'll use default routines (in xdata/xpddefault.*) for performance data I/
 AC_SUBST(XPDC)
 AC_SUBST(XPDH)
 
-
-dnl Downtime data
-AC_DEFINE_UNQUOTED(USE_XDDDEFAULT,,[use default routines (in xdata/xdddefault.*) for scheduled downtime data I/O...])
-XDDC="xdddefault.c"
-XDDH="xdddefault.h"
-XDDCOMMENT="Default (text file)"
-echo "We'll use default routines (in xdata/xdddefault.*) for scheduled downtime data I/O..."
-AC_SUBST(XDDC)
-AC_SUBST(XDDH)
 
 
 dnl Optional GD library and include paths
@@ -1462,6 +1491,11 @@ AC_MSG_RESULT([             Event Broker:  yes])
 else
 AC_MSG_RESULT([             Event Broker:  no])
 fi
+if test x$DISABLE_COMPRESSED_LOGS = xno; then
+AC_MSG_RESULT([   Enable compressed logs:  yes])
+else
+AC_MSG_RESULT([   Enable compressed logs:  no])
+fi
 if test x$ENABLE_PERFDATA = xyes; then
 AC_MSG_RESULT([  Enable Performance Data:  yes])
 else
@@ -1511,16 +1545,6 @@ echo " ------------------------"
 AC_MSG_RESULT([                 HTML URL:  http://localhost$htmurl/])
 AC_MSG_RESULT([                  CGI URL:  http://localhost$cgiurl/])
 AC_MSG_RESULT([                 Main URL:  http://localhost$mainurl])
-
-dnl echo ""
-dnl echo " External Data Routines:"
-dnl echo " ------------------------"
-
-dnl AC_MSG_RESULT([              Status data:  $XSDCOMMENT])
-dnl AC_MSG_RESULT([             Comment data:  $XCDCOMMENT])
-dnl AC_MSG_RESULT([            Downtime data:  $XDDCOMMENT])
-dnl AC_MSG_RESULT([          Peformance data:  $XPDCOMMENT])
-
 
 echo ""
 echo ""

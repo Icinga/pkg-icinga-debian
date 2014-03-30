@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.10 Documentation">
+<link rel="home" href="index.html" title="Icinga Version 1.11 Documentation">
 <link rel="up" href="ch02.html" title="Chapter 2. Getting Started">
 <link rel="prev" href="quickstart-idoutils.html" title="2.5. Icinga with IDOUtils Quickstart">
 <link rel="next" href="icinga_packages.html" title="2.7. Icinga Packages for Linux Distributions">
@@ -77,7 +77,7 @@
   <p>No advanced installation options are discussed here - just the basics that will work for most of the users who want to get
   started.</p>
 
-  <p>This guide will give you examples for installation on <a class="link" href="" target="_top">FreeBSD</a> 8.1-RELEASE. Thanks to <a class="link" href="http://www.nagios-portal.org/wbb/index.php?page=User&amp;userID=8925" target="_top">"ScotchTape"</a> for the adapted instructions.</p>
+  <p>This guide will give you examples for installation on <a class="link" href="" target="_top">FreeBSD</a> 8.1-RELEASE. Thanks to <a class="link" href="http://www.monitoring-portal.org/wbb/index.php?page=User&amp;userID=8925" target="_top">"ScotchTape"</a> for the adapted instructions.</p>
 
   <p>Later distributions of FreeBSD may inherit from these examples.</p>
 
@@ -202,7 +202,7 @@
 
   <p><span class="bold"><strong>Install the packages</strong></span></p>
 
-  <p>You can install the packages from the ports or you take older packages (have a look at the <a class="link" href="quickstart-icinga-freebsd.html" title="2.4. Icinga Quickstart FreeBSD">FreeBSD quickstart quide</a>.</p>
+  <p>You can install the packages from the ports or you take older packages (have a look at the <a class="link" href="quickstart-icinga-freebsd.html" title="2.4. Icinga Quickstart FreeBSD">FreeBSD quickstart quide</a>).</p>
 
   <p><span class="bold"><strong>Install ports</strong></span></p>
 
@@ -274,15 +274,15 @@
 
   <p>Get the current source from the <a class="link" href="http://www.icinga.org/" target="_top">Icinga Website</a>.</p>
 
-  <p>Don't forget to download the <a class="link" href="http://www.monitoring-plugins.org/" target="_top">Monitoring Plugins</a>.</p>
+  <p>Don't forget to download the <a class="link" href="https://www.monitoring-plugins.org" target="_top">Monitoring Plugins</a>.</p>
 
   <p><span class="bold"><strong>Compile and install Icinga and IDOUtils</strong></span></p>
 
   <p>Extract the Icinga source code tarball (or change directory to the GIT snapshot)</p>
 
   <pre class="screen"> #&gt; cd ~/src/ 
- #&gt; tar xvzf icinga-1.10.tar.gz 
- #&gt; cd icinga-1.10</pre>
+ #&gt; tar xvzf icinga-1.11.tar.gz 
+ #&gt; cd icinga-1.11</pre>
 
   <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
 <tr>
@@ -496,7 +496,7 @@
  #&gt; make install-cgis
  #&gt; make install-html</pre>
 
-  <p>If you are interested in the new Icinga Web, please refer to <a class="link" href="icinga-web-scratch.html" title="6.4. Installation of the Icinga Web Frontend">Install Icinga Web
+  <p>If you are interested in the new Icinga Web, please refer to <a class="link" href="icinga-web-scratch.html" title="6.5. Installation of the Icinga Web Frontend">Install Icinga Web
   Interface</a>.</p>
 
   <p>Install the Icinga Classic web config file in the Apache conf.d directory.</p>
@@ -545,7 +545,7 @@
 
   <p><span class="bold"><strong>Compile and Install the Perl Plugins and Monitoring Plugins</strong></span></p>
 
-  <p>Extract the Nagios plugins source code tarball.</p>
+  <p>Extract the plugins source code tarball.</p>
 
   <pre class="screen"> #&gt; cd ~/src 
  #&gt; tar xvzf nagios-plugins-1.5.tar.gz
@@ -625,7 +625,7 @@
   <p>Setting up your mail transfer agent (MTA) like exim, sendmail or postfix to allow Icinga sending notification emails won't be
   explained here.</p>
 
-  <p>Please refer to the <a class="link" href="http://www.nagioswiki.org/" target="_top">Nagios Wiki</a> for more resources.</p>
+
 
   <p><span class="bold"><strong>You're Done</strong></span></p>
 
@@ -646,14 +646,14 @@
  --with-dbi-inc=/usr/local/include --with-dbu-lib=/usr/local/lib \
  CPPFLAGS=-I/usr/local/include CFLAGS=-fPIC</pre>
 
-  <p>Compiler options for Nagios plugins (ports)</p>
+  <p>Compiler options for Monitoring Plugins plugins (ports)</p>
 
   <pre class="programlisting">make install NAGIOSUSER=icinga NAGIOSGROUP=icinga \
  PREFIX=/usr/local/icinga</pre>
 
-  <a class="indexterm" name="idp177298544"></a>
+  <a class="indexterm" name="idp178141968"></a>
 
-  <a class="indexterm" name="idp177299936"></a>
+  <a class="indexterm" name="idp178143664"></a>
 </div>
 <div class="navfooter">
 <hr>
@@ -672,6 +672,6 @@
 </tr>
 </table>
 </div>
-<P class="copyright">© 1999-2009 Ethan Galstad, 2009-2013 Icinga Development Team, http://www.icinga.org</P>
+<P class="copyright">© 1999-2009 Ethan Galstad, 2009-present Icinga Development Team, http://www.icinga.org</P>
 </body>
 </html>

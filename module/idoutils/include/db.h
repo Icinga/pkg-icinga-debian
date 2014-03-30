@@ -2,7 +2,7 @@
  *
  * DB.H - IDO Database Include File
  * Copyright (c) 2005-2006 Ethan Galstad
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  ************************************************************************/
 
@@ -131,6 +131,7 @@ typedef struct ido2db_dbconfig_struct{
 #define IDO2DB_OBJECTTYPE_CONTACT             10
 #define IDO2DB_OBJECTTYPE_CONTACTGROUP        11
 #define IDO2DB_OBJECTTYPE_COMMAND             12
+#define IDO2DB_OBJECTTYPE_ENDPOINT            13 	/* reserved for Icinga 2 */
 
 
 
@@ -148,6 +149,7 @@ int ido2db_db_hello(ido2db_idi *);
 int ido2db_thread_db_hello(ido2db_idi *);
 int ido2db_db_goodbye(ido2db_idi *);
 int ido2db_db_checkin(ido2db_idi *);
+int ido2db_db_version_check(ido2db_idi *);
 
 char *ido2db_db_escape_string(ido2db_idi *,char *);
 char *ido2db_db_timet_to_sql(ido2db_idi *,time_t);
@@ -167,6 +169,7 @@ void ido2db_db_txbuf_flush(ido2db_idi *idi, ido2db_txbuf *txbuf);
 
 int ido2db_db_tx_begin(ido2db_idi *idi);
 int ido2db_db_tx_commit(ido2db_idi *idi);
+int ido2db_db_update_config_dump(ido2db_idi *idi, int in_progress);
 
 #ifdef USE_ORACLE /* Oracle ocilib specific */
 #define OCI_VARCHAR_SIZE 4096 /* max allowed string size for varchar2 (+1) */

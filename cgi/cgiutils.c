@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2012 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-2013 Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -135,6 +135,7 @@ extern char 	*macro_user[MAX_USER_MACROS];
 int		log_rotation_method = LOG_ROTATION_NONE;
 char		log_file[MAX_INPUT_BUFFER];
 char		log_archive_path[MAX_INPUT_BUFFER];
+int		read_gzip_logs = FALSE;
 
 int		status_update_interval = 60;
 int             check_external_commands = 0;
@@ -184,6 +185,7 @@ int		add_notif_num_hard = 0;
 int		add_notif_num_soft = 0;
 int		enforce_comments_on_actions = FALSE;
 int		week_starts_on_monday = FALSE;
+int		disable_cmd_cgi_csrf_protection = FALSE;
 
 int		show_partial_hostgroups = FALSE;
 int		show_partial_servicegroups = FALSE;
@@ -690,6 +692,12 @@ int read_cgi_config_file(char *filename) {
 
 		else if (!strcmp(var, "display_status_totals"))
 			display_status_totals = (atoi(val) > 0) ? TRUE : FALSE;
+
+		else if (!strcmp(var, "disable_cmd_cgi_csrf_protection"))
+			disable_cmd_cgi_csrf_protection = (atoi(val) > 0) ? TRUE : FALSE;
+
+		else if (!strcmp(var, "read_gzip_logs"))
+			read_gzip_logs = (atoi(val) > 0) ? TRUE : FALSE;
 
 		else if (!strcmp(var, "authorization_config_file")) {
 			authorization_config_file = strdup(val);
@@ -1383,8 +1391,9 @@ void document_header(int cgi_id, int use_stylesheet, char *cgi_title) {
 		else
 			printf("\t\tdateFormat: 'mm-dd-yy',\n");
 
-		printf("\t\ttimeFormat: 'hh:mm:ss',\n");
+		printf("\t\ttimeFormat: 'HH:mm:ss',\n");
 		printf("\t\tshowWeek: true,\n");
+		printf("\t\tshowSecond: false,\n");
 		printf("\t\tchangeMonth: true,\n");
 		printf("\t\tchangeYear: true\n");
 		printf("\t});\n");
@@ -2217,7 +2226,7 @@ void display_nav_table(time_t ts_start, time_t ts_end) {
 
 	/* get url options but filter out "ts_end", "ts_start" and "start" */
 	if (getenv("QUERY_STRING") != NULL && strcmp(getenv("QUERY_STRING"), "")) {
-		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER) {
+		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("display_nav_table(): Query string exceeds max length. Returning without displaying nav table.\n");
 			return;
 		}
@@ -2225,7 +2234,7 @@ void display_nav_table(time_t ts_start, time_t ts_end) {
 		strip_html_brackets(stripped_query_string);
 
 		/* check if concatenated strings exceed MAX_INPUT_BUFFER */
-		if (strlen(url) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER) {
+		if (strlen(url) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("display_nav_table(): Full query string exceeds max length. Returning without displaying nav table.\n");
 			return;
 		}
@@ -2421,13 +2430,13 @@ void include_ssi_files(char *cgi_name, int type) {
 	cgi_ssi_file[sizeof(cgi_ssi_file) - 1] = '\x0';
 
 	if (type == SSI_HEADER) {
-		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2013 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
+		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-present Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
 		include_ssi_file(common_ssi_file);
 		include_ssi_file(cgi_ssi_file);
 	} else {
 		include_ssi_file(cgi_ssi_file);
 		include_ssi_file(common_ssi_file);
-		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2013 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
+		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-present Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
 	}
 
 	return;
@@ -2843,7 +2852,7 @@ void print_export_link(int content_type, char *cgi, char *add_to_url) {
 
 	/* just do stuff if some options are requested */
 	if (getenv("QUERY_STRING") != NULL && strcmp(getenv("QUERY_STRING"), "")) {
-		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER) {
+		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("print_export_link(): Query string exceeds max length. Returning without displaying export link.\n");
 			return;
 		}
@@ -2851,7 +2860,7 @@ void print_export_link(int content_type, char *cgi, char *add_to_url) {
 		strip_html_brackets(stripped_query_string);
 
 		/* check if concatenated strings exceed MAX_INPUT_BUFFER */
-		if (strlen(link) + strlen(stripped_query_string) + 2 > MAX_INPUT_BUFFER) {
+		if (strlen(link) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("print_export_link(): Full query string exceeds max length. Returning without displaying export link.\n");
 			return;
 		}
@@ -2861,7 +2870,7 @@ void print_export_link(int content_type, char *cgi, char *add_to_url) {
 	}
 
 	/* add string to url */
-	if (add_to_url != NULL && strlen(add_to_url) != 0 && strlen(link) + strlen(stripped_query_string) + strlen(add_to_url) + 2 <= MAX_INPUT_BUFFER) {
+	if (add_to_url != NULL && strlen(add_to_url) != 0 && strlen(link) + strlen(stripped_query_string) + strlen(add_to_url) + 2 <= MAX_INPUT_BUFFER - 1) {
 		if (strlen(stripped_query_string) != 0)
 			strcat(link, "&");
 		else
@@ -3669,7 +3678,7 @@ void page_num_selector(int result_start, int total_entries, int displayed_entrie
 
 	/* get url options but filter out "limit" and "status" */
 	if (getenv("QUERY_STRING") != NULL && strcmp(getenv("QUERY_STRING"), "")) {
-		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER) {
+		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("page_num_selector(): Query string exceeds max length. Returning without displaying num selector.\n");
 			return;
 		}
@@ -3677,7 +3686,7 @@ void page_num_selector(int result_start, int total_entries, int displayed_entrie
 		strip_html_brackets(stripped_query_string);
 
 		/* check if concatenated strings exceed MAX_INPUT_BUFFER */
-		if (strlen(link) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER) {
+		if (strlen(link) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("page_num_selector(): Full query string exceeds max length. Returning without displaying num selector.\n");
 			return;
 		}
@@ -3792,7 +3801,7 @@ void page_limit_selector(int result_start) {
 
 	/* get url options but filter out "limit" and "status" */
 	if (getenv("QUERY_STRING") != NULL && strcmp(getenv("QUERY_STRING"), "")) {
-		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER) {
+		if(strlen(getenv("QUERY_STRING")) > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("page_limit_selector(): Query string exceeds max length. Returning without displaying page limit selector.\n");
 			return;
 		}
@@ -3800,7 +3809,7 @@ void page_limit_selector(int result_start) {
 		strip_html_brackets(stripped_query_string);
 
 		/* check if concatenated strings exceed MAX_INPUT_BUFFER */
-		if (strlen(link) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER) {
+		if (strlen(link) + strlen(stripped_query_string) + 1 > MAX_INPUT_BUFFER - 1) {
 			write_to_cgi_log("page_limit_selector(): Full query string exceeds max length. Returning without displaying page limit selector.\n");
 			return;
 		}
