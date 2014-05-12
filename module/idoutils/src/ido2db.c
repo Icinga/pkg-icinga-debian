@@ -2,7 +2,7 @@
  * IDO2DB.C - IDO To Database Daemon
  *
  * Copyright (c) 2005-2008 Ethan Galstad
- * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2014 Icinga Development Team (http://www.icinga.org)
  *
  **************************************************************/
 
@@ -113,11 +113,9 @@ int main(int argc, char **argv) {
 #ifdef USE_LIBDBI
 	dbi_driver driver;
 	int numdrivers;
-
-	ido2db_idi idi_schema;
-
 	driver = NULL;
 #endif
+ido2db_idi idi_schema;
 #ifdef USE_ORACLE
 	unsigned int v1,v2;
 #endif
