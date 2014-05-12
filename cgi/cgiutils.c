@@ -4,7 +4,7 @@
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
  * Copyright (c) 2012 Nagios Core Development Team and Community Contributors
- * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2014 Icinga Development Team (http://www.icinga.org)
  *
  * License:
  *
@@ -294,6 +294,7 @@ int check_exclude_customvar(customvariablesmember *customvariable) {
 
 /* reset all variables used by the CGIs */
 void reset_cgi_vars(void) {
+	const char *path;
 
 	strcpy(main_config_file, "");
 
@@ -312,7 +313,10 @@ void reset_cgi_vars(void) {
 	strcpy(log_archive_path, DEFAULT_LOG_ARCHIVE_PATH);
 	if (log_archive_path[strlen(log_archive_path) - 1] != '/' && strlen(log_archive_path) < sizeof(log_archive_path) - 2)
 		strcat(log_archive_path, "/");
-	strcpy(command_file, get_cmd_file_location());
+
+	path = get_cmd_file_location();
+	if (path)
+		strcpy(command_file, path);
 
 	strcpy(nagios_check_command, "");
 	strcpy(nagios_process_info, "");
@@ -394,18 +398,14 @@ char * get_cgi_config_location(void) {
 
 /* read the command file location from an environment variable */
 char * get_cmd_file_location(void) {
-	static char *cmdloc = NULL;
+	char *cmdloc;
 
+	cmdloc = getenv("ICINGA_COMMAND_FILE");
 	if (!cmdloc) {
-		cmdloc = getenv("ICINGA_COMMAND_FILE");
-		if (!cmdloc) {
-			/* stay compatible */
-			cmdloc = getenv("NAGIOS_COMMAND_FILE");
-			if (!cmdloc) {
-				cmdloc = command_file;
-			}
-		}
+		/* stay compatible */
+		cmdloc = getenv("NAGIOS_COMMAND_FILE");
 	}
+
 	return cmdloc;
 }
 
@@ -2430,13 +2430,13 @@ void include_ssi_files(char *cgi_name, int type) {
 	cgi_ssi_file[sizeof(cgi_ssi_file) - 1] = '\x0';
 
 	if (type == SSI_HEADER) {
-		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-present Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
+		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2014 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
 		include_ssi_file(common_ssi_file);
 		include_ssi_file(cgi_ssi_file);
 	} else {
 		include_ssi_file(cgi_ssi_file);
 		include_ssi_file(common_ssi_file);
-		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-present Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
+		printf("\n<!-- Produced by %s (http://www.%s.org).\nCopyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)\nCopyright (c) 2009-2014 Icinga Development Team -->\n", PROGRAM_NAME, PROGRAM_NAME_LC);
 	}
 
 	return;
