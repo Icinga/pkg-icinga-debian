@@ -1,8 +1,16 @@
-icinga (1.11.1-1~ppa1~raring1) raring; urgency=medium
+icinga (1.11.3-1~ppa1~raring1) raring; urgency=medium
 
   * Rebuild for my ubuntu ppa
 
- -- Alexander Wirt <formorer@debian.org>  Tue, 18 Mar 2014 10:35:52 +0100
+ -- Alexander Wirt <formorer@debian.org>  Tue, 13 May 2014 15:09:37 +0200
+
+icinga (1.11.3-1) unstable; urgency=medium
+
+  * [ffe47a4] Imported Upstream version 1.11.3
+    - Remove libtap and JSON_checker_lib.c due to 
+      license conflicts (Icinga bugs #6022 and 6023)
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 12 May 2014 22:12:13 +0200
 
 icinga (1.11.1-1) unstable; urgency=high
 

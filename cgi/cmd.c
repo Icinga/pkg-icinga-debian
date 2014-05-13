@@ -3,7 +3,7 @@
  * CMD.C - Icinga Command CGI
  *
  * Copyright (c) 1999-2009 Ethan Galstad (egalstad@nagios.org)
- * Copyright (c) 2009-present Icinga Development Team (http://www.icinga.org)
+ * Copyright (c) 2009-2014 Icinga Development Team (http://www.icinga.org)
  *
  * Last Modified: 08-08-2010
  *
@@ -145,7 +145,7 @@ char performance_data[MAX_INPUT_BUFFER] = "";	/**< plugin performance data for p
 int notification_delay = 0;			/**< delay for submitted notification in minutes */
 int schedule_delay = 0;				/**< delay for sheduled actions in minutes (Icinga restart, Notfications enable/disable)
 							!not implemented in GUI! */
-int persistent_comment = FALSE;			/**< bool if omment should survive Icinga restart */
+int persistent_comment = FALSE;			/**< bool if comment should survive Icinga restart */
 int sticky_ack = TRUE;				/**< bool to disable notifications until recover */
 int send_notification = FALSE;			/**< bool sends a notification if service gets acknowledged */
 int use_ack_end_time = FALSE;			/**< bool if expire acknowledgement is selected or not */
@@ -290,6 +290,7 @@ int process_cgivars(void);
 /** @brief Yes we need a main function **/
 int main(void) {
 	int result = OK;
+	const char *path;
 
 	/* get the arguments passed in the URL */
 	process_cgivars();
@@ -316,7 +317,9 @@ int main(void) {
 	}
 
 	/* read environment var ICINGA_COMMAND_FILE */
-	strcpy(command_file, get_cmd_file_location());
+	path = get_cmd_file_location();
+	if (path)
+		strcpy(command_file, path);
 
 	/* This requires the date_format parameter in the main config file */
 	if (strcmp(start_time_string, ""))
