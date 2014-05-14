@@ -1,9 +1,17 @@
-icinga (1.11.1-1~debmon70+1) debmon-wheezy; urgency=medium
+icinga (1.11.3-1~debmon70+1) debmon-wheezy; urgency=medium
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 18 Feb 2014 16:58:58 +0100
- 
+
+icinga (1.11.3-1) unstable; urgency=medium
+
+  * [ffe47a4] Imported Upstream version 1.11.3
+    - Remove libtap and JSON_checker_lib.c due to 
+      license conflicts (Icinga bugs #6022 and 6023)
+
+ -- Alexander Wirt <formorer@debian.org>  Mon, 12 May 2014 22:12:13 +0200
+
 icinga (1.11.1-1) unstable; urgency=high
 
   * [a8a977f] Imported Upstream version 1.11.1
