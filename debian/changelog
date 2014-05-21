@@ -1,3 +1,9 @@
+icinga (1.11.3-2) unstable; urgency=medium
+
+  * [b8c228e] Install schema for 1.11.3
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 21 May 2014 14:10:22 +0200
+
 icinga (1.11.3-1) unstable; urgency=medium
 
   * [ffe47a4] Imported Upstream version 1.11.3
