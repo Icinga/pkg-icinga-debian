@@ -1,4 +1,11 @@
-icinga (1.7.0~beta1-1) UNRELEASED; urgency=low
+icinga (1.11.3-1) unstable; urgency=medium
+
+  If you did a fresh install of 1.11.3-1, please ignore the schema
+  update coming with -2.
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 21 May 2014 14:08:43 +0200
+
+icinga (1.7.0~beta1-1) unstable; urgency=low
 
   The location of the idoutils icinga broker changed from
   /usr/lib/icinga/idomod.o to /usr/lib/icinga/idomod.so. 

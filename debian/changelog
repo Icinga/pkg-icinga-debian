@@ -1,4 +1,4 @@
-icinga (1.11.3-1~debmon60+1) debmon-squeeze; urgency=medium
+icinga (1.11.3-2~debmon60+1) debmon-squeeze; urgency=medium
 
   * Build for debmon-squeeze 
 
@@ -15,6 +15,13 @@ icinga (1.11.0-2~debmon60+1) debmon-squeeze; urgency=low
   * Rebuild for debmon-squeeze
 
  -- Alexander Wirt <formorer@debian.org>  Wed, 06 Nov 2013 20:28:02 +0100
+
+icinga (1.11.3-2) unstable; urgency=medium
+
+  * [b8c228e] Install schema for 1.11.3
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 21 May 2014 14:10:22 +0200
+>>>>>>> master
 
 icinga (1.11.3-1) unstable; urgency=medium
 
