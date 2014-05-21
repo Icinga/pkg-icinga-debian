@@ -1,8 +1,14 @@
-icinga (1.11.3-1~debmon70+1) debmon-wheezy; urgency=medium
+icinga (1.11.3-2~debmon70+1) debmon-wheezy; urgency=medium
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 18 Feb 2014 16:58:58 +0100
+
+icinga (1.11.3-2) unstable; urgency=medium
+
+  * [b8c228e] Install schema for 1.11.3
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 21 May 2014 14:10:22 +0200
 
 icinga (1.11.3-1) unstable; urgency=medium
 
