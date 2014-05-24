@@ -63,8 +63,13 @@ case "$1" in
         # create symlink if not existing
         [ -f /etc/apache2/conf.d/icinga.conf ] || ln -vs $apacheconf /etc/apache2/conf.d/icinga.conf
 
-        # reload webserver
-        [ -x $(which invoke-rc.d) ] && invoke-rc.d apache2 reload
+        if [ -f /etc/init.d/apache2 ] ; then
+            if [ -x /usr/sbin/invoke-rc.d ]; then
+                invoke-rc.d apache2 reload 3>/dev/null || true
+            else
+                /etc/init.d/apache2 reload 3>/dev/null || true
+            fi
+        fi
     fi  
 
 	# we reset the password every run, so if it exists we're running
