@@ -1,3 +1,9 @@
+icinga (1.11.3-2~debmon70+2) debmon-wheezy; urgency=medium
+
+  * Fix schema version 
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 27 May 2014 09:23:22 +0200
+
 icinga (1.11.3-2~debmon70+1) debmon-wheezy; urgency=medium
 
   * Rebuild for debmon
