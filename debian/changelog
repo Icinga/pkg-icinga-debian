@@ -1,3 +1,9 @@
+icinga (1.11.3-2~debmon60+3) debmon-squeeze; urgency=medium
+
+  * Fix schema version 
+
+ -- Alexander Wirt <formorer@debian.org>  Tue, 27 May 2014 09:03:29 +0200
+
 icinga (1.11.3-2~debmon60+1) debmon-squeeze; urgency=medium
 
   * Build for debmon-squeeze 
