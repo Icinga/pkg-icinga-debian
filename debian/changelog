@@ -1,4 +1,4 @@
-icinga (1.11.3-2~debmon60+3) debmon-squeeze; urgency=medium
+icinga (1.11.3-2~debmon60+2) debmon-squeeze; urgency=medium
 
   * Fix schema version 
 
