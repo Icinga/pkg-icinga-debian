@@ -1,8 +1,16 @@
-icinga (1.11.3-2~debmon60+1) debmon-squeeze; urgency=medium
+icinga (1.11.3-3~debmon60+1) debmon-squeeze; urgency=medium
 
   * Build for debmon-squeeze 
 
  -- Alexander Wirt <formorer@debian.org>  Sun, 30 Mar 2014 16:50:10 +0200
+
+icinga (1.11.3-3) unstable; urgency=medium
+
+  * [9d1836b] Check if apache init script exists before invoking it.
+    Thanks to Georg Schönberg for bringing this up
+  * [e315571] Fix postgresql upgrade script for 1.11.3 (Closes: #749581)
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 28 May 2014 14:48:44 +0200
 
 icinga (1.11.0-2~debmon60+2) debmon-squeeze; urgency=medium
 
