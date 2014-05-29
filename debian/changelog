@@ -1,21 +1,10 @@
 icinga (1.11.4-1) unstable; urgency=medium
 
   * [4b8b43e] Update copyright file (Closes: #748015)
-
- -- Alexander Wirt <formorer@debian.org>  Thu, 29 May 2014 18:03:07 +0200
-
-icinga (1.11.4-1) unstable; urgency=medium
-
   * [f87dd9b] Imported Upstream version 1.11.4
   * [28a3f90] Remove obsolete patch 96_fix_postgres_11.3_upgrade.dpatch
 
  -- Alexander Wirt <formorer@debian.org>  Thu, 29 May 2014 17:38:05 +0200
-
-icinga (1.11.4-1) unstable; urgency=medium
-
-  * [f87dd9b] Imported Upstream version 1.11.4
-
- -- Alexander Wirt <formorer@debian.org>  Thu, 29 May 2014 17:36:51 +0200
 
 icinga (1.11.3-3) unstable; urgency=medium
 
