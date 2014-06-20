@@ -1,3 +1,10 @@
+icinga (1.11.5-1) unstable; urgency=medium
+
+  * [2098d80] Imported Upstream version 1.11.5
+  * [cef043d] bump standards version
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 20 Jun 2014 15:25:10 +0200
+
 icinga (1.11.4-1) unstable; urgency=medium
 
   * [4b8b43e] Update copyright file (Closes: #748015)
