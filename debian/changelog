@@ -1,8 +1,15 @@
-icinga (1.11.4-1~debmon60+1) debmon-squeeze; urgency=medium
+icinga (1.11.5-1~debmon60+1) debmon-squeeze; urgency=medium
 
   * Build for debmon-squeeze 
 
  -- Alexander Wirt <formorer@debian.org>  Sun, 30 Mar 2014 16:50:10 +0200
+
+icinga (1.11.5-1) unstable; urgency=medium
+
+  * [2098d80] Imported Upstream version 1.11.5
+  * [cef043d] bump standards version
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 20 Jun 2014 15:25:10 +0200
 
 icinga (1.11.4-1) unstable; urgency=medium
 
