@@ -1,3 +1,12 @@
+icinga (1.11.6-1) unstable; urgency=medium
+
+  * [67f8e61] Imported Upstream version 1.11.6
+  * [cea2d5d] Install schema upgrades
+  * [677ebfd] Check for existance of resources.cfg before setting permissions.
+    (Closes: #757103)
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 07 Aug 2014 13:49:19 +0200
+
 icinga (1.11.5-1) unstable; urgency=medium
 
   * [2098d80] Imported Upstream version 1.11.5
