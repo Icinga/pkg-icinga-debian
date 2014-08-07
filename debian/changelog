@@ -1,8 +1,24 @@
-icinga (1.11.4-1~ppa1~raring1) raring; urgency=medium
+icinga (1.11.6-1~ppa1~raring1) raring; urgency=medium
 
   * Rebuild for my ubuntu ppa
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 13 May 2014 15:09:37 +0200
+
+icinga (1.11.6-1) unstable; urgency=medium
+
+  * [67f8e61] Imported Upstream version 1.11.6
+  * [cea2d5d] Install schema upgrades
+  * [677ebfd] Check for existance of resources.cfg before setting permissions.
+    (Closes: #757103)
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 07 Aug 2014 13:49:19 +0200
+
+icinga (1.11.5-1) unstable; urgency=medium
+
+  * [2098d80] Imported Upstream version 1.11.5
+  * [cef043d] bump standards version
+
+ -- Alexander Wirt <formorer@debian.org>  Fri, 20 Jun 2014 15:25:10 +0200
 
 icinga (1.11.4-1) unstable; urgency=medium
 

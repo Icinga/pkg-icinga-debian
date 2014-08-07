@@ -54,7 +54,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: icinga
-Version: 1.11.4
+Version: 1.11.6
 Release: %{revision}%{?dist}
 License: GPLv2
 Group: Applications/System
@@ -62,6 +62,10 @@ URL: http://www.icinga.org/
 
 Source0: https://github.com/Icinga/icinga-core/releases/download/v%{version}/icinga-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%if "%{_vendor}" == "redhat"
+Requires(pre): shadow-utils
+%endif
 
 %if 0%{?using_systemd}
 Requires(post): systemd-units
@@ -76,6 +80,7 @@ BuildRequires: libpng-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libdbi-devel
 BuildRequires: perl(ExtUtils::Embed)
+BuildRequires: make
 ### Requires: nagios-plugins
 BuildRequires: %{apachename}
 %if "%{_vendor}" == "suse"
@@ -588,6 +593,12 @@ fi
 
 
 %changelog
+* Wed Aug 06 2014 Michael Friedrich <michael.friedrich@gmail.com> - 1.11.6-1
+- bump 1.11.6
+
+* Fri Jun 20 2014 Michael Friedrich <michael.friedrich@gmail.com> - 1.11.5-1
+- bump 1.11.5
+
 * Wed May 28 2014 Michael Friedrich <michael.friedrich@gmail.com> - 1.11.4-1
 - bump 1.11.4
 

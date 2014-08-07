@@ -39,7 +39,7 @@ case "$1" in
 
 	# explicitly set permissions on some files that are dependent
 	# on the uid/gid of the nagios user, which is dynamically created.
-        setperm root nagios 0640 $en/resource.cfg
+        [ -f "$en/resource.cfg" ] && setperm root nagios 0640 $en/resource.cfg
         setperm nagios adm 2751 /var/log/icinga
         setperm nagios adm 2755 /var/log/icinga/archives
 	setperm nagios nagios 0750 /var/lib/icinga/spool
