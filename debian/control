@@ -23,11 +23,11 @@ Depends: adduser,
          coreutils (>= 4.5.3),
          dpkg (>= 1.16.1),
          lsb-base (>= 3.0-6),
-         nagios-plugins-basic,
+         monitoring-plugins-basic | icinga-plugins-basic,
          ucf (>= 0.28),
          ${misc:Depends},
          ${perl:Depends}
-Recommends: nagios-plugins
+Recommends: monitoring-plugins | nagios-plugins
 Description: host and network monitoring system - support files
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
