@@ -9,9 +9,9 @@ AC_CONFIG_HEADER(include/config.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.11.6"
+PKG_VERSION="1.12.0"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="08-06-2014"
+PKG_REL_DATE="11-19-2014"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -802,7 +802,7 @@ AC_ARG_WITH(cgiurl,AC_HELP_STRING([--with-cgiurl=<local-url>],[sets URL for cgi 
 AC_SUBST(cgiurl)
 AC_ARG_WITH(htmurl,AC_HELP_STRING([--with-htmurl=<local-url>],[sets URL for public html]),htmurl=$withval,htmurl=/icinga)
 AC_SUBST(htmurl)
-AC_ARG_WITH(mainurl,AC_HELP_STRING([--with-mainurl=<local-url>],[sets URL for default main frame in index.html (use quotes if special chars like & used)]),mainurl=$withval,mainurl=$cgiurl/tac.cgi)
+AC_ARG_WITH(mainurl,AC_HELP_STRING([--with-mainurl=<local-url>],[sets URL for default main frame in index.html (use quotes if special chars like & used)]),mainurl=$withval,mainurl=$cgiurl/status.cgi?allunhandledproblems)
 AC_SUBST(mainurl)
 
 USE_NANOSLEEP=yes

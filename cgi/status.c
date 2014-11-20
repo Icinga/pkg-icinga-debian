@@ -82,6 +82,7 @@ extern int content_type;
 extern int escape_html_tags;
 extern int show_partial_hostgroups;			/**< show any hosts in hostgroups the user is authorized for */
 extern int show_partial_servicegroups;
+extern int sort_status_data_by_default;
 
 extern int add_notif_num_hard;
 extern int add_notif_num_soft;
@@ -159,6 +160,7 @@ typedef struct statusdata_struct {
 	int		checks_enabled;			/**< bool if active checks are enabled */
 	int		accept_passive_checks;		/**< bool if passive checks are enabled */
 	int		is_flapping;			/**< bool if status is flapping */
+	int		event_handler_enabled;		/**< bool if eventhandler is enabled */
 	int		state_type;			/**< type of state HARD_STATE / SOFT_STATE */
 	struct statusdata_struct *next;			/**< next statusdata */
 } statusdata;
@@ -698,6 +700,16 @@ int main(void) {
 	/* allow service_filter only for status lists */
 	if (group_style_type == STYLE_SUMMARY || group_style_type == STYLE_GRID || group_style_type == STYLE_OVERVIEW)
 		my_free(service_filter);
+
+	/* check if we schould sort unsorted status.dat data */
+	if (sort_type == SORT_NONE && sort_status_data_by_default == TRUE) {
+		sort_type = SORT_ASCENDING;
+		sort_option = SORT_HOSTNAME_SERVICENAME;
+	}
+
+	if (sort_type != SORT_NONE && sort_option == SORT_HOSTNAME && sort_object == SERVICE_STATUS) {
+		sort_option = SORT_HOSTNAME_SERVICENAME;
+	}
 
 
 	/**
@@ -2319,6 +2331,8 @@ void show_service_detail(void) {
 				printf("attempt number");
 			else if (sort_option == SORT_STATEDURATION)
 				printf("state duration");
+			else if (sort_option == SORT_HOSTNAME_SERVICENAME)
+				printf("host + service name");
 			printf("</b> (%s)\n", (sort_type == SORT_ASCENDING) ? "ascending" : "descending");
 			printf("</div>\n");
 		}
@@ -2590,9 +2604,9 @@ void show_service_detail(void) {
 				printf("<table border='0' cellpadding='0' cellspacing='0'>\n");
 				printf("<tr>\n");
 				if (!strcmp(temp_host->address6, temp_host->name))
-					printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s'>%s</a></td>\n", host_status_bg_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), temp_host->address, (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
+					printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s (%s)'>%s</a></td>\n", host_status_bg_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), temp_host->address, (temp_host->alias != NULL) ? html_encode(temp_host->alias, TRUE) : " ", (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
 				else
-					printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s,%s'>%s</a></td>\n", host_status_bg_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), temp_host->address, temp_host->address6, (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
+					printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s (%s),%s'>%s</a></td>\n", host_status_bg_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), temp_host->address, temp_host->address6, (temp_host->alias != NULL) ? html_encode(temp_host->alias, TRUE) : " ", (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
 
 				printf("</tr>\n");
 				printf("</table>\n");
@@ -2611,12 +2625,18 @@ void show_service_detail(void) {
 				if (temp_hoststatus->notifications_enabled == FALSE) {
 					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Notifications for this host have been disabled' title='Notifications for this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, NOTIFICATIONS_DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 				}
-				if (temp_hoststatus->checks_enabled == FALSE) {
-					if (temp_hoststatus->accept_passive_host_checks == TRUE)
-						printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active Checks of this host have been disabled' title='Active Checks of this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, PASSIVE_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
-					else
-						printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active and Passive Checks of this host have been disabled'd title='Active and Passive Checks of this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
-				}
+	                        if (temp_hoststatus->event_handler_enabled == FALSE) {
+					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Event handling for this host has been disabled' title='Event handling for this host has been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, EVENTHANDLING_DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+	                        }
+	                        if (temp_hoststatus->checks_enabled == FALSE || temp_hoststatus->accept_passive_host_checks == FALSE) {
+	                                if (temp_hoststatus->accept_passive_host_checks == FALSE && temp_hoststatus->checks_enabled == FALSE) {
+	                                        printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active and Passive checks have been disabled of this host' title='Active and passive checks have been disabled for this host'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+	                                } else if (temp_hoststatus->accept_passive_host_checks == TRUE && temp_hoststatus->checks_enabled == FALSE) {
+	                                        printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active Checks of this host have been disabled' title='Active Checks of this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, PASSIVE_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+	                                } else if (temp_hoststatus->accept_passive_host_checks == FALSE && temp_hoststatus->checks_enabled == TRUE) {
+	                                        printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active checks are being scheduled as normal - passive checks are disabled' title='Active checks are being scheduled as normal - passive checks are disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, ACTIVEONLY_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+	                                }
+                        	}
 				if (temp_hoststatus->is_flapping == TRUE) {
 					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='This host is flapping between states' title='This host is flapping between states'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_status->host_name), url_images_path, FLAPPING_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 				}
@@ -2698,19 +2718,26 @@ void show_service_detail(void) {
 					print_comment_icon(temp_host->name, temp_service->description);
 				}
 			}
-			if (temp_status->checks_enabled == FALSE) {
-				if (temp_status->accept_passive_checks == FALSE) {
+			if (temp_status->checks_enabled == FALSE || temp_status->accept_passive_checks == FALSE) {
+				if (temp_status->accept_passive_checks == FALSE && temp_status->checks_enabled == FALSE) {
 					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s", EXTINFO_CGI, DISPLAY_SERVICE_INFO, url_encode(temp_status->host_name));
 					printf("&amp;service=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active and passive checks have been disabled for this service' title='Active and passive checks have been disabled for this service'></a></td>", url_encode(temp_status->svc_description), url_images_path, DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
-				} else {
+				} else if (temp_status->accept_passive_checks == TRUE && temp_status->checks_enabled == FALSE) {
 					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s", EXTINFO_CGI, DISPLAY_SERVICE_INFO, url_encode(temp_status->host_name));
 					printf("&amp;service=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active checks of the service have been disabled - only passive checks are being accepted' title='Active checks of the service have been disabled - only passive checks are being accepted'></a></td>", url_encode(temp_status->svc_description), url_images_path, PASSIVE_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+				} else if (temp_status->accept_passive_checks == FALSE && temp_status->checks_enabled == TRUE) {
+					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s", EXTINFO_CGI, DISPLAY_SERVICE_INFO, url_encode(temp_status->host_name));
+					printf("&amp;service=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active checks are being scheduled as normal - passive checks are disabled' title='Active checks are being scheduled as normal, passive checks are ignored'></a></td>", url_encode(temp_status->svc_description), url_images_path, ACTIVEONLY_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 				}
 			}
 			if (temp_status->notifications_enabled == FALSE) {
 				printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s", EXTINFO_CGI, DISPLAY_SERVICE_INFO, url_encode(temp_status->host_name));
 				printf("&amp;service=%s'><img src='%s%s' border='0' width=%d height=%d alt='Notifications for this service have been disabled' title='Notifications for this service have been disabled'></a></td>", url_encode(temp_status->svc_description), url_images_path, NOTIFICATIONS_DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 			}
+			if (temp_status->event_handler_enabled == FALSE) {
+                                printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s", EXTINFO_CGI, DISPLAY_SERVICE_INFO, url_encode(temp_status->host_name));
+                                printf("&amp;service=%s'><img src='%s%s' border='0' width=%d height=%d alt='Event handling for this service has been disabled' title='Event handling for this service has been disabled'></a></td>", url_encode(temp_status->svc_description), url_images_path, EVENTHANDLING_DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+                        }
 			if (temp_status->is_flapping == TRUE) {
 				printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s", EXTINFO_CGI, DISPLAY_SERVICE_INFO, url_encode(temp_status->host_name));
 				printf("&amp;service=%s'><img src='%s%s' border='0' width=%d height=%d alt='This service is flapping between states' title='This service is flapping between states'></a></td>", url_encode(temp_status->svc_description), url_images_path, FLAPPING_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
@@ -2935,7 +2962,7 @@ void show_host_detail(void) {
 
 		if (use_sort == TRUE && user_sorted_manually == TRUE && sort_object == HOST_STATUS) {
 			printf("<div align='center' class='statusSort'>Entries sorted by <b>");
-			if (sort_option == SORT_HOSTNAME)
+			if (sort_option == SORT_HOSTNAME || sort_option == SORT_HOSTNAME_SERVICENAME)
 				printf("host name");
 			else if (sort_option == SORT_HOSTSTATUS)
 				printf("host status");
@@ -3139,9 +3166,9 @@ void show_host_detail(void) {
 			printf("<table border='0' cellpadding='0' cellspacing='0'>\n");
 			printf("<tr>\n");
 			if (!strcmp(temp_host->address6, temp_host->name))
-				printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s'>%s</a>&nbsp;</td>\n", status_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), temp_host->address, (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
+				printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s (%s)'>%s</a>&nbsp;</td>\n", status_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), temp_host->address, (temp_host->alias != NULL) ? html_encode(temp_host->alias, TRUE) : " ", (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
 			else
-				printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s,%s'>%s</a>&nbsp;</td>\n", status_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), temp_host->address, temp_host->address6, (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
+				printf("<td align='left' valign='middle' class='status%s'><a href='%s?type=%d&amp;host=%s' title='%s,%s (%s)'>%s</a>&nbsp;</td>\n", status_class, EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), temp_host->address, temp_host->address6, (temp_host->alias != NULL) ? html_encode(temp_host->alias, TRUE) : " ", (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
 
 			printf("</tr>\n");
 			printf("</table>\n");
@@ -3160,12 +3187,18 @@ void show_host_detail(void) {
 			if (temp_statusdata->notifications_enabled == FALSE) {
 				printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Notifications for this host have been disabled' title='Notifications for this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, NOTIFICATIONS_DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 			}
-			if (temp_statusdata->checks_enabled == FALSE) {
-				if (temp_statusdata->accept_passive_checks == TRUE)
-					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active Checks of this host have been disabled' title='Active Checks of this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, PASSIVE_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
-				else
-					printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active and Passive Checks of this host have been disabled'd title='Active and Passive Checks of this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
-			}
+			if (temp_statusdata->event_handler_enabled == FALSE) {
+                                printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Event handling for this host has been disabled' title='Event handling for this host has been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, EVENTHANDLING_DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+                        }
+			if (temp_statusdata->checks_enabled == FALSE || temp_statusdata->accept_passive_checks == FALSE) {
+                                if (temp_statusdata->accept_passive_checks == FALSE && temp_statusdata->checks_enabled == FALSE) {
+                                        printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active and Passive checks have been disabled of this host' title='Active and passive checks have been disabled for this host'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, DISABLED_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+                                } else if (temp_statusdata->accept_passive_checks == TRUE && temp_statusdata->checks_enabled == FALSE) {
+                                        printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active Checks of this host have been disabled' title='Active Checks of this host have been disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, PASSIVE_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+                                } else if (temp_statusdata->accept_passive_checks == FALSE && temp_statusdata->checks_enabled == TRUE) {
+                                        printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='Active checks are being scheduled as normal - passive checks are disabled' title='Active checks are being scheduled as normal - passive checks are disabled'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, ACTIVEONLY_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
+                                }
+                        }
 			if (temp_statusdata->is_flapping == TRUE) {
 				printf("<td align='center' valign='middle'><a href='%s?type=%d&amp;host=%s'><img src='%s%s' border='0' width=%d height=%d alt='This host is flapping between states' title='This host is flapping between states'></a></td>", EXTINFO_CGI, DISPLAY_HOST_INFO, url_encode(temp_statusdata->host_name), url_images_path, FLAPPING_ICON, STATUS_ICON_WIDTH, STATUS_ICON_HEIGHT);
 			}
@@ -4766,9 +4799,9 @@ void show_servicegroup_hostgroup_member_overview(hoststatus *hststatus, int odd,
 		printf("<table border='0' width=100%% cellpadding='0' cellspacing='0'>\n");
 		printf("<tr class='status%s'>\n", status_bg_class);
 		if (!strcmp(temp_host->address6, temp_host->name))
-			printf("<td class='status%s' style='text-align:left;'><a href='%s?host=%s&amp;style=detail' title='%s'>%s</a></td>\n", status_bg_class, STATUS_CGI, url_encode(hststatus->host_name), temp_host->address, (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
+			printf("<td class='status%s' style='text-align:left;'><a href='%s?host=%s&amp;style=detail' title='%s (%s)'>%s</a></td>\n", status_bg_class, STATUS_CGI, url_encode(hststatus->host_name), temp_host->address, (temp_host->alias != NULL) ? html_encode(temp_host->alias, TRUE) : " ", (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
 		else
-			printf("<td class='status%s' style='text-align:left;'><a href='%s?host=%s&amp;style=detail' title='%s,%s'>%s</a></td>\n", status_bg_class, STATUS_CGI, url_encode(hststatus->host_name), temp_host->address, temp_host->address6, (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
+			printf("<td class='status%s' style='text-align:left;'><a href='%s?host=%s&amp;style=detail' title='%s,%s (%s)'>%s</a></td>\n", status_bg_class, STATUS_CGI, url_encode(hststatus->host_name), temp_host->address, temp_host->address6, (temp_host->alias != NULL) ? html_encode(temp_host->alias, TRUE) : " ", (temp_host->display_name != NULL) ? html_encode(temp_host->display_name, TRUE) : html_encode(temp_host->name, TRUE));
 
 		if (temp_host->icon_image != NULL) {
 			printf("<td class='status%s' width=5></td>\n", status_bg_class);
@@ -6109,6 +6142,7 @@ int add_status_data(int status_type, void *data) {
 	int status = OK;
 	int current_attempt = 0;
 	int is_flapping = FALSE;
+	int event_handler_enabled = TRUE;
 	int problem_has_been_acknowledged = FALSE;
 	int scheduled_downtime_depth = 0;
 	int notifications_enabled = FALSE;
@@ -6151,6 +6185,7 @@ int add_status_data(int status_type, void *data) {
 		accept_passive_checks = host_status->accept_passive_host_checks;
 		is_flapping = host_status->is_flapping;
 		state_type = host_status->state_type;
+		event_handler_enabled = host_status->event_handler_enabled;
 
 		plugin_output_short = host_status->plugin_output;
 		plugin_output_long = host_status->long_plugin_output;
@@ -6195,6 +6230,7 @@ int add_status_data(int status_type, void *data) {
 		accept_passive_checks = service_status->accept_passive_service_checks;
 		is_flapping = service_status->is_flapping;
 		state_type = service_status->state_type;
+		event_handler_enabled = service_status->event_handler_enabled;
 
 		plugin_output_short = service_status->plugin_output;
 		plugin_output_long = service_status->long_plugin_output;
@@ -6272,6 +6308,7 @@ int add_status_data(int status_type, void *data) {
 	new_statusdata->accept_passive_checks = accept_passive_checks;
 	new_statusdata->is_flapping = is_flapping;
 	new_statusdata->state_type = state_type;
+	new_statusdata->event_handler_enabled = event_handler_enabled;
 
 	new_statusdata->plugin_output = (plugin_output == NULL) ? NULL : strdup(plugin_output);
 
@@ -6424,6 +6461,9 @@ int compare_sort_entries(int status_type, int sort_type, int sort_option, sort *
 	statusdata *new_status;
 	statusdata *temp_status;
 
+	char tmp_buffer_a[MAX_INPUT_BUFFER];
+	char tmp_buffer_b[MAX_INPUT_BUFFER];
+
 	new_status = new_sort->status;
 	temp_status = temp_sort->status;
 
@@ -6469,6 +6509,25 @@ int compare_sort_entries(int status_type, int sort_type, int sort_option, sort *
 				return TRUE;
 			else
 				return FALSE;
+		} else if (sort_option == SORT_HOSTNAME_SERVICENAME) {
+			if (status_type == HOST_STATUS)
+				snprintf(tmp_buffer_a, sizeof(tmp_buffer_a) - 1, "%s", new_status->host_name);
+			else
+				snprintf(tmp_buffer_a, sizeof(tmp_buffer_a) - 1, "%s%s", new_status->host_name, new_status->svc_description);
+
+			tmp_buffer_a[sizeof(tmp_buffer_a) - 1] = '\x0';
+
+			if (status_type == HOST_STATUS)
+				snprintf(tmp_buffer_b, sizeof(tmp_buffer_b) - 1, "%s", temp_status->host_name);
+			else
+				snprintf(tmp_buffer_b, sizeof(tmp_buffer_b) - 1, "%s%s", temp_status->host_name, temp_status->svc_description);
+
+			tmp_buffer_b[sizeof(tmp_buffer_b) - 1] = '\x0';
+
+			if (strcasecmp(tmp_buffer_a, tmp_buffer_b) < 0)
+				return TRUE;
+			else
+				return FALSE;
 		}
 	} else {
 		if (sort_option == SORT_LASTCHECKTIME) {
@@ -6508,6 +6567,25 @@ int compare_sort_entries(int status_type, int sort_type, int sort_option, sort *
 				return FALSE;
 		} else if (sort_option == SORT_STATEDURATION) {
 			if (new_status->ts_state_duration > temp_status->ts_state_duration)
+				return TRUE;
+			else
+				return FALSE;
+		} else if (sort_option == SORT_HOSTNAME_SERVICENAME) {
+			if (status_type == HOST_STATUS)
+				snprintf(tmp_buffer_a, sizeof(tmp_buffer_a) - 1, "%s", new_status->host_name);
+			else
+				snprintf(tmp_buffer_a, sizeof(tmp_buffer_a) - 1, "%s%s", new_status->host_name, new_status->svc_description);
+
+			tmp_buffer_a[sizeof(tmp_buffer_a) - 1] = '\x0';
+
+			if (status_type == HOST_STATUS)
+				snprintf(tmp_buffer_b, sizeof(tmp_buffer_b) - 1, "%s", temp_status->host_name);
+			else
+				snprintf(tmp_buffer_b, sizeof(tmp_buffer_b) - 1, "%s%s", temp_status->host_name, temp_status->svc_description);
+
+			tmp_buffer_b[sizeof(tmp_buffer_b) - 1] = '\x0';
+
+			if (strcasecmp(tmp_buffer_a, tmp_buffer_b) > 0)
 				return TRUE;
 			else
 				return FALSE;

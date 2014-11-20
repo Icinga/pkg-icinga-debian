@@ -101,6 +101,7 @@ char *sigs[35] = {"EXIT", "HUP", "INT", "QUIT", "ILL", "TRAP", "ABRT", "BUS", "F
 
 int main(int argc, char **argv) {
 	int result = IDO_OK;
+	ido2db_idi idi_schema;
 
 #ifdef DEBUG_MEMORY
 	mtrace();
@@ -115,7 +116,6 @@ int main(int argc, char **argv) {
 	int numdrivers;
 	driver = NULL;
 #endif
-ido2db_idi idi_schema;
 #ifdef USE_ORACLE
 	unsigned int v1,v2;
 #endif
@@ -1655,7 +1655,12 @@ int ido2db_handle_client_connection(int sd, ido2db_proxy *proxy) {
 #ifdef DEBUG_IDO2DB2
 		printf("BYTESREAD: %d\n", result);
 #endif
-		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "BYTESREAD: %d\n", result);
+		ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_client_connection() BYTESREAD: %d\n", result);
+		if (result > 0 && result < 50) {
+			ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2,
+			    "ido2db_handle_client_connection() Small packet (%d octets) -- skipping.\n", result);
+			continue;
+		}
 
 		/* append data we just read to dynamic buffer */
 		buf[result] = '\x0';
@@ -1689,7 +1694,9 @@ int ido2db_handle_client_connection(int sd, ido2db_proxy *proxy) {
 
 			if (in_transaction == IDO_FALSE) {
 				io_since_last_commit = 0;
+#ifdef DEBUG_IDO2DB2
 				printf("Committing...\n");
+#endif
 			}
 
 			if (in_transaction == IDO_FALSE && ido2db_db_tx_commit(&idi) != IDO_OK)

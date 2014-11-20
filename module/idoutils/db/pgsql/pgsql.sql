@@ -365,6 +365,7 @@ CREATE TABLE  icinga_customvariables (
   has_been_modified INTEGER  default 0,
   varname TEXT  default '',
   varvalue TEXT  default '',
+  is_json INTEGER  default 0,
   CONSTRAINT PK_customvariable_id PRIMARY KEY (customvariable_id) ,
   CONSTRAINT UQ_customvariables UNIQUE (object_id,config_type,varname)
 ) ;
@@ -384,6 +385,7 @@ CREATE TABLE  icinga_customvariablestatus (
   has_been_modified INTEGER  default 0,
   varname TEXT  default '',
   varvalue TEXT  default '',
+  is_json INTEGER  default 0,
   CONSTRAINT PK_customvariablestatus_id PRIMARY KEY (customvariablestatus_id) ,
   CONSTRAINT UQ_customvariablestatus UNIQUE (object_id,varname)
 ) ;
@@ -924,10 +926,12 @@ CREATE TABLE  icinga_processevents (
 CREATE TABLE  icinga_programstatus (
   programstatus_id bigserial,
   instance_id bigint default 0,
+  program_version TEXT  default NULL,
   status_update_time timestamp with time zone default '1970-01-01 00:00:00',
   program_start_time timestamp with time zone default '1970-01-01 00:00:00',
   program_end_time timestamp with time zone default '1970-01-01 00:00:00',
   is_currently_running INTEGER  default 0,
+  endpoint_name TEXT  default '',
   process_id bigint default 0,
   daemon_mode INTEGER  default 0,
   last_command_check timestamp with time zone default '1970-01-01 00:00:00',
@@ -1629,5 +1633,5 @@ CREATE INDEX commenthistory_delete_idx ON icinga_commenthistory (instance_id, co
 -- set dbversion
 -- -----------------------------------------
 
-SELECT updatedbversion('1.11.6');
+SELECT updatedbversion('1.12.0');
 
