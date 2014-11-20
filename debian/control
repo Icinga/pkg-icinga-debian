@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Debian Nagios Maintainer Group <pkg-nagios-devel@lists.alioth.debian.org>
 Uploaders: Alexander Wirt <formorer@debian.org>, Jan Wagner <waja@cyconet.org>
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Vcs-Browser: http://git.debian.org/?p=pkg-nagios/icinga.git
 Vcs-Git: git://git.debian.org/pkg-nagios/icinga.git
 Build-Depends: autotools-dev,
