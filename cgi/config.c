@@ -125,6 +125,7 @@ extern int refresh_type;
 extern int result_limit;
 extern int send_ack_notifications;
 extern int set_expire_ack_by_default;
+extern int set_sticky_acknowledgment;
 extern int show_all_services_host_is_authorized_for;
 extern int show_partial_hostgroups;
 extern int show_partial_servicegroups;
@@ -132,6 +133,7 @@ extern int show_tac_header;
 extern int show_tac_header_pending;
 extern int showlog_current_states;
 extern int showlog_initial_states;
+extern int sort_status_data_by_default;
 extern int status_show_long_plugin_output;
 extern int suppress_maintenance_downtime;
 extern int tab_friendly_titles;
@@ -253,6 +255,7 @@ int org_refresh_type;
 int org_result_limit;
 int org_send_ack_notifications;
 int org_set_expire_ack_by_default;
+int org_set_sticky_acknowledgment;
 int org_show_all_services_host_is_authorized_for;
 int org_show_partial_hostgroups;
 int org_show_partial_servicegroups;
@@ -260,6 +263,7 @@ int org_show_tac_header;
 int org_show_tac_header_pending;
 int org_showlog_current_states;
 int org_showlog_initial_states;
+int org_sort_status_data_by_default;
 int org_status_show_long_plugin_output;
 int org_suppress_maintenance_downtime;
 int org_tab_friendly_titles;
@@ -4133,6 +4137,7 @@ void display_cgiconfig(void) {
 	PRINT_CONFIG_LINE_STRING(service_warning_sound, org_service_warning_sound)
 	PRINT_CONFIG_LINE_INT(send_ack_notifications, org_send_ack_notifications, "bool")
 	PRINT_CONFIG_LINE_INT(set_expire_ack_by_default, org_set_expire_ack_by_default, "bool")
+	PRINT_CONFIG_LINE_INT(set_sticky_acknowledgment, org_set_sticky_acknowledgment, "bool")
 	PRINT_CONFIG_LINE_INT(show_all_services_host_is_authorized_for, org_show_all_services_host_is_authorized_for, "bool")
 	PRINT_CONFIG_LINE_INT(show_partial_hostgroups, org_show_partial_hostgroups, "bool")
 	PRINT_CONFIG_LINE_INT(show_partial_servicegroups, org_show_partial_servicegroups, "bool")
@@ -4140,6 +4145,7 @@ void display_cgiconfig(void) {
 	PRINT_CONFIG_LINE_INT(show_tac_header_pending, org_show_tac_header_pending, "bool")
 	PRINT_CONFIG_LINE_INT(showlog_current_states, org_showlog_current_states, "bool")
 	PRINT_CONFIG_LINE_INT(showlog_initial_states, org_showlog_initial_states, "bool")
+	PRINT_CONFIG_LINE_INT(sort_status_data_by_default, org_sort_status_data_by_default, "bool")
 	PRINT_CONFIG_LINE_STRING(splunk_url, org_splunk_url)
 	PRINT_CONFIG_LINE_INT(status_show_long_plugin_output, org_status_show_long_plugin_output, "bool")
 	PRINT_CONFIG_LINE_STRING(statusmap_background_image, org_statusmap_background_image)
@@ -4571,6 +4577,7 @@ void store_default_settings(void) {
 	org_result_limit = result_limit;
 	org_send_ack_notifications = send_ack_notifications;
 	org_set_expire_ack_by_default = set_expire_ack_by_default;
+	org_set_sticky_acknowledgment = set_sticky_acknowledgment;
 	org_show_all_services_host_is_authorized_for = show_all_services_host_is_authorized_for;
 	org_show_partial_hostgroups = show_partial_hostgroups;
 	org_show_partial_servicegroups = show_partial_servicegroups;
@@ -4579,6 +4586,7 @@ void store_default_settings(void) {
 	org_showlog_current_states = showlog_current_states;
 	org_showlog_initial_states = showlog_initial_states;
 	org_status_show_long_plugin_output = status_show_long_plugin_output;
+	org_sort_status_data_by_default = sort_status_data_by_default;
 	org_suppress_maintenance_downtime = suppress_maintenance_downtime;
 	org_tab_friendly_titles = tab_friendly_titles;
 	org_tac_show_only_hard_state = tac_show_only_hard_state;

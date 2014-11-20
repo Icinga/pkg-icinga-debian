@@ -179,6 +179,7 @@ extern "C" {
 #define DELETE_ICON			"delete.gif"
 #define DELAY_ICON			"delay.gif"
 #define DOWNTIME_ICON			"downtime.gif"
+#define ACTIVEONLY_ICON			"activeonly.gif"
 #define PASSIVE_ICON			"passiveonly.gif"
 #define RIGHT_ARROW_ICON		"right.gif"
 #define LEFT_ARROW_ICON			"left.gif"
@@ -218,6 +219,7 @@ extern "C" {
 #define TAC_ENABLED_ICON		"tacenabled.png"
 #define ZOOM1_ICON			"zoom1.gif"
 #define ZOOM2_ICON			"zoom2.gif"
+#define EVENTHANDLING_DISABLED_ICON	"eventhandlingdisabled.gif"
 
 #define CONTEXT_HELP_ICON		"contexthelp.gif"
 
@@ -362,6 +364,23 @@ extern "C" {
 #define SORT_NEXTCHECKTIME		7
 #define SORT_HOSTSTATUS			8
 #define SORT_HOSTURGENCY                9
+#define SORT_HOSTNAME_SERVICENAME       10
+#define SORT_COMMENT			11
+#define SORT_DOWNTIME			12
+#define SORT_EX_ENTRYTIME		13
+#define SORT_EX_AUTHOR			14
+#define SORT_EX_COMMENT			15
+#define SORT_EX_ID			16
+#define SORT_EX_PERSISTENT		17
+#define SORT_EX_TYPE			18
+#define SORT_EX_EXPIRETIME		19
+#define SORT_EX_STARTTIME		20
+#define SORT_EX_ENDTIME			21
+#define SORT_EX_TRIGGERTIME		22
+#define SORT_EX_DURATION		23
+#define SORT_EX_INEFFECT		24
+#define SORT_EX_TRIGGERID		25
+
 
 /****************** HOST AND SERVICE FILTER PROPERTIES  *******************/
 
