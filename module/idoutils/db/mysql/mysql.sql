@@ -2,7 +2,7 @@
 -- mysql.sql
 -- DB definition for MySQL
 --
--- Copyright (c) 2009-2014 Icinga Development Team (http://www.icinga.org)
+-- Copyright (c) 2009-2015 Icinga Development Team (http://www.icinga.org)
 --
 -- -- --------------------------------------------------------
 
@@ -247,7 +247,7 @@ CREATE TABLE IF NOT EXISTS icinga_contacts (
   instance_id bigint unsigned default 0,
   config_type smallint default 0,
   contact_object_id bigint unsigned default 0,
-  alias varchar(64) character set latin1  default '',
+  alias TEXT character set latin1  default '',
   email_address varchar(255) character set latin1  default '',
   pager_address varchar(64) character set latin1  default '',
   host_timeperiod_object_id bigint unsigned default 0,
@@ -339,6 +339,7 @@ CREATE TABLE IF NOT EXISTS icinga_customvariables (
   has_been_modified smallint default 0,
   varname varchar(255) character set latin1 collate latin1_general_cs default NULL,
   varvalue TEXT character set latin1  default '',
+  is_json smallint default 0,
   PRIMARY KEY  (customvariable_id),
   UNIQUE KEY object_id_2 (object_id,config_type,varname),
   KEY varname (varname)
@@ -358,6 +359,7 @@ CREATE TABLE IF NOT EXISTS icinga_customvariablestatus (
   has_been_modified smallint default 0,
   varname varchar(255) character set latin1 collate latin1_general_cs default NULL,
   varvalue TEXT character set latin1  default '',
+  is_json smallint default 0,
   PRIMARY KEY  (customvariablestatus_id),
   UNIQUE KEY object_id_2 (object_id,varname),
   KEY varname (varname)
@@ -632,7 +634,7 @@ CREATE TABLE IF NOT EXISTS icinga_hosts (
   instance_id bigint unsigned default 0,
   config_type smallint default 0,
   host_object_id bigint unsigned default 0,
-  alias varchar(64) character set latin1  default '',
+  alias TEXT character set latin1  default '',
   display_name varchar(255) character set latin1 collate latin1_general_cs  default '',
   address varchar(128) character set latin1  default '',
   address6 varchar(128) character set latin1  default '',
@@ -897,9 +899,11 @@ CREATE TABLE IF NOT EXISTS icinga_processevents (
 CREATE TABLE IF NOT EXISTS icinga_programstatus (
   programstatus_id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   instance_id bigint unsigned default 0,
+  program_version varchar(64) character set latin1 collate latin1_general_cs default NULL,
   status_update_time timestamp  default '0000-00-00 00:00:00',
   program_start_time timestamp  default '0000-00-00 00:00:00',
   program_end_time timestamp  default '0000-00-00 00:00:00',
+  endpoint_name varchar(255) character set latin1 collate latin1_general_cs default NULL,
   is_currently_running smallint default 0,
   process_id bigint unsigned default 0,
   daemon_mode smallint default 0,
@@ -1406,7 +1410,6 @@ ALTER TABLE icinga_servicechecks ADD COLUMN endpoint_object_id bigint default NU
 ALTER TABLE icinga_statehistory ADD COLUMN endpoint_object_id bigint default NULL;
 ALTER TABLE icinga_systemcommands ADD COLUMN endpoint_object_id bigint default NULL;
 
-
 -- -----------------------------------------
 -- add index (delete)
 -- -----------------------------------------
@@ -1600,6 +1603,6 @@ CREATE INDEX commenthistory_delete_idx ON icinga_commenthistory (instance_id, co
 -- -----------------------------------------
 -- set dbversion
 -- -----------------------------------------
-INSERT INTO icinga_dbversion (name, version, create_time, modify_time) VALUES ('idoutils', '1.11.6', NOW(), NOW()) ON DUPLICATE KEY UPDATE version='1.11.6', modify_time=NOW();
+INSERT INTO icinga_dbversion (name, version, create_time, modify_time) VALUES ('idoutils', '1.12.0', NOW(), NOW()) ON DUPLICATE KEY UPDATE version='1.12.0', modify_time=NOW();
 
 

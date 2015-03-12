@@ -23,6 +23,69 @@ NEWS
 
 * Mailinglists have been migrated to icinga.org. Please check https://www.icinga.org/support for details!
 
+1.12.2 - 14/02/2015
+
+FIXES
+
+* Bug #3305: Duplicate service definitions are not generating a config validation error
+
+
+1.12.1 - 24/01/2015
+
+FIXES
+
+* Docs - Bug #7801: Add a minified js library for the html docs
+
+
+1.12.0 - 19/11/2014
+
+ENHANCEMENTS
+
+* core/idoutils: Populate long_output column on notification history neb events #7362 - MF
+
+* classic ui: start with unhandled problems view instead of TAC #4817 - MF
+* classic ui: Adding alias to title in host/service overview #5900 - WN
+* classic ui: Add display of extra icons in status overview of hosts and services #6829 - RD/RB
+* classic ui: Add config option to set Sticky Acknowledgment checkbox default #6237 - CF
+* classic ui: Add config option to sort status data by default #5965 - RB
+* classic ui: Add sorting of comments and downtimes #5339 - RB
+* classic ui: Add link to online documentation #6606 - RB
+
+* idoutils: Add program_version column to programstatus table #7390 - MF
+* idoutils: Extend size of column 'alias' for MySQL tables hosts & contacts #6382 - MF
+* idoutils: Import 'is_json' for custom vars into schema (Icinga 2) #7568 - MF
+
+FIXES
+
+* classic ui: Fix grammatical errors in popup text #7451 - CF
+* classic ui: Fix order of hosts and service checks in tac.cgi #6965 - RB
+
+* idoutils: check for undersized data-packets and ignore them to eliminate null transactions to the database #4221 - CF
+
+* initscript: Correct bash-specific syntax in startup script #7450 - CF
+
+* spec: Use versioned dependencies in the RPM spec file #7017 - GB
+
+CHANGES
+
+* core/idoutils: Populate long_output column on notification history neb events #7362
+* idoutils: Add program_version column to programstatus table #7390
+	** required for Icinga Web 2 and Icinga 2
+* idoutils: 'alias' column is now TEXT in MySQL #6382
+* idoutils: Import 'is_json' for custom vars into schema (Icinga 2) #7568
+
+
+1.11.7 - 03/09/2014
+
+FIXES
+
+* Use versioned dependencies in the RPM spec file #7071 - GB
+* Import 1.11.7 schema changes from Icinga 2 #6939 - MF
+
+CHANGES
+
+* New programstatus column 'endpoint_name' requires schema update to 1.11.7! #6939
+
 
 1.11.6 - 06/08/2014
 
