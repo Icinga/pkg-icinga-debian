@@ -4,7 +4,7 @@
 -- icinga DB object definition for Oracle
 -- called and defines set from oracle.sql
 --
--- Copyright (c) 2009-2014 Icinga Development Team (http://www.icinga.org)
+-- Copyright (c) 2009-2015 Icinga Development Team (http://www.icinga.org)
 --
 -- -- --------------------------------------------------------
 */
@@ -525,7 +525,7 @@ CREATE TABLE contacts (
   instance_id integer default 0 ,
   config_type integer default 0 ,
   contact_object_id integer default 0 ,
-  alias varchar2(64),
+  alias varchar2(1024),
   email_address varchar2(1024),
   pager_address varchar2(64),
   host_timeperiod_object_id integer default 0 ,
@@ -1250,6 +1250,7 @@ alter table processevents add constraint processevents_pk PRIMARY KEY  (id)
 CREATE TABLE programstatus (
   id integer ,
   instance_id integer default 0 ,
+  program_version varchar2(64),
   status_update_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
   program_start_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,
   program_end_time TIMESTAMP(0) WITH LOCAL TIME ZONE default TO_TIMESTAMP_TZ('01.01.1970 UTC','DD.MM.YYYY TZR') ,

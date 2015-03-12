@@ -1,8 +1,17 @@
-icinga (1.11.6-1~debmon60+1) debmon-squeeze; urgency=medium
+icinga (1.12.2-1~debmon60+1) debmon-squeeze; urgency=medium
 
   * Build for debmon-squeeze 
 
  -- Alexander Wirt <formorer@debian.org>  Sun, 30 Mar 2014 16:50:10 +0200
+
+icinga (1.12.2-1) experimental; urgency=medium
+
+  * [ffdb896] Imported Upstream version 1.12.2
+  * [b357b73] Prefer monitoring-plugins over nagios-plugins
+  * [0d3040d] Imported Upstream version 1.12.0
+  * [09bf1ee] Install 1.12.0 sql db upgrades
+
+ -- Alexander Wirt <formorer@debian.org>  Thu, 12 Mar 2015 14:02:59 +0100
 
 icinga (1.11.6-1) unstable; urgency=medium
 
