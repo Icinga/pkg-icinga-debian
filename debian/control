@@ -22,7 +22,7 @@ Depends: adduser,
          bsd-mailx | mailx,
          coreutils (>= 4.5.3),
          lsb-base (>= 3.0-6),
-         monitoring-plugins-basic | icinga-plugins-basic,
+         monitoring-plugins-basic | nagios-plugins-basic,
          ucf (>= 0.28),
          ${misc:Depends},
          ${perl:Depends}
