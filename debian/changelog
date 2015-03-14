@@ -1,8 +1,14 @@
-icinga (1.12.2-1~ppa1~vivid1) vivid; urgency=medium
+icinga (1.12.2-2~ppa1~vivid1) vivid; urgency=medium
 
   * Rebuild for my ubuntu ppa
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 13 May 2014 15:09:37 +0200
+
+icinga (1.12.2-2) experimental; urgency=medium
+
+  * [17f0a2c] Fix plugin package name
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 14 Mar 2015 07:42:11 +0100
 
 icinga (1.12.2-1) experimental; urgency=medium
 
