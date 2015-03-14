@@ -1,8 +1,14 @@
-icinga (1.12.2-1~debmon70+1) debmon-wheezy; urgency=medium
+icinga (1.12.2-2~debmon70+1) debmon-wheezy; urgency=medium
 
   * Rebuild for debmon
 
  -- Alexander Wirt <formorer@debian.org>  Tue, 18 Feb 2014 16:58:58 +0100
+
+icinga (1.12.2-2) experimental; urgency=medium
+
+  * [17f0a2c] Fix plugin package name
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 14 Mar 2015 07:42:11 +0100
 
 icinga (1.12.2-1) experimental; urgency=medium
 
