@@ -27,8 +27,8 @@
 #define PROGRAM_NAME "Icinga"
 #define PROGRAM_NAME_UC "ICINGA"
 #define PROGRAM_NAME_LC "icinga"
-#define PROGRAM_VERSION "1.12.2"
-#define PROGRAM_MODIFICATION_DATE "02-14-2015"
+#define PROGRAM_VERSION "1.13.2"
+#define PROGRAM_MODIFICATION_DATE "04-08-2015"
 
 /*#define DEBUG_CHECK_IPC 1 */
 /*#define DEBUG_CHECK_IPC2 1*/
@@ -318,6 +318,9 @@
 
 /* for disabled notifications expiry */
 #define CMD_DISABLE_NOTIFICATIONS_EXPIRE_TIME		176
+
+/* Acknowledge host and its services */
+#define CMD_ACKNOWLEDGE_HOST_SVC_PROBLEM		177
 
 /* custom command introduced in Nagios 3.x */
 #define CMD_CUSTOM_COMMAND                              999

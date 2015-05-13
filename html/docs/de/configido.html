@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../stylesheets/icinga-docs.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.75.1">
 <meta name="keywords" content="Supervision, Icinga, Nagios, Linux">
-<link rel="home" href="index.html" title="Icinga Version 1.12 Dokumentation">
+<link rel="home" href="index.html" title="Icinga Version 1.13 Dokumentation">
 <link rel="up" href="ch12.html" title="Kapitel 12. IDOUtils">
 <link rel="prev" href="components.html" title="12.2. Komponenten">
 <link rel="next" href="example-configs.html" title="12.4. Beispielkonfigurationen">
@@ -85,17 +85,6 @@
     module_type   neb
     args          config_file=/usr/local/icinga/etc/idomod.cfg
  }</pre>
-
-  <div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note">
-<tr>
-<td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../images/note.png"></td>
-<th align="left">Anmerkung</th>
-</tr>
-<tr><td align="left" valign="top">
-    <p>Das bedeutet auch, dass ein broker_module-Eintrag für idomod in <code class="filename">icinga.cfg</code> nicht gleichzeitig aktiviert
-    werden darf!</p>
-  </td></tr>
-</table></div>
 
   <p><a name="configido-idomod"></a><span class="bold"><strong>idomod.cfg</strong></span></p>
 
@@ -337,11 +326,19 @@
 
       <pre class="programlisting"> trim_db_interval=3600</pre>
     </li>
+<li class="listitem">
+      <p><span class="emphasis"><em>use transactions</em></span></p>
+
+      <p>Diese Option kann benutzt werden um die Datenbanktransaktionen zu deaktivieren. Standardmässig ist diese Option auf '1' (aktiviert)
+      gesetzt.</p>
+
+      <pre class="programlisting"> use_transactions=1|0</pre>
+    </li>
 </ul></div>
 
-  <a class="indexterm" name="idm254813044976"></a>
+  <a class="indexterm" name="idm264229871568"></a>
 
-  <a class="indexterm" name="idm254813043488"></a>
+  <a class="indexterm" name="idm264229869952"></a>
 
   <div class="section" title="12.3.1. IDOMOD Konfigurationsoptionen">
 <div class="titlepage"><div><div><h3 class="title">
@@ -1674,189 +1671,189 @@
         </li>
 </ul></div>
 
-    <a class="indexterm" name="idm254812539808"></a>
+    <a class="indexterm" name="idm264229365872"></a>
 
-    <a class="indexterm" name="idm254812538176"></a>
+    <a class="indexterm" name="idm264229427552"></a>
 
-    <a class="indexterm" name="idm254812536416"></a>
+    <a class="indexterm" name="idm264229363056"></a>
 
-    <a class="indexterm" name="idm254812534928"></a>
+    <a class="indexterm" name="idm264229361664"></a>
 
-    <a class="indexterm" name="idm254812533200"></a>
+    <a class="indexterm" name="idm264229360272"></a>
 
-    <a class="indexterm" name="idm254812531680"></a>
+    <a class="indexterm" name="idm264229358608"></a>
 
-    <a class="indexterm" name="idm254812529984"></a>
+    <a class="indexterm" name="idm264229357088"></a>
 
-    <a class="indexterm" name="idm254812528432"></a>
+    <a class="indexterm" name="idm264229355456"></a>
 
-    <a class="indexterm" name="idm254812526672"></a>
+    <a class="indexterm" name="idm264229353792"></a>
 
-    <a class="indexterm" name="idm254812525152"></a>
+    <a class="indexterm" name="idm264229352112"></a>
 
-    <a class="indexterm" name="idm254812523392"></a>
+    <a class="indexterm" name="idm264229350496"></a>
 
-    <a class="indexterm" name="idm254812521872"></a>
+    <a class="indexterm" name="idm264229348880"></a>
 
-    <a class="indexterm" name="idm254812520208"></a>
+    <a class="indexterm" name="idm264229347488"></a>
 
-    <a class="indexterm" name="idm254812518656"></a>
+    <a class="indexterm" name="idm264229345696"></a>
 
-    <a class="indexterm" name="idm254812516960"></a>
+    <a class="indexterm" name="idm264229344048"></a>
 
-    <a class="indexterm" name="idm254812515440"></a>
+    <a class="indexterm" name="idm264229342432"></a>
 
-    <a class="indexterm" name="idm254812513744"></a>
+    <a class="indexterm" name="idm264229341040"></a>
 
-    <a class="indexterm" name="idm254812512224"></a>
+    <a class="indexterm" name="idm264229339376"></a>
 
-    <a class="indexterm" name="idm254812510528"></a>
+    <a class="indexterm" name="idm264229337744"></a>
 
-    <a class="indexterm" name="idm254812509040"></a>
+    <a class="indexterm" name="idm264229336096"></a>
 
-    <a class="indexterm" name="idm254812507344"></a>
+    <a class="indexterm" name="idm264229334464"></a>
 
-    <a class="indexterm" name="idm254812505792"></a>
+    <a class="indexterm" name="idm264229332704"></a>
 
-    <a class="indexterm" name="idm254812504192"></a>
+    <a class="indexterm" name="idm264229331152"></a>
 
-    <a class="indexterm" name="idm254812502464"></a>
+    <a class="indexterm" name="idm264229329568"></a>
 
-    <a class="indexterm" name="idm254812500848"></a>
+    <a class="indexterm" name="idm264229327920"></a>
 
-    <a class="indexterm" name="idm254812499120"></a>
+    <a class="indexterm" name="idm264229326272"></a>
 
-    <a class="indexterm" name="idm254812497392"></a>
+    <a class="indexterm" name="idm264229324512"></a>
 
-    <a class="indexterm" name="idm254812495872"></a>
+    <a class="indexterm" name="idm264229322992"></a>
 
-    <a class="indexterm" name="idm254812494112"></a>
+    <a class="indexterm" name="idm264229321376"></a>
 
-    <a class="indexterm" name="idm254812492592"></a>
+    <a class="indexterm" name="idm264229319760"></a>
 
-    <a class="indexterm" name="idm254812490832"></a>
+    <a class="indexterm" name="idm264229318144"></a>
 
-    <a class="indexterm" name="idm254812489312"></a>
+    <a class="indexterm" name="idm264229316528"></a>
 
-    <a class="indexterm" name="idm254812487552"></a>
+    <a class="indexterm" name="idm264229314912"></a>
 
-    <a class="indexterm" name="idm254812486064"></a>
+    <a class="indexterm" name="idm264229313328"></a>
 
-    <a class="indexterm" name="idm254812550112"></a>
+    <a class="indexterm" name="idm264229311568"></a>
 
-    <a class="indexterm" name="idm254812483040"></a>
+    <a class="indexterm" name="idm264229310048"></a>
 
-    <a class="indexterm" name="idm254812481648"></a>
+    <a class="indexterm" name="idm264229308432"></a>
 
-    <a class="indexterm" name="idm254812480256"></a>
+    <a class="indexterm" name="idm264229306816"></a>
 
-    <a class="indexterm" name="idm254812478528"></a>
+    <a class="indexterm" name="idm264229305200"></a>
 
-    <a class="indexterm" name="idm254812477008"></a>
+    <a class="indexterm" name="idm264229303584"></a>
 
-    <a class="indexterm" name="idm254812475392"></a>
+    <a class="indexterm" name="idm264229301968"></a>
 
-    <a class="indexterm" name="idm254812473776"></a>
+    <a class="indexterm" name="idm264229300352"></a>
 
-    <a class="indexterm" name="idm254812472224"></a>
+    <a class="indexterm" name="idm264229298704"></a>
 
-    <a class="indexterm" name="idm254812470608"></a>
+    <a class="indexterm" name="idm264229297088"></a>
 
-    <a class="indexterm" name="idm254812468976"></a>
+    <a class="indexterm" name="idm264229295440"></a>
 
-    <a class="indexterm" name="idm254812467328"></a>
+    <a class="indexterm" name="idm264229293792"></a>
 
-    <a class="indexterm" name="idm254812465680"></a>
+    <a class="indexterm" name="idm264229292192"></a>
 
-    <a class="indexterm" name="idm254812464096"></a>
+    <a class="indexterm" name="idm264229290560"></a>
 
-    <a class="indexterm" name="idm254812462336"></a>
+    <a class="indexterm" name="idm264229288800"></a>
 
-    <a class="indexterm" name="idm254812460816"></a>
+    <a class="indexterm" name="idm264229287280"></a>
 
-    <a class="indexterm" name="idm254812459200"></a>
+    <a class="indexterm" name="idm264229285520"></a>
 
-    <a class="indexterm" name="idm254812457584"></a>
+    <a class="indexterm" name="idm264229284000"></a>
 
-    <a class="indexterm" name="idm254812455968"></a>
+    <a class="indexterm" name="idm264229282240"></a>
 
-    <a class="indexterm" name="idm254812454384"></a>
+    <a class="indexterm" name="idm264229280752"></a>
 
-    <a class="indexterm" name="idm254812452624"></a>
+    <a class="indexterm" name="idm264229278992"></a>
 
-    <a class="indexterm" name="idm254812451136"></a>
+    <a class="indexterm" name="idm264229277504"></a>
 
-    <a class="indexterm" name="idm254812449504"></a>
+    <a class="indexterm" name="idm264229275808"></a>
 
-    <a class="indexterm" name="idm254812447872"></a>
+    <a class="indexterm" name="idm264229274288"></a>
 
-    <a class="indexterm" name="idm254812446240"></a>
+    <a class="indexterm" name="idm264229272592"></a>
 
-    <a class="indexterm" name="idm254812444608"></a>
+    <a class="indexterm" name="idm264229271072"></a>
 
-    <a class="indexterm" name="idm254812442960"></a>
+    <a class="indexterm" name="idm264229269440"></a>
 
-    <a class="indexterm" name="idm254812441312"></a>
+    <a class="indexterm" name="idm264229267776"></a>
 
-    <a class="indexterm" name="idm254812439552"></a>
+    <a class="indexterm" name="idm264229266016"></a>
 
-    <a class="indexterm" name="idm254812438064"></a>
+    <a class="indexterm" name="idm264229264528"></a>
 
-    <a class="indexterm" name="idm254812436304"></a>
+    <a class="indexterm" name="idm264229262768"></a>
 
-    <a class="indexterm" name="idm254812434816"></a>
+    <a class="indexterm" name="idm264229261280"></a>
 
-    <a class="indexterm" name="idm254812433184"></a>
+    <a class="indexterm" name="idm264229259648"></a>
 
-    <a class="indexterm" name="idm254812431424"></a>
+    <a class="indexterm" name="idm264229257888"></a>
 
-    <a class="indexterm" name="idm254812429904"></a>
+    <a class="indexterm" name="idm264229256368"></a>
 
-    <a class="indexterm" name="idm254812428288"></a>
+    <a class="indexterm" name="idm264229254608"></a>
 
-    <a class="indexterm" name="idm254812426672"></a>
+    <a class="indexterm" name="idm264229253088"></a>
 
-    <a class="indexterm" name="idm254812425056"></a>
+    <a class="indexterm" name="idm264229251328"></a>
 
-    <a class="indexterm" name="idm254812423440"></a>
+    <a class="indexterm" name="idm264229249808"></a>
 
-    <a class="indexterm" name="idm254812421824"></a>
+    <a class="indexterm" name="idm264229248048"></a>
 
-    <a class="indexterm" name="idm254812420208"></a>
+    <a class="indexterm" name="idm264229246528"></a>
 
-    <a class="indexterm" name="idm254812418624"></a>
+    <a class="indexterm" name="idm264229244864"></a>
 
-    <a class="indexterm" name="idm254812416992"></a>
+    <a class="indexterm" name="idm264229243312"></a>
 
-    <a class="indexterm" name="idm254812415232"></a>
+    <a class="indexterm" name="idm264229241552"></a>
 
-    <a class="indexterm" name="idm254812413712"></a>
+    <a class="indexterm" name="idm264229240032"></a>
 
-    <a class="indexterm" name="idm254812411952"></a>
+    <a class="indexterm" name="idm264229238272"></a>
 
-    <a class="indexterm" name="idm254812410432"></a>
+    <a class="indexterm" name="idm264229236752"></a>
 
-    <a class="indexterm" name="idm254812408672"></a>
+    <a class="indexterm" name="idm264229234992"></a>
 
-    <a class="indexterm" name="idm254812407152"></a>
+    <a class="indexterm" name="idm264229233472"></a>
 
-    <a class="indexterm" name="idm254812405392"></a>
+    <a class="indexterm" name="idm264229231712"></a>
 
-    <a class="indexterm" name="idm254812403872"></a>
+    <a class="indexterm" name="idm264229230192"></a>
 
-    <a class="indexterm" name="idm254812402176"></a>
+    <a class="indexterm" name="idm264229228656"></a>
 
-    <a class="indexterm" name="idm254812400624"></a>
+    <a class="indexterm" name="idm264229226928"></a>
 
-    <a class="indexterm" name="idm254812398928"></a>
+    <a class="indexterm" name="idm264229225376"></a>
 
-    <a class="indexterm" name="idm254812397408"></a>
+    <a class="indexterm" name="idm264229223744"></a>
 
-    <a class="indexterm" name="idm254812395744"></a>
+    <a class="indexterm" name="idm264229222192"></a>
 
-    <a class="indexterm" name="idm254812394224"></a>
+    <a class="indexterm" name="idm264229220512"></a>
 
-    <a class="indexterm" name="idm254812392528"></a>
+    <a class="indexterm" name="idm264229219024"></a>
   </div>
 </div>
 <div class="navfooter">
