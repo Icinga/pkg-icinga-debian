@@ -54,7 +54,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: icinga
-Version: 1.12.2
+Version: 1.13.2
 Release: %{revision}%{?dist}
 License: GPLv2
 Group: Applications/System
@@ -261,6 +261,7 @@ EOF
     install-webconf \
     install-idoutils \
     install-eventhandlers \
+    install-downtimes \
     DESTDIR="%{buildroot}" \
     INSTALL_OPTS="" \
     INSTALL_OPTS_WEB="" \
@@ -496,6 +497,7 @@ fi
 %attr(755,-,-) %{_bindir}/icingastats
 %attr(755,-,-) %{_libdir}/icinga/p1.pl
 %{_libdir}/%{name}/eventhandlers
+%{plugindir}/downtimes
 %defattr(-,icinga,icinga,-)
 %dir %{logdir}
 %dir %{logdir}/archives
@@ -586,6 +588,10 @@ fi
 %attr(660,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ido2db.cfg
 %config(noreplace) %{_sysconfdir}/%{name}/idomod.cfg
 %config(noreplace) %{_sysconfdir}/%{name}/modules/idoutils.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/flapjack.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/livestatus.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/mod_gearman.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/pnp4nagios.cfg
 %config(noreplace) %{_sysconfdir}/%{name}/objects/ido2db_check_proc.cfg
 %{_bindir}/ido2db
 %{_bindir}/log2ido
