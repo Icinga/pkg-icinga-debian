@@ -1,3 +1,12 @@
+icinga (1.13.2-1) unstable; urgency=medium
+
+  * [d7ee3a5] Imported Upstream version 1.13.2
+  * [af0ed78] Install new database schema
+  * [7349514] Add turkish debconf translation. (Closes: #760330)
+  * [500332d] Update 52_icinga.cfg-debianize
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 13 Jun 2015 08:15:35 +0200
+
 icinga (1.12.2-2) experimental; urgency=medium
 
   * [17f0a2c] Fix plugin package name
