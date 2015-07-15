@@ -37,6 +37,7 @@ CGILOGDIR=@CGILOGDIR@
 CHECKRESULTDIR=@CHECKRESULTDIR@
 EXTCMDFILEDIR=@EXTCMDFILEDIR@
 EVENTHANDLERDIR=@EVENTHANDLERDIR@
+DOWNTIMESDIR=@DOWNTIMESDIR@
 P1FILELOC=@P1FILELOC@
 CFGDIR=@sysconfdir@
 BINDIR=@bindir@
@@ -88,7 +89,7 @@ MKDIR=/bin/mkdir
 ###############################
 # Global
 ###############################
-ICINGA_VERSION=1.12.2
+ICINGA_VERSION=1.13.3
 
 CP=@CP@
 
@@ -282,7 +283,7 @@ distclean: clean
 	cd $(SRC_IDOUTILS) && $(MAKE) $@
 	cd $(SRC_T) && $(MAKE) $@
 
-	rm -f sample-config/*.cfg sample-config/*.conf sample-config/template-object/*.cfg
+	rm -f sample-config/*.cfg sample-config/*.conf sample-config/template-object/*.cfg sample-config/modules/*.cfg
 	rm -f daemon-init pkginfo rc.ido2db ido2db-systemd icinga-systemd sysconfig-env
 	rm -f include/dh.h
 	rm -f Makefile subst p1.pl
@@ -400,6 +401,9 @@ install-basic:
 	@echo "  make install-eventhandlers"
 	@echo "     - This installs the sample eventhandlers in $(DESTDIR)$(EVENTHANDLERDIR)"
 	@echo ""
+	@echo "  make install-downtimes"
+	@echo "     - This installs the recurring downtimes scripts in $(DESTDIR)$(DOWNTIMESDIR)"
+	@echo ""
 	@echo "  make install-idoutils"
 	@echo "     - This installs the database addon IDOUtils into the"
 	@echo "       destination directory"
@@ -441,6 +445,10 @@ install-config: install-cgiconf
 	$(INSTALL) -b -m 664 $(INSTALL_OPTS) sample-config/template-object/windows.cfg $(DESTDIR)$(CFGDIR)/objects/windows.cfg
 	$(INSTALL) -b -m 664 $(INSTALL_OPTS) sample-config/template-object/printer.cfg $(DESTDIR)$(CFGDIR)/objects/printer.cfg
 	$(INSTALL) -b -m 664 $(INSTALL_OPTS) sample-config/template-object/switch.cfg $(DESTDIR)$(CFGDIR)/objects/switch.cfg
+	$(INSTALL) -b -m 664 $(INSTALL_OPTS) sample-config/modules/livestatus.cfg $(DESTDIR)$(CFGDIR)/modules/livestatus.cfg
+	$(INSTALL) -b -m 664 $(INSTALL_OPTS) sample-config/modules/mod_gearman.cfg $(DESTDIR)$(CFGDIR)/modules/mod_gearman.cfg
+	$(INSTALL) -b -m 664 $(INSTALL_OPTS) sample-config/modules/pnp4nagios.cfg $(DESTDIR)$(CFGDIR)/modules/pnp4nagios.cfg
+	$(INSTALL) -b -m 664 $(INSTALL_OPTS) sample-config/modules/flapjack.cfg $(DESTDIR)$(CFGDIR)/modules/flapjack.cfg
 
 	@echo ""
 	@echo "*** Config files installed ***"
@@ -546,6 +554,15 @@ install-eventhandlers:
 	@echo "*** Sample Eventhandlers installed ***"
 	@echo ""
 
+install-downtimes:
+	$(INSTALL) -m 775 $(INSTALL_OPTS) -d $(DESTDIR)$(DOWNTIMESDIR)
+	$(INSTALL) -b -m 774 $(INSTALL_OPTS) tools/downtimes/sched_down.pl $(DESTDIR)$(DOWNTIMESDIR)/sched_down.pl
+	$(INSTALL) -b -m 774 $(INSTALL_OPTS) tools/downtimes/sched_conv.pl $(DESTDIR)$(DOWNTIMESDIR)/sched_conv.pl
+
+	@echo ""
+	@echo "*** Recurring downtimes scripts installed ***"
+	@echo ""
+
 install-classicui-standalone-conf: install-cgiconf install-webconf
 
 	@echo ""
@@ -600,19 +617,22 @@ Prototype:
 	cd sample-config; \
 	for file in *.cfg; \
 	do \
-	    ../$(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/$$file.$(VERSION); \
+	    $(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/$$file.$(VERSION); \
 	done
 	chmod 640 $(PACKDIR)/$(CFGDIR)/resource.cfg.$(VERSION)
 	cd sample-config/template-object; \
 	for file in *.cfg; \
 	do \
-	    ../../$(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/objects/$$file.$(VERSION); \
+	    $(INSTALL) -m 644 $$file $(PACKDIR)/$(CFGDIR)/objects/$$file.$(VERSION); \
 	done
 	mkdir -p $(PACKDIR)/lib/svc/method/
 	$(INSTALL) -o root -g bin -m 555 daemon-init $(PACKDIR)/lib/svc/method/icinga
+	$(INSTALL) -o root -g bin -m 555 rc.ido2db $(PACKDIR)/lib/svc/method/ido2db
 	mkdir -p $(PACKDIR)/var/svc/manifest/application/
 	sed 's%!CFGPREFIX!%$(CFGDIR)%g' solaris/icinga.xml.tpl > solaris/icinga.xml
 	$(INSTALL) -m 444 -o root -g root solaris/icinga.xml $(PACKDIR)/var/svc/manifest/application/
+	sed 's%!CFGPREFIX!%$(CFGDIR)%g' solaris/ido2db.xml.tpl > solaris/ido2db.xml
+	$(INSTALL) -m 444 -o root -g root solaris/ido2db.xml $(PACKDIR)/var/svc/manifest/application/
 	#cd contrib; $(MAKE) all; $(MAKE) DESTDIR=$(PACKDIR) INIT_OPTS='' INSTALL_OPTS='' COMMAND_OPTS='' icinga_grp='' icinga_usr='' install
 	echo i pkginfo > solaris/Prototype
 	if [ -f solaris/checkinstall.in ] ; then cat solaris/checkinstall.in | sed 's/!SUN_PLATFORM!/$(SUN_PLATFORM)/g' > solaris/checkinstall; fi
