@@ -72,6 +72,9 @@ extern int default_downtime_duration;
 
 extern scheduled_downtime *scheduled_downtime_list;
 extern comment *comment_list;
+
+extern char *status_file_icinga_version;
+
 /** @} */
 
 /** @name LIMITS
@@ -627,12 +630,22 @@ int process_cgivars(void) {
 			persistent_comment = TRUE;
 
 		/* we got the notification option for an acknowledgement */
-		else if (!strcmp(key, "send_notification"))
-			send_notification = TRUE;
+		else if (!strcmp(key, "send_notification")) {
+			send_notification = (atoi(value) > 0) ? TRUE : FALSE;
+
+			/* if the value was omitted, assume it is enabled */
+			if (value == NULL)
+				send_notification = TRUE;
+		}
 
 		/* we got the acknowledgement type */
-		else if (!strcmp(key, "sticky_ack"))
-			sticky_ack_set = TRUE;
+		else if (!strcmp(key, "sticky_ack")) {
+			sticky_ack_set = (atoi(value) > 0) ? TRUE : FALSE;
+
+			/* if the value was omitted, assume it is enabled */
+			if (value == NULL)
+				sticky_ack_set = TRUE;
+		}
 
 		/* we use the end_time as expire time */
 		else if (!strcmp(key, "use_ack_end_time"))
@@ -1000,7 +1013,7 @@ void print_form_element(int element, int cmd) {
 		printf("<tr><td id=\"sticky_ack_row\" class=\"objectDescription descriptionleft\">Sticky Acknowledgement:");
 		print_help_box(help_text);
 		printf("</td><td align='left'>");
-		printf("<input type='checkbox' id='sticky_ack_checkbox' name='sticky_ack' %s></td></tr>\n", (set_sticky_acknowledgment == TRUE) ? "CHECKED" : "");
+		printf("<input type='checkbox' id='sticky_ack_checkbox' name='sticky_ack' value='1' %s></td></tr>\n", (set_sticky_acknowledgment == TRUE) ? "CHECKED" : "");
 		break;
 
 	case PRINT_SEND_NOTFICATION:
@@ -1010,7 +1023,7 @@ void print_form_element(int element, int cmd) {
 		printf("<tr><td class=\"objectDescription descriptionleft\">Send Notification:");
 		print_help_box(help_text);
 		printf("</td><td align='left'>");
-		printf("<input type='checkbox' name='send_notification' %s></td></tr>\n", (send_ack_notifications == TRUE) ? "CHECKED" : "");
+		printf("<input type='checkbox' name='send_notification' value='1' %s></td></tr>\n", (send_ack_notifications == TRUE) ? "CHECKED" : "");
 		break;
 
 	case PRINT_PERSISTENT:
@@ -1105,7 +1118,7 @@ void print_form_element(int element, int cmd) {
 		printf("<tr><td class=\"objectDescription descriptionleft\">Use Expire Time:");
 		print_help_box(help_text);
 		printf("</td><td align='left'>");
-		printf("<input type='checkbox' id='expire_checkbox' name='use_ack_end_time' onClick=\"if (document.getElementById('expire_checkbox').checked == true) document.getElementById('expired_date_row').style.display = ''; else document.getElementById('expired_date_row').style.display = 'none';\" %s></td></tr>\n", (set_expire_ack_by_default == TRUE) ? "CHECKED" : "");
+		printf("<input type='checkbox' id='expire_checkbox' name='use_ack_end_time' onClick=\"if (document.getElementById('expire_checkbox').checked == true) document.getElementById('expired_date_row').style.display = ''; else document.getElementById('expired_date_row').style.display = 'none';\" %s></td></tr>\n", (set_expire_ack_by_default == TRUE || use_ack_end_time == TRUE) ? "CHECKED" : "");
 
 		snprintf(help_text, sizeof(help_text), "Enter here the expire date/time for this acknowledgement. %s will automatically delete the acknowledgement after this time expired.", PROGRAM_NAME);
 		help_text[sizeof(help_text)-1] = '\x0';
@@ -1114,7 +1127,7 @@ void print_form_element(int element, int cmd) {
 		t += (unsigned long)default_expiring_acknowledgement_duration;
 		get_time_string(&t, buffer, sizeof(buffer) - 1, SHORT_DATE_TIME);
 
-		printf("<tr id=\"expired_date_row\" style=\"display:%s;\"><td class=\"objectDescription descriptionleft\">Expire Time:", (set_expire_ack_by_default == TRUE) ? "" : "none");
+		printf("<tr id=\"expired_date_row\" style=\"display:%s;\"><td class=\"objectDescription descriptionleft\">Expire Time:", (set_expire_ack_by_default == TRUE || use_ack_end_time == TRUE) ? "" : "none");
 		print_help_box(help_text);
 		printf("</td><td align='left'><input type='text' class='timepicker' name='end_time' value='%s' size='25'></td></tr>\n", buffer);
 		break;
@@ -2996,10 +3009,14 @@ int commit_command(int cmd) {
 		break;
 
 	case CMD_SCHEDULE_HOST_DOWNTIME:
-		if (child_options == 1)
-			cmd = CMD_SCHEDULE_AND_PROPAGATE_TRIGGERED_HOST_DOWNTIME;
-		else if (child_options == 2)
-			cmd = CMD_SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME;
+		/* Icinga 1.x handles that differently */
+		if (status_file_icinga_version != NULL && status_file_icinga_version[0] == '1') {
+			if (child_options == 1)
+				cmd = CMD_SCHEDULE_AND_PROPAGATE_TRIGGERED_HOST_DOWNTIME;
+			else if (child_options == 2)
+				cmd = CMD_SCHEDULE_AND_PROPAGATE_HOST_DOWNTIME;
+		}
+
 		for (x = 0; x < NUMBER_OF_STRUCTS; x++) {
 			if (commands[x].host_name == NULL)
 				continue;

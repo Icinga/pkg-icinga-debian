@@ -54,7 +54,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: icinga
-Version: 1.12.2
+Version: 1.13.3
 Release: %{revision}%{?dist}
 License: GPLv2
 Group: Applications/System
@@ -261,6 +261,7 @@ EOF
     install-webconf \
     install-idoutils \
     install-eventhandlers \
+    install-downtimes \
     DESTDIR="%{buildroot}" \
     INSTALL_OPTS="" \
     INSTALL_OPTS_WEB="" \
@@ -469,7 +470,7 @@ fi
 
 %files
 %defattr(-,root,root,-)
-%doc README LICENSE Changelog UPGRADING %{readme}
+%doc README.md LICENSE Changelog UPGRADING %{readme}
 %if 0%{?using_systemd}
 %attr(755,-,-)  %{_unitdir}/icinga.service
 %attr(644,-,-)  %{_sysconfdir}/sysconfig/icinga
@@ -496,6 +497,7 @@ fi
 %attr(755,-,-) %{_bindir}/icingastats
 %attr(755,-,-) %{_libdir}/icinga/p1.pl
 %{_libdir}/%{name}/eventhandlers
+%{plugindir}/downtimes
 %defattr(-,icinga,icinga,-)
 %dir %{logdir}
 %dir %{logdir}/archives
@@ -506,12 +508,12 @@ fi
 
 %files doc
 %defattr(-,root,root,-)
-%doc README LICENSE Changelog UPGRADING %{readme}
+%doc README.md LICENSE Changelog UPGRADING %{readme}
 %{_datadir}/%{name}/docs
 
 %files gui
 %defattr(-,root,root,-)
-%doc README LICENSE Changelog UPGRADING %{readme}
+%doc README.md LICENSE Changelog UPGRADING %{readme}
 %{_libdir}/%{name}/cgi/avail.cgi
 %{_libdir}/%{name}/cgi/cmd.cgi
 %{_libdir}/%{name}/cgi/config.cgi
@@ -544,7 +546,7 @@ fi
 
 %files gui-config
 %defattr(-,root,root,-)
-%doc README LICENSE Changelog UPGRADING %{readme}
+%doc README.md LICENSE Changelog UPGRADING %{readme}
 %config(noreplace) %{_sysconfdir}/%{name}/cgi.cfg
 %config(noreplace) %{_sysconfdir}/%{name}/cgiauth.cfg
 %config(noreplace) %{apacheconfdir}/icinga.conf
@@ -561,7 +563,7 @@ fi
 
 %files idoutils-libdbi-mysql
 %defattr(-,root,root,-)
-%doc README LICENSE Changelog UPGRADING module/idoutils/db %{readme} %{readmeido}
+%doc README.md LICENSE Changelog UPGRADING module/idoutils/db %{readme} %{readmeido}
 %if 0%{?using_systemd}
 %attr(644,-,-)  %{_unitdir}/ido2db.service
 %else
@@ -577,7 +579,7 @@ fi
 
 %files idoutils-libdbi-pgsql
 %defattr(-,root,root,-)
-%doc README LICENSE Changelog UPGRADING module/idoutils/db %{readme} %{readmeido}
+%doc README.md LICENSE Changelog UPGRADING module/idoutils/db %{readme} %{readmeido}
 %if 0%{?using_systemd}
 %attr(644,-,-)  %{_unitdir}/ido2db.service
 %else
@@ -586,6 +588,10 @@ fi
 %attr(660,root,root) %config(noreplace) %{_sysconfdir}/%{name}/ido2db.cfg
 %config(noreplace) %{_sysconfdir}/%{name}/idomod.cfg
 %config(noreplace) %{_sysconfdir}/%{name}/modules/idoutils.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/flapjack.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/livestatus.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/mod_gearman.cfg
+%config(noreplace) %{_sysconfdir}/%{name}/modules/pnp4nagios.cfg
 %config(noreplace) %{_sysconfdir}/%{name}/objects/ido2db_check_proc.cfg
 %{_bindir}/ido2db
 %{_bindir}/log2ido

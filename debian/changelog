@@ -1,8 +1,23 @@
-icinga (1.12.2-2~debmon60+1) debmon-squeeze; urgency=medium
+icinga (1.13.3-1~debmon60+1) debmon-squeeze; urgency=medium
 
   * Build for debmon-squeeze 
 
  -- Alexander Wirt <formorer@debian.org>  Sun, 30 Mar 2014 16:50:10 +0200
+
+icinga (1.13.3-1) unstable; urgency=medium
+
+  * [8197b77] Imported Upstream version 1.13.3
+
+ -- Alexander Wirt <formorer@debian.org>  Wed, 15 Jul 2015 15:27:22 +0200
+
+icinga (1.13.2-1) unstable; urgency=medium
+
+  * [d7ee3a5] Imported Upstream version 1.13.2
+  * [af0ed78] Install new database schema
+  * [7349514] Add turkish debconf translation. (Closes: #760330)
+  * [500332d] Update 52_icinga.cfg-debianize
+
+ -- Alexander Wirt <formorer@debian.org>  Sat, 13 Jun 2015 08:15:35 +0200
 
 icinga (1.12.2-2) experimental; urgency=medium
 

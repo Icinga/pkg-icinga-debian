@@ -9,9 +9,9 @@ AC_CONFIG_HEADER(include/config.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.12.2"
+PKG_VERSION="1.13.3"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="02-14-2015"
+PKG_REL_DATE="07-15-2015"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -373,6 +373,14 @@ if test x$EVENTHANDLERDIR = xno; then
                 EVENTHANDLERDIR="$libexecdir/eventhandlers"
         fi
 AC_SUBST(EVENTHANDLERDIR)
+
+dnl Location of downtimes scripts path
+DOWNTIMESRDIR=no
+AC_ARG_WITH(downtimes-dir,AC_HELP_STRING([--with-downtimes-dir=<path>],[sets path to recurring downtimes scripts directory path i.e. $prefix/libexec/downtimes]),DOWNTIMESDIR=$withval,DOWNTIMESDIR=no)
+if test x$DOWNTIMESDIR = xno; then
+                DOWNTIMESDIR="$libexecdir/downtimes"
+        fi
+AC_SUBST(DOWNTIMESDIR)
 
 dnl enable perfdata
 ENABLE_PERFDATA=no
@@ -1440,6 +1448,11 @@ perl subst $srcdir/sample-config/template-object/localhost.cfg
 perl subst $srcdir/sample-config/template-object/windows.cfg
 perl subst $srcdir/sample-config/template-object/printer.cfg
 perl subst $srcdir/sample-config/template-object/switch.cfg
+
+perl subst $srcdir/sample-config/modules/livestatus.cfg
+perl subst $srcdir/sample-config/modules/mod_gearman.cfg
+perl subst $srcdir/sample-config/modules/pnp4nagios.cfg
+perl subst $srcdir/sample-config/modules/flapjack.cfg
 
 echo ""
 echo "Creating sample config files in module/idoutils/config/ ..."
