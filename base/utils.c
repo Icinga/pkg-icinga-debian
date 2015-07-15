@@ -41,6 +41,9 @@ static PerlInterpreter *my_perl = NULL;
 int use_embedded_perl = TRUE;
 #endif
 
+/* mutex lock for operations on check_result_list */
+pthread_mutex_t check_result_list_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 extern char	*config_file;
 extern char	*log_file;
 extern char     *command_file;
@@ -286,6 +289,82 @@ extern unsigned long   max_check_result_list_items;
 extern int errno;
 #endif
 
+
+/******************************************************************/
+/****************** REGISTERED FILE DESCRIPTORS *******************/
+/******************************************************************/
+
+#define REGISTERED_FD_MAX 16
+int registered_fds[REGISTERED_FD_MAX];
+pthread_mutex_t registered_fds_lock;
+
+int init_registered_fds(void)
+{
+	int i;
+	for (i = 0; i < REGISTERED_FD_MAX; i++) {
+		registered_fds[i] = -1;
+	}
+
+	return pthread_mutex_init(&registered_fds_lock, NULL);
+}
+
+int register_fd(int fd)
+{
+	if (pthread_mutex_lock(&registered_fds_lock) != 0)
+		return -1;
+
+	errno = ENOBUFS;
+	int rc = -1;
+	int i;
+
+	for (i = 0; i < REGISTERED_FD_MAX; i++) {
+		if (registered_fds[i] > -1) continue;
+		registered_fds[i] = fd;
+		rc = 0;
+		break;
+	}
+
+	pthread_mutex_unlock(&registered_fds_lock);
+	return rc;
+}
+
+int deregister_fd(int fd)
+{
+	if (pthread_mutex_lock(&registered_fds_lock) != 0)
+		return -1;
+
+	errno = ENOENT;
+	int rc = -1;
+	int i;
+
+	for (i = 0; i < REGISTERED_FD_MAX; i++) {
+		if (registered_fds[i] != fd) continue;
+		registered_fds[i] = -1;
+		rc = 0;
+		break;
+	}
+
+	pthread_mutex_unlock(&registered_fds_lock);
+	return rc;
+}
+
+int close_registered_fds(void)
+{
+	if (pthread_mutex_lock(&registered_fds_lock) != 0)
+		return -1;
+
+	int i;
+	for (i = 0; i < REGISTERED_FD_MAX; i++) {
+		if (registered_fds[i] < 0) continue;
+		close(registered_fds[i]);
+		registered_fds[i] = -1;
+	}
+
+	pthread_mutex_unlock(&registered_fds_lock);
+	return 0;
+}
+
+
 /******************************************************************/
 /******************** SYSTEM COMMAND FUNCTIONS ********************/
 /******************************************************************/
@@ -441,6 +520,9 @@ int my_system_r(icinga_macros *mac, char *cmd, int timeout, int *early_timeout, 
 		/* ADDED 11/12/07 EG */
 		/* close external command file and shut down worker thread */
 		close_command_file();
+
+		/* close any file descriptors on behalf of our event brokers */
+		close_registered_fds();
 
 		/* reset signal handling */
 		reset_sighandler();
@@ -2995,8 +3077,18 @@ check_result *read_check_result(void) {
 	if (check_result_list == NULL)
 		return NULL;
 
+	/* lock the check_result_list mutex, in case an event broker is
+	   also trying to change it in a concurrent thread */
+	pthread_mutex_lock(&check_result_list_mutex);
+
 	first_cr = check_result_list;
 	check_result_list = check_result_list->next;
+
+	/* forcibly detach this check result from the list tail */
+	first_cr->next = NULL;
+
+	/* unlock the mutex; all the destructive operations are done */
+	pthread_mutex_unlock(&check_result_list_mutex);
 
 	return first_cr;
 }
@@ -3044,6 +3136,10 @@ int add_check_result_to_list(check_result *new_cr) {
 	if (new_cr == NULL)
 		return ERROR;
 
+	/* lock the check_result_list mutex, so that different threads
+	   can inter-mix calls to add_check_result (i.e. from an event broker) */
+	pthread_mutex_lock(&check_result_list_mutex);
+
 	/* add to list, sorted by finish time (asc) */
 
 	/* find insertion point */
@@ -3069,6 +3165,9 @@ int add_check_result_to_list(check_result *new_cr) {
 		new_cr->next = temp_cr;
 		last_cr->next = new_cr;
 	}
+
+	/* unlock the mutex; all the destructive operations are done */
+	pthread_mutex_unlock(&check_result_list_mutex);
 
 	return OK;
 }
