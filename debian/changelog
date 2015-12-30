@@ -1,3 +1,11 @@
+icinga (1.13.3-2) unstable; urgency=medium
+
+  * [9f7081e] Add myself as uploader
+  * [4877e88] Add missing sources for jquery-ui (Closes: #788723)
+  * [8522150] Override mis-detected missing source
+
+ -- Markus Frosch <lazyfrosch@debian.org>  Wed, 30 Dec 2015 12:50:51 +0100
+
 icinga (1.13.3-1) unstable; urgency=medium
 
   * [8197b77] Imported Upstream version 1.13.3
