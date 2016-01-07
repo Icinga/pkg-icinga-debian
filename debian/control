@@ -15,7 +15,7 @@ Build-Depends: autotools-dev,
                libdbi-dev | libdbi0-dev,
                libgd-dev | libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1),
                libperl-dev,
-               libpng-dev | libpng12-dev,
+               libpng-dev,
                po-debconf
 
 Package: icinga-common
