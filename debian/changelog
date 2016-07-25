@@ -1,3 +1,18 @@
+icinga (1.13.3-3) UNRELEASED; urgency=medium
+
+  [ Markus Frosch ]
+  * [0e0a082] Update VCS URLs
+  * [5da079a] Remove libpng12-dev build-dep, use only libpng-dev
+    (Closes: #810173)
+
+  [ Nishanth Aravamudan ]
+  * [40e540b] Add build-arch and build-indep targets to d/rules
+    (Closes: #821992)
+  * [6182dcb] Classic UI: fixed menu disappear with jQuery 1.11+
+    (Closes: #831332)
+
+ -- Markus Frosch <lazyfrosch@debian.org>  Mon, 25 Jul 2016 13:44:26 +0200
+
 icinga (1.13.3-2) unstable; urgency=medium
 
   * [9f7081e] Add myself as uploader
