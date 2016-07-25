@@ -3,3 +3,4 @@
 52_icinga.cfg-debianize.dpatch
 70_fix_eventhandler_paths.dpatch
 95_fix_db_upgrade.dpatch
+96_jquery_compat.dpatch
