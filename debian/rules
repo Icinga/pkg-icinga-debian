@@ -101,7 +101,9 @@ configure-stamp:
 	$(CONFIGURE)
 	touch configure-stamp
 
-build: build-stamp
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
 build-stamp: patch-stamp configure-stamp
 	dh_testdir -a
 	@echo "Doing $@"
@@ -235,4 +237,4 @@ binary-indep: install-stamp
 	dh_md5sums           -i
 	dh_builddeb          -i
 
-.PHONY: binary-indep binary-arch build configure binary install patch unpatch
+.PHONY: binary-indep binary-arch build build-arch build-indep configure binary install patch unpatch
