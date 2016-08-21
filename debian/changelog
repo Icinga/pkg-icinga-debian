@@ -1,4 +1,4 @@
-icinga (1.13.3-3) UNRELEASED; urgency=medium
+icinga (1.13.3-3) unstable; urgency=medium
 
   [ Markus Frosch ]
   * [0e0a082] Update VCS URLs
@@ -11,7 +11,10 @@ icinga (1.13.3-3) UNRELEASED; urgency=medium
   * [6182dcb] Classic UI: fixed menu disappear with jQuery 1.11+
     (Closes: #831332)
 
- -- Markus Frosch <lazyfrosch@debian.org>  Mon, 25 Jul 2016 13:44:26 +0200
+  [ Markus Frosch ]
+  * [40490d6] Add patch to fix CVE-2015-8010 (Closes: #803432)
+
+ -- Markus Frosch <lazyfrosch@debian.org>  Sun, 21 Aug 2016 14:12:35 +0200
 
 icinga (1.13.3-2) unstable; urgency=medium
 
