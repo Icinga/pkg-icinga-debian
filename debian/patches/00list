@@ -4,3 +4,4 @@
 70_fix_eventhandler_paths.dpatch
 95_fix_db_upgrade.dpatch
 96_jquery_compat.dpatch
+99_CVE-2015-8010.dpatch
