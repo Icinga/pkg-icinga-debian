@@ -1,3 +1,10 @@
+icinga (1.13.3-4) UNRELEASED; urgency=medium
+
+  * Team upload.
+  * Update Vcs-Git URL to use HTTPS.
+
+ -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
+
 icinga (1.13.3-3) unstable; urgency=medium
 
   [ Markus Frosch ]
