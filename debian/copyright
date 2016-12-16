@@ -1,62 +1,118 @@
-This package was debianized by Alexander Wirt <formorer@debian.org>.
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Icinga
+Source: https://github.com/Icinga/icinga-core
 
-It was downloaded from http://www.icinga.org/
+Files: *
+Copyright: 1999-2010, Ethan Galstad (egalstad@nagios.org)
+           2009-2013, Nagios Core Development Team and Community Contributors
+                2013, NETWAYS GmbH
+           2009-2015, Icinga Development Team (http://www.icinga.org)
+License: GPL-2
 
-Current Debian Maintainers: The nagios packaging team
-			    http://alioth.debian.org/projects/pkg-nagios/
+Files: p1.pl.in
+ contrib/p1.pl
+Copyright: Stephen Davies
+     2004, Stanley Hopcroft <hopcrofts@cpan.org>
+License: Artistic or GPL-1+
 
-Mailing-List: 	pkg-nagios-devel@lists.alioth.debian.org
+Files: common/snprintf.c
+Copyright: 1995, Patrick Powell
+License: attribution
+ This code is based on code written by Patrick Powell (papowell@astart.com)
+ It may be used for any purpose as long as this notice remains intact
+ on all source code distributions
 
-Upstream Author:  Ethan Galstad <nagios@nagios.org>
-		  Icinga Development Team (info@icinga.org)
+Files: html/docs/js/jquery-1.8.2.js
+ html/docs/js/jquery-min.js
+ html/js/jquery-1.8.0.js
+ html/js/jquery-1.8.0.min.js
+ html/jquery-ui/*
+ html/jquery-ui-addon/*
+Copyright: 2012-2013, jQuery Foundation and other contributors
+                2013, Trent Richardson
+License: Expat
 
-Copyright (c) 1999-2009 Ethan Galstad (nagios@nagios.org)
-Copyright (c) 2009-2010 Icinga Development Team (info@icinga.org)
+Files: html/js/jquery.dd.js
+ html/js/jquery.dd.min.js
+Copyright: 2009-2011, Marghoob Suleman
+License: Expat or GPL-2
 
-License:
+Files: tools/icinga_verification.pl
+ tools/mysql.pm
+Copyright: 2012, Icinga Developer Team
+License: GPL-2+
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 2 as
-published by the Free Software Foundation.
+Files: debian/*
+Copyright: Alexander Wirt <formorer@debian.org>
+License: GPL-2
 
-On Debian systems, the complete text of the GNU General Public
-License, version 2, can be found in /usr/share/common-licenses/GPL-2.
+License: Artistic
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the Artistic License, which comes with Perl.
+ .
+ On Debian systems, the complete text of the Artistic License can be
+ found in `/usr/share/common-licenses/Artistic'.
 
-p1.pl is Copyright 2007 by Stanley Hopcroft
+License: GPL-1+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 1, or (at your option)
+ any later version.
+ .
+ On Debian systems, the complete text of version 1 of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-1'.
 
-This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+License: GPL-2
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License version 2 as
+ published by the Free Software Foundation.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .
+ On Debian systems, the complete text of version 2 of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-2'.
 
-On Debian systems, the complete text of the Artistic
-License, can be found in /usr/share/common-licenses/Artistic.
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along
+ with this program; if not, write to the Free Software Foundation, Inc.,
+ 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .
+ On Debian systems, the complete text of version 2 of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-2'.
 
-The file common/snprintf.c is Copyright 1995 by Patrick Powell
-
-This code is based on code written by Patrick Powell (papowell@astart.com)
-It may be used for any purpose as long as this notice remains intact
-on all source code distributions
-
-
-html/js/jquery-1.8.0.js and jquery-1.8.0.min.js is Copyright 2012 by jQuery
-Foundation and other contributors. html/js/jquery.dd.js and html/js/jquery.dd.min.js is Copyright (c) 2009 Marghoob Suleman, http://www.marghoobsuleman.com/.
-
-The files are released under the MIT License:
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do
+ so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
 
