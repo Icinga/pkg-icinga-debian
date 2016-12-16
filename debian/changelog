@@ -19,6 +19,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Drop unused override for dir-or-file-in-var-run.
   * Bump debhelper compatibility to 9.
   * Enable all hardening buildflags.
+  * Add lintian overrides for package-contains-empty-directory.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 

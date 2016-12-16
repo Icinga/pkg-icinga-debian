@@ -4,3 +4,6 @@ icinga-common: non-standard-file-perm etc/icinga/resource.cfg 0600 != 0644
 # False positive on dpkg-statoverride command
 icinga-common: spelling-error-in-readme-debian nagios nagios (duplicate word) nagios
 
+# Intentional empty directory for addons & generated files
+icinga-common: package-contains-empty-directory usr/share/icinga/debian/
+

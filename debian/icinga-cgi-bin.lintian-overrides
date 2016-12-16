@@ -1,0 +1,4 @@
+# Intentional empty directory for addons & generated files
+icinga-cgi-bin: package-contains-empty-directory usr/share/icinga/htdocs/media/
+icinga-cgi-bin: package-contains-empty-directory usr/share/icinga/htdocs/ssi/
+
