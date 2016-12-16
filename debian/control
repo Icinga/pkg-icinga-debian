@@ -58,7 +58,7 @@ Depends: adduser,
          ${shlibs:Depends}
 Recommends: apache2 | httpd,
             nagios-images
-Description: host and network monitoring system - CGI scripts
+Description: host and network monitoring system - CGI configuration
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
  understand and modify to fit any need.
@@ -74,7 +74,7 @@ Description: host and network monitoring system - CGI scripts
   * web output: current status, notifications, problem history, log
     file, etc.
  .
- This package provides CGI configuration files and the required dependencys.
+ This package provides CGI configuration files and the required dependencies.
 
 Package: icinga-cgi-bin
 Architecture: any
@@ -103,7 +103,7 @@ Description: host and network monitoring system - CGI scripts
   * web output: current status, notifications, problem history, log
     file, etc.
  .
- This package provides CGI binarys and HTML files.
+ This package provides CGI binaries and HTML files.
 
 Package: icinga-idoutils
 Architecture: any
