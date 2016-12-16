@@ -3,6 +3,9 @@
 
 # export DH_VERBOSE=1
 
+# Enable hardening build flags
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
 b := $(shell pwd)/debian
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)

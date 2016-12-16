@@ -18,6 +18,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Create /var/run/icinga in idoutils init script too.
   * Drop unused override for dir-or-file-in-var-run.
   * Bump debhelper compatibility to 9.
+  * Enable all hardening buildflags.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
