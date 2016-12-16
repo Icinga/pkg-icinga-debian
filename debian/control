@@ -116,7 +116,7 @@ Depends: dbconfig-common,
          ${misc:Depends},
          ${perl:Depends},
          ${shlibs:Depends}
-Recommends: mysql-client | postgresql-client
+Recommends: default-mysql-client | postgresql-client
 Description: host and network monitoring system - icinga-dataobjects support
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
