@@ -7,6 +7,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Add Homepage field to control file.
   * Switch from dpatch to source format 3.0 (quilt).
   * Drop dpkg-dev build dependency, required version available in oldstable.
+  * Fix duplicate word in copyright file.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
