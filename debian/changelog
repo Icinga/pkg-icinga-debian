@@ -4,6 +4,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Update Vcs-Git URL to use HTTPS.
   * Change mysql-client dependency to default-mysql-client.
   * Restructure control file with cme.
+  * Add Homepage field to control file.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
