@@ -22,6 +22,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Add lintian overrides for package-contains-empty-directory.
   * Don't install .in templates in examples.
   * Don't install p1.pl with execute bit set.
+  * Use dh sequencer in rules file.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 

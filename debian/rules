@@ -16,7 +16,7 @@ CFLAGS += `dpkg-buildflags --get CPPFLAGS`
 LDFLAGS = `dpkg-buildflags --get LDFLAGS`
 
 SHELL		= /bin/sh -e
-CONFIGURE	= CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --prefix=/usr \
+CONFIGURE_OPTS	= --prefix=/usr \
 				--mandir=/usr/share/man \
 				--bindir=/usr/sbin \
 				--sbindir=/usr/lib/cgi-bin/icinga \
@@ -49,28 +49,11 @@ CONFIGURE	= CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" ./configure --prefix=/usr \
 				--with-temp-file=/var/cache/icinga/icinga.tmp \
 				--with-mainurl=/cgi-bin/icinga/tac.cgi
 
-clean: clean-patched
-clean-patched:
-	dh_testdir -a
-	dh_testroot -a
-	if test -f Makefile; then make distclean; fi
-	rm -f install-stamp configure-stamp build-stamp fix-configs-stamp
-	rm -rf debian-configs
-	-rm contrib/perlxsi.c
-	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
-	-rm -f platform.h auto-include.h
-	-rm solaris/pkginfo
-	-rm contrib/eventhandlers/submit_check_result contrib/eventhandlers/disable_active_service_checks
-	-rm contrib/eventhandlers/disable_notifications contrib/eventhandlers/enable_active_service_checks
-	-rm contrib/eventhandlers/enable_notifications
-	-rm config.log
-	find -type d -name build -print0 | xargs -0 -r rm -rf \;
-	find \( -name config.sub -o -name config.guess \) -print0 | xargs -0 -r rm -f \;
-	dh_clean
-	debconf-updatepo
+%:
+	dh $@
 
 fix-configs: fix-configs-stamp
-fix-configs-stamp: configure-stamp
+fix-configs-stamp:
 	mkdir -p debian-configs
 	sed -e '/Sample CGI/ s/\([0-9]\.[0-9]\.[0-9]\)//' \
 	    -e '/Last Modified/,+1 d' \
@@ -93,41 +76,54 @@ fix-configs-stamp: configure-stamp
 		-e "s/^\(db_user=\).*/\1_DBC_DBUSER_/" \
 		-e "s/^\(db_pass=\).*/\1_DBC_DBPASS_/" module/idoutils/config/ido2db.cfg-sample
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir -a
+override_dh_auto_clean:
+	dh_testdir
+	dh_testroot
+	if test -f Makefile; then make distclean; fi
+	rm -f install-stamp configure-stamp build-stamp fix-configs-stamp
+	rm -rf debian-configs
+	-rm contrib/perlxsi.c
+	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
+	-rm -f platform.h auto-include.h
+	-rm solaris/pkginfo
+	-rm contrib/eventhandlers/submit_check_result contrib/eventhandlers/disable_active_service_checks
+	-rm contrib/eventhandlers/disable_notifications contrib/eventhandlers/enable_active_service_checks
+	-rm contrib/eventhandlers/enable_notifications
+	-rm config.log
+	find -type d -name build -print0 | xargs -0 -r rm -rf \;
+	find \( -name config.sub -o -name config.guess \) -print0 | xargs -0 -r rm -f \;
+
+override_dh_auto_configure:
+	dh_testdir
 	@echo "Doing $@"
 	if test -f Makefile; then make clean; fi
 	ln -sf /usr/share/misc/config.sub .
 	ln -sf /usr/share/misc/config.guess .
 	rm -f config.cache
-	$(CONFIGURE)
-	touch configure-stamp
 
-build: build-arch build-indep
-build-arch: build-stamp
-build-indep: build-stamp
-build-stamp: configure-stamp
-	dh_testdir -a
-	@echo "Doing $@"
-	$(MAKE) all
-	make -C contrib
-	touch build-stamp
+	dh_auto_configure -- $(CONFIGURE_OPTS)
 
-install: install-stamp
-install-stamp: build-stamp fix-configs-stamp
+override_dh_auto_build:
+	dh_testdir
 	@echo "Doing $@"
-	dh_testdir -a
-	dh_testroot -a
-	dh_installdirs -a -i  
-	make install-unstripped DESTDIR=$b/tmp INSTALL_OPTS="" COMMAND_OPTS=""
-	make install-idoutils DESTDIR=$b/icinga-idoutils INSTALL_OPTS="" COMMAND_OPTS=""
+	dh_auto_build -- all
+	dh_auto_build --sourcedirectory=contrib
+
+override_dh_auto_install: fix-configs-stamp
+	@echo "Doing $@"
+	dh_testdir
+	dh_testroot
+	dh_installdirs -a -i
+	$(MAKE) install-unstripped DESTDIR=$b/tmp INSTALL_OPTS="" COMMAND_OPTS=""
+	$(MAKE) install-idoutils DESTDIR=$b/icinga-idoutils INSTALL_OPTS="" COMMAND_OPTS=""
 	rm $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample
-	#We have to rename the sample files 
+	#We have to rename the sample files
 	#mv $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample $b/icinga-idoutils/etc/icinga/ido2db.cfg
 	mv $b/icinga-idoutils/etc/icinga/idomod.cfg-sample $b/icinga-idoutils/etc/icinga/idomod.cfg
 	mkdir -p $b/icinga-idoutils/usr/share/doc/icinga-idoutils/examples
 	mv $b/icinga-idoutils/etc/icinga/modules/idoutils.cfg-sample $b/icinga-idoutils/usr/share/doc/icinga-idoutils/examples
+	mkdir -p $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install \
+	         $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install
 	cp module/idoutils/db/mysql/mysql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/mysql
 	cp module/idoutils/db/pgsql/pgsql.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/install/pgsql
 	mkdir -p $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/mysql/
@@ -163,71 +159,71 @@ install-stamp: build-stamp fix-configs-stamp
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.11.6.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.11.6
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.12.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.12.0
 	cp module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.13.0.sql $b/icinga-idoutils/usr/share/dbconfig-common/data/icinga-idoutils/upgrade/pgsql/1.13.0
+
+	# remove jquery from package
+	rm -rf ${b}/tmp/usr/share/icinga/htdocs/js/jquery-*
+
+override_dh_install-arch:
+	dh_install -a
+
+	mkdir -p ${b}/icinga-dbg/usr/bin/
+	mv contrib/mini_epn ${b}/icinga-dbg/usr/bin/mini_epn_icinga
+
+	# fix permissions
+	chmod 644 ${b}/icinga-core/usr/lib/icinga/p1.pl
+
+override_dh_install-indep:
+	dh_install -i
+
 	# set up /var/cache/icinga for access by www-data
 	chgrp www-data ${b}/icinga-common/var/cache/icinga
 	chmod g+s ${b}/icinga-common/var/cache/icinga
 	chown root:www-data ${b}/icinga-common/var/lib/icinga/rw
 	chmod 700 ${b}/icinga-common/var/lib/icinga/rw
-	dh_install           -i
-	# remove jquery from package
-	rm -rf ${b}/tmp/usr/share/icinga/htdocs/js/jquery-*
+
 	rm ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/*.in
-	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/* ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/redundancy-scenario1/*
-	# we use the versions in debian
-	dh_link		     -i
-	dh_lintian
-	dh_installdocs       -i
-	dh_installman        -a -picinga
-	dh_installexamples
-	rm -f ${b}/icinga-idoutils/usr/share/doc/icinga-idoutils/examples/scripts/*.in
-	dh_installlogrotate
-	dh_installchangelogs -i
-	dh_installinit 	     --name icinga --error-handler=init_failed
-	dh_installinit	  -n -picinga-idoutils --name ido2db
-	chmod 755 ${b}/icinga-common/var/lib/icinga 
-	# the real version is in -cgi 
+	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/* \
+	         ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/* \
+	         ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/redundancy-scenario1/*
+
+	chmod 755 ${b}/icinga-common/var/lib/icinga
+	# the real version is in -cgi
 	rm ${b}/icinga-common/etc/icinga/cgi.cfg
 
-
-binary: binary-arch binary-indep
-binary-arch: install-stamp
-	@echo "Doing $@"
-	dh_testdir           -a
-	dh_testroot          -a
-	dh_installchangelogs -a
-	dh_installdocs       -a
-	dh_installdebconf    -a 
-	dh_install           -a
-	rm -rf ${b}/icinga/usr/share/doc/ 
-	rm -rf ${b}/icinga-core/usr/share/doc/
-	dh_link		     -a
-	mkdir -p ${b}/icinga-dbg/usr/bin/
-	mv contrib/mini_epn ${b}/icinga-dbg/usr/bin/mini_epn_icinga
 	chmod 600 ${b}/icinga-common/etc/icinga/resource.cfg
-	# fix permissions of p1
-	chmod 644 ${b}/icinga-core/usr/lib/icinga/p1.pl
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result
+
+override_dh_installexamples-arch:
+	dh_installexamples -a
+
 	chmod -x ${b}/icinga-idoutils/usr/share/doc/icinga-idoutils/examples/README
-	dh_strip             -a  --dbg-package=icinga-dbg
-	dh_compress          -a -X.sql 
-	dh_fixperms          -a -X/var/cache/icinga
-	dh_makeshlibs        -a -V
-	dh_installdeb        -a
-	dh_perl		     -a
-	dh_shlibdeps         -a
-	dh_gencontrol        -a
-	dh_md5sums           -a
-	dh_builddeb          -a
+	rm -f ${b}/icinga-idoutils/usr/share/doc/icinga-idoutils/examples/scripts/*.in
 
-binary-indep: install-stamp
-	dh_link		     -i
-	dh_compress          -i
-	dh_fixperms          -i -Xicinga/resource.cfg
-	dh_installdebconf    -i
-	dh_perl		     -i
-	dh_installdeb        -i
-	dh_gencontrol        -i
-	dh_md5sums           -i
-	dh_builddeb          -i
+override_dh_installexamples-indep:
+	dh_installexamples -i
 
-.PHONY: binary-indep binary-arch build build-arch build-indep configure binary install
+override_dh_installinit:
+	dh_installinit --name icinga --error-handler=init_failed
+	dh_installinit --name ido2db -n -picinga-idoutils
+
+override_dh_link:
+	rm -rf ${b}/icinga/usr/share/doc/
+	rm -rf ${b}/icinga-core/usr/share/doc/
+
+	dh_link
+
+override_dh_strip:
+	dh_strip --dbg-package=icinga-dbg
+
+override_dh_compress:
+	dh_compress -X.sql
+
+overide_dh_makeshlibs:
+	dh_makeshlibs -V
+
+override_dh_fixperms-arch:
+	dh_fixperms -a -X/var/cache/icinga
+
+override_dh_fixperms-indep:
+	dh_fixperms -i -Xicinga/resource.cfg
+
