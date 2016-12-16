@@ -1,32 +1,31 @@
 Source: icinga
-Section: net
-Priority: optional
 Maintainer: Debian Nagios Maintainer Group <pkg-nagios-devel@lists.alioth.debian.org>
 Uploaders: Alexander Wirt <formorer@debian.org>,
            Jan Wagner <waja@cyconet.org>,
            Markus Frosch <lazyfrosch@debian.org>
-Standards-Version: 3.9.6
-Vcs-Browser: https://anonscm.debian.org/cgit/pkg-nagios/icinga.git/
-Vcs-Git: https://anonscm.debian.org/git/pkg-nagios/icinga.git
+Section: net
+Priority: optional
 Build-Depends: autotools-dev,
                debhelper (>= 7),
-               dpatch (>= 2.0.10),
-               dpkg-dev (>= 1.13.19),
+               dpatch,
+               dpkg-dev,
                libdbi-dev | libdbi0-dev,
-               libgd-dev | libgd2-noxpm-dev (>= 2.0.1) | libgd2-xpm-dev (>= 2.0.1),
+               libgd-dev | libgd2-noxpm-dev | libgd2-xpm-dev,
                libperl-dev,
                libpng-dev,
                po-debconf
+Standards-Version: 3.9.6
+Vcs-Browser: https://anonscm.debian.org/cgit/pkg-nagios/icinga.git/
+Vcs-Git: https://anonscm.debian.org/git/pkg-nagios/icinga.git
 
 Package: icinga-common
 Architecture: all
 Depends: adduser,
          bsd-mailx | mailx,
-         coreutils (>= 4.5.3),
          dpkg (>= 1.16.1),
-         lsb-base (>= 3.0-6),
+         lsb-base,
          monitoring-plugins-basic | nagios-plugins-basic,
-         ucf (>= 0.28),
+         ucf,
          ${misc:Depends},
          ${perl:Depends}
 Recommends: monitoring-plugins | nagios-plugins
@@ -52,14 +51,14 @@ Package: icinga-cgi
 Architecture: any
 Depends: adduser,
          apache2-utils,
-         coreutils (>= 4.5.3),
          icinga-cgi-bin (= ${binary:Version}),
          icinga-common (= ${source:Version}),
-         ucf (>= 0.28),
+         ucf,
          ${misc:Depends},
          ${perl:Depends},
          ${shlibs:Depends}
-Recommends: apache2 | httpd, nagios-images (>> 0.1)
+Recommends: apache2 | httpd,
+            nagios-images
 Description: host and network monitoring system - CGI scripts
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
@@ -80,14 +79,15 @@ Description: host and network monitoring system - CGI scripts
 
 Package: icinga-cgi-bin
 Architecture: any
-Replaces: icinga-cgi (<< 1.11.0-2~),
-Breaks: icinga-cgi (<< 1.11.0-2~),
-Depends: libjs-jquery (>= 1.4.2-1~),
+Depends: libjs-jquery,
          libjs-jquery-ui (>= 1.10.1+dfsg-1~),
          ${misc:Depends},
          ${perl:Depends},
          ${shlibs:Depends}
-Recommends: apache2 | httpd, nagios-images (>> 0.1)
+Recommends: apache2 | httpd,
+            nagios-images
+Breaks: icinga-cgi (<< 1.11.0-2~)
+Replaces: icinga-cgi (<< 1.11.0-2~)
 Description: host and network monitoring system - CGI scripts
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
@@ -111,7 +111,7 @@ Architecture: any
 Depends: dbconfig-common,
          icinga-common (= ${source:Version}),
          libdbd-mysql | libdbd-pgsql,
-         lsb-base (>= 3.0-6),
+         lsb-base,
          ucf,
          ${misc:Depends},
          ${perl:Depends},
@@ -191,7 +191,9 @@ Description: host and network monitoring system - core files
 Package: icinga-doc
 Architecture: all
 Section: doc
-Depends: ${misc:Depends}, ${perl:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends},
+         ${perl:Depends},
+         ${shlibs:Depends}
 Description: host and network monitoring system - documentation
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
@@ -211,9 +213,9 @@ Description: host and network monitoring system - documentation
  This package provides the documentation for Icinga.
 
 Package: icinga-dbg
+Architecture: any
 Section: debug
 Priority: extra
-Architecture: any
 Depends: icinga-core (= ${binary:Version}),
          ${misc:Depends},
          ${perl:Depends},
