@@ -13,6 +13,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Add override for spelling-error-in-readme-debian false positive.
   * Update copyright file using copyright-format 1.0.
   * Fix duplicate short description and spelling errors in long description.
+  * Drop unused override for package-contains-empty-directory.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
