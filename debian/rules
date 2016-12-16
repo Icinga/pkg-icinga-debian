@@ -205,7 +205,7 @@ binary-arch: install-stamp
 	mv contrib/mini_epn ${b}/icinga-dbg/usr/bin/mini_epn_icinga
 	chmod 600 ${b}/icinga-common/etc/icinga/resource.cfg
 	# fix permissions of p1
-	chmod 755 ${b}/icinga-core/usr/lib/icinga/p1.pl
+	chmod 644 ${b}/icinga-core/usr/lib/icinga/p1.pl
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result
 	chmod -x ${b}/icinga-idoutils/usr/share/doc/icinga-idoutils/examples/README
 	dh_strip             -a  --dbg-package=icinga-dbg
