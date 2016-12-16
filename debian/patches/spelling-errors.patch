@@ -8,6 +8,7 @@ Description: Fix spelling errors.
  * occure     -> occur
  * Unkown     -> Unknown
 Author: Bas Couwenberg <sebastic@debian.org>
+Forwarded: https://github.com/Icinga/icinga-core/pull/10
 
 --- a/base/checks.c
 +++ b/base/checks.c
