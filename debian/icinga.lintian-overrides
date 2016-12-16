@@ -1,1 +1,2 @@
-usr-share-doc-symlink-without-dependency icinga-common
+icinga: usr-share-doc-symlink-without-dependency icinga-common
+
