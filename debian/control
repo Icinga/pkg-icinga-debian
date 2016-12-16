@@ -7,7 +7,6 @@ Section: net
 Priority: optional
 Build-Depends: autotools-dev,
                debhelper (>= 7),
-               dpkg-dev,
                libdbi-dev | libdbi0-dev,
                libgd-dev | libgd2-noxpm-dev | libgd2-xpm-dev,
                libperl-dev,
