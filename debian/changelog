@@ -9,6 +9,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Drop dpkg-dev build dependency, required version available in oldstable.
   * Fix duplicate word in copyright file.
   * Add patch to fix spelling errors.
+  * Add upstream metadata.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
