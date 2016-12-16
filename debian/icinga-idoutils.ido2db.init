@@ -45,6 +45,14 @@ if [ "$IDO2DB" != "yes"  ]; then
     exit 0
 fi
 
+check_run () {
+	if [ ! -d '/var/run/icinga' ];
+	then
+		mkdir /var/run/icinga
+		chown nagios:nagios /var/run/icinga
+		chmod 0750 /var/run/icinga
+	fi
+}
 
 check_started () {
 	start-stop-daemon --quiet --pidfile $PIDFILE --exec $DAEMON --status > /dev/null 
@@ -132,6 +140,7 @@ do_stop()
 	return "$RETVAL"
 }
 
+check_run
 
 case "$1" in
   start)
