@@ -1,2 +1,6 @@
 non-standard-file-perm etc/icinga/resource.cfg 0600 != 0644
 dir-or-file-in-var-run var/run/icinga/
+
+# False positive on dpkg-statoverride command
+icinga-common: spelling-error-in-readme-debian nagios nagios (duplicate word) nagios
+
