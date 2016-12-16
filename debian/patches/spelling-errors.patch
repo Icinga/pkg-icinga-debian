@@ -1,0 +1,509 @@
+Description: Fix spelling errors.
+ * Agressive  -> Aggressive
+ * deamon     -> daemon
+ * occuring   -> occurring
+ * trucating  -> truncating
+ * preceeding -> preceding
+ * occured    -> occurred
+ * occure     -> occur
+ * Unkown     -> Unknown
+Author: Bas Couwenberg <sebastic@debian.org>
+
+--- a/base/checks.c
++++ b/base/checks.c
+@@ -1531,7 +1531,7 @@ int handle_async_service_check_result(se
+ 
+ 			/* we're using aggressive host checking, so really do recheck the host... */
+ 			if (use_aggressive_host_checking == TRUE) {
+-				log_debug_info(DEBUGL_CHECKS, 1, "Agressive host checking is enabled, so we'll recheck the host state...\n");
++				log_debug_info(DEBUGL_CHECKS, 1, "Aggressive host checking is enabled, so we'll recheck the host state...\n");
+ 				perform_on_demand_host_check(temp_host, &route_result, CHECK_OPTION_NONE, TRUE, cached_host_check_horizon);
+ 			}
+ 
+--- a/html/docs/en/tuning.html
++++ b/html/docs/en/tuning.html
+@@ -146,8 +146,8 @@
+         need to schedule regular checks of your hosts (see above). More information on cached checks can be found <a class="link" href="cachedchecks.html" title="7.21. Cached Checks">here</a>.</p>
+       </li>
+ <li class="listitem">
+-        <p><span class="bold"><strong>Don't use agressive host checking</strong></span>. Unless you're having problems with Icinga
+-        recognizing host recoveries, We would recommend not enabling the <a class="link" href="configmain.html#configmain-use_agressive_host_checking">use_aggressive_host_checking</a> option. With this option turned off host checks
++        <p><span class="bold"><strong>Don't use aggressive host checking</strong></span>. Unless you're having problems with Icinga
++        recognizing host recoveries, We would recommend not enabling the <a class="link" href="configmain.html#configmain-use_aggressive_host_checking">use_aggressive_host_checking</a> option. With this option turned off host checks
+         will execute much faster, resulting in speedier processing of service check results. However, host recoveries can be missed under
+         certain circumstances when this it turned off. For example, if a host recovers and all of the services associated with that host
+         stay in non-OK states (and don't "wobble" between different non-OK states), Icinga may miss the fact that the host has
+--- a/html/docs/de/tuning.html
++++ b/html/docs/de/tuning.html
+@@ -150,7 +150,7 @@
+       </li>
+ <li class="listitem">
+         <p><span class="bold"><strong>Nutzen Sie keine agressiven Host-Prüfungen</strong></span>. Solange Sie keine Probleme damit haben, dass
+-        Icinga Host-Erholungen nicht korrekt erkennt, würden wir empfehlen, die <a class="link" href="configmain.html#configmain-use_agressive_host_checking">use_aggressive_host_checking</a>-Option nicht zu aktivieren. Wenn diese Option
++        Icinga Host-Erholungen nicht korrekt erkennt, würden wir empfehlen, die <a class="link" href="configmain.html#configmain-use_aggressive_host_checking">use_aggressive_host_checking</a>-Option nicht zu aktivieren. Wenn diese Option
+         abgeschaltet ist, werden Host-Prüfungen viel schneller ausgeführt, was zu schnellerer Ausführung von Service-Prüfungen führt.
+         Allerdings können Host-Erholungen unter bestimmten Umständen übersehen werden, wenn sie ausgeschaltet ist. Wenn sich z.B. der Host
+         erholt, aber alle mit ihm verbundenen Services in einem nicht-OK-Zustand bleiben (und nicht zwischen verschiedenen
+--- a/base/icingastats.c
++++ b/base/icingastats.c
+@@ -331,7 +331,7 @@ int main(int argc, char **argv) {
+ 		printf(" STATUSFILEAGE        string with age of status data file.\n");
+ 		printf(" STATUSFILEAGETT      string with age of status data file (time_t format).\n");
+ 		printf(" %sVERSION        string with %s version.\n", PROGRAM_NAME_UC, PROGRAM_NAME);
+-		printf(" %sPID            pid number of %s deamon.\n", PROGRAM_NAME_UC, PROGRAM_NAME);
++		printf(" %sPID            pid number of %s daemon.\n", PROGRAM_NAME_UC, PROGRAM_NAME);
+ 		printf(" %sVERPID         string with %s version and PID.\n", PROGRAM_NAME_UC, PROGRAM_NAME);
+ 		printf(" TOTCMDBUF            total number of external command buffer slots available.\n");
+ 		printf(" USEDCMDBUF           number of external command buffer slots currently in use.\n");
+@@ -371,18 +371,18 @@ int main(int argc, char **argv) {
+ 		printf(" xxxPSVHSTLAT         MIN/MAX/AVG passive host check latency (ms).\n");
+ 		printf(" xxxPSVHSTPSC         MIN/MAX/AVG passive host check %% state change.\n");
+ 		printf(" xxxHSTPSC            MIN/MAX/AVG host check %% state change.\n");
+-		printf(" NUMACTHSTCHECKSxM    number of total active host checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMOACTHSTCHECKSxM   number of on-demand active host checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMCACHEDHSTCHECKSxM number of cached host checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMSACTHSTCHECKSxM   number of scheduled active host checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMPARHSTCHECKSxM    number of parallel host checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMSERHSTCHECKSxM    number of serial host checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMPSVHSTCHECKSxM    number of passive host checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMACTSVCCHECKSxM    number of total active service checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMOACTSVCCHECKSxM   number of on-demand active service checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMCACHEDSVCCHECKSxM number of cached service checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMSACTSVCCHECKSxM   number of scheduled active service checks occuring in last 1/5/15 minutes.\n");
+-		printf(" NUMPSVSVCCHECKSxM    number of passive service checks occuring in last 1/5/15 minutes.\n");
++		printf(" NUMACTHSTCHECKSxM    number of total active host checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMOACTHSTCHECKSxM   number of on-demand active host checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMCACHEDHSTCHECKSxM number of cached host checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMSACTHSTCHECKSxM   number of scheduled active host checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMPARHSTCHECKSxM    number of parallel host checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMSERHSTCHECKSxM    number of serial host checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMPSVHSTCHECKSxM    number of passive host checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMACTSVCCHECKSxM    number of total active service checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMOACTSVCCHECKSxM   number of on-demand active service checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMCACHEDSVCCHECKSxM number of cached service checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMSACTSVCCHECKSxM   number of scheduled active service checks occurring in last 1/5/15 minutes.\n");
++		printf(" NUMPSVSVCCHECKSxM    number of passive service checks occurring in last 1/5/15 minutes.\n");
+ 		printf(" NUMEXTCMDSxM         number of external commands processed in last 1/5/15 minutes.\n");
+ 
+ 		printf("\n");
+--- a/html/docs/en/configmain.html
++++ b/html/docs/en/configmain.html
+@@ -1434,7 +1434,7 @@
+ <tr><td align="left" valign="top">
+     <p>This is an advanced feature. This option determines how many buffer slots Icinga will reserve for caching external commands
+     that have been read from the external command file by a worker thread, but have not yet been processed by the main thread of the
+-    Icinga deamon. Each slot can hold one external command, so this option essentially determines how many commands can be buffered.
++    Icinga daemon. Each slot can hold one external command, so this option essentially determines how many commands can be buffered.
+     For installations where you process a large number of passive checks (e.g. <a class="link" href="distributed.html" title="7.6. Distributed Monitoring">distributed setups</a>), you
+     may need to increase this number. You should consider using PNP4Nagios to graph Icinga's usage of external command buffers. You
+     can read more on how to configure graphing <a class="link" href="perfgraphs.html" title="8.7. Graphing Performance Info With PNP4Nagios">here</a>.</p>
+--- a/Changelog
++++ b/Changelog
+@@ -2651,7 +2651,7 @@ WARNINGS
+ ------------------
+ * Configure script fix for no mail program found/installed on system
+ * Fix for compilation warnings about implicit declaration of round() - may (strangely enough) also
+-  fix segfaults that were occuring on some systems
++  fix segfaults that were occurring on some systems
+ * Added detection of Apache conf.d directory and 'make install-webconf' functionality
+ * Configure script option bug fixes for cygwin and embedded perl
+ * Added buffer stats and check statistics to performance information in extinfo CGI
+--- a/module/idoutils/src/dbqueries.c
++++ b/module/idoutils/src/dbqueries.c
+@@ -76,7 +76,7 @@ int ido2db_query_insert_or_update_system
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_systemcommanddata_add() Warning:long_output truncated\n");
+ 				if ((*(char **) data[11])[strlen(*(char **) data[11]) - 1] == '\\') {
+ 					(*(char **) data[11])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_systemcommanddata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_systemcommanddata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -347,7 +347,7 @@ int ido2db_query_insert_or_update_eventh
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_eventhandlerdata_add() Warning:long_output truncated\n");
+ 				if ((*(char **) data[17])[strlen(*(char **) data[17]) - 1] == '\\') {
+ 					(*(char **) data[17])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_eventhandlerdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_eventhandlerdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -671,7 +671,7 @@ int ido2db_query_insert_or_update_notifi
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_notificationdata_add() Warning:long_output truncated\n");
+ 				if ((*(char **) data[10])[strlen(*(char **) data[10]) - 1] == '\\') {
+ 					(*(char **) data[10])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_notificationdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_notificationdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -1527,7 +1527,7 @@ int ido2db_query_insert_servicecheckdata
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:long_output truncated\n");
+ 				if ((*(char **) data[17])[strlen(*(char **) data[17]) - 1] == '\\') {
+ 					(*(char **) data[17])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -1537,7 +1537,7 @@ int ido2db_query_insert_servicecheckdata
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:perfdata truncated\n");
+ 				if ((*(char **) data[18])[strlen(*(char **) data[18]) - 1] == '\\') {
+ 					(*(char **) data[18])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_servicecheckdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -1778,7 +1778,7 @@ int ido2db_query_insert_hostcheckdata_ad
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:long_output truncated\n");
+ 				if ((*(char **) data[21])[strlen(*(char **) data[21]) - 1] == '\\') {
+ 					(*(char **) data[21])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -1788,7 +1788,7 @@ int ido2db_query_insert_hostcheckdata_ad
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:perfdata truncated\n");
+ 				if ((*(char **) data[22])[strlen(*(char **) data[22]) - 1] == '\\') {
+ 					(*(char **) data[22])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_hostcheckdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -3423,7 +3423,7 @@ int ido2db_query_insert_or_update_hostst
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:long_output truncated\n");
+ 				if ((*(char **) data[4])[strlen(*(char **) data[4]) - 1] == '\\') {
+ 					(*(char **) data[4])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -3433,7 +3433,7 @@ int ido2db_query_insert_or_update_hostst
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:perfdata truncated\n");
+ 				if ((*(char **) data[5])[strlen(*(char **) data[5]) - 1] == '\\') {
+ 					(*(char **) data[5])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_hoststatusdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -3944,7 +3944,7 @@ int ido2db_query_insert_or_update_servic
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:long_output truncated\n");
+ 				if ((*(char **) data[4])[strlen(*(char **) data[4]) - 1] == '\\') {
+ 					(*(char **) data[4])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}	
+@@ -3954,7 +3954,7 @@ int ido2db_query_insert_or_update_servic
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:perfdata truncated\n");
+ 				if ((*(char **) data[5])[strlen(*(char **) data[5]) - 1] == '\\') {
+ 					(*(char **) data[5])[IDO2DB_MYSQL_MAX_TEXT_LEN - 1]=0;
+-					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:backslash detected at the end, trucating a bit more\n");
++					ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_query_insert_or_update_servicestatusdata_add() Warning:backslash detected at the end, truncating a bit more\n");
+ 				}
+ 			}
+ 		}
+@@ -4741,7 +4741,7 @@ int ido2db_query_insert_or_update_config
+ 
+ 			        if (result == IDO_OK) {
+ 			                ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables"
+-		                                      " preceeding ido2db_query_insert_or_update_configfilevariables_add OK \n");
++		                                      " preceding ido2db_query_insert_or_update_configfilevariables_add OK \n");
+ 		                        /* mysql doesn't use sequences */
+                 		        *id = dbi_conn_sequence_last(idi->dbinfo.dbi_conn, NULL);
+ 		                        ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables(%lu) configfile_id\n", *id);
+@@ -4817,7 +4817,7 @@ int ido2db_query_insert_or_update_config
+ 
+ 		        if (result == IDO_OK) {
+ 		                ido2db_log_debug_info(IDO2DB_DEBUGL_PROCESSINFO, 2, "ido2db_handle_configfilevariables"
+-                		                      " preceeding ido2db_query_insert_or_update_configfilevariables_add OK \n");
++                		                      " preceding ido2db_query_insert_or_update_configfilevariables_add OK \n");
+ 	                        /* depending on tableprefix/tablename a sequence will be used */
+         	                if (asprintf(&buf1, "%s_configfile_id_seq", ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILES]) == -1)
+                 	                buf1 = NULL;
+--- a/cgi/cgiutils.c
++++ b/cgi/cgiutils.c
+@@ -3036,7 +3036,7 @@ int rotate_cgi_log_file() {
+ 	write_to_cgi_log(temp_buffer);
+ 
+ 	/* give a warning about use */
+-	write_to_cgi_log("This log is highly experimental and changes may occure without notice. Use at your own risk!!");
++	write_to_cgi_log("This log is highly experimental and changes may occur without notice. Use at your own risk!!");
+ 
+ 	if (stat_result == 0) {
+ 		chmod(cgi_log_file, log_file_stat.st_mode);
+--- a/cgi/cmd.c
++++ b/cgi/cmd.c
+@@ -2544,7 +2544,7 @@ void commit_command_data(int cmd) {
+ 	if (e > 0) {
+ 		printf("<div class='errorBox'>\n");
+ 		printf("<div class='errorMessage'><table cellspacing='0' cellpadding='0' border='0'><tr><td width='55'><img src=\"%s%s\" border='0'></td>", url_images_path, CMD_STOP_ICON);
+-		printf("<td class='errorMessage'>Following errors occured.</td></tr></table></div>\n");
++		printf("<td class='errorMessage'>Following errors occurred.</td></tr></table></div>\n");
+ 		printf("<table cellspacing='0' cellpadding='0' border='0' class='errorTable'>\n");
+ 		for (e = 0; e < NUMBER_OF_STRUCTS; e++) {
+ 			if (error[e].message == NULL)
+--- a/html/docs/de/icinga-web-api.html
++++ b/html/docs/de/icinga-web-api.html
+@@ -290,7 +290,7 @@ order(SERVICE_CURRENT_STATE;DESC)/countC
+        &lt;column name="SERVICE_INSTANCE_ID"&gt;1&lt;/column&gt;
+        &lt;column name="SERVICE_NAME"&gt;MailQ&lt;/column&gt;
+        &lt;column name="SERVICE_DISPLAY_NAME"&gt;MailQ&lt;/column&gt;
+-       &lt;column name="SERVICE_OUTPUT"&gt;Error occured:error=1:0:0&lt;/column&gt;
++       &lt;column name="SERVICE_OUTPUT"&gt;Error occurred:error=1:0:0&lt;/column&gt;
+        &lt;column name="SERVICE_PERFDATA"&gt;&lt;/column&gt;
+    &lt;/result&gt;
+    &lt;result&gt;
+@@ -321,7 +321,7 @@ order(SERVICE_CURRENT_STATE;DESC)/countC
+        "SERVICE_INSTANCE_ID":"1",
+        "SERVICE_NAME":"MailQ",
+        "SERVICE_DISPLAY_NAME":"MailQ",
+-       "SERVICE_OUTPUT":"Error occured:error=1:0:0",
++       "SERVICE_OUTPUT":"Error occurred:error=1:0:0",
+        "SERVICE_PERFDATA":"" 
+    },{
+        "SERVICE_ID":"311",
+--- a/html/docs/de/sample-cgi.html
++++ b/html/docs/de/sample-cgi.html
+@@ -619,7 +619,7 @@ highlight_table_rows=1
+ # If you want to log information from cgi's (e.g. all submitted commands)
+ # then set this option to 1, default is 0 (off).
+ # WARNING:
+-# This log is highly experimental and changes may occure without notice. Use at your own risk!!
++# This log is highly experimental and changes may occur without notice. Use at your own risk!!
+ 
+ use_logging=@ENABLECGILOG@
+ 
+--- a/html/docs/en/cachedchecks.html
++++ b/html/docs/en/cachedchecks.html
+@@ -102,7 +102,7 @@
+ 
+     <p>When Icinga needs to perform an on-demand host or service check, it will make a determination as to whether it can used a
+     cached check result or if it needs to perform an actual check by executing a plugin. It does this by checking to see if the last check
+-    of the host or service occured within the last X minutes, where X is the cached host or service check horizon.</p>
++    of the host or service occurred within the last X minutes, where X is the cached host or service check horizon.</p>
+ 
+     <p>If the last check was performed within the timeframe specified by the cached check horizon variable, Icinga will use the
+     result of the last host or service check and will <span class="emphasis"><em>not</em></span> execute a new check. If the host or service has not yet been
+--- a/html/docs/en/icinga-web-api.html
++++ b/html/docs/en/icinga-web-api.html
+@@ -283,7 +283,7 @@ order(SERVICE_CURRENT_STATE;DESC)/countC
+        &lt;column name="SERVICE_INSTANCE_ID"&gt;1&lt;/column&gt;
+        &lt;column name="SERVICE_NAME"&gt;MailQ&lt;/column&gt;
+        &lt;column name="SERVICE_DISPLAY_NAME"&gt;MailQ&lt;/column&gt;
+-       &lt;column name="SERVICE_OUTPUT"&gt;Error occured:error=1:0:0&lt;/column&gt;
++       &lt;column name="SERVICE_OUTPUT"&gt;Error occurred:error=1:0:0&lt;/column&gt;
+        &lt;column name="SERVICE_PERFDATA"&gt;&lt;/column&gt;
+    &lt;/result&gt;
+    &lt;result&gt;
+@@ -314,7 +314,7 @@ order(SERVICE_CURRENT_STATE;DESC)/countC
+        "SERVICE_INSTANCE_ID":"1",
+        "SERVICE_NAME":"MailQ",
+        "SERVICE_DISPLAY_NAME":"MailQ",
+-       "SERVICE_OUTPUT":"Error occured:error=1:0:0",
++       "SERVICE_OUTPUT":"Error occurred:error=1:0:0",
+        "SERVICE_PERFDATA":"" 
+    },{
+        "SERVICE_ID":"311",
+--- a/html/docs/en/sample-cgi.html
++++ b/html/docs/en/sample-cgi.html
+@@ -619,7 +619,7 @@ highlight_table_rows=1
+ # If you want to log information from cgi's (e.g. all submitted commands)
+ # then set this option to 1, default is 0 (off).
+ # WARNING:
+-# This log is highly experimental and changes may occure without notice. Use at your own risk!!
++# This log is highly experimental and changes may occur without notice. Use at your own risk!!
+ 
+ use_logging=@ENABLECGILOG@
+ 
+--- a/module/idoutils/src/db.c
++++ b/module/idoutils/src/db.c
+@@ -7108,7 +7108,7 @@ int ido2db_oci_set_session_info(OCI_Conn
+  * print bind names and values
+  * @param OCI_Connection
+  * @param buffer pointer
+- * @returns new output buffer length or -1 if an error occured
++ * @returns new output buffer length or -1 if an error occurred
+  */
+ int ido2db_oci_print_binds(OCI_Statement *st, char **outp) {
+ 	OCI_Bind *bn;
+--- a/module/idoutils/src/dbhandlers.c
++++ b/module/idoutils/src/dbhandlers.c
+@@ -366,7 +366,7 @@ int ido2db_get_object_id_with_insert(ido
+ 	data[3] = (void *) &es[1];
+ 
+ 	/* FIXME: OCILIB claimed this already prepared statement is not prepared ,
+-	 * but no prepare error occured and statement sql is available with statement handle
++	 * but no prepare error occurred and statement sql is available with statement handle
+ 	 * (https://dev.icinga.org/issues/1638)
+ 	 *
+ 	 * this bad workaround prepares new statement handle at every call
+@@ -4826,7 +4826,7 @@ int ido2db_handle_configfilevariables(id
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_configfilevariables_elements"
+ 				                      "(File %lu) ERROR:Rollback %d items\n", configfile_id, arrsize);
+@@ -5047,7 +5047,7 @@ int ido2db_handle_runtimevariables(ido2d
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_runtimevariables()"
+ 				                      "ERROR:Rollback %d items\n", arrsize);
+@@ -5451,7 +5451,7 @@ int ido2db_handle_hostdefinition(ido2db_
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition parent "
+ 				                      "(hostid %lu) ERROR:Rollback %d items\n", host_id, arrsize);
+@@ -5582,7 +5582,7 @@ int ido2db_handle_hostdefinition(ido2db_
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition contactgroups"
+ 				                      "(hostid %lu) ERROR:Rollback %d items\n", host_id, arrsize);
+@@ -5709,7 +5709,7 @@ int ido2db_handle_hostdefinition(ido2db_
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition contacts"
+ 				                      "(hostid %lu) ERROR:Rollback %d items\n", host_id, arrsize);
+@@ -5920,7 +5920,7 @@ int ido2db_handle_hostgroupdefinition(id
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostgroupdefinition members"
+ 				                      "(groupid %lu) ERROR:Rollback %d items\n", group_id, arrsize);
+@@ -6286,7 +6286,7 @@ int ido2db_handle_servicedefinition(ido2
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicedefinition contactgroups"
+ 				                      "(hostid %lu) ERROR:Rollback %d items\n", service_id, arrsize);
+@@ -6413,7 +6413,7 @@ int ido2db_handle_servicedefinition(ido2
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicedefinition contacts"
+ 				                      "(hostid %lu) ERROR:Rollback %d items\n", service_id, arrsize);
+@@ -6638,7 +6638,7 @@ int ido2db_handle_servicegroupdefinition
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicegroupdefinition members"
+ 				                      "(groupid %lu) ERROR:Rollback %d items\n", group_id, arrsize);
+@@ -7237,7 +7237,7 @@ int ido2db_handle_timeperiodefinition(id
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_timeperiodefinition_timeranges"
+ 				                      "(Period %lu) ERROR:Rollback %d items\n", timeperiod_id, arrsize);
+@@ -7735,7 +7735,7 @@ int ido2db_handle_contactgroupdefinition
+ 				arrsize = 0;
+ 				OCI_Commit(idi->dbinfo.oci_connection);
+ 			} else {
+-				/* execute error occured, need rollback and exit */
++				/* execute error occurred, need rollback and exit */
+ 				OCI_Rollback(idi->dbinfo.oci_connection);
+ 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_contactgroupdefinition members"
+ 				                      "(groupid %lu) ERROR:Rollback %d items\n", group_id, arrsize);
+--- a/sample-config/cgi.cfg.in
++++ b/sample-config/cgi.cfg.in
+@@ -645,7 +645,7 @@ sort_status_data_by_default=0
+ # If you want to log information from cgi's (e.g. all submitted commands)
+ # then set this option to 1, default is 0 (off).
+ # WARNING:
+-# This log is highly experimental and changes may occure without notice. Use at your own risk!!
++# This log is highly experimental and changes may occur without notice. Use at your own risk!!
+ 
+ use_logging=@ENABLECGILOG@
+ 
+--- a/xdata/xodtemplate.c
++++ b/xdata/xodtemplate.c
+@@ -8076,7 +8076,7 @@ int xodtemplate_recombobulate_hostgroups
+ 			continue;
+ 
+ 		/* preprocess the hostgroup list, to change "grp1,grp2,grp3,!grp2" into "grp1,grp3" */
+-		/* 10/18/07 EG an empty return value means an error occured */
++		/* 10/18/07 EG an empty return value means an error occurred */
+ 		if ((hostgroup_names = xodtemplate_process_hostgroup_names(temp_host->host_groups, temp_host->_config_file, temp_host->_start_line)) == NULL)
+ 			return ERROR;
+ 
+@@ -8303,7 +8303,7 @@ int xodtemplate_recombobulate_servicegro
+ 			continue;
+ 
+ 		/* preprocess the servicegroup list, to change "grp1,grp2,grp3,!grp2" into "grp1,grp3" */
+-		/* 10/19/07 EG an empry return value means an error occured */
++		/* 10/19/07 EG an empry return value means an error occurred */
+ 		if ((servicegroup_names = xodtemplate_process_servicegroup_names(temp_service->service_groups, temp_service->_config_file, temp_service->_start_line)) == NULL)
+ 			return ERROR;
+ 
+--- a/cgi/history.c
++++ b/cgi/history.c
+@@ -604,7 +604,7 @@ void show_history(void) {
+ 			print_generic_error_message(error_text, NULL, 0);
+ 			my_free(error_text);
+ 		} else
+-			print_generic_error_message("Unkown error!", NULL, 0);
++			print_generic_error_message("Unknown error!", NULL, 0);
+ 	}
+ 
+ 	if (status == READLOG_ERROR_MEMORY)
+--- a/cgi/notifications.c
++++ b/cgi/notifications.c
+@@ -671,7 +671,7 @@ void display_notifications(void) {
+ 			print_generic_error_message(error_text, NULL, 0);
+ 			my_free(error_text);
+ 		} else
+-			print_generic_error_message("Unkown error!", NULL, 0);
++			print_generic_error_message("Unknown error!", NULL, 0);
+ 	}
+ 
+ 	if (status == READLOG_ERROR_MEMORY)
+--- a/cgi/showlog.c
++++ b/cgi/showlog.c
+@@ -587,7 +587,7 @@ void display_logentries() {
+ 			print_generic_error_message(error_text, NULL, 0);
+ 			my_free(error_text);
+ 		} else
+-			print_generic_error_message("Unkown error!", NULL, 0);
++			print_generic_error_message("Unknown error!", NULL, 0);
+ 	}
+ 
+ 	if (status == READLOG_ERROR_MEMORY)

@@ -5,3 +5,4 @@
 95_fix_db_upgrade.patch
 96_jquery_compat.patch
 99_CVE-2015-8010.patch
+spelling-errors.patch
