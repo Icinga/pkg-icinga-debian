@@ -1,13 +1,9 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 51_commands.cfg-debianize.dpatch by Alexander Wirt <formorer@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: debianize command.cfg 
+Description: Debianize commands.cfg.
+Author: Alexander Wirt <formorer@debian.org>
+Forwarded: not-needed
 
-@DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/sample-config/template-object/commands.cfg.in pkg-icinga/sample-config/template-object/commands.cfg.in
---- pkg-icinga~/sample-config/template-object/commands.cfg.in	2011-11-26 09:14:41.000000000 +0100
-+++ pkg-icinga/sample-config/template-object/commands.cfg.in	2011-11-26 09:20:26.775720348 +0100
+--- a/sample-config/template-object/commands.cfg.in
++++ b/sample-config/template-object/commands.cfg.in
 @@ -1,24 +1,19 @@
  ###############################################################################
  # COMMANDS.CFG - SAMPLE COMMAND DEFINITIONS FOR ICINGA
@@ -33,7 +29,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  ################################################################################
  
  
-@@ -35,202 +30,12 @@
+@@ -35,202 +30,12 @@ define command{
  	}
  
  
@@ -118,7 +114,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 -################################################################################
 -# NOTE:  The following 'check_...' commands are used to monitor services on
 -#        both local and remote hosts.
- ################################################################################
+-################################################################################
 -
 -# 'check_ftp' command definition
 -define command{
@@ -224,7 +220,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 -}
 -
 -
--################################################################################
+ ################################################################################
 -#
  # SAMPLE PERFORMANCE DATA COMMANDS
 -#
@@ -236,4 +232,3 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  ################################################################################
  
  
-

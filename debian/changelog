@@ -5,6 +5,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Change mysql-client dependency to default-mysql-client.
   * Restructure control file with cme.
   * Add Homepage field to control file.
+  * Switch from dpatch to source format 3.0 (quilt).
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 

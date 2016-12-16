@@ -1,0 +1,58 @@
+Description: Fix eventhandler paths.
+Author: Alexander Wirt <formorer@debian.org>
+Forwarded: not-needed
+
+--- a/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler
++++ b/contrib/eventhandlers/distributed-monitoring/obsessive_svc_handler
+@@ -21,7 +21,7 @@
+ #
+ 
+ # Location of the submit_check_result_via_nsca script
+-SubmitCmd="/usr/local/nagios/libexec/eventhandlers/submit_check_result_via_nsca"
++SubmitCmd="/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/submit_check_result_via_nsca"
+ 
+ # Convert the state string to the corresponding return code
+ return_code=-1
+--- a/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca
++++ b/contrib/eventhandlers/distributed-monitoring/submit_check_result_via_nsca
+@@ -27,8 +27,8 @@
+ 
+ printfcmd="/usr/bin/printf"
+ 
+-NscaBin="/usr/local/icinga/libexec/send_nsca" 
+-NscaCfg="/usr/local/icinga/etc/send_nsca.cfg"
++NscaBin="/usr/sbin/send_nsca" 
++NscaCfg="/etc/send_nsca.cfg"
+ IcingaHost="icingahost"
+ 
+ # Fire the data off to the NSCA daemon using the send_nsca script 
+--- a/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event
++++ b/contrib/eventhandlers/redundancy-scenario1/handle-master-host-event
+@@ -9,10 +9,10 @@
+ 
+ # Location of the echo and mail commands
+ echocmd="/bin/echo"
+-mailcmd="/bin/mail"
++mailcmd="/usr//bin/mail"
+ 
+ # Location of the event handlers
+-eventhandlerdir="/usr/local/icinga/libexec/eventhandlers"
++eventhandlerdir="/usr/share/icinga/plugins/eventhandlers"
+ 
+ 
+ # Only take action on hard host states...
+--- a/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event
++++ b/contrib/eventhandlers/redundancy-scenario1/handle-master-proc-event
+@@ -9,10 +9,10 @@
+ 
+ # Location of the echo and mail commands
+ echocmd="/bin/echo"
+-mailcmd="/bin/mail"
++mailcmd="/usr/bin/mail"
+ 
+ # Location of the event handlers
+-eventhandlerdir="/usr/local/icinga/libexec/eventhandlers"
++eventhandlerdir="/usr/share/icinga/plugins/eventhandlers"
+ 
+ 
+ # Only take action on hard service states...

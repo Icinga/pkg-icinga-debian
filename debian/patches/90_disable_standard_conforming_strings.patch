@@ -1,13 +1,8 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## disable_standard_conforming_strings.dpatch by Alexander Wirt <formorer@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Description: Disable standard conforming strings.
+Author: Alexander Wirt <formorer@debian.org>
 
-@DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/module/idoutils/src/db.c pkg-icinga/module/idoutils/src/db.c
---- pkg-icinga~/module/idoutils/src/db.c	2011-11-26 09:14:41.000000000 +0100
-+++ pkg-icinga/module/idoutils/src/db.c	2012-04-07 09:41:27.178825882 +0200
+--- a/module/idoutils/src/db.c
++++ b/module/idoutils/src/db.c
 @@ -426,6 +426,9 @@
  #endif
  #ifdef USE_LIBDBI

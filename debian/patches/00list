@@ -1,7 +1,0 @@
-50_cgi.cfg-debianize.dpatch
-51_commands.cfg-debianize.dpatch
-52_icinga.cfg-debianize.dpatch
-70_fix_eventhandler_paths.dpatch
-95_fix_db_upgrade.dpatch
-96_jquery_compat.dpatch
-99_CVE-2015-8010.dpatch

@@ -1,13 +1,8 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 95_fix_db_upgrade.dpatch by Alexander Wirt <formorer@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+Description: Fix DB upgrade.
+Author: Alexander Wirt <formorer@debian.org>
 
-@DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql
---- pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql	2011-11-26 09:13:04.000000000 +0100
-+++ pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql	2012-04-07 22:25:04.000000000 +0200
+--- a/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql
++++ b/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.3.0.sql
 @@ -8,8 +8,6 @@
  -- Please check http://docs.icinga.org for upgrading information!
  -- -----------------------------------------
@@ -17,7 +12,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  -- -----------------------------------------
  -- update dbversion
  -- -----------------------------------------
-@@ -50,22 +48,6 @@
+@@ -50,22 +48,6 @@ CREATE INDEX loge_inst_id_time_idx on ic
  
  
  -- -----------------------------------------
@@ -40,9 +35,8 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  -- add address6 column to hosts
  -- -----------------------------------------
  
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql
---- pkg-icinga~/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql	2011-11-26 09:13:04.000000000 +0100
-+++ pkg-icinga/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql	2012-04-07 22:25:04.000000000 +0200
+--- a/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql
++++ b/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.5.0.sql
 @@ -11,7 +11,6 @@
  -- drop unique keys for multiline inserts
  -- -----------------------------------------

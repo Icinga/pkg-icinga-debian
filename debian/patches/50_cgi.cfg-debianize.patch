@@ -1,16 +1,12 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## cfg.cfg-debianize.dpatch by Alexander Wirt <formorer@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: Debianize cgi.cfg
+Description: Debianize cgi.cfg.
+Author: Alexander Wirt <formorer@debian.org>
+Forwarded: not-needed
 
-@DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' pkg-icinga~/sample-config/cgi.cfg.in pkg-icinga/sample-config/cgi.cfg.in
---- pkg-icinga~/sample-config/cgi.cfg.in	2012-05-11 22:33:54.000000000 +0200
-+++ pkg-icinga/sample-config/cgi.cfg.in	2012-06-01 08:42:30.385584123 +0200
-@@ -56,7 +56,22 @@
+--- a/sample-config/cgi.cfg.in
++++ b/sample-config/cgi.cfg.in
+@@ -54,7 +54,22 @@ physical_html_path=@datadir@
  
- http_charset=utf-8
+ url_html_path=@htmurl@
  
 +# NAGIOS PROCESS CHECK COMMAND
 +# This is the full path and filename of the program used to check
@@ -29,5 +25,5 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
 +icinga_check_command=/usr/lib/nagios/plugins/check_nagios /var/lib/icinga/status.dat 5 '/usr/sbin/icinga'
  
- # CONTEXT-SENSITIVE HELP
- # This option determines whether or not a context-sensitive
+ # URL CGI PATH
+ # This is the path portion of the URL that corresponds to the
