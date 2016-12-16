@@ -179,6 +179,7 @@ install-stamp: build-stamp fix-configs-stamp
 	dh_installdocs       -i
 	dh_installman        -a -picinga
 	dh_installexamples
+	rm -f ${b}/icinga-idoutils/usr/share/doc/icinga-idoutils/examples/scripts/*.in
 	dh_installlogrotate
 	dh_installchangelogs -i
 	dh_installinit 	     --name icinga --error-handler=init_failed
