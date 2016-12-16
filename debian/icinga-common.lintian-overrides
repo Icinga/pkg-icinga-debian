@@ -1,9 +1,6 @@
 # resources.cfg can contain passwords and other sensitive configuration
 icinga-common: non-standard-file-perm etc/icinga/resource.cfg 0600 != 0644
 
-# PID file needs to be in directory owner by nagios:nagios
-icinga-common: dir-or-file-in-var-run var/run/icinga/
-
 # False positive on dpkg-statoverride command
 icinga-common: spelling-error-in-readme-debian nagios nagios (duplicate word) nagios
 
