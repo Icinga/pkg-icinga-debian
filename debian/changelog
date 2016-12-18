@@ -23,6 +23,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Don't install .in templates in examples.
   * Don't install p1.pl with execute bit set.
   * Use dh sequencer in rules file.
+  * Use rm -f for all rm commands.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 

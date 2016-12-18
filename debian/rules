@@ -82,14 +82,14 @@ override_dh_auto_clean:
 	if test -f Makefile; then make distclean; fi
 	rm -f install-stamp configure-stamp build-stamp fix-configs-stamp
 	rm -rf debian-configs
-	-rm contrib/perlxsi.c
+	-rm -f contrib/perlxsi.c
 	find -type d -name autom4te.cache -print0 | xargs -0 -r rm -rf \;
 	-rm -f platform.h auto-include.h
-	-rm solaris/pkginfo
-	-rm contrib/eventhandlers/submit_check_result contrib/eventhandlers/disable_active_service_checks
-	-rm contrib/eventhandlers/disable_notifications contrib/eventhandlers/enable_active_service_checks
-	-rm contrib/eventhandlers/enable_notifications
-	-rm config.log
+	-rm -f solaris/pkginfo
+	-rm -f contrib/eventhandlers/submit_check_result contrib/eventhandlers/disable_active_service_checks
+	-rm -f contrib/eventhandlers/disable_notifications contrib/eventhandlers/enable_active_service_checks
+	-rm -f contrib/eventhandlers/enable_notifications
+	-rm -f config.log
 	find -type d -name build -print0 | xargs -0 -r rm -rf \;
 	find \( -name config.sub -o -name config.guess \) -print0 | xargs -0 -r rm -f \;
 
@@ -116,7 +116,7 @@ override_dh_auto_install: fix-configs-stamp
 	dh_installdirs -a -i
 	$(MAKE) install-unstripped DESTDIR=$b/tmp INSTALL_OPTS="" COMMAND_OPTS=""
 	$(MAKE) install-idoutils DESTDIR=$b/icinga-idoutils INSTALL_OPTS="" COMMAND_OPTS=""
-	rm $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample
+	rm -f $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample
 	#We have to rename the sample files
 	#mv $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample $b/icinga-idoutils/etc/icinga/ido2db.cfg
 	mv $b/icinga-idoutils/etc/icinga/idomod.cfg-sample $b/icinga-idoutils/etc/icinga/idomod.cfg
@@ -181,14 +181,14 @@ override_dh_install-indep:
 	chown root:www-data ${b}/icinga-common/var/lib/icinga/rw
 	chmod 700 ${b}/icinga-common/var/lib/icinga/rw
 
-	rm ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/*.in
+	rm -f ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/*.in
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/* \
 	         ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/distributed-monitoring/* \
 	         ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/redundancy-scenario1/*
 
 	chmod 755 ${b}/icinga-common/var/lib/icinga
 	# the real version is in -cgi
-	rm ${b}/icinga-common/etc/icinga/cgi.cfg
+	rm -f ${b}/icinga-common/etc/icinga/cgi.cfg
 
 	chmod 600 ${b}/icinga-common/etc/icinga/resource.cfg
 	chmod +x ${b}/icinga-common/usr/share/icinga/plugins/eventhandlers/submit_check_result
