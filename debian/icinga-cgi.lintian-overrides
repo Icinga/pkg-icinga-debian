@@ -1,0 +1,3 @@
+# Name clashes should not happen despite not matching package name
+icinga-cgi: non-standard-apache2-configuration-name icinga.conf != icinga-cgi.conf
+
