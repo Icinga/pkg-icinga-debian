@@ -6,6 +6,8 @@
 # Enable hardening build flags
 export DEB_BUILD_MAINT_OPTIONS=hardening=+all
 
+export AUTOHEADER=true
+
 b := $(shell pwd)/debian
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -48,7 +50,7 @@ CONFIGURE_OPTS	= --prefix=/usr \
 				--with-mainurl=/cgi-bin/icinga/tac.cgi
 
 %:
-	dh $@
+	dh $@ --with autoreconf
 
 fix-configs: fix-configs-stamp
 fix-configs-stamp:

@@ -34,6 +34,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
     (closes: #799421)
   * Drop unused substitution variables.
   * Don't hardcode invoke-rc.d path in icinga-cgi.postinst.
+  * Use dh-autoreconf for retooling.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 

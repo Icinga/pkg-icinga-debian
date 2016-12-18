@@ -5,8 +5,8 @@ Uploaders: Alexander Wirt <formorer@debian.org>,
            Markus Frosch <lazyfrosch@debian.org>
 Section: net
 Priority: optional
-Build-Depends: autotools-dev,
-               debhelper (>= 9),
+Build-Depends: debhelper (>= 9),
+               dh-autoreconf,
                libdbi-dev | libdbi0-dev,
                libgd-dev | libgd2-noxpm-dev | libgd2-xpm-dev,
                libhtml-lint-perl,
