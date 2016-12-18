@@ -64,7 +64,7 @@ case "$1" in
         [ -f /etc/apache2/conf.d/icinga.conf ] || ln -vs $apacheconf /etc/apache2/conf.d/icinga.conf
 
         if [ -f /etc/init.d/apache2 ] ; then
-            if [ -x /usr/sbin/invoke-rc.d ]; then
+            if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
                 invoke-rc.d apache2 reload 3>/dev/null || true
             else
                 /etc/init.d/apache2 reload 3>/dev/null || true
