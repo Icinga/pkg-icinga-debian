@@ -1,2 +1,2 @@
-etc/icinga/stylesheets usr/share/icinga/stylesheets
+etc/icinga/stylesheets  usr/share/icinga/stylesheets
 etc/icinga/apache2.conf etc/apache2/conf-available/icinga.conf

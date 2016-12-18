@@ -1,2 +1,2 @@
-debian-configs/cgi.cfg /etc/icinga
-debian/apache2.conf /usr/share/icinga
+debian-configs/cgi.cfg etc/icinga
+debian/apache2.conf    usr/share/icinga
