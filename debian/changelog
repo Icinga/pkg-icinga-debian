@@ -25,6 +25,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Use dh sequencer in rules file.
   * Use rm -f for all rm commands.
   * Don't set {C,CPP,LD}FLAGS explicitly, already set by debhelper.
+  * Add build dependencies for test target.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 

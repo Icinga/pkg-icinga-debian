@@ -9,8 +9,12 @@ Build-Depends: autotools-dev,
                debhelper (>= 9),
                libdbi-dev | libdbi0-dev,
                libgd-dev | libgd2-noxpm-dev | libgd2-xpm-dev,
+               libhtml-lint-perl,
+               libipc-run3-perl,
                libperl-dev,
                libpng-dev,
+               libtest-most-perl,
+               libtest-www-mechanize-cgiapp-perl,
                po-debconf
 Standards-Version: 3.9.6
 Vcs-Browser: https://anonscm.debian.org/cgit/pkg-nagios/icinga.git/
