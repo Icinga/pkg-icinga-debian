@@ -107,6 +107,13 @@ override_dh_auto_build:
 	dh_auto_build -- all
 	dh_auto_build --sourcedirectory=contrib
 
+override_dh_auto_test:
+	mkdir -p t/var/spool/checkresults
+
+	dh_auto_test
+
+	rm -rf t/var/spool
+
 override_dh_auto_install: fix-configs-stamp
 	@echo "Doing $@"
 	dh_testdir
