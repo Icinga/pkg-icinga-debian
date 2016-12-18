@@ -1,3 +1,6 @@
 # Name clashes should not happen despite not matching package name
 icinga-cgi: non-standard-apache2-configuration-name icinga.conf != icinga-cgi.conf
 
+# invoke-rc.d is only used when apache2-maintscript-helper is not available
+icinga-cgi: apache2-reverse-dependency-calls-invoke-rc.d *
+

@@ -36,6 +36,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Don't hardcode invoke-rc.d path in icinga-cgi.postinst.
   * Use dh-autoreconf for retooling.
   * Add lintian override for non-standard-apache2-configuration-name.
+  * Add lintian override for apache2-reverse-dependency-calls-invoke-rc.d.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
