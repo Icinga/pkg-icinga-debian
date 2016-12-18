@@ -29,6 +29,9 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Add build dependencies for test target.
   * Override dh_auto_test to create required directories.
   * Update watch file to handle common issues.
+  * Update Brazilian Portuguese debconf templates translation.
+    Thanks to Adriano Rafael Gomes.
+    (closes: #799421)
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
