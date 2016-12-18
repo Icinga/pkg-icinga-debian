@@ -27,6 +27,7 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Don't set {C,CPP,LD}FLAGS explicitly, already set by debhelper.
   * Add build dependencies for test target.
   * Override dh_auto_test to create required directories.
+  * Update watch file to handle common issues.
 
  -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
 
