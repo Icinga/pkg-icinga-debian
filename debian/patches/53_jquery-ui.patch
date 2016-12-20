@@ -1,0 +1,106 @@
+Description: Fixing JQuery UI paths for the Debian installation
+Author: Markus Frosch <lazyfrosch@debian.org>
+Last-Update: 2016-12-19
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/html/menu.html.in
++++ b/html/menu.html.in
+@@ -6,15 +6,17 @@
+ 	<meta http-equiv="Content-Language" content="en" />
+ 	<meta name="robots" content="noindex, nofollow" />
+ 	<link rel="stylesheet" type="text/css" href="stylesheets/menu.css" media="screen, projection" />
+-	<link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/jquery.ui.all.css" media="screen, projection" />
++	<link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/all.min.css" media="screen, projection" />
+ 	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
+-	<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
++	<script type="text/javascript" src="jquery/jquery.min.js"></script>
+ 	<script type="text/javascript" src="js/menu.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.core.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.widget.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.menu.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.position.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.autocomplete.js"></script>
++	<script type="text/javascript" src="jquery-ui/ui/widget.min.js"></script>
++	<script type="text/javascript" src="jquery-ui/ui/unique-id.min.js"></script>
++	<script type="text/javascript" src="jquery-ui/ui/widgets/menu.min.js"></script>
++	<script type="text/javascript" src="jquery-ui/ui/widgets/autocomplete.min.js"></script>
++	<script type="text/javascript" src="jquery-ui/ui/safe-active-element.min.js"></script>
++	<script type="text/javascript" src="jquery-ui/ui/position.min.js"></script>
++	<script type="text/javascript" src="jquery-ui/ui/keycode.min.js"></script>
+ </head>
+ <body>
+ 	<div id="menu">
+--- a/include/cgiutils.h
++++ b/include/cgiutils.h
+@@ -113,7 +113,7 @@
+ 
+ #define CHECKBOX_FUNCTIONS_JS   "checkbox_functions.js"
+ #define COMMON_FUNCTIONS_JS	"common_functions.js"
+-#define JQUERY_MAIN_JS		"jquery-1.8.0.min.js"
++#define JQUERY_MAIN_JS		"jquery.min.js"
+ #define JQUERY_DD_JS		"jquery.dd.min.js"
+ #define SKINNYTIP_JS		"skinnytip.js"
+ #define PAGE_REFRESH_JS		"page_refresh.js"
+@@ -122,17 +122,16 @@
+ 
+ /**************************** JQUERY-UI PATH ******************************/
+ 
+-#define JQ_UI_CORE_JS		"ui/jquery.ui.core.js"
+-#define JQ_UI_WIDGET_JS		"ui/jquery.ui.widget.js"
+-#define JQ_UI_MOUSE_JS		"ui/jquery.ui.mouse.js"
+-#define JQ_UI_SLIDER_JS		"ui/jquery.ui.slider.js"
+-#define JQ_UI_DATEPICKER_JS	"ui/jquery.ui.datepicker.js"
+-#define JQ_UI_EFFECT_JS		"ui/jquery.ui.effect.js"
+-#define JQ_UI_EFFECT_BLIND_JS	"ui/jquery.ui.effect-blind.js"
+-#define JQ_UI_BUTTON_JS		"ui/jquery.ui.button.js"
++#define JQ_UI_WIDGET_JS		"ui/widget.min.js"
++#define JQ_UI_MOUSE_JS		"ui/widgets/mouse.min.js"
++#define JQ_UI_SLIDER_JS		"ui/widgets/slider.min.js"
++#define JQ_UI_DATEPICKER_JS	"ui/widgets/datepicker.min.js"
++#define JQ_UI_EFFECT_JS		"ui/effect.min.js"
++#define JQ_UI_EFFECT_BLIND_JS	"ui/effects/effect-blind.min.js"
++#define JQ_UI_BUTTON_JS		"ui/widgets/button.min.js"
+ #define JQ_UI_TIMEPICKER_JS	"jquery.ui.timepicker-addon.min.js"
+ 
+-#define JQ_UI_ALL_CSS		"themes/base/jquery.ui.all.css"
++#define JQ_UI_ALL_CSS		"themes/base/all.min.css"
+ #define JQ_UI_TIMEPICKER_CSS	"jquery.ui.timepicker-addon.css"
+ 
+ 
+--- a/cgi/cgiutils.c
++++ b/cgi/cgiutils.c
+@@ -46,6 +46,7 @@
+ char            url_logo_images_path[MAX_FILENAME_LENGTH];
+ char            url_stylesheets_path[MAX_FILENAME_LENGTH];
+ char            url_js_path[MAX_FILENAME_LENGTH];
++char            url_jquiry_path[MAX_FILENAME_LENGTH];
+ char            url_jquiryui_path[MAX_FILENAME_LENGTH];
+ char            url_jquiryui_addon_path[MAX_FILENAME_LENGTH];
+ char            url_media_path[MAX_FILENAME_LENGTH];
+@@ -520,6 +521,9 @@
+ 			snprintf(url_js_path, sizeof(url_js_path), "%sjs/", url_html_path);
+ 			url_js_path[sizeof(url_js_path) - 1] = '\x0';
+ 
++			snprintf(url_jquiry_path, sizeof(url_jquiry_path), "%sjquery/", url_html_path);
++			url_jquiry_path[sizeof(url_jquiry_path) - 1] = '\x0';
++
+ 			snprintf(url_jquiryui_path, sizeof(url_jquiryui_path), "%sjquery-ui/", url_html_path);
+ 			url_jquiryui_path[sizeof(url_jquiryui_path) - 1] = '\x0';
+ 
+@@ -1368,7 +1372,7 @@
+ 	}
+ 
+ 	/* first: jQuery JavaScript library */
+-	printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, JQUERY_MAIN_JS);
++	printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiry_path, JQUERY_MAIN_JS);
+ 
+ 	/* second: common functions library */
+ 	printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, COMMON_FUNCTIONS_JS);
+@@ -1385,7 +1389,6 @@
+ 
+ 	/* forth: jquery-ui libs and css */
+ 	if (cgi_id == CMD_CGI_ID || cgi_id == NOTIFICATIONS_CGI_ID || cgi_id == SHOWLOG_CGI_ID || cgi_id == HISTORY_CGI_ID || cgi_id == STATUS_CGI_ID) {
+-		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_CORE_JS);
+ 		printf("<script type='text/javascript' src='%s%s'></script>\n", url_jquiryui_path, JQ_UI_WIDGET_JS);
+ 
+ 		printf("<link rel='stylesheet' type='text/css' href='%s%s'>\n", url_jquiryui_path, JQ_UI_ALL_CSS);
