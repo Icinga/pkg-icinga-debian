@@ -43,7 +43,9 @@ Copyright: 2012, Icinga Developer Team
 License: GPL-2+
 
 Files: debian/*
-Copyright: Alexander Wirt <formorer@debian.org>
+Copyright: 2010-2016 Alexander Wirt <formorer@debian.org>
+           2013-2016 Markus Frosch <lazyfrosch@debian.org>
+           2016 Bas Couwenberg <sebastic@xs4all.nl>
 License: GPL-2
 
 License: Artistic
