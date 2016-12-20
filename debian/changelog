@@ -1,5 +1,6 @@
-icinga (1.13.3-4) UNRELEASED; urgency=medium
+icinga (1.13.3-4) unstable; urgency=medium
 
+  [ Bas Couwenberg ]
   * Team upload.
   * Update Vcs-Git URL to use HTTPS.
   * Change mysql-client dependency to default-mysql-client.
@@ -39,7 +40,14 @@ icinga (1.13.3-4) UNRELEASED; urgency=medium
   * Add lintian override for apache2-reverse-dependency-calls-invoke-rc.d.
   * Bump Standards-Version to 3.9.8, no changes.
 
- -- Bas Couwenberg <sebastic@debian.org>  Sat, 03 Dec 2016 23:27:06 +0100
+  [ Markus Frosch ]
+  * [e9d9531] apache2: Add read access to JavaScript libs
+  * [671b433] Add patch 53_jquery and fix JQuery loading
+  * [8e62b57] Replace embedded JQuery in icinga-doc
+  * [a17d86c] Update copyright for Debian packaging
+  * [368c095] Improve mysql dependency for backwards compatibility
+
+ -- Markus Frosch <lazyfrosch@debian.org>  Tue, 20 Dec 2016 09:47:04 +0100
 
 icinga (1.13.3-3) unstable; urgency=medium
 
