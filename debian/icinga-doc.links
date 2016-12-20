@@ -1,1 +1,2 @@
-usr/share/icinga/htdocs/docs usr/share/doc/icinga-doc/html
+usr/share/icinga/htdocs/docs               usr/share/doc/icinga-doc/html
+usr/share/javascript/jquery/jquery.min.js  usr/share/icinga/htdocs/docs/js/jquery.min.js

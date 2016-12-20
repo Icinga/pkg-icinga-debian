@@ -169,6 +169,7 @@ override_dh_auto_install: fix-configs-stamp
 
 	# remove jquery from package
 	rm -rf ${b}/tmp/usr/share/icinga/htdocs/js/jquery-*
+	rm -rf ${b}/tmp/usr/share/icinga/htdocs/docs/js/jquery-*
 
 override_dh_install-arch:
 	dh_install -a
