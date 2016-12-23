@@ -1,4 +1,4 @@
-icinga (1.13.4-1) UNRELEASED; urgency=medium
+icinga (1.13.4-1) unstable; urgency=high
 
   * Team upload.
   * New upstream release.
@@ -8,7 +8,7 @@ icinga (1.13.4-1) UNRELEASED; urgency=medium
   * Add lintian override for ored-depends-on-obsolete-package.
   * Add libjs-jquery to icinga-doc dependencies.
 
- -- Bas Couwenberg <sebastic@debian.org>  Fri, 23 Dec 2016 09:40:28 +0100
+ -- Bas Couwenberg <sebastic@debian.org>  Fri, 23 Dec 2016 10:05:44 +0100
 
 icinga (1.13.3-4) unstable; urgency=medium
 
