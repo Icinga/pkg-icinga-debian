@@ -189,7 +189,8 @@ Description: host and network monitoring system - core files
 Package: icinga-doc
 Architecture: all
 Section: doc
-Depends: ${misc:Depends}
+Depends: libjs-jquery,
+         ${misc:Depends}
 Description: host and network monitoring system - documentation
  Icinga is a modular monitoring framework for hosts, services, and
  networks, based on the Nagios project. It is designed to be easy to
