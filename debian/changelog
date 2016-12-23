@@ -1,9 +1,11 @@
-icinga (1.13.3-5) UNRELEASED; urgency=medium
+icinga (1.13.4-1) UNRELEASED; urgency=medium
 
   * Team upload.
+  * New upstream release.
+    - Fixes CVE-2016-9566.
   * Update watch file to match tagged releases too (not only downloads).
 
- -- Bas Couwenberg <sebastic@debian.org>  Fri, 23 Dec 2016 09:38:13 +0100
+ -- Bas Couwenberg <sebastic@debian.org>  Fri, 23 Dec 2016 09:40:28 +0100
 
 icinga (1.13.3-4) unstable; urgency=medium
 
