@@ -1,3 +1,10 @@
+icinga (1.13.3-5) UNRELEASED; urgency=medium
+
+  * Team upload.
+  * Update watch file to match tagged releases too (not only downloads).
+
+ -- Bas Couwenberg <sebastic@debian.org>  Fri, 23 Dec 2016 09:38:13 +0100
+
 icinga (1.13.3-4) unstable; urgency=medium
 
   [ Bas Couwenberg ]
