@@ -1,0 +1,4 @@
+# Alternatives added for backports
+icinga-idoutils: ored-depends-on-obsolete-package recommends: mysql-client => default-mysql-client
+icinga-idoutils: ored-depends-on-obsolete-package suggests: mysql-server => default-mysql-server
+
