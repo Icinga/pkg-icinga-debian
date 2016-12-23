@@ -101,7 +101,7 @@ Applied-Upstream: https://github.com/Icinga/icinga-core/commit/0b216eaa5ca072f4c
      can read more on how to configure graphing <a class="link" href="perfgraphs.html" title="8.7. Graphing Performance Info With PNP4Nagios">here</a>.</p>
 --- a/Changelog
 +++ b/Changelog
-@@ -2651,7 +2651,7 @@ WARNINGS
+@@ -2660,7 +2660,7 @@ WARNINGS
  ------------------
  * Configure script fix for no mail program found/installed on system
  * Fix for compilation warnings about implicit declaration of round() - may (strangely enough) also

@@ -32,7 +32,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	<div id="menu">
 --- a/include/cgiutils.h
 +++ b/include/cgiutils.h
-@@ -113,7 +113,7 @@
+@@ -113,7 +113,7 @@ extern "C" {
  
  #define CHECKBOX_FUNCTIONS_JS   "checkbox_functions.js"
  #define COMMON_FUNCTIONS_JS	"common_functions.js"
@@ -41,7 +41,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  #define JQUERY_DD_JS		"jquery.dd.min.js"
  #define SKINNYTIP_JS		"skinnytip.js"
  #define PAGE_REFRESH_JS		"page_refresh.js"
-@@ -122,17 +122,16 @@
+@@ -122,17 +122,16 @@ extern "C" {
  
  /**************************** JQUERY-UI PATH ******************************/
  
@@ -69,7 +69,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  
 --- a/cgi/cgiutils.c
 +++ b/cgi/cgiutils.c
-@@ -46,6 +46,7 @@
+@@ -46,6 +46,7 @@ char            url_images_path[MAX_FILE
  char            url_logo_images_path[MAX_FILENAME_LENGTH];
  char            url_stylesheets_path[MAX_FILENAME_LENGTH];
  char            url_js_path[MAX_FILENAME_LENGTH];
@@ -77,7 +77,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  char            url_jquiryui_path[MAX_FILENAME_LENGTH];
  char            url_jquiryui_addon_path[MAX_FILENAME_LENGTH];
  char            url_media_path[MAX_FILENAME_LENGTH];
-@@ -520,6 +521,9 @@
+@@ -520,6 +521,9 @@ int read_cgi_config_file(char *filename)
  			snprintf(url_js_path, sizeof(url_js_path), "%sjs/", url_html_path);
  			url_js_path[sizeof(url_js_path) - 1] = '\x0';
  
@@ -87,7 +87,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  			snprintf(url_jquiryui_path, sizeof(url_jquiryui_path), "%sjquery-ui/", url_html_path);
  			url_jquiryui_path[sizeof(url_jquiryui_path) - 1] = '\x0';
  
-@@ -1368,7 +1372,7 @@
+@@ -1368,7 +1372,7 @@ void document_header(int cgi_id, int use
  	}
  
  	/* first: jQuery JavaScript library */
@@ -96,7 +96,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  
  	/* second: common functions library */
  	printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, COMMON_FUNCTIONS_JS);
-@@ -1385,7 +1389,6 @@
+@@ -1385,7 +1389,6 @@ void document_header(int cgi_id, int use
  
  	/* forth: jquery-ui libs and css */
  	if (cgi_id == CMD_CGI_ID || cgi_id == NOTIFICATIONS_CGI_ID || cgi_id == SHOWLOG_CGI_ID || cgi_id == HISTORY_CGI_ID || cgi_id == STATUS_CGI_ID) {
