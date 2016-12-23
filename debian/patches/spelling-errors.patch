@@ -9,6 +9,7 @@ Description: Fix spelling errors.
  * Unkown     -> Unknown
 Author: Bas Couwenberg <sebastic@debian.org>
 Forwarded: https://github.com/Icinga/icinga-core/pull/10
+Applied-Upstream: https://github.com/Icinga/icinga-core/commit/0b216eaa5ca072f4c7c3b29a76f417c1593f9038
 
 --- a/base/checks.c
 +++ b/base/checks.c
