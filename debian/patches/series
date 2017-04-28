@@ -7,3 +7,4 @@
 99_CVE-2015-8010.patch
 spelling-errors.patch
 53_jquery-ui.patch
+pgsql-upgrade-1.13.0.patch
