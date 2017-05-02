@@ -3,6 +3,7 @@ Description: Fix database upgrade to 1.13.0.
  ERROR: constraint "uq_servicedependencies" of relation "icinga_servicedependencies" does not exist
 Author: Bas Couwenberg <sebastic@debian.org>
 Bug-Debian: https://bugs.debian.org/861077
+Forwarded: https://github.com/Icinga/icinga-core/pull/1595
 
 --- a/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.13.0.sql
 +++ b/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.13.0.sql
