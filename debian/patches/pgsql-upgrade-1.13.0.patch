@@ -4,6 +4,7 @@ Description: Fix database upgrade to 1.13.0.
 Author: Bas Couwenberg <sebastic@debian.org>
 Bug-Debian: https://bugs.debian.org/861077
 Forwarded: https://github.com/Icinga/icinga-core/pull/1595
+Applied-Upstream: https://github.com/Icinga/icinga-core/commit/d6ed8875b124205cf61b3a2aad59ec46292e7ff7
 
 --- a/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.13.0.sql
 +++ b/module/idoutils/db/pgsql/upgrade/pgsql-upgrade-1.13.0.sql
