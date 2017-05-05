@@ -1,10 +1,10 @@
-icinga (1.13.4-2) UNRELEASED; urgency=medium
+icinga (1.13.4-2) unstable; urgency=medium
 
   * Team upload.
   * Add patch to fix database upgrade to 1.13.0.
     (closes: #861077)
 
- -- Bas Couwenberg <sebastic@debian.org>  Fri, 28 Apr 2017 10:31:31 +0200
+ -- Bas Couwenberg <sebastic@debian.org>  Fri, 05 May 2017 08:57:03 +0200
 
 icinga (1.13.4-1) unstable; urgency=high
 
