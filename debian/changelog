@@ -1,3 +1,11 @@
+icinga (1.13.4-3) UNRELEASED; urgency=medium
+
+  * Team upload.
+  * Include README.md in icinga-common docs.
+    (closes: #859806)
+
+ -- Bas Couwenberg <sebastic@debian.org>  Tue, 30 May 2017 07:13:01 +0200
+
 icinga (1.13.4-2) unstable; urgency=medium
 
   * Team upload.
