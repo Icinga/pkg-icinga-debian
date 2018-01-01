@@ -8,6 +8,7 @@ icinga (1.14.2-1) UNRELEASED; urgency=medium
   * Call `make install` instead of `make install-unstripped`.
   * Drop obsolete dbg package.
   * Strip trailing whitespace from changelog file.
+  * Add autopkgtest to test installability.
 
  -- Bas Couwenberg <sebastic@debian.org>  Mon, 01 Jan 2018 19:12:40 +0100
 
