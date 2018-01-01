@@ -7,6 +7,7 @@ Description: Fix spelling errors.
  * occured    -> occurred
  * occure     -> occur
  * Unkown     -> Unknown
+ * triggerd   -> triggered
 Author: Bas Couwenberg <sebastic@debian.org>
 Forwarded: https://github.com/Icinga/icinga-core/pull/10
 Applied-Upstream: https://github.com/Icinga/icinga-core/commit/0b216eaa5ca072f4c7c3b29a76f417c1593f9038
@@ -118,4 +119,24 @@ Applied-Upstream: https://github.com/Icinga/icinga-core/commit/0b216eaa5ca072f4c
 +# This log is highly experimental and changes may occur without notice. Use at your own risk!!
  
  use_logging=@ENABLECGILOG@
+ 
+--- a/cgi/cmd.c
++++ b/cgi/cmd.c
+@@ -1816,7 +1816,7 @@ void request_command_data(int cmd) {
+ 		print_form_element(PRINT_AUTHOR, cmd);
+ 		print_form_element(PRINT_COMMENT_BOX, cmd);
+ 
+-		snprintf(help_text, sizeof(help_text), "Define here if this downtime should get triggerd by another downtime of a particular %s.", (cmd == CMD_PROCESS_HOST_CHECK_RESULT) ? "host" : "service");
++		snprintf(help_text, sizeof(help_text), "Define here if this downtime should get triggered by another downtime of a particular %s.", (cmd == CMD_PROCESS_HOST_CHECK_RESULT) ? "host" : "service");
+ 		help_text[sizeof(help_text)-1] = '\x0';
+ 
+ 		printf("<tr id=\"trigger_select\"><td class=\"objectDescription descriptionleft\">Triggered By:");
+@@ -1854,7 +1854,7 @@ void request_command_data(int cmd) {
+ 		printf("\t</select>\n");
+ 		printf("</td></tr>\n");
+ 
+-		/* hide "Triggerd by" selction if nothing is found to get triggerd from */
++		/* hide "Triggerd by" selction if nothing is found to get triggered from */
+ 		if (!found_trigger_objects)
+ 			printf("<tr style=\"display:none;\"><td colspan='2'><script language=\"JavaScript\">document.getElementById('trigger_select').style.display = 'none';</script></td></tr>\n");
  
