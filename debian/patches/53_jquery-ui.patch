@@ -12,14 +12,14 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 -	<link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/jquery.ui.all.css" media="screen, projection" />
 +	<link rel="stylesheet" type="text/css" href="jquery-ui/themes/base/all.min.css" media="screen, projection" />
  	<link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
--	<script type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+-	<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
 +	<script type="text/javascript" src="jquery/jquery.min.js"></script>
  	<script type="text/javascript" src="js/menu.js"></script>
--	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.core.js"></script>
--	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.widget.js"></script>
--	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.menu.js"></script>
--	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.position.js"></script>
--	<script type="text/javascript" src="jquery-ui/ui/jquery.ui.autocomplete.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/minified/jquery.ui.core.min.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/minified/jquery.ui.widget.min.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/minified/jquery.ui.menu.min.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/minified/jquery.ui.position.min.js"></script>
+-	<script type="text/javascript" src="jquery-ui/ui/minified/jquery.ui.autocomplete.min.js"></script>
 +	<script type="text/javascript" src="jquery-ui/ui/widget.min.js"></script>
 +	<script type="text/javascript" src="jquery-ui/ui/unique-id.min.js"></script>
 +	<script type="text/javascript" src="jquery-ui/ui/widgets/menu.min.js"></script>
@@ -36,7 +36,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  
  #define CHECKBOX_FUNCTIONS_JS   "checkbox_functions.js"
  #define COMMON_FUNCTIONS_JS	"common_functions.js"
--#define JQUERY_MAIN_JS		"jquery-1.8.0.min.js"
+-#define JQUERY_MAIN_JS		"jquery-1.12.4.min.js"
 +#define JQUERY_MAIN_JS		"jquery.min.js"
  #define JQUERY_DD_JS		"jquery.dd.min.js"
  #define SKINNYTIP_JS		"skinnytip.js"
@@ -45,14 +45,14 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  
  /**************************** JQUERY-UI PATH ******************************/
  
--#define JQ_UI_CORE_JS		"ui/jquery.ui.core.js"
--#define JQ_UI_WIDGET_JS		"ui/jquery.ui.widget.js"
--#define JQ_UI_MOUSE_JS		"ui/jquery.ui.mouse.js"
--#define JQ_UI_SLIDER_JS		"ui/jquery.ui.slider.js"
--#define JQ_UI_DATEPICKER_JS	"ui/jquery.ui.datepicker.js"
--#define JQ_UI_EFFECT_JS		"ui/jquery.ui.effect.js"
--#define JQ_UI_EFFECT_BLIND_JS	"ui/jquery.ui.effect-blind.js"
--#define JQ_UI_BUTTON_JS		"ui/jquery.ui.button.js"
+-#define JQ_UI_CORE_JS		"ui/minified/jquery.ui.core.min.js"
+-#define JQ_UI_WIDGET_JS		"ui/minified/jquery.ui.widget.min.js"
+-#define JQ_UI_MOUSE_JS		"ui/minified/jquery.ui.mouse.min.js"
+-#define JQ_UI_SLIDER_JS		"ui/minified/jquery.ui.slider.min.js"
+-#define JQ_UI_DATEPICKER_JS	"ui/minified/jquery.ui.datepicker.min.js"
+-#define JQ_UI_EFFECT_JS		"ui/minified/jquery.ui.effect.min.js"
+-#define JQ_UI_EFFECT_BLIND_JS	"ui/minified/jquery.ui.effect-blind.min.js"
+-#define JQ_UI_BUTTON_JS		"ui/minified/jquery.ui.button.min.js"
 +#define JQ_UI_WIDGET_JS		"ui/widget.min.js"
 +#define JQ_UI_MOUSE_JS		"ui/widgets/mouse.min.js"
 +#define JQ_UI_SLIDER_JS		"ui/widgets/slider.min.js"
@@ -77,7 +77,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  char            url_jquiryui_path[MAX_FILENAME_LENGTH];
  char            url_jquiryui_addon_path[MAX_FILENAME_LENGTH];
  char            url_media_path[MAX_FILENAME_LENGTH];
-@@ -520,6 +521,9 @@ int read_cgi_config_file(char *filename)
+@@ -519,6 +520,9 @@ int read_cgi_config_file(char *filename)
  			snprintf(url_js_path, sizeof(url_js_path), "%sjs/", url_html_path);
  			url_js_path[sizeof(url_js_path) - 1] = '\x0';
  
@@ -87,7 +87,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  			snprintf(url_jquiryui_path, sizeof(url_jquiryui_path), "%sjquery-ui/", url_html_path);
  			url_jquiryui_path[sizeof(url_jquiryui_path) - 1] = '\x0';
  
-@@ -1368,7 +1372,7 @@ void document_header(int cgi_id, int use
+@@ -1363,7 +1367,7 @@ void document_header(int cgi_id, int use
  	}
  
  	/* first: jQuery JavaScript library */
@@ -96,7 +96,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  
  	/* second: common functions library */
  	printf("<script type='text/javascript' src='%s%s'></script>\n", url_js_path, COMMON_FUNCTIONS_JS);
-@@ -1385,7 +1389,6 @@ void document_header(int cgi_id, int use
+@@ -1380,7 +1384,6 @@ void document_header(int cgi_id, int use
  
  	/* forth: jquery-ui libs and css */
  	if (cgi_id == CMD_CGI_ID || cgi_id == NOTIFICATIONS_CGI_ID || cgi_id == SHOWLOG_CGI_ID || cgi_id == HISTORY_CGI_ID || cgi_id == STATUS_CGI_ID) {

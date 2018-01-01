@@ -4,6 +4,7 @@ icinga (1.14.2-1) UNRELEASED; urgency=medium
   * New upstream release.
   * Include README.md in icinga-common docs.
     (closes: #859806)
+  * Drop patches applied upstream. Refresh remaining patches.
 
  -- Bas Couwenberg <sebastic@debian.org>  Mon, 01 Jan 2018 19:12:40 +0100
 

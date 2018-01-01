@@ -114,7 +114,7 @@ Forwarded: not-needed
  
  
  
-@@ -1233,7 +1215,7 @@ high_host_flap_threshold=20.0
+@@ -1250,7 +1232,7 @@ high_host_flap_threshold=20.0
  #	strict-iso8601	(YYYY-MM-DDTHH:MM:SS)
  #
  
@@ -123,7 +123,7 @@ Forwarded: not-needed
  
  
  
-@@ -1263,7 +1245,7 @@ date_format=us
+@@ -1280,7 +1262,7 @@ date_format=us
  # embedded Perl interpreter) is located.  If you didn't compile
  # Icinga with embedded Perl support, this option has no effect.
  
@@ -132,7 +132,7 @@ Forwarded: not-needed
  
  
  
-@@ -1277,7 +1259,7 @@ p1_file=@P1FILELOC@/p1.pl
+@@ -1294,7 +1276,7 @@ p1_file=@P1FILELOC@/p1.pl
  # Only enable this setting when you really know what you are doing!
  # Values: 0 = disable interpreter, 1 = enable interpreter
  
@@ -141,7 +141,7 @@ Forwarded: not-needed
  
  
  
-@@ -1387,8 +1369,8 @@ use_true_regexp_matching=0
+@@ -1404,8 +1386,8 @@ use_true_regexp_matching=0
  # using the $ADMINEMAIL$ and $ADMINPAGER$ macros in your notification
  # commands.
  
@@ -152,7 +152,7 @@ Forwarded: not-needed
  
  
  
-@@ -1429,7 +1411,7 @@ use_large_installation_tweaks=0
+@@ -1446,7 +1428,7 @@ use_large_installation_tweaks=0
  # Values: 1 - Enable environment variable macros
  #         0 - Disable environment variable macros (default)
  
@@ -161,7 +161,7 @@ Forwarded: not-needed
  
  
  
-@@ -1497,7 +1479,7 @@ debug_verbosity=2
+@@ -1514,7 +1496,7 @@ debug_verbosity=2
  # DEBUG FILE
  # This option determines where Icinga should write debugging information.
  

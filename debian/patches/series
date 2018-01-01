@@ -3,8 +3,5 @@
 52_icinga.cfg-debianize.patch
 70_fix_eventhandler_paths.patch
 95_fix_db_upgrade.patch
-96_jquery_compat.patch
-99_CVE-2015-8010.patch
 spelling-errors.patch
 53_jquery-ui.patch
-pgsql-upgrade-1.13.0.patch
