@@ -1,6 +1,9 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Icinga
 Source: https://github.com/Icinga/icinga-core
+Files-Excluded: html/jquery-ui/external/jshint.js
+ html/jquery-ui/ui/minified/i18n/*.min.js
+ html/jquery-ui/ui/minified/*.min.js
 
 Files: *
 Copyright: 1999-2010, Ethan Galstad (egalstad@nagios.org)

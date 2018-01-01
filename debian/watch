@@ -2,6 +2,7 @@ version=3
 opts=\
 dversionmangle=s/\+(debian|dfsg|ds|deb)\d*$//,\
 uversionmangle=s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\d*)$/$1~$2/;s/RC/rc/;s/\-/\./g,\
-filenamemangle=s/(?:.*?)?(?:rel|v)?[\-\_]?(\d\S+)\.(tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))/icinga-$1.$2/ \
+filenamemangle=s/(?:.*?)?(?:rel|v)?[\-\_]?(\d\S+)\.(tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))/icinga-$1.$2/,\
+repacksuffix=+ds \
 https://github.com/Icinga/icinga-core/releases \
 (?:.*?/)?(?:rel|v|icinga)?[\-\_]?(\d\S+)\.(?:tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))
