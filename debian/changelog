@@ -1,4 +1,4 @@
-icinga (1.14.2+ds-1) UNRELEASED; urgency=medium
+icinga (1.14.2+ds-1~exp1) experimental; urgency=medium
 
   * Team upload.
   * New upstream release.
@@ -15,7 +15,7 @@ icinga (1.14.2+ds-1) UNRELEASED; urgency=medium
   * Add patch to not install minified JS, excluded from upstream source.
   * Bump Standards-Version to 4.1.2, no changes.
 
- -- Bas Couwenberg <sebastic@debian.org>  Mon, 01 Jan 2018 20:05:12 +0100
+ -- Bas Couwenberg <sebastic@debian.org>  Mon, 01 Jan 2018 20:23:38 +0100
 
 icinga (1.13.4-2) unstable; urgency=medium
 
