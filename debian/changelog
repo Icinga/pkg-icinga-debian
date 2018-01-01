@@ -1,4 +1,4 @@
-icinga (1.14.2-1) UNRELEASED; urgency=medium
+icinga (1.14.2+ds-1) UNRELEASED; urgency=medium
 
   * Team upload.
   * New upstream release.
@@ -13,7 +13,7 @@ icinga (1.14.2-1) UNRELEASED; urgency=medium
   * Update spelling-errors.patch to fix 'triggered' typo.
   * Exclude minified jquery-ui & jshint files from repacked upstream tarball.
 
- -- Bas Couwenberg <sebastic@debian.org>  Mon, 01 Jan 2018 19:12:40 +0100
+ -- Bas Couwenberg <sebastic@debian.org>  Mon, 01 Jan 2018 20:05:12 +0100
 
 icinga (1.13.4-2) unstable; urgency=medium
 
