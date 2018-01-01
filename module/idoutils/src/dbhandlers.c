@@ -366,7 +366,7 @@ int ido2db_get_object_id_with_insert(ido2db_idi *idi, int object_type, char *n1,
 	data[3] = (void *) &es[1];
 
 	/* FIXME: OCILIB claimed this already prepared statement is not prepared ,
-	 * but no prepare error occured and statement sql is available with statement handle
+	 * but no prepare error occurred and statement sql is available with statement handle
 	 * (https://dev.icinga.org/issues/1638)
 	 *
 	 * this bad workaround prepares new statement handle at every call
@@ -1572,88 +1572,83 @@ int ido2db_handle_processdata(ido2db_idi *idi) {
 	/* if process is starting up, clearstatus data, event queue, etc. */
 	if (type == NEBTYPE_PROCESS_PRELAUNCH && tstamp.tv_sec >= idi->dbinfo.latest_realtime_data_time) {
 
-		if (ido2db_db_settings.clean_realtime_tables_on_core_startup == IDO_TRUE) { /* only if desired */
-
-			/* clear realtime data */
-			/* don't clear necessary status tables on restart/reload of the core, as Icinga Web
-			   won't show any data then */
-			/* ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTSTATUS]); */
-			/* ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICESTATUS]); */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_PROGRAMSTATUS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTSTATUS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_COMMENTS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_RUNTIMEVARIABLES]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLESTATUS]);
-		}
+		/* clear realtime data */
+		/* don't clear necessary status tables on restart/reload of the core, as Icinga Web
+		   won't show any data then */
+		/* ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTSTATUS]); */
+		/* ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICESTATUS]); */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SCHEDULEDDOWNTIME]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_PROGRAMSTATUS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTSTATUS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_COMMENTS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_RUNTIMEVARIABLES]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLESTATUS]);
 
 		idi->tables_cleared = IDO_FALSE;
 
-		if (ido2db_db_settings.clean_config_tables_on_core_startup == IDO_TRUE) { /* only if desired */
-			/* clear config data */
+		/* clear config data */
 
-			/* host definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTS]); /* IDO2DB_OBJECTTYPE_HOST */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTPARENTHOSTS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTCONTACTGROUPS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTCONTACTS]);
+		/* host definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTS]); /* IDO2DB_OBJECTTYPE_HOST */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTPARENTHOSTS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTCONTACTGROUPS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTCONTACTS]);
 
-			/* hostgroup definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTGROUPS]); /* IDO2DB_OBJECTTYPE_HOSTGROUP */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTGROUPMEMBERS]);
-
-
-			/* service definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICES]); /* IDO2DB_OBJECTTYPE_SERVICE */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICECONTACTGROUPS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICECONTACTS]);
-
-			/* servicegroup definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEGROUPS]); /* IDO2DB_OBJECTTYPE_SERVICEGROUP */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEGROUPMEMBERS]);
-
-			/* hostdependency definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTDEPENDENCIES]);
-
-			/* servicedependency definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEDEPENDENCIES]);
-
-			/* hostescalation definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTESCALATIONS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTESCALATIONCONTACTGROUPS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTESCALATIONCONTACTS]);
-
-			/* serviceescalation definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEESCALATIONS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEESCALATIONCONTACTGROUPS]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEESCALATIONCONTACTS]);
-
-			/* command definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_COMMANDS]); /* IDO2DB_OBJECTTYPE_COMMAND */
-
-			/* timeperiod definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_TIMEPERIODS]); /* IDO2DB_OBJECTTYPE_TIMEPERIOD */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_TIMEPERIODTIMERANGES]);
-
-			/* contact definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTS]); /* IDO2DB_OBJECTTYPE_CONTACT */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTADDRESSES]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONCOMMANDS]); /* both host and service */
-
-			/* contactgroup definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTGROUPS]); /* IDO2DB_OBJECTTYPE_CONTACTGROUP */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTGROUPMEMBERS]);
-
-			/* configfile definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILES]);
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILEVARIABLES]);
-
-			/* customvariable definition */
-			ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLES]);
+		/* hostgroup definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTGROUPS]); /* IDO2DB_OBJECTTYPE_HOSTGROUP */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTGROUPMEMBERS]);
 
 
-			idi->tables_cleared = IDO_TRUE;
-		}
+		/* service definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICES]); /* IDO2DB_OBJECTTYPE_SERVICE */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICECONTACTGROUPS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICECONTACTS]);
+
+		/* servicegroup definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEGROUPS]); /* IDO2DB_OBJECTTYPE_SERVICEGROUP */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEGROUPMEMBERS]);
+
+		/* hostdependency definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTDEPENDENCIES]);
+
+		/* servicedependency definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEDEPENDENCIES]);
+
+		/* hostescalation definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTESCALATIONS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTESCALATIONCONTACTGROUPS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_HOSTESCALATIONCONTACTS]);
+
+		/* serviceescalation definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEESCALATIONS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEESCALATIONCONTACTGROUPS]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_SERVICEESCALATIONCONTACTS]);
+
+		/* command definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_COMMANDS]); /* IDO2DB_OBJECTTYPE_COMMAND */
+
+		/* timeperiod definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_TIMEPERIODS]); /* IDO2DB_OBJECTTYPE_TIMEPERIOD */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_TIMEPERIODTIMERANGES]);
+
+		/* contact definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTS]); /* IDO2DB_OBJECTTYPE_CONTACT */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTADDRESSES]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTNOTIFICATIONCOMMANDS]); /* both host and service */
+
+		/* contactgroup definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTGROUPS]); /* IDO2DB_OBJECTTYPE_CONTACTGROUP */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONTACTGROUPMEMBERS]);
+
+		/* configfile definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILES]);
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CONFIGFILEVARIABLES]);
+
+		/* customvariable definition */
+		ido2db_db_clear_table(idi, ido2db_db_tablenames[IDO2DB_DBTABLE_CUSTOMVARIABLES]);
+
+
+		idi->tables_cleared = IDO_TRUE;
 
 		/* flag all objects as being inactive */
 		/* if the core starts up, the fresh config is being pushed
@@ -4826,7 +4821,7 @@ int ido2db_handle_configfilevariables(ido2db_idi *idi, int configfile_type) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_configfilevariables_elements"
 				                      "(File %lu) ERROR:Rollback %d items\n", configfile_id, arrsize);
@@ -5047,7 +5042,7 @@ int ido2db_handle_runtimevariables(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_runtimevariables()"
 				                      "ERROR:Rollback %d items\n", arrsize);
@@ -5451,7 +5446,7 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition parent "
 				                      "(hostid %lu) ERROR:Rollback %d items\n", host_id, arrsize);
@@ -5582,7 +5577,7 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition contactgroups"
 				                      "(hostid %lu) ERROR:Rollback %d items\n", host_id, arrsize);
@@ -5709,7 +5704,7 @@ int ido2db_handle_hostdefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostdefinition contacts"
 				                      "(hostid %lu) ERROR:Rollback %d items\n", host_id, arrsize);
@@ -5920,7 +5915,7 @@ int ido2db_handle_hostgroupdefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_hostgroupdefinition members"
 				                      "(groupid %lu) ERROR:Rollback %d items\n", group_id, arrsize);
@@ -6286,7 +6281,7 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicedefinition contactgroups"
 				                      "(hostid %lu) ERROR:Rollback %d items\n", service_id, arrsize);
@@ -6413,7 +6408,7 @@ int ido2db_handle_servicedefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicedefinition contacts"
 				                      "(hostid %lu) ERROR:Rollback %d items\n", service_id, arrsize);
@@ -6638,7 +6633,7 @@ int ido2db_handle_servicegroupdefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_servicegroupdefinition members"
 				                      "(groupid %lu) ERROR:Rollback %d items\n", group_id, arrsize);
@@ -7237,7 +7232,7 @@ int ido2db_handle_timeperiodefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_timeperiodefinition_timeranges"
 				                      "(Period %lu) ERROR:Rollback %d items\n", timeperiod_id, arrsize);
@@ -7735,7 +7730,7 @@ int ido2db_handle_contactgroupdefinition(ido2db_idi *idi) {
 				arrsize = 0;
 				OCI_Commit(idi->dbinfo.oci_connection);
 			} else {
-				/* execute error occured, need rollback and exit */
+				/* execute error occurred, need rollback and exit */
 				OCI_Rollback(idi->dbinfo.oci_connection);
 				ido2db_log_debug_info(IDO2DB_DEBUGL_SQL, 2, "ido2db_handle_contactgroupdefinition members"
 				                      "(groupid %lu) ERROR:Rollback %d items\n", group_id, arrsize);

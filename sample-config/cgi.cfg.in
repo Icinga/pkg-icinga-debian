@@ -203,14 +203,6 @@ read_gzip_logs=0
 #
 ######################################
 
-# ATTRIBUTE BASED AUTHORIZATION FILE
-# This option will include a file defining authroization based on
-# attributes.
-
-#authorization_config_file=@sysconfdir@/cgiauth.cfg
-
-
-
 # AUTHENTICATION USAGE
 # This option controls whether or not the CGIs will use any
 # authentication when displaying host and service information, as
@@ -630,7 +622,7 @@ sort_status_data_by_default=0
 # If you want to log information from cgi's (e.g. all submitted commands)
 # then set this option to 1, default is 0 (off).
 # WARNING:
-# This log is highly experimental and changes may occure without notice. Use at your own risk!!
+# This log is highly experimental and changes may occur without notice. Use at your own risk!!
 
 use_logging=@ENABLECGILOG@
 

@@ -88,6 +88,8 @@ extern int      translate_passive_host_checks;
 extern int      passive_host_checks_are_soft;
 
 extern int      check_service_freshness;
+extern int      log_stale_services;
+extern int      log_stale_hosts;
 extern int      check_host_freshness;
 extern int      additional_freshness_latency;
 
@@ -1165,14 +1167,19 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 	/* make sure the return code is within bounds */
 	else if (queued_check_result->return_code < 0 || queued_check_result->return_code > 3) {
 
+		my_free(temp_service->plugin_output);
+		my_free(temp_service->long_plugin_output);
+		my_free(temp_service->perf_data);
+
 		if (queued_check_result->return_code == 126) {
-			asprintf(&temp_service->plugin_output, "The command defined for service %s is not an executable\n", queued_check_result->service_description);
+			asprintf(&temp_service->plugin_output, "The command defined for service %s is not an executable\n", temp_service->description);
 		} else if (queued_check_result->return_code == 127) {
-			asprintf(&temp_service->plugin_output, "The command defined for service %s does not exist\n", queued_check_result->service_description);
+			asprintf(&temp_service->plugin_output, "The command defined for service %s does not exist\n", temp_service->description);
 		} else {
 			asprintf(&temp_service->plugin_output, "Return code of %d is out of bounds", queued_check_result->return_code);
 		}
-		logit(NSLOG_RUNTIME_WARNING, TRUE, "%s", temp_service->plugin_output);
+
+		logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Return code of %d for check of service '%s' on host '%s' was out of bounds: '%s'", queued_check_result->return_code, temp_service->description, temp_service->host_name, temp_service->plugin_output);
 
 		temp_service->current_state = STATE_CRITICAL;
 	}
@@ -1531,7 +1538,7 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 
 			/* we're using aggressive host checking, so really do recheck the host... */
 			if (use_aggressive_host_checking == TRUE) {
-				log_debug_info(DEBUGL_CHECKS, 1, "Agressive host checking is enabled, so we'll recheck the host state...\n");
+				log_debug_info(DEBUGL_CHECKS, 1, "Aggressive host checking is enabled, so we'll recheck the host state...\n");
 				perform_on_demand_host_check(temp_host, &route_result, CHECK_OPTION_NONE, TRUE, cached_host_check_horizon);
 			}
 
@@ -1587,9 +1594,12 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 
 			/* put service into a hard state without attempting check retries and don't send out notifications about it */
 			temp_service->host_problem_at_last_check = TRUE;
+			/* Below removed, causes trouble with SOFT recoveries - https://github.com/Icinga/icinga-core/issues/1594*/
+			/*
 			temp_service->state_type = HARD_STATE;
 			temp_service->last_hard_state = temp_service->current_state;
 			temp_service->current_attempt = 1;
+			*/
 		}
 
 		/* the host is up - it recovered since the last time the service was checked... */
@@ -2236,7 +2246,7 @@ void check_service_result_freshness(void) {
 			continue;
 
 		/* the results for the last check of this service are stale! */
-		if (is_service_result_fresh(temp_service, current_time, TRUE) == FALSE) {
+		if (is_service_result_fresh(temp_service, current_time, log_stale_services) == FALSE) {
 
 			/* set the freshen flag */
 			temp_service->is_being_freshened = TRUE;
@@ -2646,7 +2656,7 @@ void check_host_result_freshness(void) {
 			continue;
 
 		/* the results for the last check of this host are stale */
-		if (is_host_result_fresh(temp_host, current_time, TRUE) == FALSE) {
+		if (is_host_result_fresh(temp_host, current_time, log_stale_hosts) == FALSE) {
 
 			/* set the freshen flag */
 			temp_host->is_being_freshened = TRUE;
@@ -3629,13 +3639,19 @@ int handle_async_host_check_result_3x(host *temp_host, check_result *queued_chec
 		/* make sure the return code is within bounds */
 		else if (queued_check_result->return_code < 0 || queued_check_result->return_code > 3) {
 
-			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Return code of %d for check of host '%s' was out of bounds.%s\n", queued_check_result->return_code, temp_host->name, (queued_check_result->return_code == 126 || queued_check_result->return_code == 127) ? " Make sure the plugin you're trying to run actually exists." : "");
-
 			my_free(temp_host->plugin_output);
 			my_free(temp_host->long_plugin_output);
 			my_free(temp_host->perf_data);
 
-			asprintf(&temp_host->plugin_output, "(Return code of %d is out of bounds%s)", queued_check_result->return_code, (queued_check_result->return_code == 126 || queued_check_result->return_code == 127) ? " - plugin may be missing" : "");
+			if (queued_check_result->return_code == 126) {
+				asprintf(&temp_host->plugin_output, "The command defined for host %s is not an executable\n", temp_host->name);
+			} else if (queued_check_result->return_code == 127) {
+				asprintf(&temp_host->plugin_output, "The command defined for host %s does not exist\n", temp_host->name);
+			} else {
+				asprintf(&temp_host->plugin_output, "Return code of %d is out of bounds", queued_check_result->return_code);
+			}
+
+			logit(NSLOG_RUNTIME_WARNING, TRUE, "Warning: Return code of %d for check of host '%s' was out of bounds: '%s'", queued_check_result->return_code, temp_host->name, temp_host->plugin_output);
 
 			result = STATE_CRITICAL;
 		}
