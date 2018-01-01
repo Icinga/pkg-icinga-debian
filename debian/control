@@ -16,7 +16,7 @@ Build-Depends: debhelper (>= 9.20160114),
                libtest-most-perl,
                libtest-www-mechanize-cgiapp-perl,
                po-debconf
-Standards-Version: 3.9.8
+Standards-Version: 4.1.2
 Vcs-Browser: https://anonscm.debian.org/cgit/pkg-nagios/icinga.git/
 Vcs-Git: https://anonscm.debian.org/git/pkg-nagios/icinga.git
 Homepage: https://www.icinga.com/
