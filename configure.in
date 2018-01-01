@@ -9,9 +9,9 @@ AC_CONFIG_HEADER(include/config.h)
 AC_PREFIX_DEFAULT(/usr/local/icinga)
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.13.4"
+PKG_VERSION="1.14.2"
 PKG_HOME_URL="http://www.icinga.org/"
-PKG_REL_DATE="12-22-2016"
+PKG_REL_DATE="12-20-2017"
 
 dnl Figure out how to invoke "install" and what install options to use.
 AC_PROG_INSTALL
@@ -23,7 +23,6 @@ AC_CANONICAL_HOST
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_MAKE_SET
-AC_PATH_PROG([STRIP],[strip],[true])
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -319,7 +318,7 @@ dnl Location of temp path
 TMPDIR=no
 AC_ARG_WITH(temp-dir,AC_HELP_STRING([--with-temp-dir=<path>],[sets path to temp directory path where Icinga can create temp files for service/host check results]),TMPDIR=$withval,TMPDIR=no)
 if test x$TMPDIR = xno; then
-	TMPDIR="/tmp"
+	TMPDIR="$localstatedir"
 fi
 AC_SUBST(TMPDIR)
 
@@ -327,7 +326,7 @@ dnl Location of temp file
 TMPFILE=no
 AC_ARG_WITH(temp-file,AC_HELP_STRING([--with-temp-file=<filepath>],[sets path to an Icinga exclusive update temp file i.e. /tmp/icinga.tmp]),TMPFILE=$withval,TMPFILE=no)
 if test x$TMPFILE = xno; then
-	        TMPFILE="/tmp/icinga.tmp"
+	        TMPFILE="$localstatedir/icinga.tmp"
 	fi
 AC_SUBST(TMPFILE)
 
@@ -1433,7 +1432,6 @@ echo "Creating sample config files in sample-config/ ..."
 
 perl subst $srcdir/sample-config/icinga.cfg
 perl subst $srcdir/sample-config/cgi.cfg
-perl subst $srcdir/sample-config/cgiauth.cfg
 perl subst $srcdir/sample-config/resource.cfg
 perl subst $srcdir/sample-config/httpd.conf
 perl subst $srcdir/sample-config/mrtg.cfg
