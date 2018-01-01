@@ -88,6 +88,8 @@ extern int      translate_passive_host_checks;
 extern int      passive_host_checks_are_soft;
 
 extern int      check_service_freshness;
+extern int      log_stale_services;
+extern int      log_stale_hosts;
 extern int      check_host_freshness;
 extern int      additional_freshness_latency;
 
@@ -1592,9 +1594,12 @@ int handle_async_service_check_result(service *temp_service, check_result *queue
 
 			/* put service into a hard state without attempting check retries and don't send out notifications about it */
 			temp_service->host_problem_at_last_check = TRUE;
+			/* Below removed, causes trouble with SOFT recoveries - https://github.com/Icinga/icinga-core/issues/1594*/
+			/*
 			temp_service->state_type = HARD_STATE;
 			temp_service->last_hard_state = temp_service->current_state;
 			temp_service->current_attempt = 1;
+			*/
 		}
 
 		/* the host is up - it recovered since the last time the service was checked... */
@@ -2241,7 +2246,7 @@ void check_service_result_freshness(void) {
 			continue;
 
 		/* the results for the last check of this service are stale! */
-		if (is_service_result_fresh(temp_service, current_time, TRUE) == FALSE) {
+		if (is_service_result_fresh(temp_service, current_time, log_stale_services) == FALSE) {
 
 			/* set the freshen flag */
 			temp_service->is_being_freshened = TRUE;
@@ -2651,7 +2656,7 @@ void check_host_result_freshness(void) {
 			continue;
 
 		/* the results for the last check of this host are stale */
-		if (is_host_result_fresh(temp_host, current_time, TRUE) == FALSE) {
+		if (is_host_result_fresh(temp_host, current_time, log_stale_hosts) == FALSE) {
 
 			/* set the freshen flag */
 			temp_host->is_being_freshened = TRUE;
