@@ -5,3 +5,4 @@
 95_fix_db_upgrade.patch
 spelling-errors.patch
 53_jquery-ui.patch
+54_dont-install-minified-js.patch
