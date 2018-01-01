@@ -2512,7 +2512,7 @@ ac_config_headers="$ac_config_headers include/config.h"
 
 
 PKG_NAME=icinga-core
-PKG_VERSION="1.13.4"
+PKG_VERSION="1.14.0"
 PKG_HOME_URL="http://www.icinga.org/"
 PKG_REL_DATE="12-22-2016"
 
@@ -8639,7 +8639,6 @@ echo "Creating sample config files in sample-config/ ..."
 
 perl subst $srcdir/sample-config/icinga.cfg
 perl subst $srcdir/sample-config/cgi.cfg
-perl subst $srcdir/sample-config/cgiauth.cfg
 perl subst $srcdir/sample-config/resource.cfg
 perl subst $srcdir/sample-config/httpd.conf
 perl subst $srcdir/sample-config/mrtg.cfg

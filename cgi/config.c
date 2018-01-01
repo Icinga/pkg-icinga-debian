@@ -47,7 +47,6 @@ extern hostescalation *hostescalation_list;
 extern module *module_list;
 
 extern char *action_url_target;
-extern char *authorization_config_file;
 extern char *authorized_for_all_host_commands;
 extern char *authorized_for_all_hosts;
 extern char *authorized_for_all_service_commands;
@@ -146,7 +145,7 @@ extern int use_ssl_authentication;
 extern int week_starts_on_monday;
 
 
-int process_cgivars(void);
+void process_cgivars(void);
 void display_options(void);
 void display_hosts(void);
 void display_hostgroups(void);
@@ -181,9 +180,9 @@ char hashed_color[8];
 char *item_name = NULL;					/**< contains exact name user is looking for */
 char *search_string = NULL;				/**< contains search string if user searched something */
 regex_t search_preg;					/**< contains compiled regex term to use with regexec() */
+html_request *html_request_list = NULL;			/**< contains html requested data */
 
 char *org_action_url_target = "";
-char *org_authorization_config_file = "";
 char *org_authorized_for_all_host_commands = "";
 char *org_authorized_for_all_hosts = "";
 char *org_authorized_for_all_service_commands = "";
@@ -301,6 +300,7 @@ int main(void) {
 		document_header(CGI_ID, FALSE, "Error");
 		print_error(get_cgi_config_location(), ERROR_CGI_CFG_FILE, FALSE);
 		document_footer(CGI_ID);
+		free_html_request(html_request_list);
 		return ERROR;
 	}
 
@@ -310,6 +310,7 @@ int main(void) {
 		document_header(CGI_ID, FALSE, "Error");
 		print_error(main_config_file, ERROR_CGI_MAIN_CFG, FALSE);
 		document_footer(CGI_ID);
+		free_html_request(html_request_list);
 		return ERROR;
 	}
 
@@ -319,6 +320,7 @@ int main(void) {
 		document_header(CGI_ID, FALSE, "Error");
 		print_error(NULL, ERROR_CGI_OBJECT_DATA, FALSE);
 		document_footer(CGI_ID);
+		free_html_request(html_request_list);
 		return ERROR;
 	}
 
@@ -462,6 +464,7 @@ int main(void) {
 	if (is_authorized_for_configuration_information(&current_authdata) == FALSE) {
 		print_generic_error_message("It appears as though you do not have permission to view the configuration information you requested...", "If you believe this is an error, check the HTTP server authentication requirements for accessing this CGI and check the authorization options in your CGI configuration file.", 0);
 		document_footer(CGI_ID);
+		free_html_request(html_request_list);
 		return OK;
 	}
 
@@ -581,90 +584,62 @@ int main(void) {
 		page_num_selector(result_start, total_entries, displayed_entries);
 
 	document_footer(CGI_ID);
+	free_html_request(html_request_list);
 
 	return OK;
 }
 
-int process_cgivars(void) {
-	char **variables;
+void process_cgivars(void) {
 	char *key = NULL;
 	char *value = NULL;
-	int error = FALSE;
-	int x;
+	html_request *temp_request_item = NULL;
 
-	variables = getcgivars();
+	html_request_list = getcgivars();
 	to_expand[0] = '\0';
 
-	for (x = 0; variables[x] != NULL; x+=2) {
-		key = variables[x];
-		value = variables[x+1];
+	for (temp_request_item = html_request_list; temp_request_item != NULL; temp_request_item = temp_request_item->next) {
 
-		/* do some basic length checking on the variable identifier to prevent buffer overflows */
-		if (strlen(key) >= MAX_INPUT_BUFFER - 1) {
-			error = TRUE;
-			break;
-		}
-		/* likewise, check the value for length if it's present */
-		if (value != NULL)
-			if (strlen(value) >= MAX_INPUT_BUFFER - 1) {
-				error = TRUE;
-				break;
-		}
+		key = temp_request_item->option;
+		value = temp_request_item->value;
 
 		/* we found the search_string argument */
 		if (!strcmp(key, "search_string")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
-
-			if (strlen(value) != 0)
+			if (value != NULL && strlen(value) != 0) {
 				search_string = strdup(value);
+				temp_request_item->is_valid = TRUE;
+			}
 		}
 
 		/* we found the item_name argument */
 		else if (!strcmp(key, "item_name")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
-
-			if (strlen(value) != 0)
+			if (value != NULL && strlen(value) != 0) {
 				item_name = strdup(value);
+				temp_request_item->is_valid = TRUE;
+			}
 		}
 
 		/* we found the host name */
-		else if (!strcmp(key, "host")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
-
+		else if (!strcmp(key, "host") && value != NULL) {
 			host_name = strdup(value);
 			if (host_name == NULL)
 				host_name = "";
 			strip_html_brackets(host_name);
+			temp_request_item->is_valid = TRUE;
 		}
 
 		/* we found the service name */
-		else if (!strcmp(key, "service")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
-
+		else if (!strcmp(key, "service") && value != NULL) {
 			service_desc = strdup(value);
 			if (service_desc == NULL)
 				service_desc = "";
 			strip_html_brackets(service_desc);
+			temp_request_item->is_valid = TRUE;
 		}
 
 		/* we found the configuration type argument */
-		else if (!strcmp(key, "type")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
+		else if (!strcmp(key, "type") && value != NULL) {
+
+			temp_request_item->is_valid = TRUE;
 
 			/* what information should we display? */
 			if (!strcmp(value, "hosts"))
@@ -699,71 +674,68 @@ int process_cgivars(void) {
 				display_type = DISPLAY_CGICONFIG;
 			else if (!strcmp(value, "all"))
 				display_type = DISPLAY_ALL;
+			else
+				temp_request_item->is_valid = FALSE;
 		}
 
 		/* we found the embed option */
-		else if (!strcmp(key, "embedded"))
+		else if (!strcmp(key, "embedded")) {
 			embedded = TRUE;
+			temp_request_item->is_valid = TRUE;
+			my_free(temp_request_item->value);
+		}
 
 		/* we found the nodaemoncheck option */
-		else if (!strcmp(key, "nodaemoncheck"))
+		else if (!strcmp(key, "nodaemoncheck")) {
 			daemon_check = FALSE;
+			temp_request_item->is_valid = TRUE;
+			my_free(temp_request_item->value);
+		}
 
 		/* we found the string-to-expand argument */
-		else if (!strcmp(key, "expand")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
+		else if (!strcmp(key, "expand") && value != NULL) {
+
 			strncpy(to_expand, value, MAX_COMMAND_BUFFER);
 			to_expand[MAX_COMMAND_BUFFER - 1] = '\0';
+
+			temp_request_item->is_valid = TRUE;
 		}
 
 		/* we found the CSV output option */
 		else if (!strcmp(key, "csvoutput")) {
 			display_header = FALSE;
 			content_type = CSV_CONTENT;
+			temp_request_item->is_valid = TRUE;
+			my_free(temp_request_item->value);
 		}
 
 		/* we found the JSON output option */
 		else if (!strcmp(key, "jsonoutput")) {
 			display_header = FALSE;
 			content_type = JSON_CONTENT;
+			temp_request_item->is_valid = TRUE;
+			my_free(temp_request_item->value);
 		}
 
 		/* start num results to skip on displaying statusdata */
-		else if (!strcmp(key, "start")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
+		else if (!strcmp(key, "start") && value != NULL) {
 
 			result_start = atoi(value);
 
 			if (result_start < 1)
 				result_start = 1;
+
+			temp_request_item->is_valid = TRUE;
 		}
 
 		/* amount of results to display */
-		else if (!strcmp(key, "limit")) {
-			if (value == NULL) {
-				error = TRUE;
-				break;
-			}
-
+		else if (!strcmp(key, "limit") && value != NULL) {
 			get_result_limit = atoi(value);
+			temp_request_item->is_valid = TRUE;
 		}
-
-		/* we received an invalid argument */
-		else
-			error = TRUE;
-
 	}
 
-	/* free memory allocated to the CGI variables */
-	free_cgivars(variables);
-
-	return error;
+	return;
 }
 
 void display_hosts(void) {
@@ -774,7 +746,7 @@ void display_hosts(void) {
 	char *processed_string = NULL;
 	int options = 0;
 	int odd = 0;
-	char time_string[2][16];
+	char time_string[2][32];
 	char *bg_class = "";
 	int contact = 0;
 	int json_start = TRUE;
@@ -1140,7 +1112,7 @@ void display_hosts(void) {
 			if (temp_host->notification_period == NULL)
 				printf("&nbsp;");
 			else
-				printf("<a href='%s?type=timeperiods&amp;irem_name=%s'>%s</a>", CONFIG_CGI, url_encode(temp_host->notification_period), html_encode(temp_host->notification_period, FALSE));
+				printf("<a href='%s?type=timeperiods&amp;item_name=%s'>%s</a>", CONFIG_CGI, url_encode(temp_host->notification_period), html_encode(temp_host->notification_period, FALSE));
 			printf("</td>\n");
 
 			printf("<td class='%s'>", bg_class);
@@ -2069,7 +2041,7 @@ void display_services(void) {
 	char *processed_string = NULL;
 	char command_line[MAX_INPUT_BUFFER];
 	char host_service_name[MAX_INPUT_BUFFER];
-	char time_string[2][16];
+	char time_string[2][32];
 	char *bg_class;
 	int options;
 	int odd = 0;
@@ -3187,7 +3159,7 @@ void display_serviceescalations(void) {
 	serviceescalation *temp_se = NULL;
 	contactsmember *temp_contactsmember = NULL;
 	contactgroupsmember *temp_contactgroupsmember = NULL;
-	char time_string[16] = "";
+	char time_string[32] = "";
 	int options = FALSE;
 	int odd = 0;
 	char *bg_class = "";
@@ -3563,7 +3535,7 @@ void display_hostescalations(void) {
 	hostescalation *temp_he = NULL;
 	contactsmember *temp_contactsmember = NULL;
 	contactgroupsmember *temp_contactgroupsmember = NULL;
-	char time_string[16] = "";
+	char time_string[32] = "";
 	int options = FALSE;
 	int odd = 0;
 	char *bg_class = "";
@@ -3986,7 +3958,6 @@ void display_cgiconfig(void) {
 	*/
 
 	PRINT_CONFIG_LINE_STRING(action_url_target, org_action_url_target)
-	PRINT_CONFIG_LINE_STRING(authorization_config_file, org_authorization_config_file)
 	PRINT_CONFIG_LINE_AUTH(authorized_for_all_host_commands, org_authorized_for_all_host_commands)
 	PRINT_CONFIG_LINE_AUTH(authorized_for_all_hosts, org_authorized_for_all_hosts)
 	PRINT_CONFIG_LINE_AUTH(authorized_for_all_service_commands, org_authorized_for_all_service_commands)
@@ -4213,14 +4184,29 @@ void display_command_expansion(void) {
 	service *svc = NULL;
 	char *processed_command;
 
-	if (status_file_icinga_version != NULL && status_file_icinga_version[0] != '1') {
-		printf("<p><div align='center' class='dataTitle'>Sorry, command expander only available using Icinga 1.x.</div></p>\n");
-		return;
-	}
-
 	/* show host and/or service related raw command */
 	hst = find_host(host_name);
 	svc = find_service(host_name, service_desc);
+
+	if (status_file_icinga_version != NULL && status_file_icinga_version[0] != '1') {
+
+		if (hst == NULL && svc == NULL) {
+			printf("<p><div align='center' class='dataTitle'>Sorry, command expander only available using Icinga 1.x.</div></p>\n");
+			return;
+		} else {
+			printf("<p><div align='center' class='dataTitle'>Icinga 2.x as backend detected. The executed command line is calculated at runtime unlike with Icinga 1.x.</div></p>\n");
+		}
+
+		printf("<p><div align='center' class='dataTitle'>In case you have access to the <a href='https://docs.icinga.com' target='_blank'>Icinga 2 API</a>, you can retrieve the executed command line using this query:</div></p><br>");
+		printf("<p><div align='center' class='dataTitle'><input type='text' name='expand' size='200%%' value='curl -k -s -u root:icinga &#x27;https://localhost:5665/v1/objects/");
+		if (hst != NULL && svc == NULL) {
+			printf("hosts?host=%s&#x26;attrs=last_check_result", url_encode(host_name));
+		} else if (hst != NULL && svc != NULL) {
+			printf("services?service=%s!%s&#x26;attrs=last_check_result", url_encode(host_name), url_encode(service_desc));
+		}
+		printf("&#x27; | sed &#x27;s/.*command&#x22;:&#x5C;[&#x22;//g&#x27; | cut -d&#x27;]&#x27; -f1 | sed &#x27;s/&#x22;,&#x22;/ /g&#x27; | tr -d &#x27;&#x22;$&#x27;'>\n</div></p>");
+		return;
+	}
 
 	if (hst != NULL && svc == NULL)
 		printf("<p><div align='center' class='dataTitle'>Command Expansion for host '%s'</div></p>\n", host_name);
@@ -4465,7 +4451,6 @@ void store_default_settings(void) {
 
 	/* fill all NULL pointers with an empty string */
 	action_url_target = (action_url_target == NULL) ? "" : action_url_target;
-	authorization_config_file = (authorization_config_file == NULL) ? "" : authorization_config_file;
 	authorized_for_all_host_commands = (authorized_for_all_host_commands == NULL) ? "" : authorized_for_all_host_commands;
 	authorized_for_all_hosts = (authorized_for_all_hosts == NULL) ? "" : authorized_for_all_hosts;
 	authorized_for_all_service_commands = (authorized_for_all_service_commands == NULL) ? "" : authorized_for_all_service_commands;
@@ -4505,7 +4490,6 @@ void store_default_settings(void) {
 
 	/* copy vars to org_vars*/
 	org_action_url_target = strdup(action_url_target);
-	org_authorization_config_file = strdup(authorization_config_file);
 	org_authorized_for_all_host_commands = strdup(authorized_for_all_host_commands);
 	org_authorized_for_all_hosts = strdup(authorized_for_all_hosts);
 	org_authorized_for_all_service_commands = strdup(authorized_for_all_service_commands);

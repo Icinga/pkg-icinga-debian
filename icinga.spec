@@ -54,7 +54,7 @@
 
 Summary: Open Source host, service and network monitoring program
 Name: icinga
-Version: 1.13.4
+Version: 1.14.0
 Release: %{revision}%{?dist}
 License: GPLv2
 Group: Applications/System
@@ -548,7 +548,6 @@ fi
 %defattr(-,root,root,-)
 %doc README.md LICENSE Changelog UPGRADING %{readme}
 %config(noreplace) %{_sysconfdir}/%{name}/cgi.cfg
-%config(noreplace) %{_sysconfdir}/%{name}/cgiauth.cfg
 %config(noreplace) %{apacheconfdir}/icinga.conf
 %config(noreplace) %attr(0640,root,%{apachegroup}) %{_sysconfdir}/%{name}/passwd
 

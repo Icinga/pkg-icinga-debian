@@ -27,7 +27,7 @@
 #define PROGRAM_NAME "Icinga"
 #define PROGRAM_NAME_UC "ICINGA"
 #define PROGRAM_NAME_LC "icinga"
-#define PROGRAM_VERSION "1.13.4"
+#define PROGRAM_VERSION "1.14.0"
 #define PROGRAM_MODIFICATION_DATE "12-22-2016"
 
 /*#define DEBUG_CHECK_IPC 1 */
@@ -519,7 +519,7 @@
 
 /************************** MISC DEFINITIONS ****************************/
 
-#define MAX_FILENAME_LENGTH			256	/* max length of path/filename that Icinga will process */
+#define MAX_FILENAME_LENGTH			512	/* max length of path/filename that Icinga will process */
 #define MAX_INPUT_BUFFER			1024	/* size in bytes of max. input buffer (for reading files, misc stuff) */
 #define MAX_COMMAND_BUFFER                      8192    /* max length of raw or processed command line */
 #define MAX_EXTERNAL_COMMAND_LENGTH             8192    /* max length of an external command */
