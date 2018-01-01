@@ -5,7 +5,7 @@ Uploaders: Alexander Wirt <formorer@debian.org>,
            Markus Frosch <lazyfrosch@debian.org>
 Section: net
 Priority: optional
-Build-Depends: debhelper (>= 9),
+Build-Depends: debhelper (>= 9.20160114),
                dh-autoreconf,
                libdbi-dev | libdbi0-dev,
                libgd-dev | libgd2-noxpm-dev | libgd2-xpm-dev,
@@ -208,29 +208,3 @@ Description: host and network monitoring system - documentation
     file, etc.
  .
  This package provides the documentation for Icinga.
-
-Package: icinga-dbg
-Architecture: any
-Section: debug
-Priority: extra
-Depends: icinga-core (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
-Description: host and network monitoring system - debug files
- Icinga is a modular monitoring framework for hosts, services, and
- networks, based on the Nagios project. It is designed to be easy to
- understand and modify to fit any need.
- .
- Features include:
-  * monitoring of network services via ping, SMTP, POP3, HTTP, NNTP, or
-    TCP port
-  * plugin interface to allow for user-developed service checks;
-  * contact notifications when problems occur and get resolved (via
-    email, pager, or user-defined method)
-  * support for proactive problem resolution (handlers can be defined to
-    be run during service or host events)
-  * web output: current status, notifications, problem history, log
-    file, etc.
- .
- This package provides gdb debugging symbols for the Icinga binaries and
- the mini_epn tool which can help in debugging Icinga problems.

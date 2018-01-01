@@ -221,7 +221,7 @@ override_dh_link:
 	dh_link
 
 override_dh_strip:
-	dh_strip --dbg-package=icinga-dbg
+	dh_strip --dbgsym-migration='icinga-dbg (<< 1.14.2)'
 
 override_dh_compress:
 	dh_compress -X.sql
