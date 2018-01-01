@@ -121,7 +121,7 @@ override_dh_auto_install: fix-configs-stamp
 	dh_testdir
 	dh_testroot
 	dh_installdirs -a -i
-	$(MAKE) install-unstripped DESTDIR=$b/tmp INSTALL_OPTS="" COMMAND_OPTS=""
+	$(MAKE) install DESTDIR=$b/tmp INSTALL_OPTS="" COMMAND_OPTS=""
 	$(MAKE) install-idoutils DESTDIR=$b/icinga-idoutils INSTALL_OPTS="" COMMAND_OPTS=""
 	rm -f $b/icinga-idoutils/etc/icinga/ido2db.cfg-sample
 	#We have to rename the sample files
