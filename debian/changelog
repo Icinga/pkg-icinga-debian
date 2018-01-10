@@ -1,4 +1,4 @@
-icinga (1.14.2+ds-1~exp2) UNRELEASED; urgency=medium
+icinga (1.14.2+ds-1~exp2) experimental; urgency=medium
 
   * Team upload.
   * Remove icinga-dbg cruft to fix building twice in a row.
@@ -7,7 +7,7 @@ icinga (1.14.2+ds-1~exp2) UNRELEASED; urgency=medium
   * Add gbp.conf to use pristine-tar by default.
   * Update branch in Vcs-Git URL.
 
- -- Bas Couwenberg <sebastic@debian.org>  Wed, 10 Jan 2018 15:12:57 +0100
+ -- Bas Couwenberg <sebastic@debian.org>  Wed, 10 Jan 2018 15:14:21 +0100
 
 icinga (1.14.2+ds-1~exp1) experimental; urgency=medium
 
