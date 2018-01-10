@@ -3,6 +3,7 @@ icinga (1.14.2+ds-1~exp2) UNRELEASED; urgency=medium
   * Team upload.
   * Remove icinga-dbg cruft to fix building twice in a row.
     (closes: #886851)
+  * Bump Standards-Version to 4.1.3, no changes.
 
  -- Bas Couwenberg <sebastic@debian.org>  Wed, 10 Jan 2018 15:12:57 +0100
 
