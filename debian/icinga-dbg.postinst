@@ -1,6 +1,0 @@
-#!/bin/sh -e
-
-update-alternatives --quiet --install /usr/bin/mini_epn mini_epn /usr/bin/mini_epn_icinga 10 \
-	--slave /usr/share/man/man8/mini_epn.8.gz mini_epn.8.gz /usr/share/man/man8/mini_epn_icinga.8.gz
-
-#DEBHELPER#
