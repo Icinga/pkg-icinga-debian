@@ -1,3 +1,9 @@
+icinga (1.14.2+ds-1~exp3) UNRELEASED; urgency=medium
+
+  * Fix deprecated source override location.
+
+ -- Bas Couwenberg <sebastic@debian.org>  Sat, 10 Feb 2018 11:58:15 +0100
+
 icinga (1.14.2+ds-1~exp2) experimental; urgency=medium
 
   * Team upload.
